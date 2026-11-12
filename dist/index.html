@@ -151,22 +151,61 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 .result { position: absolute; inset: 0; border-radius: 20px 20px 0 0; display: grid; place-items: center; background: rgba(8,40,22,.94); font-family: var(--display); font-size: 34px; text-align: center; animation: tin .15s; z-index: 3; padding: 20px; }
 .result.bad { background: rgba(60,8,8,.95); } .result small { display: block; font-family: var(--body); font-size: 15px; margin-top: 6px; line-height: 1.3; }
 
+/* fotos reales de producto */
+.pimg { width: 62px; height: 46px; object-fit: contain; border-radius: 6px; background: #fff; }
+/* caja: comprobante de transferencia */
+.expect { background: #0e2a1b; border: 2px solid var(--ok); border-radius: 12px; padding: 7px 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 2px 10px; font-size: 13.5px; color: #cfeedd; }
+.expect b { grid-column: 1 / -1; font-size: 11.5px; letter-spacing: .8px; text-transform: uppercase; color: var(--ok); } .expect i { font-style: normal; font-weight: 700; color: #fff; }
+.phone { background: #fdfdf8; border-radius: 14px; padding: 8px 8px 6px; display: flex; flex-direction: column; gap: 5px; box-shadow: 0 6px 18px rgba(0,0,0,.5); }
+.phone h4 { margin: 0 4px 2px; font-size: 12px; color: #555; font-weight: 600; }
+.rowb { display: flex; justify-content: space-between; align-items: center; gap: 10px; background: #efefe8; border: 2px solid #d9d9cf; border-radius: 10px; padding: 9px 12px; color: #111; font-size: 15px; min-height: 46px; position: relative; }
+.rowb span { color: #555; } .rowb b { text-align: right; font-size: 16px; } .rowb kbd { position: absolute; left: 3px; top: 1px; font-size: 10px; color: #999; font-family: var(--body); }
+.rowb:active { transform: scale(.98); } .rowb.fine { border-color: var(--ok); background: #e3f6ea; opacity: .75; } .rowb.fine::after { content: "✔"; color: #128a48; font-weight: 800; margin-left: 6px; }
+.rowb.flag { border-color: var(--red); background: #ffd9d9; } .rowb.flag b { color: var(--red2); }
+.btn.okb { background: var(--ok); box-shadow: 0 5px 0 #14804a; font-size: 19px; padding: 12px; } .btn.okb:active { box-shadow: 0 1px 0 #14804a; }
+#mgBubble.rule.joke { color: var(--warn); font-size: 14px; }
+/* armado de PC: placa con ranuras */
+.pcb { position: relative; height: 176px; background: linear-gradient(135deg, #0f3d33, #0b2c26); border: 3px solid #2a2a30; border-radius: 12px; overflow: hidden; }
+.pcb .deco { position: absolute; background: #1a5a4b; border-radius: 2px; } .pcb .d1 { left: 4%; top: 6%; width: 22%; height: 3px; box-shadow: 0 8px 0 #1a5a4b, 0 16px 0 #1a5a4b; } .pcb .d2 { right: 4%; bottom: 8%; width: 12%; height: 22%; background: #22242b; } .pcb .d3 { left: 30%; top: 4%; width: 2px; height: 40%; }
+.pslot { position: absolute; border: 2px dashed #58c7a6; border-radius: 6px; background: rgba(0,0,0,.28); color: #bdf0df; display: flex; align-items: center; justify-content: center; padding: 2px; }
+.pslot em { font-style: normal; font-size: 11.5px; line-height: 1.1; text-align: center; } .pslot kbd { position: absolute; left: 3px; top: 1px; font-size: 10px; color: #7fd4bb; font-family: var(--body); }
+.pslot.full { border-style: solid; border-color: transparent; background: none; padding: 0; } .pslot svg { width: 100%; height: 100%; }
+.s-cpu { left: 36%; top: 8%; width: 22%; height: 40%; } .s-ram { left: 63%; top: 10%; width: 33%; height: 15%; } .s-ssd { left: 63%; top: 31%; width: 33%; height: 15%; }
+.s-gpu { left: 26%; top: 58%; width: 54%; height: 26%; } .s-psu { left: 3%; top: 52%; width: 19%; height: 42%; }
+.pcb.on { animation: rgb 1s linear infinite; } @keyframes rgb { 0% { box-shadow: 0 0 22px #f00, inset 0 0 26px rgba(255,0,0,.45); } 33% { box-shadow: 0 0 22px #0f6, inset 0 0 26px rgba(0,255,100,.45); } 66% { box-shadow: 0 0 22px #36f, inset 0 0 26px rgba(50,100,255,.45); } 100% { box-shadow: 0 0 22px #f00, inset 0 0 26px rgba(255,0,0,.45); } }
+.part .pi { width: 100%; height: 30px; display: flex; align-items: center; justify-content: center; transition: transform .2s; } .part .pi svg { max-width: 92%; max-height: 100%; }
+.part.flip .pi { transform: rotate(180deg); } .part.sel { border-color: #fff; background: #2d2d36; box-shadow: 0 0 0 2px var(--red); }
+/* service: cooler con pelusa y memoria RAM */
+.fan { position: relative; height: 180px; border-radius: 14px; background: radial-gradient(circle at 50% 50%, #2b2d36 0 62%, #17181d 63%); border: 3px solid #34343b; overflow: hidden; touch-action: none; display: block; }
+.fan-blades { position: absolute; left: 50%; top: 50%; width: 150px; height: 150px; margin: -75px 0 0 -75px; } .fan-blades i { position: absolute; left: 50%; top: 50%; width: 62px; height: 30px; margin-top: -15px; background: #4a4d5c; border-radius: 4px 30px 30px 4px; transform-origin: 0 50%; }
+.fan-blades i:nth-child(2) { transform: rotate(90deg); } .fan-blades i:nth-child(3) { transform: rotate(180deg); } .fan-blades i:nth-child(4) { transform: rotate(270deg); }
+.fan-hub { position: absolute; left: 50%; top: 50%; width: 34px; height: 34px; margin: -17px 0 0 -17px; border-radius: 50%; background: var(--red); border: 3px solid #17181d; }
+.fan.clean .fan-blades { animation: spin .5s linear infinite; } @keyframes spin { to { transform: rotate(360deg); } }
+.fan .dust { position: absolute; margin: 0; border-radius: 46% 54% 60% 40% / 55% 45% 55% 45%; background: radial-gradient(circle at 38% 38%, #cfc8b8, #8a8375 70%); transform: rotate(var(--r)); transition: opacity .18s, transform .18s; box-shadow: 0 0 0 3px rgba(138,131,117,.35); }
+.ramrig { position: relative; height: 96px; border-radius: 12px; background: linear-gradient(180deg, #0d0d0f 0 62%, #0f3d33 62%); border: 2px solid #34343b; overflow: hidden; }
+.ramstick { position: absolute; top: 10px; left: 0; width: 30%; height: 30px; transition: top .18s; } .ramstick svg { width: 100%; height: 100%; }
+.ramslot { position: absolute; bottom: 12px; height: 16px; background: #111; border: 2px solid #58c7a6; border-radius: 4px; } .ramslot i { position: absolute; left: -7px; right: -7px; top: -6px; height: 8px; border-left: 5px solid #e8e8ee; border-right: 5px solid #e8e8ee; }
+.ramrig.in .ramstick { top: 46px; } .ramrig.in .ramslot { border-color: var(--ok); box-shadow: 0 0 12px var(--ok); }
+/* mercado libre: pedido, pasos, cinta y etiquetas */
+.order { background: #fff8c9; color: #222; border-radius: 10px; padding: 7px 11px; font-size: 14px; line-height: 1.3; border-left: 6px solid #f5c518; } .order b { display: block; font-size: 16px; } .order span { display: block; }
+.steps { display: flex; gap: 6px; font-size: 12px; } .steps span { flex: 1; text-align: center; padding: 4px 2px; border-radius: 999px; background: #26262b; color: #8c8c96; font-weight: 700; } .steps .now { background: var(--red); color: #fff; } .steps .done { background: var(--ok); color: #04130a; }
+.opts.three .opt small { font-weight: 400; color: var(--mute); font-size: 12px; }
+.tapebox { position: relative; height: 104px; border-radius: 8px; background: linear-gradient(180deg, #c9a06f, #b98d5e); border: 3px solid #8c6a43; touch-action: none; overflow: hidden; }
+.tapebox .seam { position: absolute; left: 0; right: 0; top: 50%; height: 3px; margin-top: -1px; background: #6e5132; } .tapebox .tape { position: absolute; left: 0; top: 50%; height: 30px; margin-top: -15px; width: 0; background: rgba(245,230,150,.82); border-top: 1px solid rgba(255,255,255,.6); border-bottom: 1px solid rgba(120,100,40,.5); }
+.tapebox .roll { position: absolute; top: 50%; left: 0; font-size: 34px; transform: translate(-40%, -52%); pointer-events: none; }
+.tagl { justify-content: flex-start !important; gap: 12px !important; background: #fdfdf8 !important; color: #111; border-color: #cfcfc4 !important; padding-left: 16px !important; }
+.tagl .bars { width: 46px; height: 34px; flex: none; background: repeating-linear-gradient(90deg, #111 0 2px, transparent 2px 4px, #111 4px 7px, transparent 7px 9px, #111 9px 10px, transparent 10px 13px); }
+.tagl .n { text-align: left; line-height: 1.05; } .tagl .n small { display: block; font-family: var(--body); font-size: 12.5px; font-weight: 600; color: #444; letter-spacing: 0; }
+.tagl.bad { opacity: .35; } .tagl.good { border-color: var(--ok) !important; }
+
 /* minijuegos de la Etapa 2 */
+.info.joke b, .info.joke { color: var(--warn); } .rule#mgBubble { font-size: 14px; color: #e4e4ea; min-height: 18px; }
 .opts.three { grid-template-columns: repeat(3, 1fr); } .opts.three .opt { min-height: 96px; justify-content: flex-end; }
 .opts.one.txt .opt { justify-content: flex-start; text-align: left; padding: 10px 12px 10px 14px; min-height: 50px; } .opts.one.txt .opt .n { font-family: var(--body); font-size: 15.5px; font-weight: 600; }
-.board { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; background: #0d3b2a; border: 2px solid #1c6b4c; border-radius: 12px; padding: 8px 6px; }
-.slot { border: 2px dashed #3d8f6e; border-radius: 8px; min-height: 52px; font-size: 11.5px; line-height: 1.15; text-align: center; color: #9fd8bf; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 3px 2px; }
-.slot span { font-family: var(--display); font-size: 16px; color: #5fb893; } .slot.now { border-style: solid; border-color: #fff; color: #fff; background: #14553c; animation: pulse 1.4s infinite; }
-.slot.done { border-style: solid; border-color: var(--ok); background: var(--ok); color: #04130a; } .slot.done span { color: #04130a; }
 .parts { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; } .parts .opt { min-height: 74px; padding: 8px 2px 6px; } .parts .opt .n { font-size: 11.5px; } .parts .opt .i { font-size: 26px; transition: transform .2s; }
 .part.flip .i { transform: rotate(180deg); } .part.flip { border-color: var(--warn); } .part.flip::after { content: "al revés"; position: absolute; top: -8px; right: -4px; background: var(--warn); color: #000; font-size: 10px; font-weight: 800; border-radius: 6px; padding: 1px 5px; }
 .part.used { opacity: .25; pointer-events: none; }
-.fan { position: relative; height: 170px; border-radius: 14px; background: #0d0d0f; border: 2px solid #34343b; display: grid; grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(4, 1fr); overflow: hidden; touch-action: none; }
-.fan-ic { position: absolute; inset: 0; display: grid; place-items: center; font-size: 110px; opacity: .5; pointer-events: none; }
-.dust { position: relative; margin: 3px; border-radius: 45% 55% 60% 40%; background: radial-gradient(circle at 40% 40%, #b9b3a6, #7d776b); transform: rotate(var(--r)); transition: opacity .15s, transform .15s; box-shadow: 0 0 0 2px rgba(125,119,107,.4); }
 .dust.gone { opacity: 0; transform: scale(.3); pointer-events: none; }
-.timing { position: relative; height: 46px; border-radius: 12px; background: #0d0d0f; border: 2px solid #34343b; overflow: hidden; }
-.timing .zone { position: absolute; top: 0; bottom: 0; background: var(--ok); opacity: .85; } .timing .mark { position: absolute; top: -2px; bottom: -2px; width: 8px; margin-left: -4px; background: #fff; border-radius: 4px; box-shadow: 0 0 8px #fff; }
 .chat { background: #0b141a; border-radius: 14px; padding: 12px; } .msg.in { display: inline-block; background: #202c33; color: #e9edef; border-radius: 4px 14px 14px 14px; padding: 8px 12px; font-size: 16px; line-height: 1.3; max-width: 88%; }
 .msg.in.joke { background: #5a4a1a; }
 .arc { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; } .arc-b { background: #202025; border: 2px solid #34343b; border-radius: 14px; padding: 10px 8px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 2px; min-height: 86px; }
@@ -219,6 +258,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 body.calm * { animation: none !important; transition: none !important; }
 
 @media (pointer: coarse) { kbd { display: none; } }
+.clock .t span { white-space: nowrap; }
 
 </style>
 </head>
@@ -297,9 +337,9 @@ const GS = {};
 GS.LOGO = "data:image/png;base64,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";
 
 GS.CONFIG = {
-  version: '0.3.0',
+  version: '0.4.0',
   phase: 2,
-  phaseNote: 'Parte B: ritmo nuevo por tandas (faltan 4 estaciones)',                       // fase actual del proyecto (1 a 5)
+  phaseNote: 'Parte B: minijuegos mejorados y más pedidos (faltan 4 estaciones)',                       // fase actual del proyecto (1 a 5)
   links: { tienda: '', instagram: '' },   // se conectan más adelante
   promoMode: null,                // 'hotsale' | 'cyber' | null (Fase 3)
   camera: { tilt: 55, rot: 38, fov: 22 },
@@ -332,7 +372,8 @@ GS.PHASES = [
   { n: 5, name: 'Pulido',         desc: 'Rendimiento, balance, bugs, accesibilidad, analítica y lanzamiento.' }
 ];
 
-/* Catálogo: cada producto es un objeto editable. url = ficha real (se conecta después) */
+/* Catálogo: cada producto es un objeto editable. url = ficha real (se conecta después).
+   img = foto real del producto (opcional): ruta dentro de la carpeta img/. Si falta, se muestra el ícono. */
 GS.CATALOG = [
   { id: 'ps5',      name: 'PlayStation 5 Slim',      cat: 'consolas',    icon: '🎮', price: 1200000, stock: 4, shelf: 'fondo',   url: '' },
   { id: 'switch2',  name: 'Nintendo Switch 2',       cat: 'consolas',    icon: '🕹️', price: 990000,  stock: 3, shelf: 'fondo',   url: '' },
@@ -357,7 +398,19 @@ GS.CATALOG = [
   { id: 'mouse',    name: 'Mouse gamer Logitech',    cat: 'perifericos', icon: '🖱️', price: 120000,  stock: 6, shelf: 'derecha', url: '' },
   { id: 'streamdeck',name:'Stream Deck',             cat: 'perifericos', icon: '🎛️', price: 330000,  stock: 1, shelf: 'fondo',   url: '' },
   { id: 'mic',      name: 'Micrófono',               cat: 'perifericos', icon: '🎙️', price: 270000,  stock: 2, shelf: 'fondo',   url: '' },
-  { id: 'silla',    name: 'Silla gamer Raptor',      cat: 'perifericos', icon: '💺', price: 450000,  stock: 3, shelf: 'salon',   url: '' }
+  { id: 'silla',    name: 'Silla gamer Raptor',      cat: 'perifericos', icon: '💺', price: 450000,  stock: 3, shelf: 'salon',   url: '' },
+  { id: 'teclado',  name: 'Teclado mecánico',        cat: 'perifericos', icon: '⌨️', price: 150000,  stock: 5, shelf: 'derecha', url: '' },
+  { id: 'webcam',   name: 'Webcam Logitech',         cat: 'perifericos', icon: '📷', price: 120000,  stock: 3, shelf: 'derecha', url: '' },
+  { id: 'parlante', name: 'Parlante bluetooth JBL',  cat: 'perifericos', icon: '📻', price: 240000,  stock: 4, shelf: 'derecha', url: '' },
+  { id: 'volante',  name: 'Volante con pedales',     cat: 'perifericos', icon: '🏎️', price: 540000,  stock: 1, shelf: 'fondo',   url: '' },
+  { id: 'mousepad', name: 'Mousepad XL',             cat: 'perifericos', icon: '🟦', price: 60000,   stock: 7, shelf: 'derecha', url: '' },
+  { id: 'joyxbox',  name: 'Joystick de Xbox',        cat: 'consolas',    icon: '🎮', price: 150000,  stock: 5, shelf: 'fondo',   url: '' },
+  { id: 'muneco',   name: 'Muñeco coleccionable',    cat: 'consolas',    icon: '🧸', price: 60000,   stock: 8, shelf: 'isla',    url: '' },
+  { id: 'monitor',  name: 'Monitor gamer 27"',       cat: 'pc',          icon: '🖥️', price: 600000,  stock: 2, shelf: 'mesa',    url: '' },
+  { id: 'impresora',name: 'Impresora Epson',         cat: 'pc',          icon: '🖨️', price: 420000,  stock: 2, shelf: 'fondo',   url: '' },
+  { id: 'disco',    name: 'Disco externo 1 TB',      cat: 'pc',          icon: '💽', price: 180000,  stock: 4, shelf: 'izquierda', url: '' },
+  { id: 'cargador', name: 'Cargador de notebook',    cat: 'pc',          icon: '🔋', price: 90000,   stock: 6, shelf: 'izquierda', url: '' },
+  { id: 'ram',      name: 'Memoria RAM 16 GB',       cat: 'pc',          icon: '📏', price: 120000,  stock: 6, shelf: 'izquierda', url: '' }
 ];
 
 /* Pedidos del Mostrador: texto ambiguo -> producto correcto */
@@ -385,7 +438,36 @@ GS.REQUESTS = [
   { t: 'Un mouse con muchos botones. No sé para qué, pero muchos.', p: 'mouse' },
   { t: 'La botonera esa con pantallitas. La de los streamers.', p: 'streamdeck' },
   { t: 'Un micrófono. Arranco un podcast. Este año sí.', p: 'mic' },
-  { t: 'Una silla de auto de carrera, pero para estar sentado quieto.', p: 'silla' }
+  { t: 'Una silla de auto de carrera, pero para estar sentado quieto.', p: 'silla' },
+  { t: 'La consola de Sony. La última. La que mi hijo pide desde marzo.', p: 'ps5' },
+  { t: 'La consolita que se enchufa a la tele y también te la llevás al baño.', p: 'switch2' },
+  { t: 'El casco ese de realidad... ¿virtual? ¿aumentada? El casco.', p: 'quest' },
+  { t: 'La consola del Game Pass. La grandota.', p: 'xbox' },
+  { t: 'Auriculares sin cable. Los blanquitos que parecen hisopos.', p: 'airpods' },
+  { t: 'Una pantalla grande para ver series en la cama. Sin teclado.', p: 'ipad' },
+  { t: 'Un reloj inteligente. Más inteligente que yo, si puede ser.', p: 'watch' },
+  { t: 'Una RTX. No sé qué es, pero mi hijo dijo "RTX" y se emocionó.', p: 'gpu' },
+  { t: 'Una compu portátil que aguante el jueguito de los tiros.', p: 'notebook' },
+  { t: 'Algo para que el wifi llegue al fondo. Al fondo-fondo.', p: 'router' },
+  { t: 'Un pendrive. Grande de capacidad, chiquito de tamaño.', p: 'pendrive' },
+  { t: 'El cable para cargar el celu. El nuevo, el ovalado.', p: 'cable' },
+  { t: 'Unos auriculares de esos grandotes, con lucecitas.', p: 'auris' },
+  { t: 'Un mouse que no sea de oficina. Que tenga onda.', p: 'mouse' },
+  { t: 'Una silla para la compu. Me duele la espalda y el alma.', p: 'silla' },
+  { t: 'Un micrófono para dar clases online. Y cantar, a veces.', p: 'mic' },
+  { t: 'Un teclado de los que hacen ruido. Clac, clac. De esos.', p: 'teclado' },
+  { t: 'El teclado con luces que usan los pibes.', p: 'teclado' },
+  { t: 'Una camarita para las reuniones. Que me favorezca.', p: 'webcam' },
+  { t: 'Un parlante para la pileta. Que suene fuerte y aguante.', p: 'parlante' },
+  { t: 'Un volante para jugar a los autitos. Con pedales y todo.', p: 'volante' },
+  { t: 'La alfombrita del mouse, pero de las gigantes.', p: 'mousepad' },
+  { t: 'Un control para la Xbox. El otro se rompió "solo".', p: 'joyxbox' },
+  { t: 'Un muñequito de esos cabezones, para regalar.', p: 'muneco' },
+  { t: 'Una pantalla para la compu. Grande. Que se vea rápido.', p: 'monitor' },
+  { t: 'Una impresora que imprima. La mía solo pide tinta.', p: 'impresora' },
+  { t: 'Un disco para guardar las fotos, de los que van afuera de la compu.', p: 'disco' },
+  { t: 'El cargador de la notebook. Al otro se lo comió el perro.', p: 'cargador' },
+  { t: 'Memoria para la compu. De la que la hace más rápida, no de la otra.', p: 'ram' }
 ];
 
 /* Clientes: arquetipos inventados (ninguno es una persona real) */
@@ -427,6 +509,8 @@ GS.LINES = {
   ],
   changeShort: ['Me falta plata, eh. No soy de quejarme, pero me falta.', 'Faltan billetes. Los conté dos veces.'],
   changeOver:  ['Me diste de más. No iba a decir nada. Bueno, sí.', 'Sobra plata. Qué generoso el local.'],
+  rowFine: ['Ese dato está bien. El problema es otro.', 'Eso está perfecto. Mirá los demás.'],
+  rowFineAll: ['Ese dato está bien. Compará tranquilo con lo de arriba.', 'Eso coincide. ¿Hay algo que no?'],
   receiptFake: ['Uy, me confundí de captura. Ahí te mando la buena.', 'Ah, esa era del mes pasado. Perdón, perdón.'],
   receiptOkRejected: ['¡Pero si está perfecta! Mirala bien.', 'Está aprobada, mirá. Con tilde verde y todo.'],
   receiptFakeApproved: ['(Se fue silbando bajito. Mala señal.)', '(Saludó muy rápido. Demasiado rápido.)'],
@@ -529,8 +613,11 @@ GS.STATIONS = [
 
 /* Datos de los minijuegos nuevos */
 GS.PC_PARTS = [
-  { id: 'cpu', name: 'Procesador', icon: '🔲' }, { id: 'ram', name: 'Memoria RAM', icon: '📏' }, { id: 'ssd', name: 'Disco SSD', icon: '💽' },
-  { id: 'gpu', name: 'Placa de video', icon: '🧩' }, { id: 'psu', name: 'Fuente', icon: '🔋' }
+  { id: 'cpu', name: 'Procesador', svg: '<svg viewBox="0 0 40 40"><rect x="5" y="5" width="30" height="30" rx="3" fill="#c9ccd1"/><rect x="11" y="11" width="18" height="18" rx="1" fill="#8d9199"/><path d="M5 35h7l-7-7z" fill="#d4a017"/></svg>' },
+  { id: 'ram', name: 'Memoria RAM', svg: '<svg viewBox="0 0 64 20"><rect x="1" y="2" width="62" height="12" rx="1" fill="#1f8f4e"/><g fill="#101010"><rect x="6" y="4" width="9" height="7"/><rect x="19" y="4" width="9" height="7"/><rect x="36" y="4" width="9" height="7"/><rect x="49" y="4" width="9" height="7"/></g><rect x="1" y="14" width="62" height="4" fill="#d4a017"/></svg>' },
+  { id: 'ssd', name: 'Disco SSD', svg: '<svg viewBox="0 0 64 20"><rect x="2" y="3" width="60" height="14" rx="1" fill="#1b1b22"/><rect x="8" y="6" width="14" height="8" fill="#3a3a48"/><rect x="26" y="6" width="20" height="8" fill="#e8e8ee"/><rect x="56" y="3" width="6" height="14" fill="#d4a017"/></svg>' },
+  { id: 'gpu', name: 'Placa de video', svg: '<svg viewBox="0 0 90 30"><rect x="1" y="2" width="88" height="22" rx="3" fill="#23232b"/><circle cx="24" cy="13" r="9" fill="#0d0d10" stroke="#e10600" stroke-width="2"/><circle cx="62" cy="13" r="9" fill="#0d0d10" stroke="#e10600" stroke-width="2"/><rect x="14" y="24" width="44" height="5" fill="#d4a017"/></svg>' },
+  { id: 'psu', name: 'Fuente', svg: '<svg viewBox="0 0 44 34"><rect x="2" y="2" width="40" height="30" rx="2" fill="#101014"/><circle cx="18" cy="17" r="11" fill="#2a2a32" stroke="#555" stroke-width="2"/><rect x="33" y="8" width="6" height="18" fill="#f5c518"/></svg>' }
 ];
 GS.DIAGNOSTICS = [
   { s: 'La notebook no prende. "No hice nada, se rompió sola."', ok: 'El cargador está desenchufado', bad: ['Hay que tirar la notebook', 'Un virus de los fuertes'] },
@@ -559,8 +646,10 @@ GS.SHELVES = [
   { cat: 'consolas', name: 'Consolas y juegos', icon: '🎮', pos: [-2.0, -6.2] }, { cat: 'apple', name: 'Apple', icon: '🍏', pos: [-4.2, 1.6] },
   { cat: 'pc', name: 'PC y accesorios', icon: '💻', pos: [1.6, 0.2] }, { cat: 'perifericos', name: 'Periféricos gamer', icon: '🎧', pos: [5.6, 5.0] }
 ];
-GS.BOX_SIZE = { chica: ['cable', 'pendrive', 'tinta', 'airpods', 'juego', 'magic', 'watch', 'mouse', 'dualsense', 'homepod'],
-  mediana: ['switch2', 'quest', 'deck', 'ipad', 'router', 'auris', 'gpu', 'streamdeck', 'mic', 'notebook'], grande: ['ps5', 'xbox', 'gabinete', 'silla'] };
+GS.BOX_SIZE = { chica: ['cable', 'pendrive', 'tinta', 'airpods', 'juego', 'magic', 'watch', 'mouse', 'dualsense', 'homepod', 'webcam', 'joyxbox', 'muneco', 'disco', 'cargador', 'ram'],
+  mediana: ['switch2', 'quest', 'deck', 'ipad', 'router', 'auris', 'gpu', 'streamdeck', 'mic', 'notebook', 'teclado', 'parlante', 'mousepad'], grande: ['ps5', 'xbox', 'gabinete', 'silla', 'volante', 'monitor', 'impresora'] };
+GS.BOXES = { chica: { cm: 15, max: 20 }, mediana: { cm: 35, max: 40 }, grande: { cm: 60, max: 70 } };
+GS.BUYERS = ['CRACK_DEL_TECLADO', 'LA_TIA_GAMER', 'PEPE_COMPRA_TODO', 'NO_SOY_UN_BOT_22', 'MATE_Y_FPS', 'ABUELA_PRO_PLAYER', 'EL_REY_DEL_ENVIO', 'CARRITO_LLENO_OK'];
 GS.CITIES = ['Córdoba', 'Rosario', 'Mendoza', 'Salta', 'Bariloche', 'La Plata', 'Tucumán', 'Mar del Plata', 'Neuquén', 'Posadas'];
 
 /* Utilidades chicas */
@@ -1201,6 +1290,8 @@ GS.Minigames = (function () {
     return '<div class="mg-head"><div class="mg-face">' + cust.arche.face + '</div><div class="mg-who"><b>' + esc(cust.arche.name) + '</b><span>' + esc(cust.arche.tag) +
       '</span><div class="mg-pat"><i id="mgPat"></i></div></div><div class="mg-station">' + station + '</div></div>';
   }
+  // Foto real del producto si la tiene; si no, el ícono
+  function pic(p) { return p.img ? '<img class="pimg" src="' + esc(p.img) + '" alt="" loading="lazy">' : '<span class="i">' + p.icon + '</span>'; }
   function say(text, joke) {
     const b = document.getElementById('mgBubble'); if (!b) return;
     b.textContent = text; b.classList.toggle('joke', !!joke);
@@ -1229,7 +1320,7 @@ GS.Minigames = (function () {
     const options = U.shuffle([prod].concat(same, others));
     root().innerHTML = head(cust, 'Mostrador') +
       '<div class="bubble" id="mgBubble">' + esc(cust.request) + '</div>' +
-      '<div class="opts">' + options.map((p, i) => '<button class="opt" data-id="' + p.id + '"><kbd>' + (i + 1) + '</kbd><span class="i">' + p.icon + '</span><span class="n">' + esc(p.name) + '</span></button>').join('') + '</div>' +
+      '<div class="opts">' + options.map((p, i) => '<button class="opt" data-id="' + p.id + '"><kbd>' + (i + 1) + '</kbd>' + pic(p) + '<span class="n">' + esc(p.name) + '</span></button>').join('') + '</div>' +
       '<div class="rule">Tocá el producto que te está pidiendo</div>';
     const btns = [...root().querySelectorAll('.opt')];
     function choose(b) {
@@ -1309,79 +1400,75 @@ GS.Minigames = (function () {
     };
   }
 
-  // (c) Revisar un comprobante de transferencia y aprobar o rechazar con swipe
+  // (c) Revisar un comprobante de transferencia: encontrar el dato que está mal, o aprobar si está todo bien
   function cajaComprobante(cust) {
-    const T = Math.round(cust.product.price * 0.9), fake = Math.random() < 0.55;
+    const T = Math.round(cust.product.price * 0.9), fake = Math.random() < 0.6;
     const hh = 10 + Math.floor(Math.random() * 9), mm = String(Math.floor(Math.random() * 60)).padStart(2, '0');
-    const f = { para: 'GameShop', monto: U.money(T), fecha: 'Hoy, ' + hh + ':' + mm, estado: 'Aprobada' }; let flag = null;
+    const f = { para: 'GameShop', monto: U.money(T), fecha: 'Hoy, ' + hh + ':' + mm, estado: 'Aprobada ✔' }; let flag = null;
     if (fake) {
       flag = U.pick(['para', 'monto', 'fecha', 'estado']);
       if (flag === 'para') f.para = U.pick(['GameChop', 'GameShopp Ofertas', 'Game Shop Trucho']);
       if (flag === 'monto') f.monto = U.money(U.pick([Math.round(T / 10), T - 10000, Math.round(T * 0.5)]));
       if (flag === 'fecha') f.fecha = U.pick(['Ayer, ' + hh + ':' + mm, 'Hace 3 meses', 'Mañana, ' + hh + ':' + mm]);
-      if (flag === 'estado') f.estado = U.pick(['Programada', 'Pendiente', 'Rechazada']);
+      if (flag === 'estado') f.estado = U.pick(['Programada', 'Pendiente', 'Rechazada ✖']);
     }
-    const rowp = (k, label) => '<p data-k="' + k + '"><span>' + label + '</span><b>' + esc(f[k]) + '</b></p>';
+    const rows = [['para', 'Para', 'GameShop'], ['monto', 'Monto', U.money(T)], ['fecha', 'Fecha', 'Hoy'], ['estado', 'Estado', 'Aprobada']];
     root().innerHTML = head(cust, 'Caja · Transferencia') +
-      '<div class="bubble" id="mgBubble">Ya te transferí. Mirá, acá está el comprobante.</div>' +
-      '<div class="info"><span>Tenés que recibir</span><b>' + U.money(T) + ' a GameShop, hoy</b></div>' +
-      '<div class="receipt" id="mgRec"><span class="stamp yes">OK</span><span class="stamp no" style="right:auto;left:12px;transform:rotate(10deg)">NO</span>' +
-      '<h4>Comprobante de transferencia</h4>' + rowp('para', 'Para') + rowp('monto', 'Monto') + rowp('fecha', 'Fecha') + rowp('estado', 'Estado') + '</div>' +
-      '<div class="swipe-hint"><span>← deslizá para rechazar</span><span>deslizá para aprobar →</span></div>' +
-      '<div class="row"><button class="btn ghost" id="mgNo" style="font-size:18px">✖ Rechazar</button><button class="btn" id="mgYes" style="font-size:18px;padding:12px">✔ Aprobar</button></div>';
-    const rec = document.getElementById('mgRec'), sy = rec.querySelector('.stamp.yes'), sn = rec.querySelector('.stamp.no');
-    function decide(approve) {
-      if (!cur || cur.done) return;
-      GS.Audio.play('swipe');
-      rec.style.transition = 'transform .2s'; rec.style.transform = 'translateX(' + (approve ? 60 : -60) + 'px) rotate(' + (approve ? 5 : -5) + 'deg)';
-      (approve ? sy : sn).style.opacity = 1;
-      if (flag) rec.querySelector('[data-k="' + flag + '"]').classList.add('flag');
-      if (approve && !fake) { GS.Audio.play('cash'); finish(true, '¡Acreditado!', U.money(T), { total: T }); }
-      else if (!approve && fake) { GS.Audio.play('ok'); finish(true, '¡Bien visto!', U.pick(LN.receiptFake) + ' Cobraste ' + U.money(T), { total: T }); }
-      else if (approve && fake) { GS.Audio.play('error'); cur.cb.onMistake('caja'); finish(false, 'Era trucho', U.pick(LN.receiptFakeApproved), { total: 0, cajaError: true }); }
-      else { GS.Audio.play('error'); cur.cb.onMistake('caja'); finish(false, 'Estaba bien', U.pick(LN.receiptOkRejected) + ' Igual cobraste.', { total: T }); }
+      '<div class="expect"><b>Tiene que decir</b>' + rows.map(r => '<span>' + r[1] + ': <i>' + esc(r[2]) + '</i></span>').join('') + '</div>' +
+      '<div class="phone"><h4>🏦 Banco Ficticio · Comprobante de transferencia</h4>' +
+      rows.map((r, i) => '<button class="rowb" data-k="' + r[0] + '"><kbd>' + (i + 1) + '</kbd><span>' + r[1] + '</span><b>' + esc(f[r[0]]) + '</b></button>').join('') + '</div>' +
+      '<div class="rule" id="mgBubble">¿Hay algún dato distinto? Tocalo. Si coincide todo, aprobá.</div>' +
+      '<button class="btn okb" id="mgYes">✔ Coincide todo: aprobar</button>';
+    const rb = [...root().querySelectorAll('.rowb')];
+    const mark = () => { if (flag) root().querySelector('.rowb[data-k="' + flag + '"]').classList.add('flag'); };
+    function tapRow(b) {
+      if (!cur || cur.done || b.classList.contains('fine')) return;
+      if (fake && b.dataset.k === flag) { mark(); GS.Audio.play('ok'); finish(true, '¡Bien visto!', U.pick(LN.receiptFake) + ' Cobraste ' + U.money(T), { total: T }); }
+      else { b.classList.add('fine'); mistake('caja', U.pick(fake ? LN.rowFine : LN.rowFineAll)); }
     }
-    document.getElementById('mgYes').addEventListener('click', () => decide(true));
-    document.getElementById('mgNo').addEventListener('click', () => decide(false));
-    // swipe
-    let sx = null, dx = 0;
-    rec.addEventListener('pointerdown', e => { if (cur && !cur.done) { sx = e.clientX; dx = 0; rec.setPointerCapture && rec.setPointerCapture(e.pointerId); rec.style.transition = 'none'; } });
-    rec.addEventListener('pointermove', e => {
-      if (sx === null || !cur || cur.done) return; dx = e.clientX - sx;
-      rec.style.transform = 'translateX(' + dx + 'px) rotate(' + dx / 22 + 'deg)';
-      sy.style.opacity = U.clamp(dx / 70, 0, 1); sn.style.opacity = U.clamp(-dx / 70, 0, 1);
-    });
-    const end = () => {
-      if (sx === null) return; sx = null;
-      if (Math.abs(dx) > 70) decide(dx > 0);
-      else if (cur && !cur.done) { rec.style.transition = 'transform .15s'; rec.style.transform = ''; sy.style.opacity = 0; sn.style.opacity = 0; }
-    };
-    rec.addEventListener('pointerup', end); rec.addEventListener('pointercancel', end);
-    cur.keys = e => { if (e.key === 'ArrowRight') decide(true); else if (e.key === 'ArrowLeft') decide(false); };
+    function approve() {
+      if (!cur || cur.done) return;
+      if (!fake) { GS.Audio.play('cash'); finish(true, '¡Acreditado!', U.money(T), { total: T }); }
+      else { mark(); GS.Audio.play('error'); cur.cb.onMistake('caja'); finish(false, 'Era trucho', 'Mirá el dato marcado en rojo. ' + U.pick(LN.receiptFakeApproved), { total: 0, cajaError: true }); }
+    }
+    rb.forEach(b => b.addEventListener('click', () => tapRow(b)));
+    document.getElementById('mgYes').addEventListener('click', approve);
+    cur.keys = e => { const n = parseInt(e.key, 10); if (n >= 1 && n <= 4) tapRow(rb[n - 1]); else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); approve(); } };
   }
 
-
-  /* ---------------- 3. ARMADO DE PC: cada pieza en su lugar (una viene al revés) ---------------- */
+  /* ---------------- 3. ARMADO DE PC: elegir la pieza y tocar en la placa dónde va (una viene al revés) ---------------- */
   function pc(job) {
-    const parts = GS.PC_PARTS, tray = U.shuffle(parts), flipped = U.pick(parts).id; let step = 0, isFlipped = true;
+    const parts = GS.PC_PARTS, tray = U.shuffle(parts), flipped = U.pick(parts).id, me = cur; let sel = null, placed = 0;
     root().innerHTML = head(job, 'Armado de PC') +
-      '<div class="bubble" id="mgBubble">Armame la PC. Las piezas están ahí. Creo que están todas.</div>' +
-      '<div class="board">' + parts.map((p, i) => '<div class="slot" data-i="' + i + '"><span>' + (i + 1) + '</span>' + esc(p.name) + '</div>').join('') + '</div>' +
-      '<div class="rule" id="mgStep"></div>' +
-      '<div class="parts">' + tray.map((p, i) => '<button class="opt part' + (p.id === flipped ? ' flip' : '') + '" data-id="' + p.id + '"><kbd>' + (i + 1) + '</kbd><span class="i">' + p.icon + '</span><span class="n">' + esc(p.name) + '</span></button>').join('') + '</div>';
-    const slots = [...root().querySelectorAll('.slot')], btns = [...root().querySelectorAll('.part')], stepEl = document.getElementById('mgStep');
-    const paint = () => { slots.forEach((s, i) => { s.classList.toggle('now', i === step); s.classList.toggle('done', i < step); }); if (step < parts.length) stepEl.textContent = 'Ahora va: ' + parts[step].name + '. Tocá la pieza.'; };
-    function choose(b) {
+      '<div class="pcb" id="mgPcb"><i class="deco d1"></i><i class="deco d2"></i><i class="deco d3"></i>' +
+      parts.map((p, i) => '<button class="pslot s-' + p.id + '" data-id="' + p.id + '"><kbd>' + 'ABCDE'[i] + '</kbd><em>' + esc(p.name) + '</em></button>').join('') + '</div>' +
+      '<div class="rule" id="mgBubble">Elegí una pieza y después tocá en la placa dónde va.</div>' +
+      '<div class="parts">' + tray.map((p, i) => '<button class="opt part' + (p.id === flipped ? ' flip' : '') + '" data-id="' + p.id + '"><kbd>' + (i + 1) + '</kbd><span class="pi">' + p.svg + '</span><span class="n">' + esc(p.name) + '</span></button>').join('') + '</div>';
+    const slots = [...root().querySelectorAll('.pslot')], btns = [...root().querySelectorAll('.part')], pcb = document.getElementById('mgPcb');
+    function pickPart(b) {
       if (!cur || cur.done || b.classList.contains('used')) return;
-      if (b.dataset.id === flipped && isFlipped) { isFlipped = false; b.classList.remove('flip'); GS.Audio.play('swipe'); say(U.pick(LN.flipPc), false); return; }
-      if (b.dataset.id === parts[step].id) {
-        b.classList.add('used'); GS.Audio.play('bill'); step++; paint();
-        if (step === parts.length) { GS.Audio.play('ok'); finish(true, '¡Prendió!', 'Y con lucecitas.', {}); }
-      } else mistake('pc', U.pick(LN.wrongPc));
+      if (sel === b && b.classList.contains('flip')) { b.classList.remove('flip'); GS.Audio.play('swipe'); say(U.pick(LN.flipPc) + ' Ahora tocá dónde va.', false); return; }
+      sel = b; btns.forEach(x => x.classList.toggle('sel', x === b)); GS.Audio.play('click');
+      say(b.classList.contains('flip') ? 'Esa está al revés: tocala de nuevo para girarla.' : 'Ahora tocá en la placa dónde va.', false);
     }
-    btns.forEach(b => b.addEventListener('click', () => choose(b)));
-    cur.keys = e => { const n = parseInt(e.key, 10); if (n >= 1 && n <= btns.length) choose(btns[n - 1]); };
-    paint();
+    function pickSlot(sl) {
+      if (!cur || cur.done || sl.classList.contains('full')) return;
+      if (!sel) { GS.Audio.play('error'); say('Primero elegí una pieza de abajo.', true); return; }
+      if (sel.dataset.id !== sl.dataset.id) return mistake('pc', U.pick(LN.wrongPc));
+      if (sel.classList.contains('flip')) { GS.Audio.play('error'); say('Va ahí, pero está al revés. Tocá la pieza otra vez para girarla.', true); return; }
+      sl.classList.add('full'); sl.innerHTML = parts.find(p => p.id === sl.dataset.id).svg;
+      sel.classList.add('used'); sel.classList.remove('sel'); sel = null; placed++; GS.Audio.play('bill');
+      if (placed === parts.length) {
+        pcb.classList.add('on'); GS.Audio.play('ok'); say('¡Prende! Y con lucecitas.', false);
+        setTimeout(() => { if (cur === me) finish(true, '¡Prendió!', 'Y con lucecitas.', {}); }, 1100);
+      } else say('¡Entró! Siguiente pieza.', false);
+    }
+    btns.forEach(b => b.addEventListener('click', () => pickPart(b)));
+    slots.forEach(sl => sl.addEventListener('click', () => pickSlot(sl)));
+    cur.keys = e => {
+      const n = parseInt(e.key, 10), k = 'abcde'.indexOf((e.key || '').toLowerCase());
+      if (n >= 1 && n <= btns.length) pickPart(btns[n - 1]); else if (k >= 0 && e.key.length === 1) pickSlot(slots[k]);
+    };
   }
 
   /* ---------------- 4. SERVICE TÉCNICO: diagnóstico, limpieza o encajar la RAM ---------------- */
@@ -1395,15 +1482,16 @@ GS.Minigames = (function () {
     listOptions(b => b.dataset.ok === '1', () => finish(true, '¡Diagnosticado!', d.ok, {}), () => mistake('service', U.pick(LN.wrongDiag)));
   }
   function servicePelusa(job) {
-    const N = 20; let left = N;
+    const N = 14; let left = N; const me = cur;
     root().innerHTML = head(job, 'Service · Limpieza') + '<div class="bubble" id="mgBubble">Hace ruido de avión. Adentro hay algo... peludo.</div>' +
-      '<div class="fan" id="mgFan"><div class="fan-ic">🌀</div>' + Array.from({ length: N }, () => '<i class="dust" style="--r:' + Math.floor(U.rnd(-30, 30)) + 'deg"></i>').join('') + '</div>' +
-      '<div class="rule">Pasá el dedo por la pelusa para limpiarla · <span id="mgLeft">' + N + '</span> restantes</div>';
+      '<div class="fan" id="mgFan"><div class="fan-blades"><i></i><i></i><i></i><i></i></div><div class="fan-hub"></div>' +
+      Array.from({ length: N }, () => { const z = Math.floor(U.rnd(34, 62)); return '<i class="dust" style="left:' + U.rnd(4, 82).toFixed(0) + '%;top:' + U.rnd(4, 66).toFixed(0) + '%;width:' + z + 'px;height:' + Math.floor(z * 0.8) + 'px;--r:' + Math.floor(U.rnd(-40, 40)) + 'deg"></i>'; }).join('') + '</div>' +
+      '<div class="rule">Pasá el dedo por la pelusa hasta que el cooler quede limpio · <span id="mgLeft">' + N + '</span> restantes</div>';
     const fan = document.getElementById('mgFan'), out = document.getElementById('mgLeft');
     function clean(el) {
       if (!cur || cur.done || !el || !el.classList || !el.classList.contains('dust') || el.classList.contains('gone')) return;
-      el.classList.add('gone'); left--; out.textContent = left; if (left % 3 === 0) GS.Audio.play('swipe');
-      if (left === 0) { GS.Audio.play('ok'); finish(true, '¡Como nueva!', 'Salió pelusa para tejer un pulóver.', {}); }
+      el.classList.add('gone'); left--; out.textContent = left; if (left % 2 === 0) GS.Audio.play('swipe');
+      if (left === 0) { fan.classList.add('clean'); GS.Audio.play('ok'); setTimeout(() => { if (cur === me) finish(true, '¡Como nueva!', 'Salió pelusa para tejer un pulóver.', {}); }, 900); }
     }
     const at = e => clean(document.elementFromPoint(e.clientX, e.clientY));
     fan.addEventListener('pointerdown', e => { fan.setPointerCapture && fan.setPointerCapture(e.pointerId); at(e); });
@@ -1411,43 +1499,59 @@ GS.Minigames = (function () {
     cur.keys = e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); clean(fan.querySelector('.dust:not(.gone)')); } };
   }
   function serviceRam(job) {
-    const zone = U.rnd(18, 62), zw = 22, me = cur; let pos = 0, dir = 1, last = 0;
-    root().innerHTML = head(job, 'Service · Memoria RAM') + '<div class="bubble" id="mgBubble">Le agregamos memoria. Tiene que entrar justo, con un "clac".</div>' +
-      '<div class="timing"><i class="zone" style="left:' + zone + '%;width:' + zw + '%"></i><i class="mark" id="mgMark"></i></div>' +
-      '<button class="btn" id="mgSnap">¡Encajar!</button><div class="rule">Tocá cuando la marca esté en la zona verde</div>';
-    const mark = document.getElementById('mgMark');
+    const slot = U.rnd(12, 58), sw = 30, me = cur; let pos = 0, dir = 1, last = 0;   // la RAM mide 30% del ancho; hay que soltarla justo sobre la ranura
+    root().innerHTML = head(job, 'Service · Memoria RAM') + '<div class="bubble" id="mgBubble">Le agregamos memoria. Tiene que caer justo en la ranura.</div>' +
+      '<div class="ramrig" id="mgRig"><div class="ramstick" id="mgMark">' + GS.PC_PARTS[1].svg + '</div><div class="ramslot" style="left:' + slot + '%;width:' + sw + '%"><i></i></div></div>' +
+      '<button class="btn" id="mgSnap">¡Soltar!</button><div class="rule">Tocá cuando la memoria esté justo arriba de la ranura</div>';
+    const mark = document.getElementById('mgMark'), rig = document.getElementById('mgRig');
     function tick(t) {
       if (cur !== me) return; requestAnimationFrame(tick);
-      const dt = Math.min(0.05, (t - last) / 1000 || 0); last = t; if (me.done) return;
-      pos += dir * dt * 62; if (pos >= 100) { pos = 100; dir = -1; } else if (pos <= 0) { pos = 0; dir = 1; }
+      const dt = Math.min(0.05, (t - last) / 1000 || 0); last = t; if (me.done || me.hold) return;
+      pos += dir * dt * 46; if (pos >= 70) { pos = 70; dir = -1; } else if (pos <= 0) { pos = 0; dir = 1; }
       mark.style.left = pos + '%';
     }
     requestAnimationFrame(tick);
     function snap() {
-      if (!cur || cur.done) return;
-      if (pos >= zone && pos <= zone + zw) { GS.Audio.play('ok'); finish(true, '¡Clac!', 'Ahora tiene más RAM. Vos no, lamentablemente.', {}); }
-      else mistake('service', U.pick(LN.missRam));
+      if (!cur || cur.done || me.hold) return;
+      if (Math.abs(pos - slot) <= 5.5) {
+        me.hold = true; mark.style.left = slot + '%'; rig.classList.add('in'); GS.Audio.play('ok');
+        setTimeout(() => { if (cur === me) finish(true, '¡Clac!', 'Ahora tiene más RAM. Vos no, lamentablemente.', {}); }, 700);
+      } else mistake('service', U.pick(LN.missRam));
     }
     document.getElementById('mgSnap').addEventListener('click', snap);
     cur.keys = e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); snap(); } };
   }
 
-  /* ---------------- 5. MERCADO LIBRE: caja del tamaño justo y etiqueta correcta ---------------- */
+  /* ---------------- 5. MERCADO LIBRE: caja del tamaño justo, cinta y etiqueta correcta ---------------- */
   function ml(job) {
     const prod = U.pick(GS.CATALOG), size = Object.keys(GS.BOX_SIZE).find(k => GS.BOX_SIZE[k].indexOf(prod.id) >= 0) || 'mediana';
-    const num = Math.floor(U.rnd(1000, 9999)), cities = U.shuffle(GS.CITIES), city = cities[0];
-    const orderTxt = 'Pedido #' + num + ' · ' + prod.icon + ' ' + prod.name + ' · va a ' + city;
+    const num = Math.floor(U.rnd(1000, 9999)), cities = U.shuffle(GS.CITIES), city = cities[0], buyers = U.shuffle(GS.BUYERS), buyer = buyers[0], me = cur;
+    const order = '<div class="order"><b>Pedido #' + num + '</b><span>' + prod.icon + ' ' + esc(prod.name) + ' · mide unos ' + GS.BOXES[size].cm + ' cm</span><span>Para: ' + buyer + ' · ' + esc(city) + '</span></div>';
+    const steps = n => '<div class="steps">' + ['Caja', 'Cinta', 'Etiqueta'].map((t, i) => '<span class="' + (i < n ? 'done' : i === n ? 'now' : '') + '">' + (i + 1) + '. ' + t + '</span>').join('') + '</div>';
     function stepBox() {
-      root().innerHTML = head(job, 'Mercado Libre · Empaque') + '<div class="bubble" id="mgBubble">' + esc(orderTxt) + '</div><div class="info"><b>¿En qué caja lo mandás?</b></div>' +
-        '<div class="opts three">' + [['chica', 34], ['mediana', 46], ['grande', 60]].map((b, i) => '<button class="opt" data-ok="' + (b[0] === size ? 1 : 0) + '"><kbd>' + (i + 1) + '</kbd><span class="i" style="font-size:' + b[1] + 'px">📦</span><span class="n">Caja ' + b[0] + '</span></button>').join('') + '</div>' +
-        '<div class="rule">Ni que baile adentro ni que haya que doblarlo</div>';
-      listOptions(b => b.dataset.ok === '1', () => { GS.Audio.play('bill'); stepLabel(); }, () => mistake('ml', U.pick(LN.wrongBox)));
+      root().innerHTML = head(job, 'Mercado Libre') + steps(0) + order + '<div class="info" id="mgBubble"><b>¿En qué caja entra justo?</b></div>' +
+        '<div class="opts three">' + ['chica', 'mediana', 'grande'].map((b, i) => '<button class="opt" data-ok="' + (b === size ? 1 : 0) + '"><kbd>' + (i + 1) + '</kbd><span class="i" style="font-size:' + [30, 42, 56][i] + 'px">📦</span><span class="n">Caja ' + b + '<br><small>hasta ' + GS.BOXES[b].max + ' cm</small></span></button>').join('') + '</div>';
+      listOptions(b => b.dataset.ok === '1', () => { GS.Audio.play('bill'); stepTape(); }, () => mistake('ml', U.pick(LN.wrongBox)));
+    }
+    function stepTape() {
+      let prog = 0, down = false;
+      root().innerHTML = head(job, 'Mercado Libre') + steps(1) + order + '<div class="info" id="mgBubble"><b>Cerrala con cinta: deslizá el dedo de punta a punta</b></div>' +
+        '<div class="tapebox" id="mgTape"><i class="seam"></i><i class="tape" id="mgTp"></i><span class="roll" id="mgRoll">🟤</span></div>';
+      const box = document.getElementById('mgTape'), tp = document.getElementById('mgTp'), roll = document.getElementById('mgRoll');
+      function set(p) {
+        if (!cur || cur.done || p <= prog) return; if (p - prog > 0.08) GS.Audio.play('swipe');
+        prog = Math.min(1, p); tp.style.width = (prog * 100) + '%'; roll.style.left = (prog * 100) + '%';
+        if (prog >= 0.96) { tp.style.width = '100%'; roll.style.display = 'none'; GS.Audio.play('bill'); setTimeout(() => { if (cur === me) stepLabel(); }, 350); }
+      }
+      const move = e => { if (!down) return; const r = box.getBoundingClientRect(), p = (e.clientX - r.left) / r.width; if (p <= prog + 0.3) set(p); };   // sin saltos: hay que recorrerla
+      box.addEventListener('pointerdown', e => { down = true; box.setPointerCapture && box.setPointerCapture(e.pointerId); move(e); });
+      box.addEventListener('pointermove', move); box.addEventListener('pointerup', () => { down = false; }); box.addEventListener('pointercancel', () => { down = false; });
+      cur.keys = e => { if (e.key === ' ' || e.key === 'Enter' || e.key === 'ArrowRight') { e.preventDefault(); set(prog + 0.26); } };
     }
     function stepLabel() {
-      const labels = U.shuffle([{ n: num, c: city, ok: 1 }, { n: num + U.pick([-10, 10, 100, 1]), c: city, ok: 0 }, { n: num, c: cities[1], ok: 0 }]);
-      root().innerHTML = head(job, 'Mercado Libre · Etiqueta') + '<div class="bubble" id="mgBubble">' + esc(orderTxt) + '</div><div class="info"><b>Cinta puesta. ¿Qué etiqueta le pegás?</b></div>' +
-        '<div class="opts one">' + labels.map((l, i) => '<button class="opt tagl" data-ok="' + l.ok + '"><kbd>' + (i + 1) + '</kbd><span class="n">#' + l.n + ' · ' + esc(l.c) + '</span></button>').join('') + '</div>' +
-        '<div class="rule">Mirá bien el número y el destino</div>';
+      const labels = U.shuffle([{ n: num, c: city, b: buyer, ok: 1 }, { n: num + U.pick([-10, 10, 100, 1]), c: city, b: buyer, ok: 0 }, U.pick([{ n: num, c: cities[1], b: buyer, ok: 0 }, { n: num, c: city, b: buyers[1], ok: 0 }])]);
+      root().innerHTML = head(job, 'Mercado Libre') + steps(2) + order + '<div class="info" id="mgBubble"><b>¿Cuál es la etiqueta de este pedido?</b></div>' +
+        '<div class="opts one">' + labels.map((l, i) => '<button class="opt tagl" data-ok="' + l.ok + '"><kbd>' + (i + 1) + '</kbd><span class="bars"></span><span class="n">#' + l.n + '<small>' + l.b + ' · ' + esc(l.c) + '</small></span></button>').join('') + '</div>';
       listOptions(b => b.dataset.ok === '1', () => { GS.Audio.play('ok'); finish(true, '¡Despachado!', 'Sale hoy, antes de las 14.', {}); }, () => mistake('ml', U.pick(LN.wrongLabel)));
     }
     stepBox();
@@ -1714,7 +1818,7 @@ GS.Game = (function () {
       }
     };
     let variant = null;
-    if (job.type === 'caja') { variant = GS.DEBUG_VARIANT ? GS.DEBUG_VARIANT : day.cajaCount === 0 ? 'cobro' : U.pick(['cobro', 'cobro', 'vuelto', 'comprobante']); day.cajaCount++; }
+    if (job.type === 'caja') { variant = GS.DEBUG_VARIANT ? GS.DEBUG_VARIANT : day.cajaCount === 0 ? 'cobro' : U.pick(['comprobante', 'comprobante', 'cobro', 'vuelto']); day.cajaCount++; }
     if (job.type === 'service' && GS.DEBUG_VARIANT) variant = GS.DEBUG_VARIANT;
     MG.open(job.type, ref, cb, { variant });
   }

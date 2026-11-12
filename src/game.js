@@ -189,7 +189,7 @@ GS.Game = (function () {
       }
     };
     let variant = null;
-    if (job.type === 'caja') { variant = GS.DEBUG_VARIANT ? GS.DEBUG_VARIANT : day.cajaCount === 0 ? 'cobro' : U.pick(['cobro', 'cobro', 'vuelto', 'comprobante']); day.cajaCount++; }
+    if (job.type === 'caja') { variant = GS.DEBUG_VARIANT ? GS.DEBUG_VARIANT : day.cajaCount === 0 ? 'cobro' : U.pick(['comprobante', 'comprobante', 'cobro', 'vuelto']); day.cajaCount++; }
     if (job.type === 'service' && GS.DEBUG_VARIANT) variant = GS.DEBUG_VARIANT;
     MG.open(job.type, ref, cb, { variant });
   }

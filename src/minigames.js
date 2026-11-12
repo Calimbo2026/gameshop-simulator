@@ -13,6 +13,8 @@ GS.Minigames = (function () {
     return '<div class="mg-head"><div class="mg-face">' + cust.arche.face + '</div><div class="mg-who"><b>' + esc(cust.arche.name) + '</b><span>' + esc(cust.arche.tag) +
       '</span><div class="mg-pat"><i id="mgPat"></i></div></div><div class="mg-station">' + station + '</div></div>';
   }
+  // Foto real del producto si la tiene; si no, el ícono
+  function pic(p) { return p.img ? '<img class="pimg" src="' + esc(p.img) + '" alt="" loading="lazy">' : '<span class="i">' + p.icon + '</span>'; }
   function say(text, joke) {
     const b = document.getElementById('mgBubble'); if (!b) return;
     b.textContent = text; b.classList.toggle('joke', !!joke);
@@ -41,7 +43,7 @@ GS.Minigames = (function () {
     const options = U.shuffle([prod].concat(same, others));
     root().innerHTML = head(cust, 'Mostrador') +
       '<div class="bubble" id="mgBubble">' + esc(cust.request) + '</div>' +
-      '<div class="opts">' + options.map((p, i) => '<button class="opt" data-id="' + p.id + '"><kbd>' + (i + 1) + '</kbd><span class="i">' + p.icon + '</span><span class="n">' + esc(p.name) + '</span></button>').join('') + '</div>' +
+      '<div class="opts">' + options.map((p, i) => '<button class="opt" data-id="' + p.id + '"><kbd>' + (i + 1) + '</kbd>' + pic(p) + '<span class="n">' + esc(p.name) + '</span></button>').join('') + '</div>' +
       '<div class="rule">Tocá el producto que te está pidiendo</div>';
     const btns = [...root().querySelectorAll('.opt')];
     function choose(b) {
@@ -121,79 +123,75 @@ GS.Minigames = (function () {
     };
   }
 
-  // (c) Revisar un comprobante de transferencia y aprobar o rechazar con swipe
+  // (c) Revisar un comprobante de transferencia: encontrar el dato que está mal, o aprobar si está todo bien
   function cajaComprobante(cust) {
-    const T = Math.round(cust.product.price * 0.9), fake = Math.random() < 0.55;
+    const T = Math.round(cust.product.price * 0.9), fake = Math.random() < 0.6;
     const hh = 10 + Math.floor(Math.random() * 9), mm = String(Math.floor(Math.random() * 60)).padStart(2, '0');
-    const f = { para: 'GameShop', monto: U.money(T), fecha: 'Hoy, ' + hh + ':' + mm, estado: 'Aprobada' }; let flag = null;
+    const f = { para: 'GameShop', monto: U.money(T), fecha: 'Hoy, ' + hh + ':' + mm, estado: 'Aprobada ✔' }; let flag = null;
     if (fake) {
       flag = U.pick(['para', 'monto', 'fecha', 'estado']);
       if (flag === 'para') f.para = U.pick(['GameChop', 'GameShopp Ofertas', 'Game Shop Trucho']);
       if (flag === 'monto') f.monto = U.money(U.pick([Math.round(T / 10), T - 10000, Math.round(T * 0.5)]));
       if (flag === 'fecha') f.fecha = U.pick(['Ayer, ' + hh + ':' + mm, 'Hace 3 meses', 'Mañana, ' + hh + ':' + mm]);
-      if (flag === 'estado') f.estado = U.pick(['Programada', 'Pendiente', 'Rechazada']);
+      if (flag === 'estado') f.estado = U.pick(['Programada', 'Pendiente', 'Rechazada ✖']);
     }
-    const rowp = (k, label) => '<p data-k="' + k + '"><span>' + label + '</span><b>' + esc(f[k]) + '</b></p>';
+    const rows = [['para', 'Para', 'GameShop'], ['monto', 'Monto', U.money(T)], ['fecha', 'Fecha', 'Hoy'], ['estado', 'Estado', 'Aprobada']];
     root().innerHTML = head(cust, 'Caja · Transferencia') +
-      '<div class="bubble" id="mgBubble">Ya te transferí. Mirá, acá está el comprobante.</div>' +
-      '<div class="info"><span>Tenés que recibir</span><b>' + U.money(T) + ' a GameShop, hoy</b></div>' +
-      '<div class="receipt" id="mgRec"><span class="stamp yes">OK</span><span class="stamp no" style="right:auto;left:12px;transform:rotate(10deg)">NO</span>' +
-      '<h4>Comprobante de transferencia</h4>' + rowp('para', 'Para') + rowp('monto', 'Monto') + rowp('fecha', 'Fecha') + rowp('estado', 'Estado') + '</div>' +
-      '<div class="swipe-hint"><span>← deslizá para rechazar</span><span>deslizá para aprobar →</span></div>' +
-      '<div class="row"><button class="btn ghost" id="mgNo" style="font-size:18px">✖ Rechazar</button><button class="btn" id="mgYes" style="font-size:18px;padding:12px">✔ Aprobar</button></div>';
-    const rec = document.getElementById('mgRec'), sy = rec.querySelector('.stamp.yes'), sn = rec.querySelector('.stamp.no');
-    function decide(approve) {
-      if (!cur || cur.done) return;
-      GS.Audio.play('swipe');
-      rec.style.transition = 'transform .2s'; rec.style.transform = 'translateX(' + (approve ? 60 : -60) + 'px) rotate(' + (approve ? 5 : -5) + 'deg)';
-      (approve ? sy : sn).style.opacity = 1;
-      if (flag) rec.querySelector('[data-k="' + flag + '"]').classList.add('flag');
-      if (approve && !fake) { GS.Audio.play('cash'); finish(true, '¡Acreditado!', U.money(T), { total: T }); }
-      else if (!approve && fake) { GS.Audio.play('ok'); finish(true, '¡Bien visto!', U.pick(LN.receiptFake) + ' Cobraste ' + U.money(T), { total: T }); }
-      else if (approve && fake) { GS.Audio.play('error'); cur.cb.onMistake('caja'); finish(false, 'Era trucho', U.pick(LN.receiptFakeApproved), { total: 0, cajaError: true }); }
-      else { GS.Audio.play('error'); cur.cb.onMistake('caja'); finish(false, 'Estaba bien', U.pick(LN.receiptOkRejected) + ' Igual cobraste.', { total: T }); }
+      '<div class="expect"><b>Tiene que decir</b>' + rows.map(r => '<span>' + r[1] + ': <i>' + esc(r[2]) + '</i></span>').join('') + '</div>' +
+      '<div class="phone"><h4>🏦 Banco Ficticio · Comprobante de transferencia</h4>' +
+      rows.map((r, i) => '<button class="rowb" data-k="' + r[0] + '"><kbd>' + (i + 1) + '</kbd><span>' + r[1] + '</span><b>' + esc(f[r[0]]) + '</b></button>').join('') + '</div>' +
+      '<div class="rule" id="mgBubble">¿Hay algún dato distinto? Tocalo. Si coincide todo, aprobá.</div>' +
+      '<button class="btn okb" id="mgYes">✔ Coincide todo: aprobar</button>';
+    const rb = [...root().querySelectorAll('.rowb')];
+    const mark = () => { if (flag) root().querySelector('.rowb[data-k="' + flag + '"]').classList.add('flag'); };
+    function tapRow(b) {
+      if (!cur || cur.done || b.classList.contains('fine')) return;
+      if (fake && b.dataset.k === flag) { mark(); GS.Audio.play('ok'); finish(true, '¡Bien visto!', U.pick(LN.receiptFake) + ' Cobraste ' + U.money(T), { total: T }); }
+      else { b.classList.add('fine'); mistake('caja', U.pick(fake ? LN.rowFine : LN.rowFineAll)); }
     }
-    document.getElementById('mgYes').addEventListener('click', () => decide(true));
-    document.getElementById('mgNo').addEventListener('click', () => decide(false));
-    // swipe
-    let sx = null, dx = 0;
-    rec.addEventListener('pointerdown', e => { if (cur && !cur.done) { sx = e.clientX; dx = 0; rec.setPointerCapture && rec.setPointerCapture(e.pointerId); rec.style.transition = 'none'; } });
-    rec.addEventListener('pointermove', e => {
-      if (sx === null || !cur || cur.done) return; dx = e.clientX - sx;
-      rec.style.transform = 'translateX(' + dx + 'px) rotate(' + dx / 22 + 'deg)';
-      sy.style.opacity = U.clamp(dx / 70, 0, 1); sn.style.opacity = U.clamp(-dx / 70, 0, 1);
-    });
-    const end = () => {
-      if (sx === null) return; sx = null;
-      if (Math.abs(dx) > 70) decide(dx > 0);
-      else if (cur && !cur.done) { rec.style.transition = 'transform .15s'; rec.style.transform = ''; sy.style.opacity = 0; sn.style.opacity = 0; }
-    };
-    rec.addEventListener('pointerup', end); rec.addEventListener('pointercancel', end);
-    cur.keys = e => { if (e.key === 'ArrowRight') decide(true); else if (e.key === 'ArrowLeft') decide(false); };
+    function approve() {
+      if (!cur || cur.done) return;
+      if (!fake) { GS.Audio.play('cash'); finish(true, '¡Acreditado!', U.money(T), { total: T }); }
+      else { mark(); GS.Audio.play('error'); cur.cb.onMistake('caja'); finish(false, 'Era trucho', 'Mirá el dato marcado en rojo. ' + U.pick(LN.receiptFakeApproved), { total: 0, cajaError: true }); }
+    }
+    rb.forEach(b => b.addEventListener('click', () => tapRow(b)));
+    document.getElementById('mgYes').addEventListener('click', approve);
+    cur.keys = e => { const n = parseInt(e.key, 10); if (n >= 1 && n <= 4) tapRow(rb[n - 1]); else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); approve(); } };
   }
 
-
-  /* ---------------- 3. ARMADO DE PC: cada pieza en su lugar (una viene al revés) ---------------- */
+  /* ---------------- 3. ARMADO DE PC: elegir la pieza y tocar en la placa dónde va (una viene al revés) ---------------- */
   function pc(job) {
-    const parts = GS.PC_PARTS, tray = U.shuffle(parts), flipped = U.pick(parts).id; let step = 0, isFlipped = true;
+    const parts = GS.PC_PARTS, tray = U.shuffle(parts), flipped = U.pick(parts).id, me = cur; let sel = null, placed = 0;
     root().innerHTML = head(job, 'Armado de PC') +
-      '<div class="bubble" id="mgBubble">Armame la PC. Las piezas están ahí. Creo que están todas.</div>' +
-      '<div class="board">' + parts.map((p, i) => '<div class="slot" data-i="' + i + '"><span>' + (i + 1) + '</span>' + esc(p.name) + '</div>').join('') + '</div>' +
-      '<div class="rule" id="mgStep"></div>' +
-      '<div class="parts">' + tray.map((p, i) => '<button class="opt part' + (p.id === flipped ? ' flip' : '') + '" data-id="' + p.id + '"><kbd>' + (i + 1) + '</kbd><span class="i">' + p.icon + '</span><span class="n">' + esc(p.name) + '</span></button>').join('') + '</div>';
-    const slots = [...root().querySelectorAll('.slot')], btns = [...root().querySelectorAll('.part')], stepEl = document.getElementById('mgStep');
-    const paint = () => { slots.forEach((s, i) => { s.classList.toggle('now', i === step); s.classList.toggle('done', i < step); }); if (step < parts.length) stepEl.textContent = 'Ahora va: ' + parts[step].name + '. Tocá la pieza.'; };
-    function choose(b) {
+      '<div class="pcb" id="mgPcb"><i class="deco d1"></i><i class="deco d2"></i><i class="deco d3"></i>' +
+      parts.map((p, i) => '<button class="pslot s-' + p.id + '" data-id="' + p.id + '"><kbd>' + 'ABCDE'[i] + '</kbd><em>' + esc(p.name) + '</em></button>').join('') + '</div>' +
+      '<div class="rule" id="mgBubble">Elegí una pieza y después tocá en la placa dónde va.</div>' +
+      '<div class="parts">' + tray.map((p, i) => '<button class="opt part' + (p.id === flipped ? ' flip' : '') + '" data-id="' + p.id + '"><kbd>' + (i + 1) + '</kbd><span class="pi">' + p.svg + '</span><span class="n">' + esc(p.name) + '</span></button>').join('') + '</div>';
+    const slots = [...root().querySelectorAll('.pslot')], btns = [...root().querySelectorAll('.part')], pcb = document.getElementById('mgPcb');
+    function pickPart(b) {
       if (!cur || cur.done || b.classList.contains('used')) return;
-      if (b.dataset.id === flipped && isFlipped) { isFlipped = false; b.classList.remove('flip'); GS.Audio.play('swipe'); say(U.pick(LN.flipPc), false); return; }
-      if (b.dataset.id === parts[step].id) {
-        b.classList.add('used'); GS.Audio.play('bill'); step++; paint();
-        if (step === parts.length) { GS.Audio.play('ok'); finish(true, '¡Prendió!', 'Y con lucecitas.', {}); }
-      } else mistake('pc', U.pick(LN.wrongPc));
+      if (sel === b && b.classList.contains('flip')) { b.classList.remove('flip'); GS.Audio.play('swipe'); say(U.pick(LN.flipPc) + ' Ahora tocá dónde va.', false); return; }
+      sel = b; btns.forEach(x => x.classList.toggle('sel', x === b)); GS.Audio.play('click');
+      say(b.classList.contains('flip') ? 'Esa está al revés: tocala de nuevo para girarla.' : 'Ahora tocá en la placa dónde va.', false);
     }
-    btns.forEach(b => b.addEventListener('click', () => choose(b)));
-    cur.keys = e => { const n = parseInt(e.key, 10); if (n >= 1 && n <= btns.length) choose(btns[n - 1]); };
-    paint();
+    function pickSlot(sl) {
+      if (!cur || cur.done || sl.classList.contains('full')) return;
+      if (!sel) { GS.Audio.play('error'); say('Primero elegí una pieza de abajo.', true); return; }
+      if (sel.dataset.id !== sl.dataset.id) return mistake('pc', U.pick(LN.wrongPc));
+      if (sel.classList.contains('flip')) { GS.Audio.play('error'); say('Va ahí, pero está al revés. Tocá la pieza otra vez para girarla.', true); return; }
+      sl.classList.add('full'); sl.innerHTML = parts.find(p => p.id === sl.dataset.id).svg;
+      sel.classList.add('used'); sel.classList.remove('sel'); sel = null; placed++; GS.Audio.play('bill');
+      if (placed === parts.length) {
+        pcb.classList.add('on'); GS.Audio.play('ok'); say('¡Prende! Y con lucecitas.', false);
+        setTimeout(() => { if (cur === me) finish(true, '¡Prendió!', 'Y con lucecitas.', {}); }, 1100);
+      } else say('¡Entró! Siguiente pieza.', false);
+    }
+    btns.forEach(b => b.addEventListener('click', () => pickPart(b)));
+    slots.forEach(sl => sl.addEventListener('click', () => pickSlot(sl)));
+    cur.keys = e => {
+      const n = parseInt(e.key, 10), k = 'abcde'.indexOf((e.key || '').toLowerCase());
+      if (n >= 1 && n <= btns.length) pickPart(btns[n - 1]); else if (k >= 0 && e.key.length === 1) pickSlot(slots[k]);
+    };
   }
 
   /* ---------------- 4. SERVICE TÉCNICO: diagnóstico, limpieza o encajar la RAM ---------------- */
@@ -207,15 +205,16 @@ GS.Minigames = (function () {
     listOptions(b => b.dataset.ok === '1', () => finish(true, '¡Diagnosticado!', d.ok, {}), () => mistake('service', U.pick(LN.wrongDiag)));
   }
   function servicePelusa(job) {
-    const N = 20; let left = N;
+    const N = 14; let left = N; const me = cur;
     root().innerHTML = head(job, 'Service · Limpieza') + '<div class="bubble" id="mgBubble">Hace ruido de avión. Adentro hay algo... peludo.</div>' +
-      '<div class="fan" id="mgFan"><div class="fan-ic">🌀</div>' + Array.from({ length: N }, () => '<i class="dust" style="--r:' + Math.floor(U.rnd(-30, 30)) + 'deg"></i>').join('') + '</div>' +
-      '<div class="rule">Pasá el dedo por la pelusa para limpiarla · <span id="mgLeft">' + N + '</span> restantes</div>';
+      '<div class="fan" id="mgFan"><div class="fan-blades"><i></i><i></i><i></i><i></i></div><div class="fan-hub"></div>' +
+      Array.from({ length: N }, () => { const z = Math.floor(U.rnd(34, 62)); return '<i class="dust" style="left:' + U.rnd(4, 82).toFixed(0) + '%;top:' + U.rnd(4, 66).toFixed(0) + '%;width:' + z + 'px;height:' + Math.floor(z * 0.8) + 'px;--r:' + Math.floor(U.rnd(-40, 40)) + 'deg"></i>'; }).join('') + '</div>' +
+      '<div class="rule">Pasá el dedo por la pelusa hasta que el cooler quede limpio · <span id="mgLeft">' + N + '</span> restantes</div>';
     const fan = document.getElementById('mgFan'), out = document.getElementById('mgLeft');
     function clean(el) {
       if (!cur || cur.done || !el || !el.classList || !el.classList.contains('dust') || el.classList.contains('gone')) return;
-      el.classList.add('gone'); left--; out.textContent = left; if (left % 3 === 0) GS.Audio.play('swipe');
-      if (left === 0) { GS.Audio.play('ok'); finish(true, '¡Como nueva!', 'Salió pelusa para tejer un pulóver.', {}); }
+      el.classList.add('gone'); left--; out.textContent = left; if (left % 2 === 0) GS.Audio.play('swipe');
+      if (left === 0) { fan.classList.add('clean'); GS.Audio.play('ok'); setTimeout(() => { if (cur === me) finish(true, '¡Como nueva!', 'Salió pelusa para tejer un pulóver.', {}); }, 900); }
     }
     const at = e => clean(document.elementFromPoint(e.clientX, e.clientY));
     fan.addEventListener('pointerdown', e => { fan.setPointerCapture && fan.setPointerCapture(e.pointerId); at(e); });
@@ -223,43 +222,59 @@ GS.Minigames = (function () {
     cur.keys = e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); clean(fan.querySelector('.dust:not(.gone)')); } };
   }
   function serviceRam(job) {
-    const zone = U.rnd(18, 62), zw = 22, me = cur; let pos = 0, dir = 1, last = 0;
-    root().innerHTML = head(job, 'Service · Memoria RAM') + '<div class="bubble" id="mgBubble">Le agregamos memoria. Tiene que entrar justo, con un "clac".</div>' +
-      '<div class="timing"><i class="zone" style="left:' + zone + '%;width:' + zw + '%"></i><i class="mark" id="mgMark"></i></div>' +
-      '<button class="btn" id="mgSnap">¡Encajar!</button><div class="rule">Tocá cuando la marca esté en la zona verde</div>';
-    const mark = document.getElementById('mgMark');
+    const slot = U.rnd(12, 58), sw = 30, me = cur; let pos = 0, dir = 1, last = 0;   // la RAM mide 30% del ancho; hay que soltarla justo sobre la ranura
+    root().innerHTML = head(job, 'Service · Memoria RAM') + '<div class="bubble" id="mgBubble">Le agregamos memoria. Tiene que caer justo en la ranura.</div>' +
+      '<div class="ramrig" id="mgRig"><div class="ramstick" id="mgMark">' + GS.PC_PARTS[1].svg + '</div><div class="ramslot" style="left:' + slot + '%;width:' + sw + '%"><i></i></div></div>' +
+      '<button class="btn" id="mgSnap">¡Soltar!</button><div class="rule">Tocá cuando la memoria esté justo arriba de la ranura</div>';
+    const mark = document.getElementById('mgMark'), rig = document.getElementById('mgRig');
     function tick(t) {
       if (cur !== me) return; requestAnimationFrame(tick);
-      const dt = Math.min(0.05, (t - last) / 1000 || 0); last = t; if (me.done) return;
-      pos += dir * dt * 62; if (pos >= 100) { pos = 100; dir = -1; } else if (pos <= 0) { pos = 0; dir = 1; }
+      const dt = Math.min(0.05, (t - last) / 1000 || 0); last = t; if (me.done || me.hold) return;
+      pos += dir * dt * 46; if (pos >= 70) { pos = 70; dir = -1; } else if (pos <= 0) { pos = 0; dir = 1; }
       mark.style.left = pos + '%';
     }
     requestAnimationFrame(tick);
     function snap() {
-      if (!cur || cur.done) return;
-      if (pos >= zone && pos <= zone + zw) { GS.Audio.play('ok'); finish(true, '¡Clac!', 'Ahora tiene más RAM. Vos no, lamentablemente.', {}); }
-      else mistake('service', U.pick(LN.missRam));
+      if (!cur || cur.done || me.hold) return;
+      if (Math.abs(pos - slot) <= 5.5) {
+        me.hold = true; mark.style.left = slot + '%'; rig.classList.add('in'); GS.Audio.play('ok');
+        setTimeout(() => { if (cur === me) finish(true, '¡Clac!', 'Ahora tiene más RAM. Vos no, lamentablemente.', {}); }, 700);
+      } else mistake('service', U.pick(LN.missRam));
     }
     document.getElementById('mgSnap').addEventListener('click', snap);
     cur.keys = e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); snap(); } };
   }
 
-  /* ---------------- 5. MERCADO LIBRE: caja del tamaño justo y etiqueta correcta ---------------- */
+  /* ---------------- 5. MERCADO LIBRE: caja del tamaño justo, cinta y etiqueta correcta ---------------- */
   function ml(job) {
     const prod = U.pick(GS.CATALOG), size = Object.keys(GS.BOX_SIZE).find(k => GS.BOX_SIZE[k].indexOf(prod.id) >= 0) || 'mediana';
-    const num = Math.floor(U.rnd(1000, 9999)), cities = U.shuffle(GS.CITIES), city = cities[0];
-    const orderTxt = 'Pedido #' + num + ' · ' + prod.icon + ' ' + prod.name + ' · va a ' + city;
+    const num = Math.floor(U.rnd(1000, 9999)), cities = U.shuffle(GS.CITIES), city = cities[0], buyers = U.shuffle(GS.BUYERS), buyer = buyers[0], me = cur;
+    const order = '<div class="order"><b>Pedido #' + num + '</b><span>' + prod.icon + ' ' + esc(prod.name) + ' · mide unos ' + GS.BOXES[size].cm + ' cm</span><span>Para: ' + buyer + ' · ' + esc(city) + '</span></div>';
+    const steps = n => '<div class="steps">' + ['Caja', 'Cinta', 'Etiqueta'].map((t, i) => '<span class="' + (i < n ? 'done' : i === n ? 'now' : '') + '">' + (i + 1) + '. ' + t + '</span>').join('') + '</div>';
     function stepBox() {
-      root().innerHTML = head(job, 'Mercado Libre · Empaque') + '<div class="bubble" id="mgBubble">' + esc(orderTxt) + '</div><div class="info"><b>¿En qué caja lo mandás?</b></div>' +
-        '<div class="opts three">' + [['chica', 34], ['mediana', 46], ['grande', 60]].map((b, i) => '<button class="opt" data-ok="' + (b[0] === size ? 1 : 0) + '"><kbd>' + (i + 1) + '</kbd><span class="i" style="font-size:' + b[1] + 'px">📦</span><span class="n">Caja ' + b[0] + '</span></button>').join('') + '</div>' +
-        '<div class="rule">Ni que baile adentro ni que haya que doblarlo</div>';
-      listOptions(b => b.dataset.ok === '1', () => { GS.Audio.play('bill'); stepLabel(); }, () => mistake('ml', U.pick(LN.wrongBox)));
+      root().innerHTML = head(job, 'Mercado Libre') + steps(0) + order + '<div class="info" id="mgBubble"><b>¿En qué caja entra justo?</b></div>' +
+        '<div class="opts three">' + ['chica', 'mediana', 'grande'].map((b, i) => '<button class="opt" data-ok="' + (b === size ? 1 : 0) + '"><kbd>' + (i + 1) + '</kbd><span class="i" style="font-size:' + [30, 42, 56][i] + 'px">📦</span><span class="n">Caja ' + b + '<br><small>hasta ' + GS.BOXES[b].max + ' cm</small></span></button>').join('') + '</div>';
+      listOptions(b => b.dataset.ok === '1', () => { GS.Audio.play('bill'); stepTape(); }, () => mistake('ml', U.pick(LN.wrongBox)));
+    }
+    function stepTape() {
+      let prog = 0, down = false;
+      root().innerHTML = head(job, 'Mercado Libre') + steps(1) + order + '<div class="info" id="mgBubble"><b>Cerrala con cinta: deslizá el dedo de punta a punta</b></div>' +
+        '<div class="tapebox" id="mgTape"><i class="seam"></i><i class="tape" id="mgTp"></i><span class="roll" id="mgRoll">🟤</span></div>';
+      const box = document.getElementById('mgTape'), tp = document.getElementById('mgTp'), roll = document.getElementById('mgRoll');
+      function set(p) {
+        if (!cur || cur.done || p <= prog) return; if (p - prog > 0.08) GS.Audio.play('swipe');
+        prog = Math.min(1, p); tp.style.width = (prog * 100) + '%'; roll.style.left = (prog * 100) + '%';
+        if (prog >= 0.96) { tp.style.width = '100%'; roll.style.display = 'none'; GS.Audio.play('bill'); setTimeout(() => { if (cur === me) stepLabel(); }, 350); }
+      }
+      const move = e => { if (!down) return; const r = box.getBoundingClientRect(), p = (e.clientX - r.left) / r.width; if (p <= prog + 0.3) set(p); };   // sin saltos: hay que recorrerla
+      box.addEventListener('pointerdown', e => { down = true; box.setPointerCapture && box.setPointerCapture(e.pointerId); move(e); });
+      box.addEventListener('pointermove', move); box.addEventListener('pointerup', () => { down = false; }); box.addEventListener('pointercancel', () => { down = false; });
+      cur.keys = e => { if (e.key === ' ' || e.key === 'Enter' || e.key === 'ArrowRight') { e.preventDefault(); set(prog + 0.26); } };
     }
     function stepLabel() {
-      const labels = U.shuffle([{ n: num, c: city, ok: 1 }, { n: num + U.pick([-10, 10, 100, 1]), c: city, ok: 0 }, { n: num, c: cities[1], ok: 0 }]);
-      root().innerHTML = head(job, 'Mercado Libre · Etiqueta') + '<div class="bubble" id="mgBubble">' + esc(orderTxt) + '</div><div class="info"><b>Cinta puesta. ¿Qué etiqueta le pegás?</b></div>' +
-        '<div class="opts one">' + labels.map((l, i) => '<button class="opt tagl" data-ok="' + l.ok + '"><kbd>' + (i + 1) + '</kbd><span class="n">#' + l.n + ' · ' + esc(l.c) + '</span></button>').join('') + '</div>' +
-        '<div class="rule">Mirá bien el número y el destino</div>';
+      const labels = U.shuffle([{ n: num, c: city, b: buyer, ok: 1 }, { n: num + U.pick([-10, 10, 100, 1]), c: city, b: buyer, ok: 0 }, U.pick([{ n: num, c: cities[1], b: buyer, ok: 0 }, { n: num, c: city, b: buyers[1], ok: 0 }])]);
+      root().innerHTML = head(job, 'Mercado Libre') + steps(2) + order + '<div class="info" id="mgBubble"><b>¿Cuál es la etiqueta de este pedido?</b></div>' +
+        '<div class="opts one">' + labels.map((l, i) => '<button class="opt tagl" data-ok="' + l.ok + '"><kbd>' + (i + 1) + '</kbd><span class="bars"></span><span class="n">#' + l.n + '<small>' + l.b + ' · ' + esc(l.c) + '</small></span></button>').join('') + '</div>';
       listOptions(b => b.dataset.ok === '1', () => { GS.Audio.play('ok'); finish(true, '¡Despachado!', 'Sale hoy, antes de las 14.', {}); }, () => mistake('ml', U.pick(LN.wrongLabel)));
     }
     stepBox();

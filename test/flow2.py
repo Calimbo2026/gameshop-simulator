@@ -2,9 +2,11 @@ import sys, asyncio
 from playwright.async_api import async_playwright
 SOLVE = r"""(()=>{const M=GS.Minigames; if(!M.isOpen()||M.isResolving()) return 'idle';
  const q=s=>document.querySelector('#mg '+s), qa=s=>[...document.querySelectorAll('#mg '+s)];
- if(q('.part')){const now=q('.slot.now'); if(!now) return 'pc?'; const name=now.textContent.replace(/^\d/,''); const b=qa('.part').find(p=>p.querySelector('.n').textContent===name); b.click(); return 'pc';}
- if(q('.dust')){const d=qa('.dust:not(.gone)'); d.slice(0,4).forEach(e=>{const r=e.getBoundingClientRect(); q('.fan').dispatchEvent(new PointerEvent('pointermove',{clientX:r.x+r.width/2,clientY:r.y+r.height/2,bubbles:true}))}); return 'pelusa';}
- if(q('#mgSnap')){const m=parseFloat(q('#mgMark').style.left||0), z=q('.zone'); const a=parseFloat(z.style.left), w=parseFloat(z.style.width); if(m>=a+2&&m<=a+w-2){q('#mgSnap').click();return 'ram!';} return 'ram';}
+ if(q('.part')){const b=q('.part:not(.used)'); if(!b) return 'pcwait'; if(!b.classList.contains('sel')) b.click(); if(b.classList.contains('flip')) b.click(); q('.pslot[data-id="'+b.dataset.id+'"]').click(); return 'pc';}
+ if(q('.dust')){const d=qa('.dust:not(.gone)'); d.slice(0,3).forEach(e=>{e.classList.contains('gone')||document.getElementById('mgFan').dispatchEvent(new KeyboardEvent('x'))}); document.dispatchEvent(new KeyboardEvent('keydown',{key:' '})); return 'pelusa';}
+ if(q('#mgSnap')){const m=parseFloat(q('#mgMark').style.left||0), a=parseFloat(q('.ramslot').style.left); if(Math.abs(m-a)<3){q('#mgSnap').click();return 'ram!';} return 'ram';}
+ if(q('#mgTape')){document.dispatchEvent(new KeyboardEvent('keydown',{key:' '})); return 'cinta';}
+ if(q('.rowb')){const r=qa('.rowb'); const exp=qa('.expect i').map(x=>x.textContent); const bad=r.find((x,i)=>!x.querySelector('b').textContent.replace(' ✔','').startsWith(exp[i])); (bad||q('#mgYes')).click(); return 'comp';}
  if(document.querySelector('.zone-b')){const z=[...document.querySelectorAll('.zone-b:not(.bad)')]; z[0].click(); return 'repo';}
  if(q('[data-ok="1"]')){q('[data-ok="1"]').click();return 'ok';}
  if(q('.opt[data-id]')){q('.opt[data-id="'+M.customer().product.id+'"]').click();return 'most';}
@@ -23,7 +25,7 @@ async def main():
         await pg.goto('file:///home/claude/gss/dist/index.html'); await pg.wait_for_timeout(1200)
         await pg.screenshot(path='shots/2_start.png')
         await pg.click('#btnArcade'); await pg.wait_for_timeout(300); await pg.screenshot(path='shots/2_arcade.png'); await pg.click('[data-close]')
-        shots={'repo':1,'pc':0}
+        shots={'pc':1,'service':3,'ml':3,'caja':3}
         for st,n in shots.items():
             await pg.evaluate(f"GS.Game.startArcade('{st}')")
             taken=0; seen=set()

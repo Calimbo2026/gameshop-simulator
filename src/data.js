@@ -7,9 +7,9 @@
 const GS = {};
 
 GS.CONFIG = {
-  version: '0.3.0',
+  version: '0.4.0',
   phase: 2,
-  phaseNote: 'Parte B: ritmo nuevo por tandas (faltan 4 estaciones)',                       // fase actual del proyecto (1 a 5)
+  phaseNote: 'Parte B: minijuegos mejorados y más pedidos (faltan 4 estaciones)',                       // fase actual del proyecto (1 a 5)
   links: { tienda: '', instagram: '' },   // se conectan más adelante
   promoMode: null,                // 'hotsale' | 'cyber' | null (Fase 3)
   camera: { tilt: 55, rot: 38, fov: 22 },
@@ -42,7 +42,8 @@ GS.PHASES = [
   { n: 5, name: 'Pulido',         desc: 'Rendimiento, balance, bugs, accesibilidad, analítica y lanzamiento.' }
 ];
 
-/* Catálogo: cada producto es un objeto editable. url = ficha real (se conecta después) */
+/* Catálogo: cada producto es un objeto editable. url = ficha real (se conecta después).
+   img = foto real del producto (opcional): ruta dentro de la carpeta img/. Si falta, se muestra el ícono. */
 GS.CATALOG = [
   { id: 'ps5',      name: 'PlayStation 5 Slim',      cat: 'consolas',    icon: '🎮', price: 1200000, stock: 4, shelf: 'fondo',   url: '' },
   { id: 'switch2',  name: 'Nintendo Switch 2',       cat: 'consolas',    icon: '🕹️', price: 990000,  stock: 3, shelf: 'fondo',   url: '' },
@@ -67,7 +68,19 @@ GS.CATALOG = [
   { id: 'mouse',    name: 'Mouse gamer Logitech',    cat: 'perifericos', icon: '🖱️', price: 120000,  stock: 6, shelf: 'derecha', url: '' },
   { id: 'streamdeck',name:'Stream Deck',             cat: 'perifericos', icon: '🎛️', price: 330000,  stock: 1, shelf: 'fondo',   url: '' },
   { id: 'mic',      name: 'Micrófono',               cat: 'perifericos', icon: '🎙️', price: 270000,  stock: 2, shelf: 'fondo',   url: '' },
-  { id: 'silla',    name: 'Silla gamer Raptor',      cat: 'perifericos', icon: '💺', price: 450000,  stock: 3, shelf: 'salon',   url: '' }
+  { id: 'silla',    name: 'Silla gamer Raptor',      cat: 'perifericos', icon: '💺', price: 450000,  stock: 3, shelf: 'salon',   url: '' },
+  { id: 'teclado',  name: 'Teclado mecánico',        cat: 'perifericos', icon: '⌨️', price: 150000,  stock: 5, shelf: 'derecha', url: '' },
+  { id: 'webcam',   name: 'Webcam Logitech',         cat: 'perifericos', icon: '📷', price: 120000,  stock: 3, shelf: 'derecha', url: '' },
+  { id: 'parlante', name: 'Parlante bluetooth JBL',  cat: 'perifericos', icon: '📻', price: 240000,  stock: 4, shelf: 'derecha', url: '' },
+  { id: 'volante',  name: 'Volante con pedales',     cat: 'perifericos', icon: '🏎️', price: 540000,  stock: 1, shelf: 'fondo',   url: '' },
+  { id: 'mousepad', name: 'Mousepad XL',             cat: 'perifericos', icon: '🟦', price: 60000,   stock: 7, shelf: 'derecha', url: '' },
+  { id: 'joyxbox',  name: 'Joystick de Xbox',        cat: 'consolas',    icon: '🎮', price: 150000,  stock: 5, shelf: 'fondo',   url: '' },
+  { id: 'muneco',   name: 'Muñeco coleccionable',    cat: 'consolas',    icon: '🧸', price: 60000,   stock: 8, shelf: 'isla',    url: '' },
+  { id: 'monitor',  name: 'Monitor gamer 27"',       cat: 'pc',          icon: '🖥️', price: 600000,  stock: 2, shelf: 'mesa',    url: '' },
+  { id: 'impresora',name: 'Impresora Epson',         cat: 'pc',          icon: '🖨️', price: 420000,  stock: 2, shelf: 'fondo',   url: '' },
+  { id: 'disco',    name: 'Disco externo 1 TB',      cat: 'pc',          icon: '💽', price: 180000,  stock: 4, shelf: 'izquierda', url: '' },
+  { id: 'cargador', name: 'Cargador de notebook',    cat: 'pc',          icon: '🔋', price: 90000,   stock: 6, shelf: 'izquierda', url: '' },
+  { id: 'ram',      name: 'Memoria RAM 16 GB',       cat: 'pc',          icon: '📏', price: 120000,  stock: 6, shelf: 'izquierda', url: '' }
 ];
 
 /* Pedidos del Mostrador: texto ambiguo -> producto correcto */
@@ -95,7 +108,36 @@ GS.REQUESTS = [
   { t: 'Un mouse con muchos botones. No sé para qué, pero muchos.', p: 'mouse' },
   { t: 'La botonera esa con pantallitas. La de los streamers.', p: 'streamdeck' },
   { t: 'Un micrófono. Arranco un podcast. Este año sí.', p: 'mic' },
-  { t: 'Una silla de auto de carrera, pero para estar sentado quieto.', p: 'silla' }
+  { t: 'Una silla de auto de carrera, pero para estar sentado quieto.', p: 'silla' },
+  { t: 'La consola de Sony. La última. La que mi hijo pide desde marzo.', p: 'ps5' },
+  { t: 'La consolita que se enchufa a la tele y también te la llevás al baño.', p: 'switch2' },
+  { t: 'El casco ese de realidad... ¿virtual? ¿aumentada? El casco.', p: 'quest' },
+  { t: 'La consola del Game Pass. La grandota.', p: 'xbox' },
+  { t: 'Auriculares sin cable. Los blanquitos que parecen hisopos.', p: 'airpods' },
+  { t: 'Una pantalla grande para ver series en la cama. Sin teclado.', p: 'ipad' },
+  { t: 'Un reloj inteligente. Más inteligente que yo, si puede ser.', p: 'watch' },
+  { t: 'Una RTX. No sé qué es, pero mi hijo dijo "RTX" y se emocionó.', p: 'gpu' },
+  { t: 'Una compu portátil que aguante el jueguito de los tiros.', p: 'notebook' },
+  { t: 'Algo para que el wifi llegue al fondo. Al fondo-fondo.', p: 'router' },
+  { t: 'Un pendrive. Grande de capacidad, chiquito de tamaño.', p: 'pendrive' },
+  { t: 'El cable para cargar el celu. El nuevo, el ovalado.', p: 'cable' },
+  { t: 'Unos auriculares de esos grandotes, con lucecitas.', p: 'auris' },
+  { t: 'Un mouse que no sea de oficina. Que tenga onda.', p: 'mouse' },
+  { t: 'Una silla para la compu. Me duele la espalda y el alma.', p: 'silla' },
+  { t: 'Un micrófono para dar clases online. Y cantar, a veces.', p: 'mic' },
+  { t: 'Un teclado de los que hacen ruido. Clac, clac. De esos.', p: 'teclado' },
+  { t: 'El teclado con luces que usan los pibes.', p: 'teclado' },
+  { t: 'Una camarita para las reuniones. Que me favorezca.', p: 'webcam' },
+  { t: 'Un parlante para la pileta. Que suene fuerte y aguante.', p: 'parlante' },
+  { t: 'Un volante para jugar a los autitos. Con pedales y todo.', p: 'volante' },
+  { t: 'La alfombrita del mouse, pero de las gigantes.', p: 'mousepad' },
+  { t: 'Un control para la Xbox. El otro se rompió "solo".', p: 'joyxbox' },
+  { t: 'Un muñequito de esos cabezones, para regalar.', p: 'muneco' },
+  { t: 'Una pantalla para la compu. Grande. Que se vea rápido.', p: 'monitor' },
+  { t: 'Una impresora que imprima. La mía solo pide tinta.', p: 'impresora' },
+  { t: 'Un disco para guardar las fotos, de los que van afuera de la compu.', p: 'disco' },
+  { t: 'El cargador de la notebook. Al otro se lo comió el perro.', p: 'cargador' },
+  { t: 'Memoria para la compu. De la que la hace más rápida, no de la otra.', p: 'ram' }
 ];
 
 /* Clientes: arquetipos inventados (ninguno es una persona real) */
@@ -137,6 +179,8 @@ GS.LINES = {
   ],
   changeShort: ['Me falta plata, eh. No soy de quejarme, pero me falta.', 'Faltan billetes. Los conté dos veces.'],
   changeOver:  ['Me diste de más. No iba a decir nada. Bueno, sí.', 'Sobra plata. Qué generoso el local.'],
+  rowFine: ['Ese dato está bien. El problema es otro.', 'Eso está perfecto. Mirá los demás.'],
+  rowFineAll: ['Ese dato está bien. Compará tranquilo con lo de arriba.', 'Eso coincide. ¿Hay algo que no?'],
   receiptFake: ['Uy, me confundí de captura. Ahí te mando la buena.', 'Ah, esa era del mes pasado. Perdón, perdón.'],
   receiptOkRejected: ['¡Pero si está perfecta! Mirala bien.', 'Está aprobada, mirá. Con tilde verde y todo.'],
   receiptFakeApproved: ['(Se fue silbando bajito. Mala señal.)', '(Saludó muy rápido. Demasiado rápido.)'],
@@ -239,8 +283,11 @@ GS.STATIONS = [
 
 /* Datos de los minijuegos nuevos */
 GS.PC_PARTS = [
-  { id: 'cpu', name: 'Procesador', icon: '🔲' }, { id: 'ram', name: 'Memoria RAM', icon: '📏' }, { id: 'ssd', name: 'Disco SSD', icon: '💽' },
-  { id: 'gpu', name: 'Placa de video', icon: '🧩' }, { id: 'psu', name: 'Fuente', icon: '🔋' }
+  { id: 'cpu', name: 'Procesador', svg: '<svg viewBox="0 0 40 40"><rect x="5" y="5" width="30" height="30" rx="3" fill="#c9ccd1"/><rect x="11" y="11" width="18" height="18" rx="1" fill="#8d9199"/><path d="M5 35h7l-7-7z" fill="#d4a017"/></svg>' },
+  { id: 'ram', name: 'Memoria RAM', svg: '<svg viewBox="0 0 64 20"><rect x="1" y="2" width="62" height="12" rx="1" fill="#1f8f4e"/><g fill="#101010"><rect x="6" y="4" width="9" height="7"/><rect x="19" y="4" width="9" height="7"/><rect x="36" y="4" width="9" height="7"/><rect x="49" y="4" width="9" height="7"/></g><rect x="1" y="14" width="62" height="4" fill="#d4a017"/></svg>' },
+  { id: 'ssd', name: 'Disco SSD', svg: '<svg viewBox="0 0 64 20"><rect x="2" y="3" width="60" height="14" rx="1" fill="#1b1b22"/><rect x="8" y="6" width="14" height="8" fill="#3a3a48"/><rect x="26" y="6" width="20" height="8" fill="#e8e8ee"/><rect x="56" y="3" width="6" height="14" fill="#d4a017"/></svg>' },
+  { id: 'gpu', name: 'Placa de video', svg: '<svg viewBox="0 0 90 30"><rect x="1" y="2" width="88" height="22" rx="3" fill="#23232b"/><circle cx="24" cy="13" r="9" fill="#0d0d10" stroke="#e10600" stroke-width="2"/><circle cx="62" cy="13" r="9" fill="#0d0d10" stroke="#e10600" stroke-width="2"/><rect x="14" y="24" width="44" height="5" fill="#d4a017"/></svg>' },
+  { id: 'psu', name: 'Fuente', svg: '<svg viewBox="0 0 44 34"><rect x="2" y="2" width="40" height="30" rx="2" fill="#101014"/><circle cx="18" cy="17" r="11" fill="#2a2a32" stroke="#555" stroke-width="2"/><rect x="33" y="8" width="6" height="18" fill="#f5c518"/></svg>' }
 ];
 GS.DIAGNOSTICS = [
   { s: 'La notebook no prende. "No hice nada, se rompió sola."', ok: 'El cargador está desenchufado', bad: ['Hay que tirar la notebook', 'Un virus de los fuertes'] },
@@ -269,8 +316,10 @@ GS.SHELVES = [
   { cat: 'consolas', name: 'Consolas y juegos', icon: '🎮', pos: [-2.0, -6.2] }, { cat: 'apple', name: 'Apple', icon: '🍏', pos: [-4.2, 1.6] },
   { cat: 'pc', name: 'PC y accesorios', icon: '💻', pos: [1.6, 0.2] }, { cat: 'perifericos', name: 'Periféricos gamer', icon: '🎧', pos: [5.6, 5.0] }
 ];
-GS.BOX_SIZE = { chica: ['cable', 'pendrive', 'tinta', 'airpods', 'juego', 'magic', 'watch', 'mouse', 'dualsense', 'homepod'],
-  mediana: ['switch2', 'quest', 'deck', 'ipad', 'router', 'auris', 'gpu', 'streamdeck', 'mic', 'notebook'], grande: ['ps5', 'xbox', 'gabinete', 'silla'] };
+GS.BOX_SIZE = { chica: ['cable', 'pendrive', 'tinta', 'airpods', 'juego', 'magic', 'watch', 'mouse', 'dualsense', 'homepod', 'webcam', 'joyxbox', 'muneco', 'disco', 'cargador', 'ram'],
+  mediana: ['switch2', 'quest', 'deck', 'ipad', 'router', 'auris', 'gpu', 'streamdeck', 'mic', 'notebook', 'teclado', 'parlante', 'mousepad'], grande: ['ps5', 'xbox', 'gabinete', 'silla', 'volante', 'monitor', 'impresora'] };
+GS.BOXES = { chica: { cm: 15, max: 20 }, mediana: { cm: 35, max: 40 }, grande: { cm: 60, max: 70 } };
+GS.BUYERS = ['CRACK_DEL_TECLADO', 'LA_TIA_GAMER', 'PEPE_COMPRA_TODO', 'NO_SOY_UN_BOT_22', 'MATE_Y_FPS', 'ABUELA_PRO_PLAYER', 'EL_REY_DEL_ENVIO', 'CARRITO_LLENO_OK'];
 GS.CITIES = ['Córdoba', 'Rosario', 'Mendoza', 'Salta', 'Bariloche', 'La Plata', 'Tucumán', 'Mar del Plata', 'Neuquén', 'Posadas'];
 
 /* Utilidades chicas */

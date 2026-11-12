@@ -1,0 +1,1 @@
+Fotos reales de productos. Nombre de archivo = id del producto en src/data.js (por ejemplo ps5.jpg).
