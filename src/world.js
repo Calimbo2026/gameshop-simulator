@@ -366,6 +366,14 @@ GS.World = (function () {
     const sh = new T.Mesh(gShadow, shadowMat); sh.rotation.x = -Math.PI / 2; sh.position.y = 0.02; g.add(sh);
     const bag = box(g, 0.26, 0.3, 0.12, 0xe10600, 0.3, 0.3, 0.1); bag.visible = false;
     if (o.phone) box(g, 0.1, 0.18, 0.03, 0x111111, 0.12, 0.72, 0.26);
+    let cargo = null;
+    if (o.cart) {                                    // carreta de reparto con cajas
+      box(g, 0.62, 0.06, 0.8, 0x3a6fd1, 0, 0.16, 0.85); box(g, 0.05, 0.9, 0.05, 0x3a6fd1, -0.26, 0.16, 0.48); box(g, 0.05, 0.9, 0.05, 0x3a6fd1, 0.26, 0.16, 0.48);
+      box(g, 0.58, 0.05, 0.05, 0x3a6fd1, 0, 1.02, 0.48);
+      [-0.3, 0.3].forEach(x => { const w = new T.Mesh(new T.CylinderGeometry(0.12, 0.12, 0.06, 10), mat(0x111111)); w.rotation.z = Math.PI / 2; w.position.set(x, 0.12, 1.05); g.add(w); });
+      cargo = new T.Group(); g.add(cargo);
+      box(cargo, 0.5, 0.36, 0.5, 0xc49a6c, 0, 0.22, 0.9); box(cargo, 0.44, 0.3, 0.44, 0xb98d5e, 0.02, 0.58, 0.9); box(cargo, 0.3, 0.22, 0.3, 0xc49a6c, -0.04, 0.88, 0.9);
+    }
     scene.add(g);
     const p = {
       group: g, path: [], speed: o.speed || 2.9, t: Math.random() * 6, onArrive: null, moving: false,
@@ -373,6 +381,7 @@ GS.World = (function () {
       face(ry) { g.rotation.y = ry; },
       walk(points, cb) { p.path = points.slice(); p.onArrive = cb || null; p.moving = true; },
       bag(v) { bag.visible = v; },
+      cargo(v) { if (cargo) cargo.visible = v; },
       remove() { scene.remove(g); const i = people.indexOf(p); if (i >= 0) people.splice(i, 1); }
     };
     people.push(p); return p;
@@ -501,6 +510,12 @@ GS.World = (function () {
     setQuality(q) { quality = q; if (ok) resize(); },
     setReduceMotion(v) { reduceMotion = v; },
     makePerson,
+    // Pila de cajas que deja el repartidor
+    dropBoxes(x, z) {
+      const g = new T.Group(); g.position.set(x, 0, z); scene.add(g);
+      box(g, 0.5, 0.36, 0.5, 0xc49a6c, 0, 0, 0); box(g, 0.44, 0.3, 0.44, 0xb98d5e, 0.03, 0.36, 0); box(g, 0.3, 0.22, 0.3, 0xc49a6c, -0.03, 0.66, 0); box(g, 0.4, 0.3, 0.4, 0xb98d5e, 0.55, 0, 0.1);
+      return { remove() { scene.remove(g); } };
+    },
     onTap(fn) { tapHandler = fn; },
     // Posición en pantalla de un punto del mundo (para barras y globos en HTML)
     project(x, y, z) {

@@ -7,9 +7,9 @@
 const GS = {};
 
 GS.CONFIG = {
-  version: '0.4.0',
+  version: '0.5.0',
   phase: 2,
-  phaseNote: 'Parte B: minijuegos mejorados y más pedidos (faltan 4 estaciones)',                       // fase actual del proyecto (1 a 5)
+  phaseNote: 'Completa: las 11 estaciones. En revisión',                       // fase actual del proyecto (1 a 5)
   links: { tienda: '', instagram: '' },   // se conectan más adelante
   promoMode: null,                // 'hotsale' | 'cyber' | null (Fase 3)
   camera: { tilt: 55, rot: 38, fov: 22 },
@@ -232,6 +232,10 @@ GS.LINES = {
   wrongLabel: ['Esa etiqueta va a otra provincia. Lindo paseo para el paquete.', 'Ese pedido es de otro comprador.'],
   wrongChat: ['???', 'Visto ✓✓', 'jajaj no entendi', 'ok... (está escribiendo una reseña)'],
   wrongShelf: ['Ahí no va. Después nadie lo encuentra. Ni vos.', 'Esa góndola es de otra cosa.', 'Si lo ponés ahí, mañana lo buscás tres horas.'],
+  wrongStock: ['Contá de nuevo, sin apuro.', 'Mmm, no. ¿Contaste el que está atrás?', 'Ese número le gustaría al sistema, pero no.'],
+  lineFine: ['Esa línea coincide. Mirá las otras.', 'Eso está bien. El de la carreta silba y mira para otro lado.'],
+  returnExcuses: ['Lo usé un año, pero no me terminó de convencer.', 'Me lo regalaron y ya tengo dos.', 'No era lo que mi hijo quería. Nunca es.', 'Lo abrí, lo miré y me arrepentí.', 'Se rompió solo. Yo estaba al lado, pero no hice nada.', 'Lo compré ayer y hoy salió uno nuevo.'],
+  wrongCount: ['Sumá de nuevo, tranqui.', 'Esa cuenta no cierra. Como la caja.', 'Probá con los dedos, no hay vergüenza.'],
   loading: [
     'Acomodando cajas que nadie va a mirar...',
     'Cebando el primer mate...',
@@ -275,10 +279,14 @@ GS.STATIONS = [
     task: { name: 'WhatsApp sin responder', tag: 'escribiendo...', late: 'Lo dejaste en visto. Te va a escribir de nuevo, pero con mayúsculas.' } },
   { id: 'repo', n: 7, name: 'Reposición', icon: '🧺', pos: [-4.9, 0.3],
     task: { name: 'Cajas para reponer', tag: 'Llegó mercadería', late: 'Las cajas siguen en el pasillo. Ya son parte del mobiliario.' } },
-  { id: 'stock', n: 8, name: 'Control de stock', icon: '🔍', soon: true },
-  { id: 'proveedor', n: 9, name: 'Recepción de proveedor', icon: '🚚', soon: true },
-  { id: 'devol', n: 10, name: 'Devoluciones', icon: '↩️', soon: true },
-  { id: 'cierre', n: 11, name: 'Cierre de caja', icon: '🧾', soon: true }
+  { id: 'stock', n: 8, name: 'Control de stock', icon: '🔍', pos: [-5.0, -3.2],
+    task: { name: 'Contar una góndola', tag: 'El sistema dice una cosa...', late: 'Nadie contó la góndola. El sistema sigue soñando.' } },
+  { id: 'proveedor', n: 9, name: 'Recepción de proveedor', icon: '🚚', pos: [3.6, -5.2],
+    task: { name: 'Llegó mercadería', tag: 'Firmame acá, jefe', late: 'El del reparto se cansó de esperar la firma y se fue.' } },
+  { id: 'devol', n: 10, name: 'Devoluciones', icon: '↩️', pos: [0.2, -4.0],
+    task: { name: 'Quieren devolver algo', tag: '"Lo usé poquito"', late: 'El de la devolución se fue. Vuelve mañana, con refuerzos.' } },
+  { id: 'cierre', n: 11, name: 'Cierre de caja', icon: '🧾', pos: [2.0, -3.4], finalOnly: true,
+    task: { name: 'Cerrar la caja', tag: 'Última tarea del día', late: 'La caja quedó sin cerrar. Mañana va a ser un día largo.' } }
 ];
 
 /* Datos de los minijuegos nuevos */

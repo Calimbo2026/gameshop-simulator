@@ -260,6 +260,15 @@ body.calm * { animation: none !important; transition: none !important; }
 @media (pointer: coarse) { kbd { display: none; } }
 .clock .t span { white-space: nowrap; }
 
+/* dibujos de productos */
+.pic { display: inline-flex; width: 46px; height: 46px; flex: none; } .pic svg { width: 100%; height: 100%; }
+.pic.sm { width: 22px; height: 22px; vertical-align: -5px; margin-right: 4px; }
+.opt .pic { width: 54px; height: 54px; }
+/* estaciones 8 a 11 */
+.shelfv { background: #fdfdf8; border-radius: 12px; border-bottom: 8px solid #c9ccd1; padding: 10px 8px 4px; display: flex; flex-wrap: wrap; gap: 4px 6px; justify-content: center; min-height: 64px; }
+.opts.three.low .opt { min-height: 54px; justify-content: center; } .opt .n.big { font-family: var(--display); font-size: 30px; font-weight: 700; }
+.expect.one { grid-template-columns: 1fr 1fr; } div.rowb { cursor: default; min-height: 40px; padding: 7px 12px; }
+
 </style>
 </head>
 <body>
@@ -337,9 +346,9 @@ const GS = {};
 GS.LOGO = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAtAAAAC0CAMAAACKc+vLAAAAYFBMVEX////+/v79/f38/Pz7+/vl5eXHx8eamppra2tQUFA1NTUVFRUFBQUDAwMCAgIBAQH/AAD+AAD9AAD8AAD7AADtAADPAACTAABdAAA6AAASAAAEAAADAAACAAABAAAAAABASjaiAAAeAElEQVR42u2diZaiSgxA2cQNQRBxQeD//3KSYlWhEhBtuyd558zM62GwkFupVCqLUYiI/CEx5CsQEaBFRARoEREBWkREgBYRoEVEBGgREQFaRESAFhERoEUEaBERAVpERIAWERGgRUTmBjrw/V0rvh8E8iW+RfI8u3Uky3P5TuYFOvC9nd/zc3/n7QTrWVm+pbes58dZmmaC9SxAI8zln7bbzWZdy2az3XrlzwFq+TbngDlLS5bT6/VyuZyVwB+u17S8IBOoXwbaVzB7m/Vq6S4WltGK6SwW7nK13uIFO2H6Vclu+Ov1cj4lyTHedyQ+JsnpdL4orNNMY6loRYCucN6slgunotiya2nYBqoV1L02iQhT0M7IAeZjTfGhkZbrEur8Jl/XNKB9QHS7ck3E1nZsyzLNroY2TcDbUWAvlitgWrT0ZO0MOF9OScltfIjCsKuhwzA6HOIS7OR0Qfx7ZkRxTvRyKbL/GugAcN4sHQWz1SX5QUxLQb1YbsA0ETYnqWfEGa2M+HCP8p0g1nhNcoYZ8GRApMV5r5dzcfufgd4hzkCqbRu0mHiVs9yqWSAy1kkHOKOREe1piZBpULZPcALQoMWHJT7830Dviu0S1LJtGkwxQZcvVmoiiIxUz+fjPjyEe56ECP7pWqTPGjrWzYT/WkODol0vQO+yca6RBiUtRI/k+QrqOd6PEUAalPRNgOYCDWclK9NwjLFi2sZiI0SP4/mS7NnaufXk7eMHPgXoYaD9wFvCXs+YII7hrIXoUTwfR6rnms8HQAXoQaAhZGNpOKYxSWzD2RSyM+TbG8f9YT9FYHd4R6gAPQR04BXLCeZGS/RiK+Ed3LPuazJJP5devLjrWRagh4DeFasXeEail+K84yro02SeEdHk2vqjBegBoP1i49jmC0DDbBAzmsnz+QWecWd4alW0AN0PtO9vF4b1Cs+GZS48MTo4ByrXYxS9ALQyOm4CtBbo3UsGdG10rERF04IIHvavyAFUtACtBdovtgvLfBFoVNGFqGhKQYOHI4xeAjoMj9fa6BCge4GeQ0ED0WJF8yzo1xQ0quiGUgG6D+ig2Dqm+TLQtuGKL5o2oZOQADqiTGxwdNxyAXoYaA9cdlR0HcRBU8jDsflWiNZLVlxjSv2qX3XH4uE+rm0OAboH6CDYuaZNaV+DDsKTbeHrW0IA+ZgcSV90jakA3QP0rtgYJqV8jQUmZJnU4QoD6ACSxr1OYQT4sz/7XrKtvODzrpuW8ovPsusWeQhIDZ0QAJ4u1/QKkdIh4YpOJwENGblVlYR0UiILVFpIO6UW4M/vSFps6zkw8oONXovDIXBebrbedrXQE20ZhJ8j2HlDfPnzJZEHu/tZpfnMB7iDcR/Te2Nt4nBepMd9pOW5uvKsc4Uc9skUkyN/KJVwy0Zmp/fTe5s3Kz2/3S8p1JzpMTkKV2tCm7azKq/cLohoPEsTouRXynILRRFWq2UtK6iNUFVG8D2NOg0IaTnDO23X6hNWZXp6L2OYO1lU18EoNl4xIj/S94IyL36zbh4FPmyz1T9HVlwije6F3R7gAanatxSOxw/aXWGRjwRa5ZenUCbhhAKVEor+NMWhwiFFmZ5+Kf99KVBu4VpRl+m3wtzU9Lwc5aUZJd5Xi7TR44R2tJoXLQmsLAPxS2v95nHYcRcomrcbLIvwvBo4WBlBweC/qqd3SNmy8xkLV2Xy9udOup2xLFQa+46lm8u58PwsTpMMvxs0oSO9Py6t8mdh8xgOG9rgiR4HNCbkXiG9vL04Vpm3rDoH9Vw4JcfHWRYek6rUwu02TyLPDfKG70eZFrpEX+PZ4tBjCobEVmkzUJLEAbkDu0JvADPIJF8uqjs6jtMURoA/NkStNsOFEbytXmqt663cKl9d3b3M5AXvS9CbOwljqUahRgDskzMqKB+mmgtm91HszhTydwNAxzrvRRNJl4OxfZgN6Fwl5Kq9ZpWCWKaTY+btjZOcDnMhKYcTxXE3ZXFfZaWfr5pKC7erXtIW5+s56Y4yLkeZakZpjI2zc9qtHmWcOP27QtSa6xIAVRbh2SVoWXb51+5AYQS/WC604qL1Dh8EOWQAWeczID29THv075jcIs7312HRkcW60G/sEGevpBnmwuOzwIOoKeRgMnzPY6TaQLuo4RSuzDVXtn47HtBZlV8eQamEbkzIvi9N8cl0buZCHEdP6elQbKGk7oj6Psv67ayjTpJjuYrAfEgR5zC+H2W4f0490wO91FIKzrigonQX6E8U8WiltzDCGrWmTbj9VBK5UqfPs8IvXL0fBrejiCl8jEWlPQKyyL3dnx9Z6EKsVM2Shf5h1HOY7qbnMTLKNM6LnOHfa1U5C2hMYIx7fduQpni8aImuay1EXcp64qXqtPQ078vPIdyQKjYFJ07SmwUfPaeeaYAGveZq7YiOYUwlAfS5OSqcbVZwalMYwX+6iwu6b1AcCz7YKzaLHpzL0k+G26Q9woiWxsActixcZAKNhY44kw+jEo2xvkPw6OVI9EDXPKsj8mgY6MMIoNPimuyHPjbexxrtB+r5eor2nPRHlcAOWjrPeoCOYG0YlDhCoEE9n8Khog6HfbO7IIHGwCTtntA0Ni3QeuvEBHO7CJ4KIyhOxhZG8J80tK2fSZCy7gyPzmkSeWFE7gD35ccPOtNhCdi4xvC/vV+tzJ76DmOAvug2hSOAzlUCYzh8xTDRmaq1wM7mRX0PH3fr09Ch3qsOThRQz8NBAWE8eEL0DPTG1AFtdnxxNNCPh98KAVbVmoeF37u/DwNoGJvOqejgZPMrnh3tpw+4ajArHqaMxY9t6anvkGi8HO8BGhMY9Zccr722r1Ka42otAJDJk1HOATrVzzpcAIbmndFzTqj1Qhv2CKDN+3oGO7QCxsfxoYVwPzNooCHlRr8OOIYLzscdLkj6YyQT0iP9XvN50FIZnBvuY32HzwOdJkR4X9yJr37I5U14hZ3uNOnTBo4BdIYrwYGYK0n/Ac4z0OsZgTbuXiDw7Bi2YUxJ6HLvjBcaaDrlBo0Jj+S5vM7v4RmqPIzNUlOGjvejQF/ohK/Dvq+i48RaC/HTNpOjoc/RPmKknt1YQK9mAxou7i7XyjyfxHOpTzs7QxJolw4YVGmPNM9guJjPdXPgWMmdsNaoGjz+zwEdhudjFJJAJ8/OiWxq7ZDDo1FOA32+RHTSQwR5DX3HQMbTucryTUBDsIM7ledHnzYBNDq4TUYGgrvhjMh+VtHwLNNyIOzKdP8hoHkmcE9MXqbsjYn5B8c7jU8BHe6T4z4aldfwMaDvzr5frIxgW517kUCzpwljT2eaT2VzplctQaI7S83Hgd6HHFSSB5sDIpGm1w4Boq8d7x0FNHOQoKJhIck/D7TXHF+8lqgI+rRNI58LaF5q+1McLG40plaVKk13HtDHtCZ6NqBDVpZi/GBFv1Y7BHaG2W0E0FHITKbss/X7gHbeATRxAqmiHwisWhU9F9Amk/r7A6LX5uadH1AHNB4A1pptPg3NrfWRPtYOCV+7322Mhh5/148DHWCw6fDxsEnrS9tsVfRsGprJvfXgrVm+8OlW1w+YUNF2t4aC4Urm8SGeF2gwdrptESHW77XUdDgLbxLT5wMaTbLix4DWek8AZ3e1WrmEKWt0jqs/CrR9FzZIeTbH7G8TfXx/42u9Eb0m5gW6G+dXGRzz1Q6ZDehOLuUPAA0IDiYqQgTcWl20snUruWMufwjoe1c05FwSceC2NrrDtFuFrwW6ExAN9TvOOmGGj46pjNDYHFl+ifVmLfR90Z+4gH6/dBabeYC+H+WHgVZpA/qUAUjH0y/lVhsa8mmTo2tEo4K29CtJk0dMFHjQx3JgBQMIIL2NTLqN5zZPSQXNyEyPW8cJC2g42obo1JGm/ieB1pVGwJAPlTKgSuqZutvVmo0DNAQjWzwDmbyu+9CwJdR+NppPS8x9sXRmdPkgGYUK1hatyMpTneQjgIaINsbZSuMxzLC4k76MwhHSoxLCI3GoVTQH6APL3XHo1qn8MNCgfE1Ho7ACTsmmti4CA2irJIfnuLPINPd1a+1sbE1NElhG1qpR6VJDdO0HJIFGssboaI4f+tAhhuMxJO4J1sQJEwkhrlSHfWtFM4CGg++knCMhVWHnhzaF2ijrdpPkBSv9Ur1kA42K0l3QjjkL0mLcBW1Er1i7W9wObFQxhEI3QrM6L0xp9+6hJ17tRZMDeizHBFEqqStjFXdSmekpJs2edRq1TRNj+KFVbgDcFRuDUaPMfwhoTeZte9SA5qmpP1spdTkJNB5rY3IUVdOsuU6vo1ugVRCHpTWPVQY4pBdoPtsuvxgOfwd8u2k+E9DgQMN0v6u+0Af+ZW0hQBBHHGoz0zOV4p3rM9P3zbaQBBpjSTCvHHNW4pDvjPkk0FpS2UC3CQMU0BjzqdJc1vrwe1UiFa9bGRbP04YWB5Gg5jWLiKVz2PjEcUnn5PjMLTBAAo2OAZXanVD7vNbk1XLaehpu2UW3L4zDExNoRD8tGHNk3/GdzAW06Zgasc0KaG25PDbQbaEPCmi7vGXg0QmSeB2U1aDv53MK/7XRK9r9QOWwyYtrTBNdttjMshmAhkU6RX2a5hd9/E/cVlDQsg+HlHWcBlTNISJTSrOcAjpqg/3SXF8prS8+6VUNTTgIOkA7rwPduDkooOFClcm7C7QuNvCvbNShHbXWtJVUie+ndcRQt8TrCAY6+y6lpPOXga7dcXlOfHCT4pRjmF3EMmMp9KtjEAroziEMXBrqL50daIeQxuRYzgP0mgV0k/sV6KvmNJ5tzNOxCKCDcjPgE5HYPKCrpSFlBv0clJKm7Q4KaCAgTzm+5QZoVdxpT+tddU+tHRNWtxwBNNrvnwQ6IMu9bJtzwuUcJkfjt2NkrCgAYYS6zBXYEvrqOmySZPCA5rrK9UBXz8wyokvfMSjpG6mk2ZWTbqQq71wYzQJ0bcWwkmQ71YYJ9tMZgR5R/XM+oD1ukmxQK1SLyanFAJoqlMbX0OqGIzpSHMpCF7e5gL7wNDRR8HcU0KfvBxr6zeolYNRYeivQ2gvHA03VGuYCDSPc4R1HxP2AMziiNoejgI54QGuNohFA1+d6MwId/5iGnglo58eBpiv/sYFWRhG+spAbqQPnFrg5TD8J9G02oOtoTwH6u4BeEcWieEA3LvVxuSCxsjvy7HNA5ySlI4BWlc0E6L8JdOWHoWMzH7vV645ZvhzomwD9h4Guvsax0fPl5nCgSP7sQFNniqOALgOeBOi/CXR9YZ5dOYcrd5vDQSX9BqCzZCa3XX0GI0D/baBLD1o4LlMDj1luAvScQAc7ngQCNFUlbXyNgFCF4PWcsgjQ36WhqZafvwLoqrObt+MCraq4jExCVTW/n8usCNATgQ6w4RNL6iNoJtBLoh3Gb9DQtXCBVklO+2hsDv/+lD4FAwvQE4GG2AeDJ2XwBRNo33d5XYi+FmjTgL50legiV+8Ls6rKniOJDlUuSyZAzwW0zRHHXo8A2iPyqX8B0Aa/ZFO3ds0Nw8rGlnKJn4kWoN+soZ0RGjrApijmrwfabDq9mCNKZ6uS9YeXiRagPwi0OYwfAg3+kA3Ra/nvauiK6Hg80fdl7AXoDwENaf3anSPm4UGmKl10/88CXag2OYdwQlXFXID+AaBJxx42e7OM/xdo7GFy2o93391VwxKgPwb0YMT0zvNUZ1mD0bHkTwNddU0bp6TDQ9RNfBagf1pDq8bvW6w7yqnb9beBxrBQbJ46yttx34VNgP5ZoP2yaNaC24rzjwONQKbQeHhUbfFupVoB+ieBDjDOo+xibzO7V/55oJsO16OIbo0OAfrHgN41ynlEt7+/DzSUwFJKekzMP3ijs1yA/kmgVRGYbamcxzSv/A+AVoHO45R0pzqFAP0TQAetcuZ3yv5/gEYlje4OdleTTgtKAfrzQOMZinJrQOcGc3RriP8BaOzSo3zS3M1hq6IF6E8Djdp5u1qoRiPGhF4n/wfQjd0RMVV03YJSgJ4ONB2A0wN0jfMUmn8J0BZLbMvSAo12xxU2hwdmP6hLW+dIgP6cht5BwIYe5/8lOMkgNHSjpFnujqb2sgA9HehFKWOAhn/lGrqewqb9+zW0yxUykw3qhDKjOxRWAvRrSbKeEn0O4B3QUIgZ4um0DfwMY/HL46ExBSso5pLS3XHghHSUNocA/VqS7K7gAx1gjWhTXybfXK2tv5L1zZOckDKolBV0J0C/BnQAQnStugNa1TzXlxZdrP9QGYOZJMUK+jE3oEOAfk1De3wNjSU3HD2s7rbY/W9AX/WSqTBpWkcfqkatAvSngA4CPTElz95/pqGh8eZRJwkScCvoWmE1VwL0p4CmrG1b6efdnwI6IGtKYSdZnTQEHENeo0wB+kNAg73t6hK6Vf3vXbH7/zR0FEdDcoiqDlOpvs9Jp8WUAP0hoInWJKqh8O5v1baDW661AjWl9L2+25ZpKaPk7kWA/iDQBKl175S/VqyROinkAp3lV8LoCAXojwJNNxwJgr8HNBSOGi4pZY8Amq6KXjUJFqA/pqGXRNO+3f9YTpcPdH6JIgH6twBtVo2MBeghoLGfIdnwXYD+oJdDx1XTEUqAnthHW4D+KqCRFgFaDzRV5V+A/jKgg0KA1gGdCtC/B+hmTyhAa4A+C9C/CWhPgBagBWgBWoAWoAXo/w5oW4B+P9CQ9e3/BqBna40c/lxrZAH6Q72+/yugf6jXNxW4XKoWPtBrAXoA6O1vABo+fz6gk2xmoA8soNeGzS0o8X8Cbc8CNJyO+vrjkq8AWj/nRgLd9Db/JqCtcUD/MZODGiEX6HKEY4DWH6y8K3yU+uARQGPeY84A+jAO6BsJ9EZfQ9GulC7HJfL3gMYaaLoh8oF2SVrGAL3/fqBrzTsK6AsB9JkEmnq1TTB++Xr/N6ADfeoNG+jyhgygM1Ysx9tSsOCXM9dtl9NApyygk3aKXLQxhhygIf3PJYB2600htLB36V7GfwxoT3shF+jyuB/5O7CAJvdmpTJ/B9Bapu5CXFOty/pQdaCjgO48dprrH6fbjWMQ6B3ltzOdKnq52Pkb0zT/K6DVomTPoaHxSVD9Db/aMAzr9wWwHDmK8h2bQn0kNhjveVoVtdbbB/tQWUUk0Eh+dUsqUSfkAE2WI7SRv10Q+B7ls2YDXdPiBfod6RcADV+P6eg+ud5h7AKtOWai8zPDd6t/s+X7umWXQ/gThWYwn5HY6tWOhpTyh5RuaA7Q1S2zjJpMx4de5/0amlK7qF1KWZnWDM3rAT8/CDibzC8AGr4eIt03qLO+6ZwGIhEFMWXB8r5SYLSWjGK4MgWBDZwukRdL/mYctx3e8lKoO1If3dk1a2xofLdaoIHi5WbrbddQfJEseM7wQ0ON8DUoZ2xWsVmYX25yEFc25pPv63aPtrnEjUhe5PpICXyztxsJS7M7egvQ+itBTZ7VhRetUdSY0Byg98lFTePTnkikTJ54fgYarUTTIRsqLBYOVZ6cq6HRh+Up+LaMPeYPA417DE0NVdME1evtdp7e1q5dRaTz4nipYdFXMYgv7zI51CqiJ3qfnM7n00E/xMY8oIFGp83pdD5RFdD63NA9QKMRTXWMUK/Ksg0u0ORWyt142OeN+ODvAHqtd3NATTO8I5hjpv7guwJQv+sJgZVzQqq0To2lmYEms7+aoWmHeAiTytxlAF0PLaKKCLOAJqoc1ZrIJNUzO+sbMTAW7sIwLOPrgcayk0RVs9V6rdp8affVfnNy8DIsQEtln74H6AtF1iGG/0KyU1fKBhoquMdxHJGNC85PJ989QNPHJcaoLj8coA2lzciG398ANBm+Zd39RvhC8pRYV8PDIToQsLS0vAPoHPwc4ZhezUQvRRbQe1arpPjZydEHNLGoTgGa0WuH07XwK4BWKlobz+FYtrajqG26XlDwSiLx3mxbBG9+oEm7aM9spZgW8wINe8L8md4eoKEy/8K0ZtbQs8yRrwCabsRhkDuQJhwmo/wXHGltybcAnWdp8iLRHQU9H9BN7y8K6Nff2Njqo78L6MDfvjTh4WaBHxS8CjIcBR1VPo43AY0Xk1YPux35nBq6x4TuBZra94wHGiNETPuPAF2213gF6E4N6RtZ+3nPabCSFW8EmnZ0MDpmdKfHLECHfccq/UBPUNED/DdAe7NsNL8EaHqPq3+IZbcmOnG0zFPQ+XuBzrPrK4NUBkfGBzpizfDGtcMAGuI05lHRDdAQR+yYfwZo+H7cqUTDrTw/6PYivOxfWs8f929vABovj6Opgwzvg+I4GjqcbHH0Az16UbUct9dEbrtgAYKv2xzfAjTOz8W0Xa5lOg9NK15cz2PY69/yNwNddsWYRnT4cP5BAQ3Oi4RhhUVhG4lNA134gTvC6ADQNoy2bpwbWr8CaIxRcqZsnC3LWT80YXnNiQA8d5bztwGtbP1DNAPPjJzCMywH0Zh9JgvoLV8FqYic3ss7jTd9nzNFrN+hoXFTsJ5ANJwftfk+nTd8nHpyEd9HUL4PaHXrMJpg4SPP+SigTzh5KKMkah2BHKBRo5o8MxoimZbewKavCzQwQx0Fwge69u8AusDQQGPkvsA2nGeeSwt1ko6OwH1w7YL3RqDx3vFo2wieCrZueTEO6IwmOh5Q0INAs4kGXJYY+dlrUXSb1+/I00IL41J1h3DfBDQMBIIDxxjSMPMX696mbyn2qI8nbLb2p/Rup/9OoNVKMs7sgBFCbOk9zywNjfHfkT4YNUmzfBTQCKBJ7gzhJYHS8YOBk5Mu0KSzC/5upQ+f/yqg4Xm8FZgdXKThaN/d9OjnEkToUR+NUtIRgJuci3vP1VuBxr7jJzyg41vPGNjcMy9ooOFBQs2iFWFcbVaMAxrNxIX+faHfAl4SeqH6I57vgIYTNnd4kYb3DfrL/0VAY8DcBpS0zYhCMeEac+kNNuW8KVbY/jsIWYIA49P1Ufu9F2j8CSwlPC2N0xND/2/FBKBv1aIVDl0SD/GsAxq+fVxUB5HGeOgFvCSv0ucQlPMojtVdY4Pyfr3vG6pdLLHZ98ayrUFxrBbonk/rXNcBWnOhY3WA1t+wD2hofgxKGgNFHcvUbg1wYVpuiqaGWl9T2eJyAlDoM+ZQ0axwfqIFMNC0po3g71qgeRcWDx4ZmHhHVL5aHx6c9UTlCPOsmAZ0uWj1Ig1rE+jntBgPNLAYrBZoVzy9L3hH8CMHGKxeEuba9cmqq5T8wodF2nyYIqaN7xs0PaSRD9ylkWWrobXS1dA66WpozoXP31DhrdVG1rF7oTYt9XQO4rwLNN81psNeTrF6YYchXMLooF5xnJwR57zHGCemQ0dD6+XUv+eCH14x4QDG0D/KMIrUGpH0TbgxpcBAS+PceZg6IS4PPYYMD2g0JkoVZGC3SKWsysaR6h2vtu1LgguHGgDfRYmoRdqw6tvhb+p9rxXOZD/hTQ3gmpBGFxLX6Uf/9MF9ShoMj6XrGPVjNStM80U56psKfKLz9w219Dk5lrueUpq+30rKV3s8Ic09OKt8qbNeqvAH+sJLkQ9OvOxySqJ2lHdjrIeYlg80Hehy0YqrT6k/YF/uHAZ5JoBWKmgH7+tRfy3cJTKzo15S3/02y8XDvVjv+1slwDkdbFbLRd+O14Gn28AFPqelfYYEXCGZ7jhgCB8he++CNGe3/MceWJVWSHHq9Y3yAGO8pMUQzmOKNZaLVhLdfwM4VbJiMtDokQPZrldL13UXC/jFXa7WKm/Ou2dw1ydBj9IvtpvmbtW9mvcd7LTiaz+sIwXzQu512unmq+/Ig8dSzwUPVn5P8HCbvm9Kg3SqQL1eLufT6ZR0BP4XWC7rVaSZhja95KMv7P+QdpR3YzyX863Q/PsR1Udh3mKG8PnU3n9obeIDrRirUvg9kMcfjpeaouZugfdbtXM3XMlv8VYSNP/rB+MUYIfXLE2v1/TuBz+om+8P7Nv4ORhkmjZWQK4f4higK6RxRbimtdrWP7/BG7/fKimfVFicKVJRHeymT4zvg/pe56un9INpuCgtmT0q3iz/pgcuR9mZbKwhjgO6um1efwkZNShjzBtTMtv7n/NmXwV2MNsXldfyzc87cpCjgW4+hHV7oxAR+aRMA5otArSIAC0iIkCLiAjQIgK0AC0iQIuICNAiIpOAPkCx0kGJDwK0yG/T0FMiVwVokW8UzBHQy7nIBGgREQFa5EckT3VySzMBWkREgBYRoEVEBGgREQFaRESAFhERoEUEaBERAVpERIAWERGgRQRoEREBWkREgBYREaBFRJjyD4H1QCGJ0zcfAAAAAElFTkSuQmCC";
 
 GS.CONFIG = {
-  version: '0.4.0',
+  version: '0.5.0',
   phase: 2,
-  phaseNote: 'Parte B: minijuegos mejorados y más pedidos (faltan 4 estaciones)',                       // fase actual del proyecto (1 a 5)
+  phaseNote: 'Completa: las 11 estaciones. En revisión',                       // fase actual del proyecto (1 a 5)
   links: { tienda: '', instagram: '' },   // se conectan más adelante
   promoMode: null,                // 'hotsale' | 'cyber' | null (Fase 3)
   camera: { tilt: 55, rot: 38, fov: 22 },
@@ -562,6 +571,10 @@ GS.LINES = {
   wrongLabel: ['Esa etiqueta va a otra provincia. Lindo paseo para el paquete.', 'Ese pedido es de otro comprador.'],
   wrongChat: ['???', 'Visto ✓✓', 'jajaj no entendi', 'ok... (está escribiendo una reseña)'],
   wrongShelf: ['Ahí no va. Después nadie lo encuentra. Ni vos.', 'Esa góndola es de otra cosa.', 'Si lo ponés ahí, mañana lo buscás tres horas.'],
+  wrongStock: ['Contá de nuevo, sin apuro.', 'Mmm, no. ¿Contaste el que está atrás?', 'Ese número le gustaría al sistema, pero no.'],
+  lineFine: ['Esa línea coincide. Mirá las otras.', 'Eso está bien. El de la carreta silba y mira para otro lado.'],
+  returnExcuses: ['Lo usé un año, pero no me terminó de convencer.', 'Me lo regalaron y ya tengo dos.', 'No era lo que mi hijo quería. Nunca es.', 'Lo abrí, lo miré y me arrepentí.', 'Se rompió solo. Yo estaba al lado, pero no hice nada.', 'Lo compré ayer y hoy salió uno nuevo.'],
+  wrongCount: ['Sumá de nuevo, tranqui.', 'Esa cuenta no cierra. Como la caja.', 'Probá con los dedos, no hay vergüenza.'],
   loading: [
     'Acomodando cajas que nadie va a mirar...',
     'Cebando el primer mate...',
@@ -605,10 +618,14 @@ GS.STATIONS = [
     task: { name: 'WhatsApp sin responder', tag: 'escribiendo...', late: 'Lo dejaste en visto. Te va a escribir de nuevo, pero con mayúsculas.' } },
   { id: 'repo', n: 7, name: 'Reposición', icon: '🧺', pos: [-4.9, 0.3],
     task: { name: 'Cajas para reponer', tag: 'Llegó mercadería', late: 'Las cajas siguen en el pasillo. Ya son parte del mobiliario.' } },
-  { id: 'stock', n: 8, name: 'Control de stock', icon: '🔍', soon: true },
-  { id: 'proveedor', n: 9, name: 'Recepción de proveedor', icon: '🚚', soon: true },
-  { id: 'devol', n: 10, name: 'Devoluciones', icon: '↩️', soon: true },
-  { id: 'cierre', n: 11, name: 'Cierre de caja', icon: '🧾', soon: true }
+  { id: 'stock', n: 8, name: 'Control de stock', icon: '🔍', pos: [-5.0, -3.2],
+    task: { name: 'Contar una góndola', tag: 'El sistema dice una cosa...', late: 'Nadie contó la góndola. El sistema sigue soñando.' } },
+  { id: 'proveedor', n: 9, name: 'Recepción de proveedor', icon: '🚚', pos: [3.6, -5.2],
+    task: { name: 'Llegó mercadería', tag: 'Firmame acá, jefe', late: 'El del reparto se cansó de esperar la firma y se fue.' } },
+  { id: 'devol', n: 10, name: 'Devoluciones', icon: '↩️', pos: [0.2, -4.0],
+    task: { name: 'Quieren devolver algo', tag: '"Lo usé poquito"', late: 'El de la devolución se fue. Vuelve mañana, con refuerzos.' } },
+  { id: 'cierre', n: 11, name: 'Cierre de caja', icon: '🧾', pos: [2.0, -3.4], finalOnly: true,
+    task: { name: 'Cerrar la caja', tag: 'Última tarea del día', late: 'La caja quedó sin cerrar. Mañana va a ser un día largo.' } }
 ];
 
 /* Datos de los minijuegos nuevos */
@@ -680,6 +697,54 @@ GS.Store = (function () {
       return data.best.indexOf(entry);
     },
     reset() { data = { best: [], tutorial: false, mute: data.mute, quality: data.quality }; save(); }
+  };
+})();
+
+/* =====================================================================
+   DIBUJOS DE PRODUCTOS — ilustraciones propias en SVG (sin fotos ni logos).
+   Una por producto del catálogo, con la forma y los colores del producto real.
+   ===================================================================== */
+(function () {
+  const S = b => '<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">' + b + '</svg>';
+  const pad = (fill, extra) => '<path d="M9 17q15-7 30 0q6 14 4 20q-4 5-9-6H14q-5 11-9 6q-2-6 4-20z" fill="' + fill + '" stroke="rgba(0,0,0,.25)"/>' +
+    '<circle cx="17" cy="25" r="3.2" fill="#1b1b1f"/><circle cx="29" cy="29" r="3.2" fill="#1b1b1f"/>' + extra;
+  GS.ICONS = {
+    ps5: S('<rect x="19" y="6" width="10" height="36" rx="2" fill="#15151a"/><path d="M12 5q7-3 8 3v32q-1 6-8 3z" fill="#f4f4f6" stroke="#c9c9d1"/><path d="M36 5q-7-3-8 3v32q1 6 8 3z" fill="#f4f4f6" stroke="#c9c9d1"/><rect x="23" y="10" width="2" height="12" rx="1" fill="#3aa0ff"/>'),
+    switch2: S('<rect x="12" y="13" width="24" height="22" rx="2" fill="#1b1b1f"/><rect x="14" y="15" width="20" height="18" fill="#56b8ff"/><rect x="3" y="13" width="9" height="22" rx="4.5" fill="#22a9e8"/><rect x="36" y="13" width="9" height="22" rx="4.5" fill="#ee4b33"/><circle cx="7.500" cy="20" r="2" fill="#0d0d10"/><circle cx="40.500" cy="28" r="2" fill="#0d0d10"/>'),
+    quest: S('<path d="M6 22q18-10 36 0" fill="none" stroke="#8d9199" stroke-width="3"/><rect x="7" y="18" width="34" height="18" rx="9" fill="#f6f6f8" stroke="#c4c4cc"/><circle cx="14" cy="24" r="1.600" fill="#333"/><circle cx="34" cy="24" r="1.600" fill="#333"/><circle cx="24" cy="31" r="1.600" fill="#333"/>'),
+    deck: S('<rect x="2" y="13" width="44" height="22" rx="7" fill="#1b1b1f"/><rect x="14" y="16" width="20" height="16" rx="1" fill="#4aa8e8"/><circle cx="8" cy="21" r="2.600" fill="#3a3a44"/><circle cx="40" cy="21" r="2.600" fill="#3a3a44"/><rect x="5.500" y="27" width="5" height="5" rx="1" fill="#2b2b33"/><rect x="37.500" y="27" width="5" height="5" rx="1" fill="#2b2b33"/>'),
+    xbox: S('<rect x="14" y="4" width="20" height="40" rx="1.500" fill="#17171a"/><rect x="14" y="4" width="20" height="5" fill="#1f8f2f"/><g fill="#0b0b0d"><circle cx="19" cy="6.500" r="1"/><circle cx="24" cy="6.500" r="1"/><circle cx="29" cy="6.500" r="1"/></g><circle cx="18.500" cy="14" r="1.600" fill="#f4f4f6"/><rect x="17" y="36" width="8" height="1.500" fill="#33333a"/>'),
+    dualsense: S(pad('#ff8fc0', '<rect x="20" y="17" width="8" height="5" rx="1.500" fill="#fff"/><g fill="#fff"><circle cx="33" cy="20" r="1.300"/><circle cx="36" cy="23" r="1.300"/><circle cx="30" cy="23" r="1.300"/><circle cx="33" cy="26" r="1.300"/></g>')),
+    joyxbox: S(pad('#2a2a30', '<circle cx="24" cy="18" r="2.200" fill="#f4f4f6"/><circle cx="33" cy="19.500" r="1.400" fill="#f5c518"/><circle cx="36" cy="22.500" r="1.400" fill="#e8452a"/><circle cx="30" cy="22.500" r="1.400" fill="#3a8dff"/><circle cx="33" cy="25.500" r="1.400" fill="#3bb54a"/>')),
+    juego: S('<rect x="11" y="5" width="26" height="38" rx="2" fill="#2d6cdf"/><rect x="11" y="5" width="26" height="6" fill="#1d4fae"/><rect x="14" y="13" width="20" height="26" fill="#fdfdf8"/><circle cx="24" cy="24" r="6" fill="#f5c518"/><path d="M14 39l7-9 5 6 3-3 5 6z" fill="#3bb54a"/>'),
+    airpods: S('<rect x="11" y="14" width="26" height="26" rx="9" fill="#f8f8fa" stroke="#c9c9d1"/><path d="M11 24h26" stroke="#c9c9d1"/><circle cx="24" cy="30" r="1.200" fill="#3bb54a"/><path d="M17 5a3 3 0 0 1 3 3v6h-3z" fill="#fff" stroke="#c9c9d1"/><path d="M31 5a3 3 0 0 0-3 3v6h3z" fill="#fff" stroke="#c9c9d1"/>'),
+    homepod: S('<ellipse cx="24" cy="27" rx="16" ry="15" fill="#2a2a30"/><g stroke="#3d3d47" stroke-width="1"><path d="M9 24h30M9 30h30M11 36h26M14 18h20"/></g><ellipse cx="24" cy="13.500" rx="9" ry="3" fill="#7b4fd1"/><ellipse cx="24" cy="13.500" rx="5" ry="1.600" fill="#56d6ff"/>'),
+    magic: S('<ellipse cx="24" cy="24" rx="12" ry="19" fill="#fafafc" stroke="#c9c9d1"/><path d="M24 7v9" stroke="#d9d9e0" stroke-width="1.500"/>'),
+    ipad: S('<rect x="9" y="4" width="30" height="40" rx="3" fill="#2b2b33"/><rect x="11" y="6" width="26" height="36" rx="1" fill="#6cc0ff"/><rect x="14" y="10" width="8" height="8" rx="2" fill="#fff" opacity=".85"/><rect x="26" y="10" width="8" height="8" rx="2" fill="#f5c518"/><rect x="14" y="22" width="8" height="8" rx="2" fill="#ff8fc0"/>'),
+    watch: S('<rect x="18" y="2" width="12" height="44" rx="3" fill="#33333a"/><rect x="13" y="13" width="22" height="22" rx="6" fill="#111"/><circle cx="24" cy="24" r="7" fill="none" stroke="#ee4b33" stroke-width="2.500"/><circle cx="24" cy="24" r="3.500" fill="none" stroke="#3bb54a" stroke-width="2"/><rect x="35" y="20" width="2" height="5" rx="1" fill="#555"/>'),
+    gpu: S('<rect x="2" y="14" width="44" height="18" rx="3" fill="#23232b"/><circle cx="14" cy="23" r="6.500" fill="#0d0d10" stroke="#e10600" stroke-width="2"/><circle cx="34" cy="23" r="6.500" fill="#0d0d10" stroke="#e10600" stroke-width="2"/><rect x="8" y="32" width="24" height="4" fill="#d4a017"/>'),
+    notebook: S('<rect x="8" y="7" width="32" height="24" rx="2" fill="#1b1b1f"/><rect x="10" y="9" width="28" height="20" fill="#e10600"/><path d="M14 25l8-9 5 5 3-3 5 7z" fill="#111" opacity=".55"/><path d="M3 33h42l-3 7H6z" fill="#3a3a44"/><path d="M9 35h30" stroke="#3aff9c" stroke-width="1.500"/>'),
+    gabinete: S('<rect x="11" y="3" width="26" height="42" rx="2" fill="#15151a"/><rect x="14" y="7" width="20" height="30" fill="#1d2433"/><circle cx="24" cy="14" r="4.200" fill="none" stroke="#ff4fa3" stroke-width="2"/><circle cx="24" cy="23.500" r="4.200" fill="none" stroke="#56d6ff" stroke-width="2"/><circle cx="24" cy="33" r="3" fill="none" stroke="#3aff9c" stroke-width="2"/>'),
+    router: S('<path d="M12 28V8M24 28V5M36 28V8" stroke="#1b1b1f" stroke-width="3" stroke-linecap="round"/><rect x="5" y="27" width="38" height="12" rx="3" fill="#1b1b1f"/><g fill="#3aff9c"><circle cx="12" cy="33" r="1.400"/><circle cx="17" cy="33" r="1.400"/><circle cx="22" cy="33" r="1.400"/></g>'),
+    tinta: S('<rect x="13" y="10" width="22" height="30" rx="2" fill="#17171a"/><rect x="16" y="14" width="16" height="12" fill="#fdfdf8"/><path d="M24 16q4 5 0 8q-4-3 0-8z" fill="#111"/><rect x="18" y="5" width="6" height="5" fill="#33333a"/>'),
+    pendrive: S('<rect x="6" y="17" width="26" height="14" rx="3" fill="#e10600"/><rect x="32" y="19" width="10" height="10" fill="#c9ccd1"/><rect x="35" y="21.500" width="2" height="2" fill="#666"/><rect x="35" y="25" width="2" height="2" fill="#666"/><circle cx="12" cy="24" r="2" fill="#7a0300"/>'),
+    cable: S('<circle cx="22" cy="26" r="12" fill="none" stroke="#f1f1f4" stroke-width="3.500"/><circle cx="22" cy="26" r="7" fill="none" stroke="#dcdce3" stroke-width="3"/><rect x="31" y="6" width="7" height="12" rx="2" fill="#f8f8fa" stroke="#c9c9d1"/><rect x="32.500" y="3" width="4" height="4" rx="1.500" fill="#9a9aa3"/>'),
+    auris: S('<path d="M9 28a15 15 0 0 1 30 0" fill="none" stroke="#17171a" stroke-width="4.500"/><rect x="4" y="25" width="10" height="16" rx="4" fill="#e10600"/><rect x="34" y="25" width="10" height="16" rx="4" fill="#e10600"/><path d="M8 40q2 6 12 5" fill="none" stroke="#17171a" stroke-width="2"/><circle cx="21" cy="45" r="2" fill="#17171a"/>'),
+    mouse: S('<ellipse cx="24" cy="25" rx="12" ry="19" fill="#1b1b1f"/><path d="M24 6v12" stroke="#3a3a44" stroke-width="1.500"/><rect x="22.500" y="10" width="3" height="6" rx="1.500" fill="#56d6ff"/><path d="M14 34q10 8 20 0" fill="none" stroke="#ff4fa3" stroke-width="2"/>'),
+    streamdeck: S('<rect x="4" y="10" width="40" height="28" rx="3" fill="#17171a"/><g><rect x="8" y="14" width="8" height="8" rx="1.500" fill="#ee4b33"/><rect x="20" y="14" width="8" height="8" rx="1.500" fill="#3a8dff"/><rect x="32" y="14" width="8" height="8" rx="1.500" fill="#3bb54a"/><rect x="8" y="26" width="8" height="8" rx="1.500" fill="#f5c518"/><rect x="20" y="26" width="8" height="8" rx="1.500" fill="#7b4fd1"/><rect x="32" y="26" width="8" height="8" rx="1.500" fill="#ff8fc0"/></g>'),
+    mic: S('<rect x="17" y="4" width="14" height="24" rx="7" fill="#c9ccd1"/><path d="M17 12h14M17 17h14M17 22h14" stroke="#8d9199"/><path d="M12 22a12 12 0 0 0 24 0" fill="none" stroke="#33333a" stroke-width="2.500"/><path d="M24 34v7" stroke="#33333a" stroke-width="3"/><ellipse cx="24" cy="43" rx="9" ry="2.500" fill="#33333a"/>'),
+    silla: S('<rect x="15" y="3" width="18" height="25" rx="6" fill="#17171a"/><rect x="21.500" y="5" width="5" height="21" rx="2" fill="#e10600"/><rect x="12" y="26" width="24" height="7" rx="3" fill="#17171a"/><rect x="22.500" y="33" width="3" height="7" fill="#555"/><path d="M12 43l12-4 12 4" fill="none" stroke="#33333a" stroke-width="3" stroke-linecap="round"/>'),
+    teclado: S('<rect x="2" y="15" width="44" height="18" rx="2.500" fill="#17171a"/><g fill="#ff4fa3"><rect x="5" y="18" width="4" height="3.500"/><rect x="11" y="18" width="4" height="3.500"/><rect x="17" y="18" width="4" height="3.500"/></g><g fill="#56d6ff"><rect x="23" y="18" width="4" height="3.500"/><rect x="29" y="18" width="4" height="3.500"/><rect x="35" y="18" width="4" height="3.500"/><rect x="5" y="23" width="4" height="3.500"/><rect x="11" y="23" width="4" height="3.500"/></g><g fill="#3aff9c"><rect x="17" y="23" width="4" height="3.500"/><rect x="23" y="23" width="4" height="3.500"/><rect x="29" y="23" width="4" height="3.500"/><rect x="35" y="23" width="4" height="3.500"/><rect x="12" y="28" width="22" height="3"/></g>'),
+    webcam: S('<circle cx="24" cy="20" r="14" fill="#23232b"/><circle cx="24" cy="20" r="8" fill="#0d0d10"/><circle cx="24" cy="20" r="4.500" fill="#3a8dff"/><circle cx="22" cy="18" r="1.300" fill="#fff"/><path d="M15 34h18l3 9H12z" fill="#33333a"/>'),
+    parlante: S('<rect x="3" y="14" width="42" height="20" rx="10" fill="#ee4b33"/><circle cx="10" cy="24" r="5" fill="#1b1b1f"/><circle cx="38" cy="24" r="5" fill="#1b1b1f"/><g stroke="#b5321f" stroke-width="1"><path d="M18 18v12M22 18v12M26 18v12M30 18v12"/></g>'),
+    volante: S('<circle cx="24" cy="22" r="16" fill="none" stroke="#17171a" stroke-width="6"/><path d="M9 22h30M24 22v15" stroke="#33333a" stroke-width="4"/><circle cx="24" cy="22" r="4.500" fill="#e10600"/><rect x="16" y="40" width="16" height="5" rx="2" fill="#33333a"/>'),
+    mousepad: S('<rect x="3" y="12" width="42" height="24" rx="4" fill="#17171a" stroke="#7b4fd1" stroke-width="2.500"/><path d="M8 30q10-12 18-4t16-8" fill="none" stroke="#56d6ff" stroke-width="1.500" opacity=".8"/>'),
+    muneco: S('<rect x="12" y="4" width="24" height="22" rx="7" fill="#f2c9a0"/><path d="M12 12q12-12 24 0v-3q-12-9-24 0z" fill="#3a2a1a"/><circle cx="19" cy="16" r="3.200" fill="#111"/><circle cx="29" cy="16" r="3.200" fill="#111"/><rect x="17" y="26" width="14" height="13" rx="2" fill="#2d6cdf"/><rect x="13" y="39" width="22" height="5" rx="2" fill="#17171a"/>'),
+    monitor: S('<rect x="3" y="6" width="42" height="27" rx="2" fill="#17171a"/><rect x="5" y="8" width="38" height="23" fill="#3a8dff"/><path d="M5 31l12-13 8 8 6-5 12 10z" fill="#3bb54a"/><circle cx="35" cy="14" r="3" fill="#f5c518"/><rect x="21" y="33" width="6" height="6" fill="#33333a"/><rect x="14" y="39" width="20" height="3" rx="1.500" fill="#33333a"/>'),
+    impresora: S('<rect x="13" y="5" width="22" height="14" fill="#fff" stroke="#c9c9d1"/><rect x="5" y="17" width="38" height="17" rx="3" fill="#e4e4ea" stroke="#b9b9c2"/><rect x="11" y="30" width="26" height="12" fill="#fff" stroke="#c9c9d1"/><path d="M15 35h18M15 38h12" stroke="#9a9aa3"/><circle cx="37" cy="22" r="1.500" fill="#3bb54a"/>'),
+    disco: S('<rect x="11" y="6" width="26" height="36" rx="5" fill="#23232b"/><path d="M11 30h26" stroke="#3a3a44"/><circle cx="16" cy="36" r="1.500" fill="#3a8dff"/><rect x="20" y="42" width="8" height="3" fill="#9a9aa3"/>'),
+    cargador: S('<rect x="4" y="16" width="24" height="16" rx="3" fill="#23232b"/><path d="M28 24q9 0 9 8t6 8" fill="none" stroke="#23232b" stroke-width="2.500"/><rect x="41" y="38" width="5" height="6" rx="1" fill="#9a9aa3"/><circle cx="9" cy="24" r="1.500" fill="#3bb54a"/>'),
+    ram: S('<rect x="2" y="15" width="44" height="13" rx="1" fill="#1f8f4e"/><g fill="#101010"><rect x="6" y="18" width="7" height="7"/><rect x="16" y="18" width="7" height="7"/><rect x="26" y="18" width="7" height="7"/><rect x="36" y="18" width="7" height="7"/></g><rect x="2" y="28" width="44" height="4" fill="#d4a017"/>')
   };
 })();
 
@@ -1114,6 +1179,14 @@ GS.World = (function () {
     const sh = new T.Mesh(gShadow, shadowMat); sh.rotation.x = -Math.PI / 2; sh.position.y = 0.02; g.add(sh);
     const bag = box(g, 0.26, 0.3, 0.12, 0xe10600, 0.3, 0.3, 0.1); bag.visible = false;
     if (o.phone) box(g, 0.1, 0.18, 0.03, 0x111111, 0.12, 0.72, 0.26);
+    let cargo = null;
+    if (o.cart) {                                    // carreta de reparto con cajas
+      box(g, 0.62, 0.06, 0.8, 0x3a6fd1, 0, 0.16, 0.85); box(g, 0.05, 0.9, 0.05, 0x3a6fd1, -0.26, 0.16, 0.48); box(g, 0.05, 0.9, 0.05, 0x3a6fd1, 0.26, 0.16, 0.48);
+      box(g, 0.58, 0.05, 0.05, 0x3a6fd1, 0, 1.02, 0.48);
+      [-0.3, 0.3].forEach(x => { const w = new T.Mesh(new T.CylinderGeometry(0.12, 0.12, 0.06, 10), mat(0x111111)); w.rotation.z = Math.PI / 2; w.position.set(x, 0.12, 1.05); g.add(w); });
+      cargo = new T.Group(); g.add(cargo);
+      box(cargo, 0.5, 0.36, 0.5, 0xc49a6c, 0, 0.22, 0.9); box(cargo, 0.44, 0.3, 0.44, 0xb98d5e, 0.02, 0.58, 0.9); box(cargo, 0.3, 0.22, 0.3, 0xc49a6c, -0.04, 0.88, 0.9);
+    }
     scene.add(g);
     const p = {
       group: g, path: [], speed: o.speed || 2.9, t: Math.random() * 6, onArrive: null, moving: false,
@@ -1121,6 +1194,7 @@ GS.World = (function () {
       face(ry) { g.rotation.y = ry; },
       walk(points, cb) { p.path = points.slice(); p.onArrive = cb || null; p.moving = true; },
       bag(v) { bag.visible = v; },
+      cargo(v) { if (cargo) cargo.visible = v; },
       remove() { scene.remove(g); const i = people.indexOf(p); if (i >= 0) people.splice(i, 1); }
     };
     people.push(p); return p;
@@ -1249,6 +1323,12 @@ GS.World = (function () {
     setQuality(q) { quality = q; if (ok) resize(); },
     setReduceMotion(v) { reduceMotion = v; },
     makePerson,
+    // Pila de cajas que deja el repartidor
+    dropBoxes(x, z) {
+      const g = new T.Group(); g.position.set(x, 0, z); scene.add(g);
+      box(g, 0.5, 0.36, 0.5, 0xc49a6c, 0, 0, 0); box(g, 0.44, 0.3, 0.44, 0xb98d5e, 0.03, 0.36, 0); box(g, 0.3, 0.22, 0.3, 0xc49a6c, -0.03, 0.66, 0); box(g, 0.4, 0.3, 0.4, 0xb98d5e, 0.55, 0, 0.1);
+      return { remove() { scene.remove(g); } };
+    },
     onTap(fn) { tapHandler = fn; },
     // Posición en pantalla de un punto del mundo (para barras y globos en HTML)
     project(x, y, z) {
@@ -1291,7 +1371,12 @@ GS.Minigames = (function () {
       '</span><div class="mg-pat"><i id="mgPat"></i></div></div><div class="mg-station">' + station + '</div></div>';
   }
   // Foto real del producto si la tiene; si no, el ícono
-  function pic(p) { return p.img ? '<img class="pimg" src="' + esc(p.img) + '" alt="" loading="lazy">' : '<span class="i">' + p.icon + '</span>'; }
+  function pic(p) {
+    if (p.img) return '<img class="pimg" src="' + esc(p.img) + '" alt="" loading="lazy">';
+    return GS.ICONS[p.id] ? '<span class="pic">' + GS.ICONS[p.id] + '</span>' : '<span class="i">' + p.icon + '</span>';
+  }
+  // Dibujo chiquito para usar dentro de un texto
+  function ico(p) { return GS.ICONS[p.id] ? '<span class="pic sm">' + GS.ICONS[p.id] + '</span>' : p.icon + ' '; }
   function say(text, joke) {
     const b = document.getElementById('mgBubble'); if (!b) return;
     b.textContent = text; b.classList.toggle('joke', !!joke);
@@ -1356,7 +1441,7 @@ GS.Minigames = (function () {
     const options = U.shuffle([correct].concat(wrong));
     root().innerHTML = head(cust, 'Caja') +
       '<div class="bubble" id="mgBubble">' + esc(line) + '</div>' +
-      '<div class="info"><span>' + cust.product.icon + ' ' + esc(cust.product.name) + '</span><span>Precio de lista <b>' + U.money(P) + '</b></span></div>' +
+      '<div class="info"><span>' + ico(cust.product) + esc(cust.product.name) + '</span><span>Precio de lista <b>' + U.money(P) + '</b></span></div>' +
       '<div class="info"><b>' + q + '</b></div>' +
       '<div class="opts one">' + options.map((v, i) => '<button class="opt" data-v="' + v + '"><kbd>' + (i + 1) + '</kbd><span class="n">' + fmt(v) + '</span></button>').join('') + '</div>' +
       '<div class="rule">10% OFF en efectivo o transferencia · 3 cuotas sin interés con tarjeta</div>';
@@ -1526,7 +1611,7 @@ GS.Minigames = (function () {
   function ml(job) {
     const prod = U.pick(GS.CATALOG), size = Object.keys(GS.BOX_SIZE).find(k => GS.BOX_SIZE[k].indexOf(prod.id) >= 0) || 'mediana';
     const num = Math.floor(U.rnd(1000, 9999)), cities = U.shuffle(GS.CITIES), city = cities[0], buyers = U.shuffle(GS.BUYERS), buyer = buyers[0], me = cur;
-    const order = '<div class="order"><b>Pedido #' + num + '</b><span>' + prod.icon + ' ' + esc(prod.name) + ' · mide unos ' + GS.BOXES[size].cm + ' cm</span><span>Para: ' + buyer + ' · ' + esc(city) + '</span></div>';
+    const order = '<div class="order"><b>Pedido #' + num + '</b><span>' + ico(prod) + esc(prod.name) + ' · mide unos ' + GS.BOXES[size].cm + ' cm</span><span>Para: ' + buyer + ' · ' + esc(city) + '</span></div>';
     const steps = n => '<div class="steps">' + ['Caja', 'Cinta', 'Etiqueta'].map((t, i) => '<span class="' + (i < n ? 'done' : i === n ? 'now' : '') + '">' + (i + 1) + '. ' + t + '</span>').join('') + '</div>';
     function stepBox() {
       root().innerHTML = head(job, 'Mercado Libre') + steps(0) + order + '<div class="info" id="mgBubble"><b>¿En qué caja entra justo?</b></div>' +
@@ -1582,7 +1667,7 @@ GS.Minigames = (function () {
     function show() {
       const p = boxes[i];
       zb.forEach(b => b.classList.remove('bad'));
-      root().innerHTML = head(job, 'Reposición · ' + (i + 1) + ' de 3') + '<div class="bubble" id="mgBubble">📦 En esta caja hay: ' + p.icon + ' ' + esc(p.name) + '</div>' +
+      root().innerHTML = head(job, 'Reposición · ' + (i + 1) + ' de 3') + '<div class="bubble" id="mgBubble">📦 En esta caja hay: ' + ico(p) + esc(p.name) + '</div>' +
         '<div class="rule">Tocá en el local la góndola donde va</div>';
     }
     function choose(k) {
@@ -1596,6 +1681,74 @@ GS.Minigames = (function () {
     show();
   }
 
+  /* ---------------- 8. CONTROL DE STOCK: contar lo que hay de verdad ---------------- */
+  function stock(job) {
+    const p = U.pick(GS.CATALOG), real = Math.floor(U.rnd(3, 10)), sys = Math.max(1, real + U.pick([-2, -1, 0, 1, 2]));
+    root().innerHTML = head(job, 'Control de stock') + '<div class="bubble" id="mgBubble">' + esc(p.name) + ': el sistema dice que hay <b>' + sys + '</b>.</div>' +
+      '<div class="shelfv">' + Array.from({ length: real }, () => '<span class="pic" style="transform:rotate(' + Math.floor(U.rnd(-14, 14)) + 'deg) translateY(' + Math.floor(U.rnd(-4, 5)) + 'px)">' + (GS.ICONS[p.id] || p.icon) + '</span>').join('') + '</div>' +
+      '<div class="info"><b>¿Cuántos hay de verdad en la góndola?</b></div>' +
+      '<div class="opts three low">' + [real - 1, real, real + 1].map((n, i) => '<button class="opt" data-ok="' + (n === real ? 1 : 0) + '"><kbd>' + (i + 1) + '</kbd><span class="n big">' + n + '</span></button>').join('') + '</div>';
+    listOptions(b => b.dataset.ok === '1', () => { GS.Audio.play('ok'); finish(true, '¡Stock corregido!', sys === real ? 'El sistema tenía razón. Anotá la fecha.' : 'Eran ' + real + ', no ' + sys + '.', {}); }, () => mistake('stock', U.pick(LN.wrongStock)));
+  }
+
+  /* ---------------- 9. RECEPCIÓN DE PROVEEDOR: comparar el remito con lo que llegó ---------------- */
+  function proveedor(job) {
+    const items = U.shuffle(GS.CATALOG).slice(0, 4).map(p => ({ p, q: Math.floor(U.rnd(2, 10)) }));
+    const bad = Math.random() < 0.65 ? Math.floor(Math.random() * 4) : -1, got = items.map((it, i) => i === bad ? Math.max(1, it.q + U.pick([-2, -1, 1])) : it.q);
+    root().innerHTML = head(job, 'Recepción de proveedor') +
+      '<div class="expect one"><b>El remito dice</b>' + items.map(it => '<span>' + esc(it.p.name) + ': <i>' + it.q + '</i></span>').join('') + '</div>' +
+      '<div class="phone"><h4>📦 Lo que bajó de la carreta</h4>' + items.map((it, i) => '<button class="rowb" data-i="' + i + '"><kbd>' + (i + 1) + '</kbd><span>' + esc(it.p.name) + '</span><b>' + got[i] + '</b></button>').join('') + '</div>' +
+      '<div class="rule" id="mgBubble">¿Alguna cantidad no coincide? Tocala. Si está todo, firmá.</div><button class="btn okb" id="mgYes">✔ Coincide todo: firmar</button>';
+    const rb = [...root().querySelectorAll('.rowb')];
+    function tapRow(b) {
+      if (!cur || cur.done || b.classList.contains('fine')) return;
+      if (Number(b.dataset.i) === bad) { b.classList.add('flag'); GS.Audio.play('ok'); finish(true, '¡Bien contado!', 'Faltaba mercadería. El de la carreta "justo se acordó".', {}); }
+      else { b.classList.add('fine'); mistake('proveedor', U.pick(LN.lineFine)); }
+    }
+    function sign() {
+      if (!cur || cur.done) return;
+      if (bad < 0) { GS.Audio.play('ok'); finish(true, '¡Firmado!', 'Llegó todo. Qué raro. Qué lindo.', {}); }
+      else { rb[bad].classList.add('flag'); GS.Audio.play('error'); cur.cb.onMistake('proveedor'); finish(false, 'Firmaste de más', 'Mirá la línea marcada: no coincidía con el remito.', {}); }
+    }
+    rb.forEach(b => b.addEventListener('click', () => tapRow(b))); document.getElementById('mgYes').addEventListener('click', sign);
+    cur.keys = e => { const n = parseInt(e.key, 10); if (n >= 1 && n <= 4) tapRow(rb[n - 1]); else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); sign(); } };
+  }
+
+  /* ---------------- 10. DEVOLUCIONES: aceptar o rechazar según las reglas (inventadas para el juego) ---------------- */
+  function devol(job) {
+    const p = U.pick(GS.CATALOG), c = { ticket: true, dias: Math.floor(U.rnd(1, 10)), estado: U.pick(['Cerrado, sin abrir', 'Abierto, sin uso']) };
+    let why = '';
+    if (Math.random() < 0.55) {
+      const k = U.pick(['ticket', 'dias', 'estado']);
+      if (k === 'ticket') { c.ticket = false; why = 'No tiene ticket.'; }
+      if (k === 'dias') { c.dias = U.pick([14, 25, 60, 365]); why = 'Pasaron más de 10 días.'; }
+      if (k === 'estado') { c.estado = 'Usado y con marcas'; why = 'Está usado.'; }
+    }
+    const ok = !why;
+    root().innerHTML = head(job, 'Devoluciones') + '<div class="bubble" id="mgBubble">Quiero devolver esto: ' + ico(p) + esc(p.name) + '. ' + esc(U.pick(LN.returnExcuses)) + '</div>' +
+      '<div class="expect"><b>Se acepta si (reglas del juego)</b><span>Tiene <i>ticket</i></span><span>Hasta <i>10 días</i></span><span>Está <i>sin uso</i></span></div>' +
+      '<div class="phone">' + [['ticket', 'Ticket', c.ticket ? 'Sí, lo tiene' : 'No lo tiene'], ['dias', 'Lo compró hace', c.dias + (c.dias === 1 ? ' día' : ' días')], ['estado', 'Estado', c.estado]].map(r => '<div class="rowb" data-k="' + r[0] + '"><span>' + r[1] + '</span><b>' + r[2] + '</b></div>').join('') + '</div>' +
+      '<div class="row"><button class="btn ghost" id="mgNo" style="font-size:18px">✖ Rechazar</button><button class="btn okb" id="mgYes">✔ Aceptar</button></div>';
+    function decide(accept) {
+      if (!cur || cur.done) return;
+      if (accept === ok) { GS.Audio.play('ok'); finish(true, ok ? '¡Devolución aceptada!' : '¡Bien rechazada!', ok ? 'Cumplía todo. Cliente contento.' : why + ' Se lo explicaste con una sonrisa.', {}); }
+      else { GS.Audio.play('error'); cur.cb.onMistake('devol'); finish(false, ok ? 'Se podía aceptar' : 'No correspondía', ok ? 'Cumplía las tres reglas.' : why, {}); }
+    }
+    document.getElementById('mgYes').addEventListener('click', () => decide(true)); document.getElementById('mgNo').addEventListener('click', () => decide(false));
+    cur.keys = e => { if (e.key === 'ArrowRight' || e.key === '2') decide(true); else if (e.key === 'ArrowLeft' || e.key === '1') decide(false); };
+  }
+
+  /* ---------------- 11. CIERRE DE CAJA: sumar lo cobrado y ver si la caja cierra ---------------- */
+  function cierre(job) {
+    const cobros = Array.from({ length: 4 }, () => Math.floor(U.rnd(1, 10)) * 10000), sum = cobros.reduce((a, b) => a + b, 0), d = U.pick([0, 0, -10000, 10000, -20000, 20000]);
+    const x = Math.abs(d) || 10000, right = d === 0 ? 'ok' : d < 0 ? 'falta' : 'sobra';
+    root().innerHTML = head(job, 'Cierre de caja') + '<div class="bubble" id="mgBubble">Último paso del día: ¿la caja cierra?</div>' +
+      '<div class="phone"><h4>🧾 Cobros en efectivo de hoy</h4>' + cobros.map((c, i) => '<div class="rowb"><span>Venta ' + (i + 1) + '</span><b>' + U.money(c) + '</b></div>').join('') + '</div>' +
+      '<div class="tray"><span>En el cajón hay</span><b>' + U.money(sum + d) + '</b></div>' +
+      '<div class="opts three low">' + [['falta', 'Faltan ' + U.money(x)], ['ok', 'Cierra perfecto'], ['sobra', 'Sobran ' + U.money(x)]].map((o, i) => '<button class="opt" data-ok="' + (o[0] === right ? 1 : 0) + '"><kbd>' + (i + 1) + '</kbd><span class="n">' + o[1] + '</span></button>').join('') + '</div>';
+    listOptions(b => b.dataset.ok === '1', () => { GS.Audio.play('cash'); finish(true, '¡Caja cerrada!', d === 0 ? 'Cerró perfecto. Sacale una foto.' : 'Diferencia detectada. Mañana se revisa con un mate.', {}); }, () => mistake('cierre', U.pick(LN.wrongCount)));
+  }
+
   // Ayuda común: lista de opciones con una correcta; las equivocadas se apagan
   function listOptions(isOk, onOk, onBad) {
     const btns = [...root().querySelectorAll('.opt')];
@@ -1607,7 +1760,7 @@ GS.Minigames = (function () {
     cur.keys = e => { const n = parseInt(e.key, 10); if (n >= 1 && n <= btns.length) choose(btns[n - 1]); };
   }
 
-  const GAMES = { mostrador, caja, pc, service, ml, whatsapp, repo };
+  const GAMES = { mostrador, caja, pc, service, ml, whatsapp, repo, stock, proveedor, devol, cierre };
   return {
     // type: 'mostrador' | 'caja'; opts.variant para caja: 'cobro' | 'vuelto' | 'comprobante'
     open(type, cust, cb, opts) {
@@ -1635,7 +1788,7 @@ GS.Game = (function () {
   const U = GS.util, C = GS.CONFIG, L = GS.LAYOUT, LN = GS.LINES, W = GS.World, MG = GS.Minigames, A = GS.Audio;
   const $ = id => document.getElementById(id);
   const ST = id => GS.STATIONS.find(s => s.id === id);
-  const TASK_STATIONS = GS.STATIONS.filter(s => s.task);
+  const TASK_STATIONS = GS.STATIONS.filter(s => s.task && !s.finalOnly);
   let state = 'menu', day = null, paused = false, lastT = 0, calm = false, uid = 0;
 
   /* ---------------- Etapas del proyecto ---------------- */
@@ -1679,19 +1832,19 @@ GS.Game = (function () {
     return Object.assign({
       relaxed: false, arcade: null, t: 0, dur: C.day.seconds, score: 0, combo: 0, bestCombo: 0, sales: 0, served: 0, lost: 0, cajaErr: 0, otherErr: 0,
       tasksDone: 0, tasksLate: 0, customers: [], tasks: [], spawned: 0, tasksSpawned: 0,
-      plan: planDay(), wave: -1, stage: 'rest', rest: 0.6, queue: [], says: [], beat: 0, duenoBag: U.shuffle(LN.dueno),
+      extras: [], plan: planDay(), wave: -1, stage: 'rest', rest: 0.6, queue: [], says: [], beat: 0, duenoBag: U.shuffle(LN.dueno),
       cajaCount: 0, closing: false, jobSig: '', reqBag: U.shuffle(GS.REQUESTS), archBag: U.shuffle(GS.CUSTOMERS), taskBag: []
     }, extra || {});
   }
   // Arma la jornada: cuántos clientes y tareas trae cada tanda. Va de menos a más.
   // (Etapa 3: acá entran el cartel del frente, el clima y las fechas especiales.)
-  function planDay() { return C.day.waves.map(w => ({ c: w.c, t: w.t })); }
+  function planDay() { return C.day.waves.map(w => ({ c: w.c, t: w.t })).concat([{ c: 0, t: 1, final: true }]); }   // la última tanda es el cierre de caja
   function planTotals(plan) { return plan.reduce((a, w) => ({ c: a.c + w.c, t: a.t + w.t }), { c: 0, t: 0 }); }
   function startWave() {
     day.wave++; day.stage = 'work'; day.queue = [];
     const w = day.plan[day.wave];
     for (let i = 0; i < w.c; i++) day.queue.push({ kind: 'c', t: 0.3 + i * C.day.customerGap });
-    for (let i = 0; i < w.t; i++) day.queue.push({ kind: 't', t: 5 + i * C.day.taskGap });
+    for (let i = 0; i < w.t; i++) day.queue.push({ kind: w.final ? 'f' : 't', t: (w.final ? 0.6 : 5) + i * C.day.taskGap });
     day.queue.sort((a, b) => a.t - b.t);
   }
   function endWave() {
@@ -1722,7 +1875,7 @@ GS.Game = (function () {
     if (!GS.Store.get('tutorial2')) { GS.Store.set('tutorial2', true); showHow(true); }
   }
   function clearDay() {
-    if (day) { day.customers.forEach(c => { if (c.person) c.person.remove(); c.label.remove(); }); day.tasks.forEach(t => t.label.remove()); day.says.forEach(x => x.el.remove()); }
+    if (day) { day.customers.forEach(c => { if (c.person) c.person.remove(); c.label.remove(); }); day.tasks.forEach(t => { t.label.remove(); if (t.boxes) t.boxes.remove(); }); day.says.forEach(x => x.el.remove()); day.extras.forEach(x => x.remove()); }
     MG.close(); W.focus(null);
   }
   function makeLabel(icon) {
@@ -1742,12 +1895,20 @@ GS.Game = (function () {
     person.walk([[dx, L.salon.zMax + 0.2], [dx, -1.3], L.colaMostrador[slot]], () => { cu.st = 'waitM'; person.face(Math.PI); });
     setTimeout(() => A.play('bell'), 900);
   }
-  function spawnTask() {
+  function spawnTask(forced) {
     if (!day.taskBag.length) day.taskBag = U.shuffle(TASK_STATIONS);
-    let st = day.taskBag.pop();
-    if (day.tasks.some(t => t.station === st)) { const alt = TASK_STATIONS.filter(s => !day.tasks.some(t => t.station === s)); if (!alt.length) return; st = U.pick(alt); }
+    let st = forced || day.taskBag.pop();
+    if (!forced && day.tasks.some(t => t.station === st)) { const alt = TASK_STATIONS.filter(s => !day.tasks.some(t => t.station === s)); if (!alt.length) return; st = U.pick(alt); }
     const task = { id: ++uid, station: st, arche: { face: st.icon, name: st.task.name, tag: st.task.tag }, pat: 1, st: 'wait', label: makeLabel(st.icon) };
     day.tasks.push(task); day.tasksSpawned++; A.play('speaker');
+    if (st.id === 'proveedor') {                    // llega el repartidor con la carreta y deja las cajas
+      const dx = L.puerta.x, dp = W.makePerson({ shirt: 0x8a6b3f, hair: 0x2b2b2b, cart: true, speed: 2.4 }), d = day;
+      dp.setPos(dx, L.galeria.zMax + 2.4); d.extras.push(dp);
+      dp.walk([[dx, L.salon.zMax + 0.2], [dx, -0.6], [4.0, -0.6], [4.0, -4.3]], () => {
+        if (day === d && d.tasks.indexOf(task) >= 0) task.boxes = W.dropBoxes(3.5, -5.6);
+        dp.cargo(false); dp.walk([[4.0, -0.6], [dx, -0.6], [dx, L.salon.zMax + 0.2], [dx + 1.5, L.galeria.zMax + 3]], () => dp.remove());
+      });
+    }
     toast('<b>' + st.icon + ' ' + st.name + '</b>' + st.task.name + '. Cuando puedas.', '', 2200);
   }
   function freeSlot(key, n) {
@@ -1761,7 +1922,7 @@ GS.Game = (function () {
       cu.person.remove(); cu.label.remove(); const i = d.customers.indexOf(cu); if (i >= 0) d.customers.splice(i, 1);
     });
   }
-  function removeTask(task) { task.label.remove(); const i = day.tasks.indexOf(task); if (i >= 0) day.tasks.splice(i, 1); }
+  function removeTask(task) { task.label.remove(); if (task.boxes) task.boxes.remove(); const i = day.tasks.indexOf(task); if (i >= 0) day.tasks.splice(i, 1); }
 
   function addScore(base, pat) {
     const mult = 1 + Math.min(day.combo, 8) * 0.25, pts = Math.round((base + Math.max(0, pat) * 100) * mult);
@@ -1833,7 +1994,7 @@ GS.Game = (function () {
       if (day.stage === 'rest') { day.rest -= dt; if (day.rest <= 0) startWave(); }
       else {
         for (const q of day.queue) q.t -= dt;
-        while (day.queue.length && day.queue[0].t <= 0) { const q = day.queue.shift(); if (q.kind === 'c') spawnCustomer(); else spawnTask(); }
+        while (day.queue.length && day.queue[0].t <= 0) { const q = day.queue.shift(); if (q.kind === 'c') spawnCustomer(); else spawnTask(q.kind === 'f' ? ST('cierre') : null); }
         if (!day.queue.length && !day.tasks.length && !open && day.customers.every(c => c.st === 'leaving')) endWave();
       }
     }
@@ -1871,7 +2032,7 @@ GS.Game = (function () {
       $('clockB').style.width = (Math.max(0, day.round - 1) / C.day.arcadeRounds * 100) + '%';
     } else {
       const tot = planTotals(day.plan), all = tot.c + tot.t, doneN = day.served + day.lost + day.tasksDone + day.tasksLate;
-      $('clockT').textContent = 'Tanda ' + Math.max(1, day.wave + 1) + '/' + day.plan.length; $('clockB').style.width = (Math.min(1, doneN / all) * 100).toFixed(1) + '%';
+      { const fin = day.wave >= 0 && day.plan[day.wave].final; $('clockT').textContent = fin ? 'Cierre' : 'Tanda ' + Math.max(1, day.wave + 1) + '/' + (day.plan.length - 1); } $('clockB').style.width = (Math.min(1, doneN / all) * 100).toFixed(1) + '%';
       $('clockS').textContent = day.closing ? 'Cerrando el local' : day.stage === 'rest' && day.wave >= 0 ? 'Respiro ☕' : 'Clientes ' + (day.served + day.lost) + '/' + tot.c;
     }
     $('scoreV').textContent = day.score.toLocaleString('es-AR');
@@ -2118,7 +2279,7 @@ GS.Game = (function () {
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 
-  return { startDay, startArcade, openStation, openJob, pendingJobs, endDay, state: () => state, day: () => day };
+  return { startDay, startArcade, openStation, openJob, pendingJobs, endDay, debugTask: id => spawnTask(ST(id)), state: () => state, day: () => day };
 })();
 
 </script>

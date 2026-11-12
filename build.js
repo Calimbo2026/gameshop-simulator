@@ -3,7 +3,7 @@
 const fs = require('fs'), path = require('path');
 const r = f => fs.readFileSync(path.join(__dirname, f), 'utf8');
 const logo = 'data:image/png;base64,' + fs.readFileSync(path.join(__dirname, 'src/logo.png')).toString('base64');
-const js = ['data.js', 'audio.js', 'world.js', 'minigames.js', 'game.js'].map(f => r('src/' + f)).join('\n');
+const js = ['data.js', 'icons.js', 'audio.js', 'world.js', 'minigames.js', 'game.js'].map(f => r('src/' + f)).join('\n');
 const sub = (s, key, val) => { const i = s.indexOf(key); return s.slice(0, i) + val + s.slice(i + key.length); };
 let html = r('src/index.template.html');
 html = sub(html, '/*__CSS__*/', r('src/style.css'));

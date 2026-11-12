@@ -14,7 +14,12 @@ GS.Minigames = (function () {
       '</span><div class="mg-pat"><i id="mgPat"></i></div></div><div class="mg-station">' + station + '</div></div>';
   }
   // Foto real del producto si la tiene; si no, el ícono
-  function pic(p) { return p.img ? '<img class="pimg" src="' + esc(p.img) + '" alt="" loading="lazy">' : '<span class="i">' + p.icon + '</span>'; }
+  function pic(p) {
+    if (p.img) return '<img class="pimg" src="' + esc(p.img) + '" alt="" loading="lazy">';
+    return GS.ICONS[p.id] ? '<span class="pic">' + GS.ICONS[p.id] + '</span>' : '<span class="i">' + p.icon + '</span>';
+  }
+  // Dibujo chiquito para usar dentro de un texto
+  function ico(p) { return GS.ICONS[p.id] ? '<span class="pic sm">' + GS.ICONS[p.id] + '</span>' : p.icon + ' '; }
   function say(text, joke) {
     const b = document.getElementById('mgBubble'); if (!b) return;
     b.textContent = text; b.classList.toggle('joke', !!joke);
@@ -79,7 +84,7 @@ GS.Minigames = (function () {
     const options = U.shuffle([correct].concat(wrong));
     root().innerHTML = head(cust, 'Caja') +
       '<div class="bubble" id="mgBubble">' + esc(line) + '</div>' +
-      '<div class="info"><span>' + cust.product.icon + ' ' + esc(cust.product.name) + '</span><span>Precio de lista <b>' + U.money(P) + '</b></span></div>' +
+      '<div class="info"><span>' + ico(cust.product) + esc(cust.product.name) + '</span><span>Precio de lista <b>' + U.money(P) + '</b></span></div>' +
       '<div class="info"><b>' + q + '</b></div>' +
       '<div class="opts one">' + options.map((v, i) => '<button class="opt" data-v="' + v + '"><kbd>' + (i + 1) + '</kbd><span class="n">' + fmt(v) + '</span></button>').join('') + '</div>' +
       '<div class="rule">10% OFF en efectivo o transferencia · 3 cuotas sin interés con tarjeta</div>';
@@ -249,7 +254,7 @@ GS.Minigames = (function () {
   function ml(job) {
     const prod = U.pick(GS.CATALOG), size = Object.keys(GS.BOX_SIZE).find(k => GS.BOX_SIZE[k].indexOf(prod.id) >= 0) || 'mediana';
     const num = Math.floor(U.rnd(1000, 9999)), cities = U.shuffle(GS.CITIES), city = cities[0], buyers = U.shuffle(GS.BUYERS), buyer = buyers[0], me = cur;
-    const order = '<div class="order"><b>Pedido #' + num + '</b><span>' + prod.icon + ' ' + esc(prod.name) + ' · mide unos ' + GS.BOXES[size].cm + ' cm</span><span>Para: ' + buyer + ' · ' + esc(city) + '</span></div>';
+    const order = '<div class="order"><b>Pedido #' + num + '</b><span>' + ico(prod) + esc(prod.name) + ' · mide unos ' + GS.BOXES[size].cm + ' cm</span><span>Para: ' + buyer + ' · ' + esc(city) + '</span></div>';
     const steps = n => '<div class="steps">' + ['Caja', 'Cinta', 'Etiqueta'].map((t, i) => '<span class="' + (i < n ? 'done' : i === n ? 'now' : '') + '">' + (i + 1) + '. ' + t + '</span>').join('') + '</div>';
     function stepBox() {
       root().innerHTML = head(job, 'Mercado Libre') + steps(0) + order + '<div class="info" id="mgBubble"><b>¿En qué caja entra justo?</b></div>' +
@@ -305,7 +310,7 @@ GS.Minigames = (function () {
     function show() {
       const p = boxes[i];
       zb.forEach(b => b.classList.remove('bad'));
-      root().innerHTML = head(job, 'Reposición · ' + (i + 1) + ' de 3') + '<div class="bubble" id="mgBubble">📦 En esta caja hay: ' + p.icon + ' ' + esc(p.name) + '</div>' +
+      root().innerHTML = head(job, 'Reposición · ' + (i + 1) + ' de 3') + '<div class="bubble" id="mgBubble">📦 En esta caja hay: ' + ico(p) + esc(p.name) + '</div>' +
         '<div class="rule">Tocá en el local la góndola donde va</div>';
     }
     function choose(k) {
@@ -319,6 +324,74 @@ GS.Minigames = (function () {
     show();
   }
 
+  /* ---------------- 8. CONTROL DE STOCK: contar lo que hay de verdad ---------------- */
+  function stock(job) {
+    const p = U.pick(GS.CATALOG), real = Math.floor(U.rnd(3, 10)), sys = Math.max(1, real + U.pick([-2, -1, 0, 1, 2]));
+    root().innerHTML = head(job, 'Control de stock') + '<div class="bubble" id="mgBubble">' + esc(p.name) + ': el sistema dice que hay <b>' + sys + '</b>.</div>' +
+      '<div class="shelfv">' + Array.from({ length: real }, () => '<span class="pic" style="transform:rotate(' + Math.floor(U.rnd(-14, 14)) + 'deg) translateY(' + Math.floor(U.rnd(-4, 5)) + 'px)">' + (GS.ICONS[p.id] || p.icon) + '</span>').join('') + '</div>' +
+      '<div class="info"><b>¿Cuántos hay de verdad en la góndola?</b></div>' +
+      '<div class="opts three low">' + [real - 1, real, real + 1].map((n, i) => '<button class="opt" data-ok="' + (n === real ? 1 : 0) + '"><kbd>' + (i + 1) + '</kbd><span class="n big">' + n + '</span></button>').join('') + '</div>';
+    listOptions(b => b.dataset.ok === '1', () => { GS.Audio.play('ok'); finish(true, '¡Stock corregido!', sys === real ? 'El sistema tenía razón. Anotá la fecha.' : 'Eran ' + real + ', no ' + sys + '.', {}); }, () => mistake('stock', U.pick(LN.wrongStock)));
+  }
+
+  /* ---------------- 9. RECEPCIÓN DE PROVEEDOR: comparar el remito con lo que llegó ---------------- */
+  function proveedor(job) {
+    const items = U.shuffle(GS.CATALOG).slice(0, 4).map(p => ({ p, q: Math.floor(U.rnd(2, 10)) }));
+    const bad = Math.random() < 0.65 ? Math.floor(Math.random() * 4) : -1, got = items.map((it, i) => i === bad ? Math.max(1, it.q + U.pick([-2, -1, 1])) : it.q);
+    root().innerHTML = head(job, 'Recepción de proveedor') +
+      '<div class="expect one"><b>El remito dice</b>' + items.map(it => '<span>' + esc(it.p.name) + ': <i>' + it.q + '</i></span>').join('') + '</div>' +
+      '<div class="phone"><h4>📦 Lo que bajó de la carreta</h4>' + items.map((it, i) => '<button class="rowb" data-i="' + i + '"><kbd>' + (i + 1) + '</kbd><span>' + esc(it.p.name) + '</span><b>' + got[i] + '</b></button>').join('') + '</div>' +
+      '<div class="rule" id="mgBubble">¿Alguna cantidad no coincide? Tocala. Si está todo, firmá.</div><button class="btn okb" id="mgYes">✔ Coincide todo: firmar</button>';
+    const rb = [...root().querySelectorAll('.rowb')];
+    function tapRow(b) {
+      if (!cur || cur.done || b.classList.contains('fine')) return;
+      if (Number(b.dataset.i) === bad) { b.classList.add('flag'); GS.Audio.play('ok'); finish(true, '¡Bien contado!', 'Faltaba mercadería. El de la carreta "justo se acordó".', {}); }
+      else { b.classList.add('fine'); mistake('proveedor', U.pick(LN.lineFine)); }
+    }
+    function sign() {
+      if (!cur || cur.done) return;
+      if (bad < 0) { GS.Audio.play('ok'); finish(true, '¡Firmado!', 'Llegó todo. Qué raro. Qué lindo.', {}); }
+      else { rb[bad].classList.add('flag'); GS.Audio.play('error'); cur.cb.onMistake('proveedor'); finish(false, 'Firmaste de más', 'Mirá la línea marcada: no coincidía con el remito.', {}); }
+    }
+    rb.forEach(b => b.addEventListener('click', () => tapRow(b))); document.getElementById('mgYes').addEventListener('click', sign);
+    cur.keys = e => { const n = parseInt(e.key, 10); if (n >= 1 && n <= 4) tapRow(rb[n - 1]); else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); sign(); } };
+  }
+
+  /* ---------------- 10. DEVOLUCIONES: aceptar o rechazar según las reglas (inventadas para el juego) ---------------- */
+  function devol(job) {
+    const p = U.pick(GS.CATALOG), c = { ticket: true, dias: Math.floor(U.rnd(1, 10)), estado: U.pick(['Cerrado, sin abrir', 'Abierto, sin uso']) };
+    let why = '';
+    if (Math.random() < 0.55) {
+      const k = U.pick(['ticket', 'dias', 'estado']);
+      if (k === 'ticket') { c.ticket = false; why = 'No tiene ticket.'; }
+      if (k === 'dias') { c.dias = U.pick([14, 25, 60, 365]); why = 'Pasaron más de 10 días.'; }
+      if (k === 'estado') { c.estado = 'Usado y con marcas'; why = 'Está usado.'; }
+    }
+    const ok = !why;
+    root().innerHTML = head(job, 'Devoluciones') + '<div class="bubble" id="mgBubble">Quiero devolver esto: ' + ico(p) + esc(p.name) + '. ' + esc(U.pick(LN.returnExcuses)) + '</div>' +
+      '<div class="expect"><b>Se acepta si (reglas del juego)</b><span>Tiene <i>ticket</i></span><span>Hasta <i>10 días</i></span><span>Está <i>sin uso</i></span></div>' +
+      '<div class="phone">' + [['ticket', 'Ticket', c.ticket ? 'Sí, lo tiene' : 'No lo tiene'], ['dias', 'Lo compró hace', c.dias + (c.dias === 1 ? ' día' : ' días')], ['estado', 'Estado', c.estado]].map(r => '<div class="rowb" data-k="' + r[0] + '"><span>' + r[1] + '</span><b>' + r[2] + '</b></div>').join('') + '</div>' +
+      '<div class="row"><button class="btn ghost" id="mgNo" style="font-size:18px">✖ Rechazar</button><button class="btn okb" id="mgYes">✔ Aceptar</button></div>';
+    function decide(accept) {
+      if (!cur || cur.done) return;
+      if (accept === ok) { GS.Audio.play('ok'); finish(true, ok ? '¡Devolución aceptada!' : '¡Bien rechazada!', ok ? 'Cumplía todo. Cliente contento.' : why + ' Se lo explicaste con una sonrisa.', {}); }
+      else { GS.Audio.play('error'); cur.cb.onMistake('devol'); finish(false, ok ? 'Se podía aceptar' : 'No correspondía', ok ? 'Cumplía las tres reglas.' : why, {}); }
+    }
+    document.getElementById('mgYes').addEventListener('click', () => decide(true)); document.getElementById('mgNo').addEventListener('click', () => decide(false));
+    cur.keys = e => { if (e.key === 'ArrowRight' || e.key === '2') decide(true); else if (e.key === 'ArrowLeft' || e.key === '1') decide(false); };
+  }
+
+  /* ---------------- 11. CIERRE DE CAJA: sumar lo cobrado y ver si la caja cierra ---------------- */
+  function cierre(job) {
+    const cobros = Array.from({ length: 4 }, () => Math.floor(U.rnd(1, 10)) * 10000), sum = cobros.reduce((a, b) => a + b, 0), d = U.pick([0, 0, -10000, 10000, -20000, 20000]);
+    const x = Math.abs(d) || 10000, right = d === 0 ? 'ok' : d < 0 ? 'falta' : 'sobra';
+    root().innerHTML = head(job, 'Cierre de caja') + '<div class="bubble" id="mgBubble">Último paso del día: ¿la caja cierra?</div>' +
+      '<div class="phone"><h4>🧾 Cobros en efectivo de hoy</h4>' + cobros.map((c, i) => '<div class="rowb"><span>Venta ' + (i + 1) + '</span><b>' + U.money(c) + '</b></div>').join('') + '</div>' +
+      '<div class="tray"><span>En el cajón hay</span><b>' + U.money(sum + d) + '</b></div>' +
+      '<div class="opts three low">' + [['falta', 'Faltan ' + U.money(x)], ['ok', 'Cierra perfecto'], ['sobra', 'Sobran ' + U.money(x)]].map((o, i) => '<button class="opt" data-ok="' + (o[0] === right ? 1 : 0) + '"><kbd>' + (i + 1) + '</kbd><span class="n">' + o[1] + '</span></button>').join('') + '</div>';
+    listOptions(b => b.dataset.ok === '1', () => { GS.Audio.play('cash'); finish(true, '¡Caja cerrada!', d === 0 ? 'Cerró perfecto. Sacale una foto.' : 'Diferencia detectada. Mañana se revisa con un mate.', {}); }, () => mistake('cierre', U.pick(LN.wrongCount)));
+  }
+
   // Ayuda común: lista de opciones con una correcta; las equivocadas se apagan
   function listOptions(isOk, onOk, onBad) {
     const btns = [...root().querySelectorAll('.opt')];
@@ -330,7 +403,7 @@ GS.Minigames = (function () {
     cur.keys = e => { const n = parseInt(e.key, 10); if (n >= 1 && n <= btns.length) choose(btns[n - 1]); };
   }
 
-  const GAMES = { mostrador, caja, pc, service, ml, whatsapp, repo };
+  const GAMES = { mostrador, caja, pc, service, ml, whatsapp, repo, stock, proveedor, devol, cierre };
   return {
     // type: 'mostrador' | 'caja'; opts.variant para caja: 'cobro' | 'vuelto' | 'comprobante'
     open(type, cust, cb, opts) {

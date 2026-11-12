@@ -6,7 +6,8 @@ SOLVE = r"""(()=>{const M=GS.Minigames; if(!M.isOpen()||M.isResolving()) return 
  if(q('.dust')){const d=qa('.dust:not(.gone)'); d.slice(0,3).forEach(e=>{e.classList.contains('gone')||document.getElementById('mgFan').dispatchEvent(new KeyboardEvent('x'))}); document.dispatchEvent(new KeyboardEvent('keydown',{key:' '})); return 'pelusa';}
  if(q('#mgSnap')){const m=parseFloat(q('#mgMark').style.left||0), a=parseFloat(q('.ramslot').style.left); if(Math.abs(m-a)<3){q('#mgSnap').click();return 'ram!';} return 'ram';}
  if(q('#mgTape')){document.dispatchEvent(new KeyboardEvent('keydown',{key:' '})); return 'cinta';}
- if(q('.rowb')){const r=qa('.rowb'); const exp=qa('.expect i').map(x=>x.textContent); const bad=r.find((x,i)=>!x.querySelector('b').textContent.replace(' ✔','').startsWith(exp[i])); (bad||q('#mgYes')).click(); return 'comp';}
+ if(q('#mgNo')&&q('.rowb')){const t=qa('.rowb b').map(x=>x.textContent); const ok=t[0].startsWith('Sí')&&parseInt(t[1])<=10&&!t[2].startsWith('Usado'); q(ok?'#mgYes':'#mgNo').click(); return 'devol';}
+ if(q('.rowb')&&q('.expect')){const r=qa('.rowb'); const exp=qa('.expect i').map(x=>x.textContent); const bad=r.find((x,i)=>!x.querySelector('b').textContent.replace(' ✔','').startsWith(exp[i])); (bad||q('#mgYes')).click(); return 'comp';}
  if(document.querySelector('.zone-b')){const z=[...document.querySelectorAll('.zone-b:not(.bad)')]; z[0].click(); return 'repo';}
  if(q('[data-ok="1"]')){q('[data-ok="1"]').click();return 'ok';}
  if(q('.opt[data-id]')){q('.opt[data-id="'+M.customer().product.id+'"]').click();return 'most';}
@@ -25,7 +26,7 @@ async def main():
         await pg.goto('file:///home/claude/gss/dist/index.html'); await pg.wait_for_timeout(1200)
         await pg.screenshot(path='shots/2_start.png')
         await pg.click('#btnArcade'); await pg.wait_for_timeout(300); await pg.screenshot(path='shots/2_arcade.png'); await pg.click('[data-close]')
-        shots={'pc':1,'service':3,'ml':3,'caja':3}
+        shots={'mostrador':1,'stock':1,'proveedor':1,'devol':1,'cierre':1,'repo':1}
         for st,n in shots.items():
             await pg.evaluate(f"GS.Game.startArcade('{st}')")
             taken=0; seen=set()
@@ -47,6 +48,7 @@ async def main():
             n = await pg.evaluate("GS.Minigames.isOpen()?-1:GS.Game.pendingJobs().length")
             if n>=2 and not got: got=True; await pg.screenshot(path='shots/2_day.png')
             if await pg.evaluate("document.querySelectorAll('.say').length>0 && !GS.Minigames.isOpen()") and not globals().get('S1'): globals()['S1']=1; await pg.screenshot(path='shots/2_say.png')
+            if await pg.evaluate("GS.Game.day().extras.length>0 && GS.Game.day().tasks.some(t=>t.boxes)") and not globals().get('S3'): globals()['S3']=1; await pg.screenshot(path='shots/2_cart.png')
             if await pg.evaluate("GS.Game.day().stage==='rest' && GS.Game.day().wave>=0 && document.querySelector('.toast.dueno')!=null") and not globals().get('S2'): globals()['S2']=1; await pg.screenshot(path='shots/2_rest.png')
             if n>0 and i%12==0: await pg.evaluate("GS.Game.openJob(GS.Game.pendingJobs()[0])")
             await pg.evaluate(SOLVE)

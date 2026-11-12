@@ -249,3 +249,12 @@ body.calm * { animation: none !important; transition: none !important; }
 
 @media (pointer: coarse) { kbd { display: none; } }
 .clock .t span { white-space: nowrap; }
+
+/* dibujos de productos */
+.pic { display: inline-flex; width: 46px; height: 46px; flex: none; } .pic svg { width: 100%; height: 100%; }
+.pic.sm { width: 22px; height: 22px; vertical-align: -5px; margin-right: 4px; }
+.opt .pic { width: 54px; height: 54px; }
+/* estaciones 8 a 11 */
+.shelfv { background: #fdfdf8; border-radius: 12px; border-bottom: 8px solid #c9ccd1; padding: 10px 8px 4px; display: flex; flex-wrap: wrap; gap: 4px 6px; justify-content: center; min-height: 64px; }
+.opts.three.low .opt { min-height: 54px; justify-content: center; } .opt .n.big { font-family: var(--display); font-size: 30px; font-weight: 700; }
+.expect.one { grid-template-columns: 1fr 1fr; } div.rowb { cursor: default; min-height: 40px; padding: 7px 12px; }
