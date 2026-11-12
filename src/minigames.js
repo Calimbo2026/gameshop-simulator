@@ -171,12 +171,137 @@ GS.Minigames = (function () {
     cur.keys = e => { if (e.key === 'ArrowRight') decide(true); else if (e.key === 'ArrowLeft') decide(false); };
   }
 
+
+  /* ---------------- 3. ARMADO DE PC: cada pieza en su lugar (una viene al revés) ---------------- */
+  function pc(job) {
+    const parts = GS.PC_PARTS, tray = U.shuffle(parts), flipped = U.pick(parts).id; let step = 0, isFlipped = true;
+    root().innerHTML = head(job, 'Armado de PC') +
+      '<div class="bubble" id="mgBubble">Armame la PC. Las piezas están ahí. Creo que están todas.</div>' +
+      '<div class="board">' + parts.map((p, i) => '<div class="slot" data-i="' + i + '"><span>' + (i + 1) + '</span>' + esc(p.name) + '</div>').join('') + '</div>' +
+      '<div class="rule" id="mgStep"></div>' +
+      '<div class="parts">' + tray.map((p, i) => '<button class="opt part' + (p.id === flipped ? ' flip' : '') + '" data-id="' + p.id + '"><kbd>' + (i + 1) + '</kbd><span class="i">' + p.icon + '</span><span class="n">' + esc(p.name) + '</span></button>').join('') + '</div>';
+    const slots = [...root().querySelectorAll('.slot')], btns = [...root().querySelectorAll('.part')], stepEl = document.getElementById('mgStep');
+    const paint = () => { slots.forEach((s, i) => { s.classList.toggle('now', i === step); s.classList.toggle('done', i < step); }); if (step < parts.length) stepEl.textContent = 'Ahora va: ' + parts[step].name + '. Tocá la pieza.'; };
+    function choose(b) {
+      if (!cur || cur.done || b.classList.contains('used')) return;
+      if (b.dataset.id === flipped && isFlipped) { isFlipped = false; b.classList.remove('flip'); GS.Audio.play('swipe'); say(U.pick(LN.flipPc), false); return; }
+      if (b.dataset.id === parts[step].id) {
+        b.classList.add('used'); GS.Audio.play('bill'); step++; paint();
+        if (step === parts.length) { GS.Audio.play('ok'); finish(true, '¡Prendió!', 'Y con lucecitas.', {}); }
+      } else mistake('pc', U.pick(LN.wrongPc));
+    }
+    btns.forEach(b => b.addEventListener('click', () => choose(b)));
+    cur.keys = e => { const n = parseInt(e.key, 10); if (n >= 1 && n <= btns.length) choose(btns[n - 1]); };
+    paint();
+  }
+
+  /* ---------------- 4. SERVICE TÉCNICO: diagnóstico, limpieza o encajar la RAM ---------------- */
+  function service(job, variant) {
+    variant = variant || U.pick(['diag', 'diag', 'pelusa', 'ram']);
+    if (variant === 'pelusa') return servicePelusa(job);
+    if (variant === 'ram') return serviceRam(job);
+    const d = U.pick(GS.DIAGNOSTICS), options = U.shuffle([d.ok].concat(d.bad));
+    root().innerHTML = head(job, 'Service · Diagnóstico') + '<div class="bubble" id="mgBubble">' + esc(d.s) + '</div><div class="info"><b>¿Qué le pasa?</b></div>' +
+      '<div class="opts one txt">' + options.map((o, i) => '<button class="opt" data-ok="' + (o === d.ok ? 1 : 0) + '"><kbd>' + (i + 1) + '</kbd><span class="n">' + esc(o) + '</span></button>').join('') + '</div>';
+    listOptions(b => b.dataset.ok === '1', () => finish(true, '¡Diagnosticado!', d.ok, {}), () => mistake('service', U.pick(LN.wrongDiag)));
+  }
+  function servicePelusa(job) {
+    const N = 20; let left = N;
+    root().innerHTML = head(job, 'Service · Limpieza') + '<div class="bubble" id="mgBubble">Hace ruido de avión. Adentro hay algo... peludo.</div>' +
+      '<div class="fan" id="mgFan"><div class="fan-ic">🌀</div>' + Array.from({ length: N }, () => '<i class="dust" style="--r:' + Math.floor(U.rnd(-30, 30)) + 'deg"></i>').join('') + '</div>' +
+      '<div class="rule">Pasá el dedo por la pelusa para limpiarla · <span id="mgLeft">' + N + '</span> restantes</div>';
+    const fan = document.getElementById('mgFan'), out = document.getElementById('mgLeft');
+    function clean(el) {
+      if (!cur || cur.done || !el || !el.classList || !el.classList.contains('dust') || el.classList.contains('gone')) return;
+      el.classList.add('gone'); left--; out.textContent = left; if (left % 3 === 0) GS.Audio.play('swipe');
+      if (left === 0) { GS.Audio.play('ok'); finish(true, '¡Como nueva!', 'Salió pelusa para tejer un pulóver.', {}); }
+    }
+    const at = e => clean(document.elementFromPoint(e.clientX, e.clientY));
+    fan.addEventListener('pointerdown', e => { fan.setPointerCapture && fan.setPointerCapture(e.pointerId); at(e); });
+    fan.addEventListener('pointermove', at);
+    cur.keys = e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); clean(fan.querySelector('.dust:not(.gone)')); } };
+  }
+  function serviceRam(job) {
+    const zone = U.rnd(18, 62), zw = 22, me = cur; let pos = 0, dir = 1, last = 0;
+    root().innerHTML = head(job, 'Service · Memoria RAM') + '<div class="bubble" id="mgBubble">Le agregamos memoria. Tiene que entrar justo, con un "clac".</div>' +
+      '<div class="timing"><i class="zone" style="left:' + zone + '%;width:' + zw + '%"></i><i class="mark" id="mgMark"></i></div>' +
+      '<button class="btn" id="mgSnap">¡Encajar!</button><div class="rule">Tocá cuando la marca esté en la zona verde</div>';
+    const mark = document.getElementById('mgMark');
+    function tick(t) {
+      if (cur !== me) return; requestAnimationFrame(tick);
+      const dt = Math.min(0.05, (t - last) / 1000 || 0); last = t; if (me.done) return;
+      pos += dir * dt * 62; if (pos >= 100) { pos = 100; dir = -1; } else if (pos <= 0) { pos = 0; dir = 1; }
+      mark.style.left = pos + '%';
+    }
+    requestAnimationFrame(tick);
+    function snap() {
+      if (!cur || cur.done) return;
+      if (pos >= zone && pos <= zone + zw) { GS.Audio.play('ok'); finish(true, '¡Clac!', 'Ahora tiene más RAM. Vos no, lamentablemente.', {}); }
+      else mistake('service', U.pick(LN.missRam));
+    }
+    document.getElementById('mgSnap').addEventListener('click', snap);
+    cur.keys = e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); snap(); } };
+  }
+
+  /* ---------------- 5. MERCADO LIBRE: caja del tamaño justo y etiqueta correcta ---------------- */
+  function ml(job) {
+    const prod = U.pick(GS.CATALOG), size = Object.keys(GS.BOX_SIZE).find(k => GS.BOX_SIZE[k].indexOf(prod.id) >= 0) || 'mediana';
+    const num = Math.floor(U.rnd(1000, 9999)), cities = U.shuffle(GS.CITIES), city = cities[0];
+    const orderTxt = 'Pedido #' + num + ' · ' + prod.icon + ' ' + prod.name + ' · va a ' + city;
+    function stepBox() {
+      root().innerHTML = head(job, 'Mercado Libre · Empaque') + '<div class="bubble" id="mgBubble">' + esc(orderTxt) + '</div><div class="info"><b>¿En qué caja lo mandás?</b></div>' +
+        '<div class="opts three">' + [['chica', 34], ['mediana', 46], ['grande', 60]].map((b, i) => '<button class="opt" data-ok="' + (b[0] === size ? 1 : 0) + '"><kbd>' + (i + 1) + '</kbd><span class="i" style="font-size:' + b[1] + 'px">📦</span><span class="n">Caja ' + b[0] + '</span></button>').join('') + '</div>' +
+        '<div class="rule">Ni que baile adentro ni que haya que doblarlo</div>';
+      listOptions(b => b.dataset.ok === '1', () => { GS.Audio.play('bill'); stepLabel(); }, () => mistake('ml', U.pick(LN.wrongBox)));
+    }
+    function stepLabel() {
+      const labels = U.shuffle([{ n: num, c: city, ok: 1 }, { n: num + U.pick([-10, 10, 100, 1]), c: city, ok: 0 }, { n: num, c: cities[1], ok: 0 }]);
+      root().innerHTML = head(job, 'Mercado Libre · Etiqueta') + '<div class="bubble" id="mgBubble">' + esc(orderTxt) + '</div><div class="info"><b>Cinta puesta. ¿Qué etiqueta le pegás?</b></div>' +
+        '<div class="opts one">' + labels.map((l, i) => '<button class="opt tagl" data-ok="' + l.ok + '"><kbd>' + (i + 1) + '</kbd><span class="n">#' + l.n + ' · ' + esc(l.c) + '</span></button>').join('') + '</div>' +
+        '<div class="rule">Mirá bien el número y el destino</div>';
+      listOptions(b => b.dataset.ok === '1', () => { GS.Audio.play('ok'); finish(true, '¡Despachado!', 'Sale hoy, antes de las 14.', {}); }, () => mistake('ml', U.pick(LN.wrongLabel)));
+    }
+    stepBox();
+  }
+
+  /* ---------------- 6. WHATSAPP: elegir la respuesta correcta ---------------- */
+  function whatsapp(job) {
+    const c = U.pick(GS.CHATS), options = U.shuffle([c.ok].concat(c.bad));
+    root().innerHTML = head(job, 'WhatsApp') + '<div class="chat"><div class="msg in" id="mgBubble">' + esc(c.m) + '</div></div><div class="info"><b>¿Qué le contestás?</b></div>' +
+      '<div class="opts one txt">' + options.map((o, i) => '<button class="opt" data-ok="' + (o === c.ok ? 1 : 0) + '"><kbd>' + (i + 1) + '</kbd><span class="n">' + esc(o) + '</span></button>').join('') + '</div>';
+    listOptions(b => b.dataset.ok === '1', () => finish(true, '¡Respondido!', 'Un cliente menos escribiendo "???".', {}), () => mistake('whatsapp', U.pick(LN.wrongChat)));
+  }
+
+  /* ---------------- 7. REPOSICIÓN: cada caja a su góndola ---------------- */
+  function repo(job) {
+    const boxes = U.shuffle(GS.CATALOG).slice(0, 3); let i = 0;
+    function show() {
+      const p = boxes[i];
+      root().innerHTML = head(job, 'Reposición · ' + (i + 1) + ' de 3') + '<div class="bubble" id="mgBubble">📦 En esta caja hay: ' + p.icon + ' ' + esc(p.name) + '</div><div class="info"><b>¿A qué góndola va?</b></div>' +
+        '<div class="opts">' + GS.SHELVES.map((s, k) => '<button class="opt" data-ok="' + (s.cat === p.cat ? 1 : 0) + '"><kbd>' + (k + 1) + '</kbd><span class="i">' + s.icon + '</span><span class="n">' + esc(s.name) + '</span></button>').join('') + '</div>';
+      listOptions(b => b.dataset.ok === '1', () => { i++; if (i < boxes.length) { GS.Audio.play('bill'); show(); } else { GS.Audio.play('ok'); finish(true, '¡Todo acomodado!', 'Por cinco minutos, al menos.', {}); } }, () => mistake('repo', U.pick(LN.wrongShelf)));
+    }
+    show();
+  }
+
+  // Ayuda común: lista de opciones con una correcta; las equivocadas se apagan
+  function listOptions(isOk, onOk, onBad) {
+    const btns = [...root().querySelectorAll('.opt')];
+    function choose(b) {
+      if (!cur || cur.done || b.classList.contains('bad')) return;
+      if (isOk(b)) { b.classList.add('good'); onOk(); } else { b.classList.add('bad'); onBad(); }
+    }
+    btns.forEach(b => b.addEventListener('click', () => choose(b)));
+    cur.keys = e => { const n = parseInt(e.key, 10); if (n >= 1 && n <= btns.length) choose(btns[n - 1]); };
+  }
+
+  const GAMES = { mostrador, caja, pc, service, ml, whatsapp, repo };
   return {
     // type: 'mostrador' | 'caja'; opts.variant para caja: 'cobro' | 'vuelto' | 'comprobante'
     open(type, cust, cb, opts) {
       close(); cur = { type, cust, cb, keys: null, done: false, timer: null };
       root().hidden = false;
-      if (type === 'mostrador') mostrador(cust); else caja(cust, opts && opts.variant);
+      GAMES[type](cust, opts && opts.variant);
     },
     close,
     isOpen: () => !!cur,

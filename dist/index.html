@@ -79,14 +79,16 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 .chip.phase { border-color: var(--warn); color: var(--warn); font-weight: 700; }
 .chip.combo { border-color: var(--red); color: #fff; background: var(--red); font-weight: 800; }
 
-#stations { position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; display: flex; gap: 10px; padding: 0 10px calc(10px + var(--sab)); }
-.st-btn { flex: 1; background: rgba(0,0,0,.86); border: 2px solid var(--line); border-radius: 16px; padding: 10px 10px 9px; text-align: left; position: relative; min-height: 70px; }
-.st-btn .n { font-family: var(--display); font-size: 21px; text-transform: uppercase; letter-spacing: .5px; display: block; }
-.st-btn .s { font-size: 13px; color: var(--mute); display: block; margin-top: 1px; }
-.st-btn .q { position: absolute; top: -9px; right: -5px; min-width: 28px; height: 28px; border-radius: 14px; background: var(--red); font-weight: 800; display: grid; place-items: center; padding: 0 6px; border: 2px solid #fff; }
-.st-btn .pb { height: 6px; border-radius: 3px; background: #2b2b30; margin-top: 7px; overflow: hidden; } .st-btn .pb i { display: block; height: 100%; background: var(--ok); }
-.st-btn.on { border-color: var(--red); animation: pulse 1.4s infinite; } .st-btn.on .s { color: #fff; }
-.st-btn kbd { position: absolute; right: 8px; bottom: 6px; font-size: 11px; color: #777; font-family: var(--body); }
+#jobs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 0 10px calc(10px + var(--sab)); }
+.job { background: rgba(0,0,0,.88); border: 2px solid var(--red); border-radius: 14px; padding: 8px 10px 8px; text-align: left; position: relative; min-height: 62px; display: grid; grid-template-columns: auto 1fr; gap: 2px 8px; align-items: center; }
+.job .ji { font-size: 24px; line-height: 1; } .job .jt { min-width: 0; }
+.job b { font-family: var(--display); font-size: 17px; text-transform: uppercase; letter-spacing: .4px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.job small { font-size: 12.5px; color: #d0d0d8; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.job .pb { grid-column: 1 / -1; height: 6px; border-radius: 3px; background: #2b2b30; overflow: hidden; margin-top: 3px; } .job .pb i { display: block; height: 100%; background: var(--ok); }
+.job kbd { position: absolute; right: 7px; top: 5px; font-size: 11px; color: #777; font-family: var(--body); }
+.job.idle { grid-column: 1 / -1; border-color: var(--line); min-height: 54px; } .job.idle b { color: #d0d0d8; }
+.job:active { transform: scale(.98); }
+.more { grid-column: 1 / -1; text-align: center; font-size: 12px; color: var(--mute); }
 
 /* etiquetas sobre los clientes */
 #labels { position: fixed; inset: 0; pointer-events: none; z-index: 5; overflow: hidden; }
@@ -110,9 +112,9 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 @keyframes up { from { transform: translateY(40px); opacity: 0; } }
 .mg-head { display: flex; align-items: center; gap: 10px; }
 .mg-face { width: 46px; height: 46px; border-radius: 50%; background: #26262b; display: grid; place-items: center; font-size: 26px; flex: none; }
-.mg-who { flex: 1; min-width: 0; } .mg-who b { font-size: 16px; } .mg-who span { color: var(--mute); font-size: 12px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mg-who { flex: 1; min-width: 0; } .mg-who b { font-size: 16px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .mg-who span { color: var(--mute); font-size: 12px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .mg-pat { height: 9px; border-radius: 5px; background: #2b2b30; overflow: hidden; margin-top: 5px; } .mg-pat i { display: block; height: 100%; width: 100%; background: var(--ok); }
-.mg-station { font-family: var(--display); font-size: 15px; letter-spacing: 1px; color: var(--red); text-transform: uppercase; }
+.mg-station { font-family: var(--display); font-size: 13px; letter-spacing: .8px; color: var(--red); text-transform: uppercase; flex: none; max-width: 40%; text-align: right; line-height: 1.2; }
 .bubble { background: #fff; color: #000; border-radius: 16px 16px 16px 4px; padding: 10px 13px; font-size: 17px; line-height: 1.3; min-height: 44px; }
 .bubble.joke { background: #ffe9a8; } .shake { animation: shake .3s; }
 @keyframes shake { 25% { transform: translateX(-6px); } 50% { transform: translateX(6px); } 75% { transform: translateX(-4px); } }
@@ -142,6 +144,28 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 .result { position: absolute; inset: 0; border-radius: 20px 20px 0 0; display: grid; place-items: center; background: rgba(8,40,22,.94); font-family: var(--display); font-size: 34px; text-align: center; animation: tin .15s; z-index: 3; padding: 20px; }
 .result.bad { background: rgba(60,8,8,.95); } .result small { display: block; font-family: var(--body); font-size: 15px; margin-top: 6px; line-height: 1.3; }
 
+/* minijuegos de la Etapa 2 */
+.opts.three { grid-template-columns: repeat(3, 1fr); } .opts.three .opt { min-height: 96px; justify-content: flex-end; }
+.opts.one.txt .opt { justify-content: flex-start; text-align: left; padding: 10px 12px 10px 14px; min-height: 50px; } .opts.one.txt .opt .n { font-family: var(--body); font-size: 15.5px; font-weight: 600; }
+.board { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; background: #0d3b2a; border: 2px solid #1c6b4c; border-radius: 12px; padding: 8px 6px; }
+.slot { border: 2px dashed #3d8f6e; border-radius: 8px; min-height: 52px; font-size: 11.5px; line-height: 1.15; text-align: center; color: #9fd8bf; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 3px 2px; }
+.slot span { font-family: var(--display); font-size: 16px; color: #5fb893; } .slot.now { border-style: solid; border-color: #fff; color: #fff; background: #14553c; animation: pulse 1.4s infinite; }
+.slot.done { border-style: solid; border-color: var(--ok); background: var(--ok); color: #04130a; } .slot.done span { color: #04130a; }
+.parts { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; } .parts .opt { min-height: 74px; padding: 8px 2px 6px; } .parts .opt .n { font-size: 11.5px; } .parts .opt .i { font-size: 26px; transition: transform .2s; }
+.part.flip .i { transform: rotate(180deg); } .part.flip { border-color: var(--warn); } .part.flip::after { content: "al revés"; position: absolute; top: -8px; right: -4px; background: var(--warn); color: #000; font-size: 10px; font-weight: 800; border-radius: 6px; padding: 1px 5px; }
+.part.used { opacity: .25; pointer-events: none; }
+.fan { position: relative; height: 170px; border-radius: 14px; background: #0d0d0f; border: 2px solid #34343b; display: grid; grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(4, 1fr); overflow: hidden; touch-action: none; }
+.fan-ic { position: absolute; inset: 0; display: grid; place-items: center; font-size: 110px; opacity: .5; pointer-events: none; }
+.dust { position: relative; margin: 3px; border-radius: 45% 55% 60% 40%; background: radial-gradient(circle at 40% 40%, #b9b3a6, #7d776b); transform: rotate(var(--r)); transition: opacity .15s, transform .15s; box-shadow: 0 0 0 2px rgba(125,119,107,.4); }
+.dust.gone { opacity: 0; transform: scale(.3); pointer-events: none; }
+.timing { position: relative; height: 46px; border-radius: 12px; background: #0d0d0f; border: 2px solid #34343b; overflow: hidden; }
+.timing .zone { position: absolute; top: 0; bottom: 0; background: var(--ok); opacity: .85; } .timing .mark { position: absolute; top: -2px; bottom: -2px; width: 8px; margin-left: -4px; background: #fff; border-radius: 4px; box-shadow: 0 0 8px #fff; }
+.chat { background: #0b141a; border-radius: 14px; padding: 12px; } .msg.in { display: inline-block; background: #202c33; color: #e9edef; border-radius: 4px 14px 14px 14px; padding: 8px 12px; font-size: 16px; line-height: 1.3; max-width: 88%; }
+.msg.in.joke { background: #5a4a1a; }
+.arc { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; } .arc-b { background: #202025; border: 2px solid #34343b; border-radius: 14px; padding: 10px 8px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 2px; min-height: 86px; }
+.arc-b .ji { font-size: 26px; } .arc-b b { font-size: 14px; } .arc-b small { font-size: 12px; color: var(--mute); } .arc-b.soon { opacity: .4; } .arc-b:not(.soon):active { transform: scale(.97); border-color: var(--red); }
+.ph-now small { color: var(--mute); font-size: 12.5px; } .ph-list i { color: var(--warn); font-style: normal; }
+
 /* ---------- Modal genérico ---------- */
 #modal { position: fixed; inset: 0; z-index: 40; background: rgba(0,0,0,.8); display: flex; align-items: center; justify-content: center; padding: calc(14px + var(--sat)) 16px calc(14px + var(--sab)); }
 .sheet { width: 100%; max-width: 440px; max-height: 100%; overflow-y: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 12px; touch-action: pan-y; }
@@ -169,7 +193,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 @media (orientation: landscape) and (max-height: 560px) {
   #mg { left: auto; right: 0; top: 0; bottom: 0; width: 52%; max-width: 520px; max-height: none; border-radius: 20px 0 0 20px; border-top: 0; border-left: 3px solid var(--red); padding-top: calc(12px + var(--sat)); justify-content: center; overflow-y: auto; }
   .result { border-radius: 20px 0 0 20px; }
-  #stations { left: auto; width: 46%; max-width: 420px; }
+  #jobs { left: auto; width: 46%; max-width: 420px; }
   #hud { right: auto; width: 54%; max-width: 480px; }
   #toasts { top: calc(104px + var(--sat)); right: auto; width: 54%; }
   .screen .col { max-width: 720px; flex-direction: row; flex-wrap: wrap; align-items: center; } .screen .col > * { flex: 1 1 300px; }
@@ -180,7 +204,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 @media (min-width: 900px) and (min-height: 561px) {
   #mg { left: 50%; right: auto; width: 520px; margin-left: -260px; bottom: 16px; border-radius: 20px; border: 3px solid var(--red); }
   .result { border-radius: 17px; }
-  #stations { left: 50%; right: auto; width: 520px; margin-left: -260px; bottom: 8px; }
+  #jobs { left: 50%; right: auto; width: 520px; margin-left: -260px; bottom: 8px; }
   #hud { left: 50%; right: auto; width: 620px; margin-left: -310px; }
 }
 @media (max-height: 640px) and (orientation: portrait) { .opt { min-height: 62px; } .opt .i { font-size: 22px; } .bubble { font-size: 15px; } .sub { font-size: 28px; } .btn { padding: 12px 14px; font-size: 20px; } }
@@ -206,15 +230,12 @@ body.calm * { animation: none !important; transition: none !important; }
   <div class="chips">
     <button class="chip phase" id="chipPhase">Fase 1 de 5</button>
     <span class="chip" id="chipSales">💰 $0</span>
-    <span class="chip" id="chipServed">🧍 0 atendidos</span>
+    <span class="chip" id="chipServed">✅ 0 hechos</span>
     <span class="chip combo" id="chipCombo" hidden>🔥 x2</span>
   </div>
 </div>
 <div id="toasts"></div>
-<div id="stations" hidden>
-  <button class="st-btn" id="stM"><span class="n">🛎 Mostrador</span><span class="s" id="stMs">Nadie esperando</span><div class="pb"><i id="stMb"></i></div><span class="q" id="stMq" hidden>0</span><kbd>tecla 1</kbd></button>
-  <button class="st-btn" id="stC"><span class="n">💵 Caja</span><span class="s" id="stCs">Nadie para cobrar</span><div class="pb"><i id="stCb"></i></div><span class="q" id="stCq" hidden>0</span><kbd>tecla 2</kbd></button>
-</div>
+<div id="jobs" hidden></div>
 
 <!-- Panel de minijuego -->
 <div id="mg" hidden></div>
@@ -228,8 +249,9 @@ body.calm * { animation: none !important; transition: none !important; }
       <p class="tag">Entrá. Elegí. Sobreviví al turno.</p>
     </div>
     <div style="display:flex;flex-direction:column;gap:12px">
-      <button class="btn" id="btnPlay">Jugar una jornada<small>3 minutos · con clientes apurados</small></button>
+      <button class="btn" id="btnPlay">Jugar una jornada<small>3 minutos · clientes y tareas del local</small></button>
       <button class="btn alt" id="btnRelax">Turno tranquilo<small>Sin reloj ni apuro · para aprender</small></button>
+      <button class="btn ghost" id="btnArcade" style="font-size:18px">🕹️ Arcade · estaciones sueltas</button>
       <div class="row">
         <button class="btn ghost" id="btnHow">Cómo se juega</button>
         <button class="btn ghost" id="btnRecs">Récords</button>
@@ -268,18 +290,24 @@ const GS = {};
 GS.LOGO = "data:image/png;base64,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";
 
 GS.CONFIG = {
-  version: '0.1.0',
-  phase: 1,                       // fase actual del proyecto (1 a 5)
+  version: '0.2.0',
+  phase: 2,
+  phaseNote: 'Parte A: 5 estaciones nuevas y modo Arcade',                       // fase actual del proyecto (1 a 5)
   links: { tienda: '', instagram: '' },   // se conectan más adelante
   promoMode: null,                // 'hotsale' | 'cyber' | null (Fase 3)
   camera: { tilt: 55, rot: 38, fov: 22 },
   day: {
     seconds: 180,                 // duración de la jornada normal
     relaxedCustomers: 8,          // clientes del turno tranquilo
-    maxCustomers: 4,              // clientes simultáneos en el salón
-    spawnMin: 7, spawnMax: 12,    // segundos entre clientes
-    patienceWait: 46,             // segundos de paciencia esperando
-    patienceGame: 24              // segundos de paciencia dentro de un minijuego
+    relaxedTasks: 4,              // tareas del turno tranquilo
+    maxCustomers: 3,              // clientes simultáneos en el salón
+    spawnMin: 11, spawnMax: 16,   // segundos entre clientes
+    patienceWait: 85,             // segundos de paciencia esperando (sin estrés)
+    patienceGame: 45,             // segundos de paciencia dentro de un minijuego
+    mistakeCost: 0.07,            // paciencia que cuesta un error
+    taskFirst: 22, taskMin: 22, taskMax: 32, maxTasks: 2,   // tareas de otras estaciones
+    taskPatience: 110,            // segundos antes de que una tarea se venza
+    arcadeRounds: 5, arcadeSeconds: 22
   }
 };
 
@@ -403,7 +431,7 @@ GS.LINES = {
     'Hacemos envíos a todo el país. Qué grande es el país, ¿no? Bueno, ahí llegamos.',
     'También se puede retirar en el local. Vengan, que acá hay aire acondicionado.',
     'Aceptamos Mercado Pago. Aceptamos casi todo, menos excusas.',
-    'Service técnico de notebooks, PC y consolas. Si prende fuego, también lo miramos.',
+    'Service técnico de notebooks y PC. Si prende fuego, también lo miramos.',
     'Ya contestamos 400 mensajes hoy. Qué bueno sería que alguien entrara por la puerta.',
     'Le ponemos más RAM a tu notebook. A vos no, lamentablemente.',
     'Recuerden: el cliente siempre tiene razón. Excepto cuando pregunta si es original.',
@@ -430,6 +458,14 @@ GS.LINES = {
     'Hoy nadie te mandó un audio de 4 minutos. En persona duran menos.',
     'Una señora te contó de su nieto. No compró nada. Fue lo mejor del día.'
   ],
+  wrongPc: ['Eso no entra ahí. Yo también probé.', 'Con fuerza entra cualquier cosa, pero no.', 'Ese hueco es de otra pieza. Tranqui.', 'Así queda una PC de colección: no prende.'],
+  flipPc: ['Estaba al revés. Clásico.', 'Ahora sí, del derecho.'],
+  wrongDiag: ['Mmm, no. Pero qué creatividad.', 'Eso lo vas a tener que explicarle vos al cliente.', 'Casi. Bah, no.'],
+  missRam: ['Clac. Ese clac no era el bueno.', 'Casi entra. Casi.', 'La RAM te mira decepcionada.'],
+  wrongBox: ['Entra... si lo doblás. No lo dobles.', 'Con esa caja pagás flete por aire.', 'Baila adentro como maraca. Probá otra.'],
+  wrongLabel: ['Esa etiqueta va a otra provincia. Lindo paseo para el paquete.', 'Ese pedido es de otro comprador.'],
+  wrongChat: ['???', 'Visto ✓✓', 'jajaj no entendi', 'ok... (está escribiendo una reseña)'],
+  wrongShelf: ['Ahí no va. Después nadie lo encuentra. Ni vos.', 'Esa góndola es de otra cosa.', 'Si lo ponés ahí, mañana lo buscás tres horas.'],
   loading: [
     'Acomodando cajas que nadie va a mirar...',
     'Cebando el primer mate...',
@@ -448,13 +484,72 @@ GS.LAYOUT = {
   isla:      { x: -3.2, z: 0.4,  w: 1.8, d: 0.8, h: 1.05 },
   mesa:      { x: 2.2,  z: 1.5,  w: 1.5, d: 3.6, h: 0.9 },
   escritorio:{ x: 2.2,  z: 4.6,  w: 1.6, d: 0.8, h: 0.78 },
-  gondola:   { x: 5.3,  z: 2.2,  w: 0.6, d: 6.0, h: 1.2 },
+  gondola:   { x: 5.3,  z: 2.7,  w: 0.6, d: 4.8, h: 1.2 },
+  service:   { x: 4.9,  z: -5.9, w: 1.8, d: 0.7, h: 0.95 },
+  empaque:   { x: 5.3,  z: -2.3, w: 0.7, d: 1.9, h: 0.9 },
+  reposicion:{ x: -4.9, z: 0.3 },
   arcade:    { x: 0.7,  z: 8.3 },
   puerta:    { x: -0.9 },                              // por dónde entran los clientes
   cartel:    { textos: ['ENTRÁ. ELEGÍ. JUGÁ.', 'EL JUEGO EMPIEZA ACÁ.'] },
   colaMostrador: [ [-3.9, -2.9], [-2.7, -2.9], [-1.5, -2.9], [-0.3, -2.9] ],
   colaCaja:      [ [1.0, -3.4], [1.0, -2.4], [1.0, -1.4], [0.9, -0.4] ]
 };
+
+/* Estaciones de trabajo. pos = dónde hace foco la cámara. soon = llega en la próxima entrega. */
+GS.STATIONS = [
+  { id: 'mostrador', n: 1, name: 'Mostrador', icon: '🛎', pos: [-1.5, -4.0] },
+  { id: 'caja', n: 2, name: 'Caja', icon: '💵', pos: [2.0, -2.9] },
+  { id: 'pc', n: 3, name: 'Armado de PC', icon: '🖥️', pos: [2.2, 1.5],
+    task: { name: 'PC para armar', tag: 'La quiere "con lucecitas"', late: 'El cliente de la PC se cansó de esperar. Se la arma el cuñado.' } },
+  { id: 'service', n: 4, name: 'Service técnico', icon: '🔧', pos: [4.9, -5.6],
+    task: { name: 'Equipo en service', tag: '"No hice nada, se rompió solo"', late: 'El equipo del service sigue esperando. Igual que su dueño.' } },
+  { id: 'ml', n: 5, name: 'Mercado Libre', icon: '📦', pos: [5.1, -2.3],
+    task: { name: 'Pedido para despachar', tag: 'Sale antes de las 14', late: 'Se pasó el corte de las 14. El pedido sale mañana.' } },
+  { id: 'whatsapp', n: 6, name: 'WhatsApp', icon: '💬', pos: [-3.4, -4.2],
+    task: { name: 'WhatsApp sin responder', tag: 'escribiendo...', late: 'Lo dejaste en visto. Te va a escribir de nuevo, pero con mayúsculas.' } },
+  { id: 'repo', n: 7, name: 'Reposición', icon: '🧺', pos: [-4.9, 0.3],
+    task: { name: 'Cajas para reponer', tag: 'Llegó mercadería', late: 'Las cajas siguen en el pasillo. Ya son parte del mobiliario.' } },
+  { id: 'stock', n: 8, name: 'Control de stock', icon: '🔍', soon: true },
+  { id: 'proveedor', n: 9, name: 'Recepción de proveedor', icon: '🚚', soon: true },
+  { id: 'devol', n: 10, name: 'Devoluciones', icon: '↩️', soon: true },
+  { id: 'cierre', n: 11, name: 'Cierre de caja', icon: '🧾', soon: true }
+];
+
+/* Datos de los minijuegos nuevos */
+GS.PC_PARTS = [
+  { id: 'cpu', name: 'Procesador', icon: '🔲' }, { id: 'ram', name: 'Memoria RAM', icon: '📏' }, { id: 'ssd', name: 'Disco SSD', icon: '💽' },
+  { id: 'gpu', name: 'Placa de video', icon: '🧩' }, { id: 'psu', name: 'Fuente', icon: '🔋' }
+];
+GS.DIAGNOSTICS = [
+  { s: 'La notebook no prende. "No hice nada, se rompió sola."', ok: 'El cargador está desenchufado', bad: ['Hay que tirar la notebook', 'Un virus de los fuertes'] },
+  { s: 'La PC hace ruido de turbina de avión.', ok: 'El cooler está tapado de pelusa', bad: ['Le falta nafta', 'Está contenta'] },
+  { s: '"Internet anda lento." Tiene 47 pestañas abiertas.', ok: 'Cerrar pestañas y reiniciar', bad: ['Cambiar el monitor', 'Comprar otro internet'] },
+  { s: 'La pantalla se ve toda negra. El brillo está en cero.', ok: 'Subir el brillo', bad: ['Cambiar la pantalla', 'Formatear todo'] },
+  { s: 'La PC se apaga sola cuando juega.', ok: 'Levanta temperatura: limpieza y pasta térmica', bad: ['Juega demasiado bien', 'Es el horóscopo'] },
+  { s: 'La notebook anda lentísima. Tiene 4 GB de RAM.', ok: 'Ampliarle la memoria RAM', bad: ['Hablarle con cariño', 'Pegarle un sticker gamer'] },
+  { s: 'El joystick se mueve solo para un costado.', ok: 'El stick tiene drift: se repara', bad: ['Está poseído', 'Hay que jugar inclinado'] },
+  { s: '"Se me llenó el disco." Tiene 9.000 fotos del mismo asado.', ok: 'Liberar espacio o sumar un disco', bad: ['Comer menos asado', 'Cambiar el teclado'] }
+];
+GS.CHATS = [
+  { m: 'ola precio?', ok: '¡Hola! ¿De qué producto te paso el precio?', bad: ['Sí.', 'Precio tiene, sí.'] },
+  { m: 'hacen envios??', ok: 'Sí, a todo el país. Comprando antes de las 14 sale en el día.', bad: ['Depende de las ganas.', 'Solo a los vecinos.'] },
+  { m: 'tienen cuotas', ok: 'Sí: 3 cuotas sin interés con tarjeta.', bad: ['Sí: 48 cuotas con mucho interés.', 'Cuotas no, pero fiamos.'] },
+  { m: 'es original??? xq en otro lado esta mas barato', ok: 'Sí, todo nuevo, original y con garantía.', bad: ['Original-original no sabría decirte.', 'Comprá en el otro lado entonces.'] },
+  { m: 'si pago en efectivo me hacen precio', ok: 'Sí: 10% OFF en efectivo o transferencia.', bad: ['Sí, te cobramos el doble.', 'El efectivo ya no se usa.'] },
+  { m: 'arreglan notebooks?', ok: 'Sí, tenemos service técnico de notebooks y PC.', bad: ['Las miramos fijo hasta que andan.', 'No, solo las desarmamos.'] },
+  { m: '🎤 Audio (4:12)', ok: '¿Me lo resumís por escrito? Así te ayudo más rápido 🙂', bad: ['Lo escuché entero. Saludos a tu primo.', 'No.'] },
+  { m: 'puedo pasar a retirar hoy', ok: 'Sí, podés retirar en el local.', bad: ['Hoy no, estamos jugando.', 'Retirar sí, pagar también.'] },
+  { m: 'aceptan mercadopago', ok: 'Sí, aceptamos Mercado Pago.', bad: ['Solo trueque.', 'Aceptamos, pero con desconfianza.'] },
+  { m: 'hola', ok: '¡Hola! ¿En qué te puedo ayudar?', bad: ['Chau.', 'hola (visto)'] },
+  { m: 'me podes mandar foto de TODO lo q tienen', ok: '¿Qué estás buscando? Te paso justo lo que necesitás.', bad: ['Dale, dame 3 semanas.', 'Te mando foto mía mejor.'] }
+];
+GS.SHELVES = [
+  { cat: 'consolas', name: 'Consolas y juegos', icon: '🎮' }, { cat: 'apple', name: 'Apple', icon: '🍏' },
+  { cat: 'pc', name: 'PC y accesorios', icon: '💻' }, { cat: 'perifericos', name: 'Periféricos gamer', icon: '🎧' }
+];
+GS.BOX_SIZE = { chica: ['cable', 'pendrive', 'tinta', 'airpods', 'juego', 'magic', 'watch', 'mouse', 'dualsense', 'homepod'],
+  mediana: ['switch2', 'quest', 'deck', 'ipad', 'router', 'auris', 'gpu', 'streamdeck', 'mic', 'notebook'], grande: ['ps5', 'xbox', 'gabinete', 'silla'] };
+GS.CITIES = ['Córdoba', 'Rosario', 'Mendoza', 'Salta', 'Bariloche', 'La Plata', 'Tucumán', 'Mar del Plata', 'Neuquén', 'Posadas'];
 
 /* Utilidades chicas */
 GS.util = {
@@ -815,6 +910,25 @@ GS.World = (function () {
     for (let z = gd.z - gd.d / 2 + 0.3; z < gd.z + gd.d / 2 - 0.2; z += 0.5) b.add(0.34, U.rnd(0.24, 0.4), 0.34, pc(), gd.x, gd.h, z);
     b.build();
   }
+  // Puestos de trabajo de la Etapa 2: service técnico, empaque de Mercado Libre y cajas para reponer
+  function buildWorkStations(root) {
+    const b = Batch(root), carton = 0xc49a6c;
+    const sv = L.service;                       // banco de service: tapa verde, notebook abierta y herramientas
+    box(root, sv.w, sv.h, sv.d, 0xffffff, sv.x, 0, sv.z); box(root, sv.w + 0.08, 0.06, sv.d + 0.08, 0x7ed321, sv.x, sv.h, sv.z);
+    notebook(root, sv.x - 0.3, sv.h + 0.06, sv.z);
+    box(root, 0.3, 0.05, 0.1, 0xe10600, sv.x + 0.45, sv.h + 0.06, sv.z + 0.1); box(root, 0.06, 0.04, 0.4, 0xf5c518, sv.x + 0.7, sv.h + 0.06, sv.z);
+    const em = L.empaque;                       // mesa de empaque: cajas de cartón y cinta
+    box(root, em.w, 0.07, em.d, 0xd9b77e, em.x, em.h - 0.07, em.z);
+    box(root, 0.07, em.h - 0.07, 0.07, 0xb48a50, em.x - 0.28, 0, em.z - 0.85); box(root, 0.07, em.h - 0.07, 0.07, 0xb48a50, em.x - 0.28, 0, em.z + 0.85);
+    box(root, 0.07, em.h - 0.07, 0.07, 0xb48a50, em.x + 0.28, 0, em.z - 0.85); box(root, 0.07, em.h - 0.07, 0.07, 0xb48a50, em.x + 0.28, 0, em.z + 0.85);
+    b.add(0.42, 0.3, 0.42, carton, em.x, em.h, em.z - 0.55); b.add(0.3, 0.2, 0.3, carton, em.x, em.h, em.z + 0.05); b.add(0.5, 0.36, 0.5, carton, em.x, 0, em.z + 0.3);
+    b.add(0.36, 0.28, 0.36, carton, em.x, 0.36, em.z + 0.3); b.add(0.02, 0.02, 0.34, 0xf5e663, em.x, em.h + 0.3, em.z - 0.55);
+    const tape = new T.Mesh(new T.CylinderGeometry(0.09, 0.09, 0.06, 12), mat(0xb5894a)); tape.position.set(em.x - 0.1, em.h + 0.03, em.z + 0.6); root.add(tape);
+    const rp = L.reposicion;                    // pila de cajas recién llegadas
+    b.add(0.55, 0.4, 0.5, carton, rp.x, 0, rp.z); b.add(0.5, 0.36, 0.46, 0xb98d5e, rp.x + 0.05, 0.4, rp.z + 0.02); b.add(0.45, 0.34, 0.45, carton, rp.x + 0.6, 0, rp.z + 0.25);
+    b.add(0.3, 0.24, 0.3, 0xb98d5e, rp.x - 0.02, 0.76, rp.z);
+    b.build();
+  }
   function notebook(root, x, y, z) {
     box(root, 0.5, 0.03, 0.36, 0x2a2a2e, x, y, z);
     const lid = box(root, 0.03, 0.34, 0.36, 0x2a2a2e, x + 0.24, y + 0.02, z); lid.rotation.z = -0.25;
@@ -974,7 +1088,10 @@ GS.World = (function () {
     if (!ray.ray.intersectPlane(planeY, v3)) return;
     const m = L.mostrador, c = L.caja, pad = 0.9;
     if (Math.abs(v3.x - c.x) < c.w / 2 + pad && Math.abs(v3.z - c.z) < c.d / 2 + pad * 0.6) return tapHandler('caja');
-    if (Math.abs(v3.x - m.x) < m.w / 2 + pad * 0.5 && Math.abs(v3.z - m.z) < m.d / 2 + pad) return tapHandler('mostrador');
+    if (Math.abs(v3.x - m.x) < m.w / 2 + pad * 0.5 && Math.abs(v3.z - m.z) < m.d / 2 + pad && v3.x > -2.6) return tapHandler('mostrador');
+    let best = null, bd = 1.7;
+    for (const st of GS.STATIONS) { if (st.soon) continue; const d = Math.hypot(v3.x - st.pos[0], v3.z - st.pos[1]); if (d < bd) { bd = d; best = st.id; } }
+    if (best) tapHandler(best);
   }
 
   /* ---------- API ---------- */
@@ -995,7 +1112,7 @@ GS.World = (function () {
     walls.E = new T.Group(); root.add(walls.E); shelfWall(walls.E, L.salon.xMax, -1, L.salon.zMin + 0.4, L.salon.zMax - 0.3);
     // zócalos bajos donde la pared está "cortada"
     box(root, 0.2, 0.3, L.salon.zMax - L.salon.zMin, 0xdedede, L.salon.xMax + 0.1, 0, (L.salon.zMin + L.salon.zMax) / 2);
-    buildCounter(root); buildCenter(root); buildGallery(root); buildSign(root);
+    buildCounter(root); buildCenter(root); buildWorkStations(root); buildGallery(root); buildSign(root);
 
     // empleados (inventados): vos en el mostrador y Brian, pegado al celular, en la caja
     const yo = makePerson({ shirt: 0xe10600, hair: 0x2b2b3a, skin: SKINS[1] }); yo.setPos(L.mostrador.x, L.mostrador.z - 0.9);
@@ -1042,7 +1159,7 @@ GS.World = (function () {
     focus(station, biasY, biasX) {
       if (station) {
         if (!cam.saved) cam.saved = { x: cam.gx, z: cam.gz, d: cam.gdist };
-        const s = L[station], d = Math.min(cam.fit * 0.62, fitDistance(5.2)), hw = 2 * d * Math.tan(GS.CONFIG.camera.fov * DEG / 2);
+        const stn = GS.STATIONS.find(a => a.id === station), s = { x: stn.pos[0], z: stn.pos[1] }, d = Math.min(cam.fit * 0.62, fitDistance(5.2)), hw = 2 * d * Math.tan(GS.CONFIG.camera.fov * DEG / 2);
         const by = (biasY || 0) * hw / Math.sin(tilt), bx = (biasX || 0) * hw * camera.aspect;
         cam.gdist = d;
         cam.gx = s.x + Math.sin(rot) * by + Math.cos(rot) * bx;
@@ -1230,12 +1347,137 @@ GS.Minigames = (function () {
     cur.keys = e => { if (e.key === 'ArrowRight') decide(true); else if (e.key === 'ArrowLeft') decide(false); };
   }
 
+
+  /* ---------------- 3. ARMADO DE PC: cada pieza en su lugar (una viene al revés) ---------------- */
+  function pc(job) {
+    const parts = GS.PC_PARTS, tray = U.shuffle(parts), flipped = U.pick(parts).id; let step = 0, isFlipped = true;
+    root().innerHTML = head(job, 'Armado de PC') +
+      '<div class="bubble" id="mgBubble">Armame la PC. Las piezas están ahí. Creo que están todas.</div>' +
+      '<div class="board">' + parts.map((p, i) => '<div class="slot" data-i="' + i + '"><span>' + (i + 1) + '</span>' + esc(p.name) + '</div>').join('') + '</div>' +
+      '<div class="rule" id="mgStep"></div>' +
+      '<div class="parts">' + tray.map((p, i) => '<button class="opt part' + (p.id === flipped ? ' flip' : '') + '" data-id="' + p.id + '"><kbd>' + (i + 1) + '</kbd><span class="i">' + p.icon + '</span><span class="n">' + esc(p.name) + '</span></button>').join('') + '</div>';
+    const slots = [...root().querySelectorAll('.slot')], btns = [...root().querySelectorAll('.part')], stepEl = document.getElementById('mgStep');
+    const paint = () => { slots.forEach((s, i) => { s.classList.toggle('now', i === step); s.classList.toggle('done', i < step); }); if (step < parts.length) stepEl.textContent = 'Ahora va: ' + parts[step].name + '. Tocá la pieza.'; };
+    function choose(b) {
+      if (!cur || cur.done || b.classList.contains('used')) return;
+      if (b.dataset.id === flipped && isFlipped) { isFlipped = false; b.classList.remove('flip'); GS.Audio.play('swipe'); say(U.pick(LN.flipPc), false); return; }
+      if (b.dataset.id === parts[step].id) {
+        b.classList.add('used'); GS.Audio.play('bill'); step++; paint();
+        if (step === parts.length) { GS.Audio.play('ok'); finish(true, '¡Prendió!', 'Y con lucecitas.', {}); }
+      } else mistake('pc', U.pick(LN.wrongPc));
+    }
+    btns.forEach(b => b.addEventListener('click', () => choose(b)));
+    cur.keys = e => { const n = parseInt(e.key, 10); if (n >= 1 && n <= btns.length) choose(btns[n - 1]); };
+    paint();
+  }
+
+  /* ---------------- 4. SERVICE TÉCNICO: diagnóstico, limpieza o encajar la RAM ---------------- */
+  function service(job, variant) {
+    variant = variant || U.pick(['diag', 'diag', 'pelusa', 'ram']);
+    if (variant === 'pelusa') return servicePelusa(job);
+    if (variant === 'ram') return serviceRam(job);
+    const d = U.pick(GS.DIAGNOSTICS), options = U.shuffle([d.ok].concat(d.bad));
+    root().innerHTML = head(job, 'Service · Diagnóstico') + '<div class="bubble" id="mgBubble">' + esc(d.s) + '</div><div class="info"><b>¿Qué le pasa?</b></div>' +
+      '<div class="opts one txt">' + options.map((o, i) => '<button class="opt" data-ok="' + (o === d.ok ? 1 : 0) + '"><kbd>' + (i + 1) + '</kbd><span class="n">' + esc(o) + '</span></button>').join('') + '</div>';
+    listOptions(b => b.dataset.ok === '1', () => finish(true, '¡Diagnosticado!', d.ok, {}), () => mistake('service', U.pick(LN.wrongDiag)));
+  }
+  function servicePelusa(job) {
+    const N = 20; let left = N;
+    root().innerHTML = head(job, 'Service · Limpieza') + '<div class="bubble" id="mgBubble">Hace ruido de avión. Adentro hay algo... peludo.</div>' +
+      '<div class="fan" id="mgFan"><div class="fan-ic">🌀</div>' + Array.from({ length: N }, () => '<i class="dust" style="--r:' + Math.floor(U.rnd(-30, 30)) + 'deg"></i>').join('') + '</div>' +
+      '<div class="rule">Pasá el dedo por la pelusa para limpiarla · <span id="mgLeft">' + N + '</span> restantes</div>';
+    const fan = document.getElementById('mgFan'), out = document.getElementById('mgLeft');
+    function clean(el) {
+      if (!cur || cur.done || !el || !el.classList || !el.classList.contains('dust') || el.classList.contains('gone')) return;
+      el.classList.add('gone'); left--; out.textContent = left; if (left % 3 === 0) GS.Audio.play('swipe');
+      if (left === 0) { GS.Audio.play('ok'); finish(true, '¡Como nueva!', 'Salió pelusa para tejer un pulóver.', {}); }
+    }
+    const at = e => clean(document.elementFromPoint(e.clientX, e.clientY));
+    fan.addEventListener('pointerdown', e => { fan.setPointerCapture && fan.setPointerCapture(e.pointerId); at(e); });
+    fan.addEventListener('pointermove', at);
+    cur.keys = e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); clean(fan.querySelector('.dust:not(.gone)')); } };
+  }
+  function serviceRam(job) {
+    const zone = U.rnd(18, 62), zw = 22, me = cur; let pos = 0, dir = 1, last = 0;
+    root().innerHTML = head(job, 'Service · Memoria RAM') + '<div class="bubble" id="mgBubble">Le agregamos memoria. Tiene que entrar justo, con un "clac".</div>' +
+      '<div class="timing"><i class="zone" style="left:' + zone + '%;width:' + zw + '%"></i><i class="mark" id="mgMark"></i></div>' +
+      '<button class="btn" id="mgSnap">¡Encajar!</button><div class="rule">Tocá cuando la marca esté en la zona verde</div>';
+    const mark = document.getElementById('mgMark');
+    function tick(t) {
+      if (cur !== me) return; requestAnimationFrame(tick);
+      const dt = Math.min(0.05, (t - last) / 1000 || 0); last = t; if (me.done) return;
+      pos += dir * dt * 62; if (pos >= 100) { pos = 100; dir = -1; } else if (pos <= 0) { pos = 0; dir = 1; }
+      mark.style.left = pos + '%';
+    }
+    requestAnimationFrame(tick);
+    function snap() {
+      if (!cur || cur.done) return;
+      if (pos >= zone && pos <= zone + zw) { GS.Audio.play('ok'); finish(true, '¡Clac!', 'Ahora tiene más RAM. Vos no, lamentablemente.', {}); }
+      else mistake('service', U.pick(LN.missRam));
+    }
+    document.getElementById('mgSnap').addEventListener('click', snap);
+    cur.keys = e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); snap(); } };
+  }
+
+  /* ---------------- 5. MERCADO LIBRE: caja del tamaño justo y etiqueta correcta ---------------- */
+  function ml(job) {
+    const prod = U.pick(GS.CATALOG), size = Object.keys(GS.BOX_SIZE).find(k => GS.BOX_SIZE[k].indexOf(prod.id) >= 0) || 'mediana';
+    const num = Math.floor(U.rnd(1000, 9999)), cities = U.shuffle(GS.CITIES), city = cities[0];
+    const orderTxt = 'Pedido #' + num + ' · ' + prod.icon + ' ' + prod.name + ' · va a ' + city;
+    function stepBox() {
+      root().innerHTML = head(job, 'Mercado Libre · Empaque') + '<div class="bubble" id="mgBubble">' + esc(orderTxt) + '</div><div class="info"><b>¿En qué caja lo mandás?</b></div>' +
+        '<div class="opts three">' + [['chica', 34], ['mediana', 46], ['grande', 60]].map((b, i) => '<button class="opt" data-ok="' + (b[0] === size ? 1 : 0) + '"><kbd>' + (i + 1) + '</kbd><span class="i" style="font-size:' + b[1] + 'px">📦</span><span class="n">Caja ' + b[0] + '</span></button>').join('') + '</div>' +
+        '<div class="rule">Ni que baile adentro ni que haya que doblarlo</div>';
+      listOptions(b => b.dataset.ok === '1', () => { GS.Audio.play('bill'); stepLabel(); }, () => mistake('ml', U.pick(LN.wrongBox)));
+    }
+    function stepLabel() {
+      const labels = U.shuffle([{ n: num, c: city, ok: 1 }, { n: num + U.pick([-10, 10, 100, 1]), c: city, ok: 0 }, { n: num, c: cities[1], ok: 0 }]);
+      root().innerHTML = head(job, 'Mercado Libre · Etiqueta') + '<div class="bubble" id="mgBubble">' + esc(orderTxt) + '</div><div class="info"><b>Cinta puesta. ¿Qué etiqueta le pegás?</b></div>' +
+        '<div class="opts one">' + labels.map((l, i) => '<button class="opt tagl" data-ok="' + l.ok + '"><kbd>' + (i + 1) + '</kbd><span class="n">#' + l.n + ' · ' + esc(l.c) + '</span></button>').join('') + '</div>' +
+        '<div class="rule">Mirá bien el número y el destino</div>';
+      listOptions(b => b.dataset.ok === '1', () => { GS.Audio.play('ok'); finish(true, '¡Despachado!', 'Sale hoy, antes de las 14.', {}); }, () => mistake('ml', U.pick(LN.wrongLabel)));
+    }
+    stepBox();
+  }
+
+  /* ---------------- 6. WHATSAPP: elegir la respuesta correcta ---------------- */
+  function whatsapp(job) {
+    const c = U.pick(GS.CHATS), options = U.shuffle([c.ok].concat(c.bad));
+    root().innerHTML = head(job, 'WhatsApp') + '<div class="chat"><div class="msg in" id="mgBubble">' + esc(c.m) + '</div></div><div class="info"><b>¿Qué le contestás?</b></div>' +
+      '<div class="opts one txt">' + options.map((o, i) => '<button class="opt" data-ok="' + (o === c.ok ? 1 : 0) + '"><kbd>' + (i + 1) + '</kbd><span class="n">' + esc(o) + '</span></button>').join('') + '</div>';
+    listOptions(b => b.dataset.ok === '1', () => finish(true, '¡Respondido!', 'Un cliente menos escribiendo "???".', {}), () => mistake('whatsapp', U.pick(LN.wrongChat)));
+  }
+
+  /* ---------------- 7. REPOSICIÓN: cada caja a su góndola ---------------- */
+  function repo(job) {
+    const boxes = U.shuffle(GS.CATALOG).slice(0, 3); let i = 0;
+    function show() {
+      const p = boxes[i];
+      root().innerHTML = head(job, 'Reposición · ' + (i + 1) + ' de 3') + '<div class="bubble" id="mgBubble">📦 En esta caja hay: ' + p.icon + ' ' + esc(p.name) + '</div><div class="info"><b>¿A qué góndola va?</b></div>' +
+        '<div class="opts">' + GS.SHELVES.map((s, k) => '<button class="opt" data-ok="' + (s.cat === p.cat ? 1 : 0) + '"><kbd>' + (k + 1) + '</kbd><span class="i">' + s.icon + '</span><span class="n">' + esc(s.name) + '</span></button>').join('') + '</div>';
+      listOptions(b => b.dataset.ok === '1', () => { i++; if (i < boxes.length) { GS.Audio.play('bill'); show(); } else { GS.Audio.play('ok'); finish(true, '¡Todo acomodado!', 'Por cinco minutos, al menos.', {}); } }, () => mistake('repo', U.pick(LN.wrongShelf)));
+    }
+    show();
+  }
+
+  // Ayuda común: lista de opciones con una correcta; las equivocadas se apagan
+  function listOptions(isOk, onOk, onBad) {
+    const btns = [...root().querySelectorAll('.opt')];
+    function choose(b) {
+      if (!cur || cur.done || b.classList.contains('bad')) return;
+      if (isOk(b)) { b.classList.add('good'); onOk(); } else { b.classList.add('bad'); onBad(); }
+    }
+    btns.forEach(b => b.addEventListener('click', () => choose(b)));
+    cur.keys = e => { const n = parseInt(e.key, 10); if (n >= 1 && n <= btns.length) choose(btns[n - 1]); };
+  }
+
+  const GAMES = { mostrador, caja, pc, service, ml, whatsapp, repo };
   return {
     // type: 'mostrador' | 'caja'; opts.variant para caja: 'cobro' | 'vuelto' | 'comprobante'
     open(type, cust, cb, opts) {
       close(); cur = { type, cust, cb, keys: null, done: false, timer: null };
       root().hidden = false;
-      if (type === 'mostrador') mostrador(cust); else caja(cust, opts && opts.variant);
+      GAMES[type](cust, opts && opts.variant);
     },
     close,
     isOpen: () => !!cur,
@@ -1250,12 +1492,15 @@ GS.Minigames = (function () {
 })();
 
 /* =====================================================================
-   JUEGO — jornada, clientes, puntaje, HUD, pantallas y bucle principal.
+   JUEGO — jornada, clientes, tareas de las estaciones, Arcade, puntaje,
+   HUD, pantallas y bucle principal.
    ===================================================================== */
 GS.Game = (function () {
   const U = GS.util, C = GS.CONFIG, L = GS.LAYOUT, LN = GS.LINES, W = GS.World, MG = GS.Minigames, A = GS.Audio;
   const $ = id => document.getElementById(id);
-  let state = 'menu', day = null, paused = false, lastT = 0, calm = false;
+  const ST = id => GS.STATIONS.find(s => s.id === id);
+  const TASK_STATIONS = GS.STATIONS.filter(s => s.task);
+  let state = 'menu', day = null, paused = false, lastT = 0, calm = false, uid = 0;
 
   /* ---------------- Etapas del proyecto ---------------- */
   function phasesCompact() {
@@ -1267,13 +1512,14 @@ GS.Game = (function () {
       if (i < GS.PHASES.length - 1) dots += '<span class="ph-bar ' + (p.n < C.phase ? 'done' : '') + '"></span>';
     });
     return '<div class="ph-title"><span>🚧 En construcción</span><span>ver etapas ›</span></div><div class="ph-dots">' + dots +
-      '</div><div class="ph-now">Etapa <b>' + C.phase + ' de ' + GS.PHASES.length + '</b>: <b>' + cur.name + '</b></div>';
+      '</div><div class="ph-now">Etapa <b>' + C.phase + ' de ' + GS.PHASES.length + '</b>: <b>' + cur.name + '</b>' + (C.phaseNote ? '<br><small>' + C.phaseNote + '</small>' : '') + '</div>';
   }
   function showPhases() {
     const items = GS.PHASES.map(p => {
       const cls = p.n < C.phase ? 'done' : p.n === C.phase ? 'now' : '';
       const st = p.n < C.phase ? 'Lista' : p.n === C.phase ? 'En curso · es la que estás probando' : 'Pendiente';
-      return '<li class="' + cls + '"><span class="ph-dot ' + cls + '">' + (p.n < C.phase ? '✔' : p.n) + '</span><div><em>' + st + '</em><b>' + p.name + '</b><span>' + p.desc + '</span></div></li>';
+      return '<li class="' + cls + '"><span class="ph-dot ' + cls + '">' + (p.n < C.phase ? '✔' : p.n) + '</span><div><em>' + st + '</em><b>' + p.name + '</b><span>' + p.desc +
+        (p.n === C.phase && C.phaseNote ? ' <i>' + C.phaseNote + '.</i>' : '') + '</span></div></li>';
     }).join('');
     modal('<h2>Etapas del proyecto</h2><p>El juego se construye en 5 etapas. Cada una se prueba y se aprueba antes de pasar a la siguiente.</p><ul class="ph-list">' + items +
       '</ul><button class="btn" data-close>Entendido</button>');
@@ -1293,23 +1539,32 @@ GS.Game = (function () {
   }
 
   /* ---------------- Jornada ---------------- */
-  function startDay(relaxed) {
-    A.unlock(); A.play('click');
-    $('start').hidden = true; $('end').hidden = true; $('hud').hidden = false; $('stations').hidden = false;
-    clearCustomers();
-    day = {
-      relaxed, t: 0, dur: C.day.seconds, score: 0, combo: 0, bestCombo: 0, sales: 0, served: 0, lost: 0, cajaErr: 0, mostErr: 0,
-      customers: [], spawned: 0, nextSpawn: 0.4, nextDueno: U.rnd(16, 24), cajaCount: 0, closing: false,
-      reqBag: U.shuffle(GS.REQUESTS), archBag: U.shuffle(GS.CUSTOMERS), bestMoment: ''
-    };
-    state = 'day'; paused = false; W.home(); updateHud(true);
-    $('clockS').textContent = relaxed ? 'Turno tranquilo' : 'Abrimos';
-    GS.track('inicio_partida', { modo: relaxed ? 'tranquilo' : 'normal' });
-    if (!GS.Store.get('tutorial')) { GS.Store.set('tutorial', true); showHow(true); }
+  function newDay(extra) {
+    return Object.assign({
+      relaxed: false, arcade: null, t: 0, dur: C.day.seconds, score: 0, combo: 0, bestCombo: 0, sales: 0, served: 0, lost: 0, cajaErr: 0, otherErr: 0,
+      tasksDone: 0, tasksLate: 0, customers: [], tasks: [], spawned: 0, tasksSpawned: 0, nextSpawn: 0.4, nextTask: C.day.taskFirst, nextDueno: U.rnd(18, 26),
+      cajaCount: 0, closing: false, jobSig: '', reqBag: U.shuffle(GS.REQUESTS), archBag: U.shuffle(GS.CUSTOMERS), taskBag: []
+    }, extra || {});
   }
-  function clearCustomers() {
-    if (day) day.customers.forEach(c => { c.person.remove(); c.label.remove(); });
+  function enterPlay() {
+    $('start').hidden = true; $('end').hidden = true; $('hud').hidden = false; $('modal').hidden = true; $('toasts').innerHTML = '';
+    paused = false; W.home();
+  }
+  function startDay(relaxed) {
+    A.unlock(); A.play('click'); clearDay();
+    day = newDay({ relaxed }); state = 'day'; enterPlay(); $('jobs').hidden = false;
+    $('clockS').textContent = relaxed ? 'Turno tranquilo' : 'Abrimos';
+    updateHud();
+    GS.track('inicio_partida', { modo: relaxed ? 'tranquilo' : 'normal' });
+    if (!GS.Store.get('tutorial2')) { GS.Store.set('tutorial2', true); showHow(true); }
+  }
+  function clearDay() {
+    if (day) { day.customers.forEach(c => { if (c.person) c.person.remove(); c.label.remove(); }); day.tasks.forEach(t => t.label.remove()); }
     MG.close(); W.focus(null);
+  }
+  function makeLabel(icon) {
+    const label = document.createElement('div'); label.className = 'plabel'; label.innerHTML = '<span class="ic">' + icon + '</span><span class="b"><i></i></span>'; label.hidden = true;
+    $('labels').appendChild(label); return label;
   }
 
   function spawnCustomer() {
@@ -1319,13 +1574,18 @@ GS.Game = (function () {
     const req = day.reqBag.pop(), arche = day.archBag.pop(), product = GS.CATALOG.find(p => p.id === req.p);
     const person = W.makePerson({ shirt: arche.shirt, hair: arche.hair });
     const dx = L.puerta.x; person.setPos(dx + U.rnd(-0.5, 0.5), day.spawned === 0 ? L.salon.zMax + 1 : L.galeria.zMax + 2.4);
-    const label = document.createElement('div'); label.className = 'plabel'; label.innerHTML = '<span class="ic">❓</span><span class="b"><i></i></span>'; label.hidden = true;
-    $('labels').appendChild(label);
-    const cu = { arche, request: req.t, product, st: 'entering', pat: 1, person, slotM: slot, slotC: -1, label };
+    const cu = { id: ++uid, arche, request: req.t, product, st: 'entering', pat: 1, person, slotM: slot, slotC: -1, label: makeLabel('❓') };
     day.customers.push(cu); day.spawned++;
-    const s = L.colaMostrador[slot];
-    person.walk([[dx, L.salon.zMax + 0.2], [dx, -1.3], s], () => { cu.st = 'waitM'; person.face(Math.PI); });
+    person.walk([[dx, L.salon.zMax + 0.2], [dx, -1.3], L.colaMostrador[slot]], () => { cu.st = 'waitM'; person.face(Math.PI); });
     setTimeout(() => A.play('bell'), 900);
+  }
+  function spawnTask() {
+    if (!day.taskBag.length) day.taskBag = U.shuffle(TASK_STATIONS);
+    let st = day.taskBag.pop();
+    if (day.tasks.some(t => t.station === st)) { const alt = TASK_STATIONS.filter(s => !day.tasks.some(t => t.station === s)); if (!alt.length) return; st = U.pick(alt); }
+    const task = { id: ++uid, station: st, arche: { face: st.icon, name: st.task.name, tag: st.task.tag }, pat: 1, st: 'wait', label: makeLabel(st.icon) };
+    day.tasks.push(task); day.tasksSpawned++; A.play('speaker');
+    toast('<b>' + st.icon + ' ' + st.name + '</b>' + st.task.name + '. Cuando puedas.', '', 2400);
   }
   function freeSlot(key, n) {
     for (let i = 0; i < n; i++) if (!day.customers.some(c => c[key] === i && c.st !== 'leaving')) return i;
@@ -1333,139 +1593,254 @@ GS.Game = (function () {
   }
   function leave(cu, withBag) {
     cu.st = 'leaving'; cu.slotM = -1; cu.slotC = -1; cu.label.hidden = true; cu.person.bag(!!withBag);
-    const dx = L.puerta.x;
+    const dx = L.puerta.x, d = day;
     cu.person.walk([[-0.6, -0.9], [dx, L.salon.zMax + 0.2], [dx + U.rnd(-2, 2), L.galeria.zMax + 3]], () => {
-      cu.person.remove(); cu.label.remove(); const i = day ? day.customers.indexOf(cu) : -1; if (i >= 0) day.customers.splice(i, 1);
+      cu.person.remove(); cu.label.remove(); const i = d.customers.indexOf(cu); if (i >= 0) d.customers.splice(i, 1);
     });
   }
+  function removeTask(task) { task.label.remove(); const i = day.tasks.indexOf(task); if (i >= 0) day.tasks.splice(i, 1); }
 
   function addScore(base, pat) {
-    const mult = 1 + Math.min(day.combo, 8) * 0.25, pts = Math.round((base + pat * 100) * mult);
+    const mult = 1 + Math.min(day.combo, 8) * 0.25, pts = Math.round((base + Math.max(0, pat) * 100) * mult);
     day.score += pts; day.combo++; day.bestCombo = Math.max(day.bestCombo, day.combo);
     toast('+' + pts + (day.combo > 1 ? ' · racha x' + day.combo : ''), 'pts', 1100);
     if (day.combo > 1) A.play('combo', day.combo);
   }
   function breakCombo() { day.combo = 0; }
 
-  function openStation(type) {
-    if (state !== 'day' || paused || MG.isOpen() || day.closing) return;
-    const want = type === 'mostrador' ? 'waitM' : 'waitC';
-    const cands = day.customers.filter(c => c.st === want);
-    if (!cands.length) { toast(type === 'mostrador' ? 'No hay nadie esperando en el mostrador.' : 'Todavía no hay nadie para cobrar.', '', 1500); return; }
-    A.unlock(); A.play('click');
-    const cu = cands.sort((a, b) => a.pat - b.pat)[0];
-    cu.st = type === 'mostrador' ? 'inM' : 'inC'; cu.pat = Math.max(cu.pat, 0.5);
+  /* Trabajos pendientes: clientes en mostrador, clientes en caja y tareas de las otras estaciones */
+  function pendingJobs() {
+    const jobs = [];
+    for (const c of day.customers) {
+      if (c.st === 'waitM') jobs.push({ key: 'c' + c.id, type: 'mostrador', ref: c, pat: c.pat, icon: '🛎', title: 'Mostrador', sub: 'Atender a ' + c.arche.name });
+      else if (c.st === 'waitC') jobs.push({ key: 'c' + c.id + 'k', type: 'caja', ref: c, pat: c.pat, icon: '💵', title: 'Caja', sub: 'Cobrar a ' + c.arche.name });
+    }
+    for (const t of day.tasks) if (t.st === 'wait') jobs.push({ key: 't' + t.id, type: t.station.id, ref: t, pat: t.pat, icon: t.station.icon, title: t.station.name, sub: t.station.task.name });
+    return jobs.sort((a, b) => a.pat - b.pat);
+  }
+  function focusFor(type) {
     const land = window.innerWidth > window.innerHeight && window.innerHeight <= 560;
     W.focus(type, land ? 0 : 0.27, land ? 0.25 : 0);
+  }
+  function openStation(type) {       // toque sobre una estación en el 3D
+    if (state !== 'day' || !day || day.arcade) return;
+    const job = pendingJobs().find(j => j.type === type);
+    if (!job) { if (!MG.isOpen() && !paused) toast('No hay nada pendiente en ' + ST(type).name + '.', '', 1400); return; }
+    openJob(job);
+  }
+  function openJob(job) {
+    if (state !== 'day' || paused || MG.isOpen() || day.closing) return;
+    A.unlock(); A.play('click');
+    const ref = job.ref, isCust = job.type === 'mostrador' || job.type === 'caja';
+    ref.st = isCust ? (job.type === 'mostrador' ? 'inM' : 'inC') : 'in'; ref.pat = Math.max(ref.pat, 0.55);
+    focusFor(job.type);
     const cb = {
-      onMistake(kind) { breakCombo(); if (kind === 'caja') day.cajaErr++; else day.mostErr++; if (!day.relaxed) cu.pat = Math.max(0.05, cu.pat - 0.14); },
+      onMistake(kind) { breakCombo(); if (kind === 'caja') day.cajaErr++; else day.otherErr++; if (!day.relaxed) ref.pat = Math.max(0.05, ref.pat - C.day.mistakeCost); },
       onEnd(ok, info) {
         W.focus(null);
-        if (type === 'mostrador') {
-          addScore(100, cu.pat); cu.st = 'toCaja'; cu.slotM = -1; cu.pat = Math.max(cu.pat, 0.75);
-          cu.slotC = Math.max(0, freeSlot('slotC', L.colaCaja.length));
-          cu.person.walk([[0.1, -2.1], L.colaCaja[cu.slotC]], () => { cu.st = 'waitC'; cu.person.face(Math.PI / 2); });
-        } else {
+        if (job.type === 'mostrador') {
+          addScore(100, ref.pat); ref.st = 'toCaja'; ref.slotM = -1; ref.pat = Math.max(ref.pat, 0.8);
+          ref.slotC = Math.max(0, freeSlot('slotC', L.colaCaja.length));
+          ref.person.walk([[0.1, -2.1], L.colaCaja[ref.slotC]], () => { ref.st = 'waitC'; ref.person.face(Math.PI / 2); });
+        } else if (job.type === 'caja') {
           day.served++;
           if (info.total) day.sales += info.total;
-          if (info.cajaError) { day.score = Math.max(0, day.score - 100); }
-          if (ok) addScore(150, cu.pat);
-          if (Math.random() < 0.6) toast('<b>' + cu.arche.name + '</b>' + cu.arche.bye, '', 2600);
-          if (ok && !day.bestMoment) day.bestMoment = cu.arche.name + ': "' + cu.arche.bye + '"';
-          leave(cu, !!info.total);
-        }
+          if (info.cajaError) day.score = Math.max(0, day.score - 100);
+          if (ok) addScore(150, ref.pat);
+          if (Math.random() < 0.6) toast('<b>' + ref.arche.name + '</b>' + ref.arche.bye, '', 2600);
+          leave(ref, !!info.total);
+        } else { day.tasksDone++; addScore(130, ref.pat); removeTask(ref); }
       }
     };
     let variant = null;
-    if (type === 'caja') { variant = GS.DEBUG_VARIANT ? GS.DEBUG_VARIANT : day.cajaCount === 0 ? 'cobro' : U.pick(['cobro', 'cobro', 'vuelto', 'comprobante']); day.cajaCount++; }
-    MG.open(type, cu, cb, { variant });
+    if (job.type === 'caja') { variant = GS.DEBUG_VARIANT ? GS.DEBUG_VARIANT : day.cajaCount === 0 ? 'cobro' : U.pick(['cobro', 'cobro', 'vuelto', 'comprobante']); day.cajaCount++; }
+    if (job.type === 'service' && GS.DEBUG_VARIANT) variant = GS.DEBUG_VARIANT;
+    MG.open(job.type, ref, cb, { variant });
   }
 
   function updateDay(dt) {
+    if (day.arcade) return updateArcade(dt);
     day.t += dt;
     const cfg = C.day, open = MG.isOpen();
     // llegada de clientes
     const total = day.customers.filter(c => c.st !== 'leaving').length;
-    const canSpawn = !day.closing && total < cfg.maxCustomers && (day.relaxed ? day.spawned < cfg.relaxedCustomers : day.t < day.dur - 12);
+    const canSpawn = !day.closing && total < cfg.maxCustomers && (day.relaxed ? day.spawned < cfg.relaxedCustomers : day.t < day.dur - 15);
     day.nextSpawn -= dt;
     if (day.nextSpawn <= 0 && canSpawn) {
       spawnCustomer();
-      const rush = day.relaxed ? 1 : 1 - 0.35 * (day.t / day.dur);   // se acelera hacia el final
+      const rush = day.relaxed ? 0.8 : 1 - 0.2 * (day.t / day.dur);
       day.nextSpawn = U.rnd(cfg.spawnMin, cfg.spawnMax) * rush;
     }
-    // paciencia
-    for (const cu of day.customers.slice()) {
-      if (day.relaxed) continue;
-      if (cu.st === 'waitM' || cu.st === 'waitC') cu.pat -= dt / cfg.patienceWait;
-      else if ((cu.st === 'inM' || cu.st === 'inC') && !MG.isResolving()) cu.pat -= dt / cfg.patienceGame;
-      if (cu.pat <= 0 && cu.st !== 'leaving' && cu.st !== 'entering' && cu.st !== 'toCaja') {
-        if ((cu.st === 'inM' || cu.st === 'inC')) { if (MG.isResolving()) { cu.pat = 0.01; continue; } MG.close(); W.focus(null); }
-        day.lost++; breakCombo(); A.play('lost');
-        toast('<b>' + cu.arche.name + ' se fue</b>' + cu.arche.lost, '', 3000);
-        leave(cu, false);
+    // tareas de las otras estaciones
+    day.nextTask -= dt;
+    const canTask = !day.closing && day.tasks.length < cfg.maxTasks && (day.relaxed ? day.tasksSpawned < cfg.relaxedTasks : day.t < day.dur - 25);
+    if (day.nextTask <= 0 && canTask) { spawnTask(); day.nextTask = U.rnd(cfg.taskMin, cfg.taskMax); }
+    // paciencia (en el turno tranquilo no baja)
+    if (!day.relaxed) {
+      for (const cu of day.customers.slice()) {
+        if (cu.st === 'waitM' || cu.st === 'waitC') cu.pat -= dt / cfg.patienceWait;
+        else if ((cu.st === 'inM' || cu.st === 'inC') && !MG.isResolving()) cu.pat -= dt / cfg.patienceGame;
+        if (cu.pat <= 0 && (cu.st === 'waitM' || cu.st === 'waitC' || cu.st === 'inM' || cu.st === 'inC')) {
+          if (cu.st === 'inM' || cu.st === 'inC') { if (MG.isResolving()) { cu.pat = 0.01; continue; } MG.close(); W.focus(null); }
+          day.lost++; breakCombo(); A.play('lost');
+          toast('<b>' + cu.arche.name + ' se fue</b>' + cu.arche.lost, '', 3000);
+          leave(cu, false);
+        }
+      }
+      for (const t of day.tasks.slice()) {
+        if (t.st === 'wait') t.pat -= dt / cfg.taskPatience;
+        else if (!MG.isResolving()) t.pat -= dt / (cfg.patienceGame * 1.3);
+        if (t.pat <= 0) {
+          if (t.st === 'in') { if (MG.isResolving()) { t.pat = 0.01; continue; } MG.close(); W.focus(null); }
+          day.tasksLate++; breakCombo(); A.play('lost');
+          toast('<b>' + t.station.icon + ' ' + t.station.name + '</b>' + t.station.task.late, '', 3200); removeTask(t);
+        }
       }
     }
     if (open && MG.customer()) MG.setPatience(day.relaxed ? 1 : MG.customer().pat);
     // el Dueño por el altavoz
     day.nextDueno -= dt;
-    if (day.nextDueno <= 0 && !open) { day.nextDueno = U.rnd(26, 38); A.play('speaker'); toast('<b>📢 El Dueño, por el altavoz</b>' + U.pick(LN.dueno), 'dueno', 4600); }
+    if (day.nextDueno <= 0 && !open) { day.nextDueno = U.rnd(30, 42); A.play('speaker'); toast('<b>📢 El Dueño, por el altavoz</b>' + U.pick(LN.dueno), 'dueno', 4600); }
     // fin de la jornada
-    const over = day.relaxed ? (day.spawned >= cfg.relaxedCustomers && day.customers.every(c => c.st === 'leaving')) : day.t >= day.dur;
+    const over = day.relaxed
+      ? (day.spawned >= cfg.relaxedCustomers && day.tasksSpawned >= cfg.relaxedTasks && !day.tasks.length && day.customers.every(c => c.st === 'leaving'))
+      : day.t >= day.dur;
     if (over && !day.closing && !MG.isOpen()) { day.closing = true; setTimeout(endDay, 700); }
-    updateHud(false); updateLabels();
+    updateHud(); updateJobs(); updateLabels();
   }
 
   function fmtClock(f) { const m = Math.round(600 + f * 600); return String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(Math.floor(m % 60 / 10) * 10).padStart(2, '0'); }
-  function updateHud(force) {
+  function updateHud() {
     if (!day) return;
-    const f = day.relaxed ? Math.min(1, (day.served + day.lost) / C.day.relaxedCustomers) : Math.min(1, day.t / day.dur);
-    $('clockT').textContent = fmtClock(f); $('clockB').style.width = (f * 100).toFixed(1) + '%';
-    if (!day.relaxed) { const left = Math.max(0, Math.ceil(day.dur - day.t)); $('clockS').textContent = left <= 20 ? '¡Cerramos en ' + left + ' s!' : 'Cierra a las 20:00'; }
+    if (day.arcade) {
+      $('clockT').textContent = 'Ronda ' + Math.max(1, Math.min(day.round, C.day.arcadeRounds)) + '/' + C.day.arcadeRounds; $('clockS').textContent = 'Arcade · ' + ST(day.arcade).name;
+      $('clockB').style.width = (Math.max(0, day.round - 1) / C.day.arcadeRounds * 100) + '%';
+    } else {
+      const total = C.day.relaxedCustomers + C.day.relaxedTasks;
+      const f = day.relaxed ? Math.min(1, (day.served + day.lost + day.tasksDone) / total) : Math.min(1, day.t / day.dur);
+      $('clockT').textContent = fmtClock(f); $('clockB').style.width = (f * 100).toFixed(1) + '%';
+      if (!day.relaxed) { const left = Math.max(0, Math.ceil(day.dur - day.t)); $('clockS').textContent = left <= 20 ? 'Cerramos en ' + left + ' s' : 'Cierra a las 20:00'; }
+    }
     $('scoreV').textContent = day.score.toLocaleString('es-AR');
+    $('chipSales').hidden = !!day.arcade; $('chipServed').hidden = !!day.arcade;
     $('chipSales').textContent = '💰 ' + U.money(day.sales);
-    $('chipServed').textContent = '🧍 ' + day.served + (day.served === 1 ? ' atendido' : ' atendidos');
+    $('chipServed').textContent = '✅ ' + (day.served + day.tasksDone) + ' hechos';
     $('chipCombo').hidden = day.combo < 2; $('chipCombo').textContent = '🔥 racha x' + day.combo;
-    stationBtn('M', 'waitM', 'esperando', 'Nadie esperando'); stationBtn('C', 'waitC', 'para cobrar', 'Nadie para cobrar');
   }
-  function stationBtn(k, st, word, empty) {
-    const list = day.customers.filter(c => c.st === st), n = list.length, btn = $('st' + k);
-    btn.classList.toggle('on', n > 0); $('st' + k + 'q').hidden = n === 0; $('st' + k + 'q').textContent = n;
-    $('st' + k + 's').textContent = n ? n + ' ' + word + ' · ¡tocá!' : empty;
-    const min = n ? Math.min.apply(null, list.map(c => c.pat)) : 0, bar = $('st' + k + 'b');
-    bar.style.width = (n ? Math.max(4, min * 100) : 0) + '%'; bar.style.background = min > 0.5 ? 'var(--ok)' : min > 0.25 ? 'var(--warn)' : 'var(--red)';
+  // Tarjetas de pendientes (abajo): hasta 4, primero lo más urgente
+  let jobList = [];
+  function updateJobs() {
+    const all = pendingJobs(); jobList = all.slice(0, 4);
+    const sig = jobList.map(j => j.key).join(',') + '|' + all.length, box = $('jobs');
+    if (sig !== day.jobSig) {
+      day.jobSig = sig;
+      box.innerHTML = jobList.length
+        ? jobList.map((j, i) => '<button class="job" data-i="' + i + '"><span class="ji">' + j.icon + '</span><span class="jt"><b>' + j.title + '</b><small>' + j.sub + '</small></span><span class="pb"><i></i></span><kbd>' + (i + 1) + '</kbd></button>').join('') +
+          (all.length > 4 ? '<div class="more">+' + (all.length - 4) + ' más esperando</div>' : '')
+        : '<div class="job idle"><span class="ji">☕</span><span class="jt"><b>Todo en orden</b><small>Respirá. Ya va a entrar alguien.</small></span></div>';
+    }
+    const bars = box.querySelectorAll('.job .pb i');
+    jobList.forEach((j, i) => { if (bars[i]) { bars[i].style.width = Math.max(4, j.pat * 100) + '%'; bars[i].style.background = barColor(j.pat); } });
+  }
+  const barColor = p => p > 0.5 ? 'var(--ok)' : p > 0.25 ? 'var(--warn)' : 'var(--red)';
+  function setLabel(label, x, z, pat, icon) {
+    const p = W.project(x, 1.75, z);
+    label.style.left = p.x.toFixed(1) + 'px'; label.style.top = p.y.toFixed(1) + 'px';
+    if (icon) label.firstChild.textContent = icon;
+    const i = label.lastChild.firstChild; i.style.width = Math.max(0, pat * 100) + '%'; i.style.background = barColor(pat);
   }
   function updateLabels() {
     for (const cu of day.customers) {
       const show = cu.st === 'waitM' || cu.st === 'waitC' || cu.st === 'toCaja';
       cu.label.hidden = !show; if (!show) continue;
-      const g = cu.person.group.position, p = W.project(g.x, 1.75, g.z);
-      cu.label.style.left = p.x.toFixed(1) + 'px'; cu.label.style.top = p.y.toFixed(1) + 'px';
-      cu.label.firstChild.textContent = cu.st === 'waitM' ? '❓' : '💵';
-      const i = cu.label.lastChild.firstChild; i.style.width = Math.max(0, cu.pat * 100) + '%';
-      i.style.background = cu.pat > 0.5 ? 'var(--ok)' : cu.pat > 0.25 ? 'var(--warn)' : 'var(--red)';
+      const g = cu.person.group.position; setLabel(cu.label, g.x, g.z, cu.pat, cu.st === 'waitM' ? '❓' : '💵');
     }
+    for (const t of day.tasks) { t.label.hidden = t.st !== 'wait'; if (t.st === 'wait') setLabel(t.label, t.station.pos[0], t.station.pos[1], t.pat); }
+  }
+
+  /* ---------------- Arcade: una estación suelta, 5 rondas seguidas ---------------- */
+  function startArcade(id) {
+    A.unlock(); A.play('click'); clearDay();
+    day = newDay({ arcade: id, round: 0, job: null, wait: 0.5 }); state = 'day'; enterPlay(); $('jobs').hidden = true;
+    updateHud(); GS.track('inicio_minijuego', { estacion: id, modo: 'arcade' });
+  }
+  function arcadeJob(id) {
+    const st = ST(id);
+    if (id === 'mostrador' || id === 'caja') {
+      if (!day.reqBag.length) day.reqBag = U.shuffle(GS.REQUESTS);
+      if (!day.archBag.length) day.archBag = U.shuffle(GS.CUSTOMERS);
+      const req = day.reqBag.pop();
+      return { arche: day.archBag.pop(), request: req.t, product: GS.CATALOG.find(p => p.id === req.p), pat: 1 };
+    }
+    return { arche: { face: st.icon, name: st.task.name, tag: st.task.tag }, pat: 1 };
+  }
+  function updateArcade(dt) {
+    const id = day.arcade;
+    if (!MG.isOpen() && !day.closing) {
+      day.wait -= dt;
+      if (day.wait <= 0) {
+        if (day.round >= C.day.arcadeRounds) { day.closing = true; setTimeout(endArcade, 300); return; }
+        day.round++; const job = day.job = arcadeJob(id); focusFor(id);
+        let variant = null;
+        if (id === 'caja') variant = ['cobro', 'vuelto', 'comprobante', 'cobro', 'vuelto'][day.round - 1];
+        if (id === 'service') variant = ['diag', 'pelusa', 'ram', 'diag', 'ram'][day.round - 1];
+        MG.open(id, job, {
+          onMistake(kind) { breakCombo(); day.otherErr++; job.pat = Math.max(0, job.pat - 0.1); },
+          onEnd(ok, info) { if (ok) addScore(100, job.pat); else breakCombo(); day.tasksDone++; day.wait = 0.5; day.job = null; }
+        }, { variant });
+      }
+    } else if (day.job && !MG.isResolving()) { day.job.pat = Math.max(0, day.job.pat - dt / C.day.arcadeSeconds); MG.setPatience(day.job.pat); }
+    updateHud();
+  }
+  function endArcade() {
+    if (!day || state !== 'day') return;
+    state = 'end'; MG.close(); W.focus(null); W.showAll(); A.play('endDay'); $('hud').hidden = true;
+    const d = day, st = ST(d.arcade), bests = GS.Store.get('arcade') || {}, prev = bests[st.id] || 0, rec = d.score > prev;
+    if (rec) { bests[st.id] = d.score; GS.Store.set('arcade', bests); }
+    GS.track('fin_minijuego', { estacion: st.id, puntaje: d.score });
+    $('endCol').innerHTML =
+      '<div><div class="ticket"><h3>ARCADE</h3><div class="c">' + st.icon + ' ' + st.name + ' · ' + C.day.arcadeRounds + ' rondas</div>' +
+      '<p><span>Errores</span><b>' + d.otherErr + '</b></p><p><span>Mejor racha</span><b>x' + d.bestCombo + '</b></p><p><span>Tu récord anterior</span><b>' + prev.toLocaleString('es-AR') + '</b></p><hr>' +
+      '<p class="tot"><span>PUNTAJE</span><b>' + d.score.toLocaleString('es-AR') + '</b></p></div></div>' +
+      '<div style="display:flex;flex-direction:column;gap:12px;margin-top:8px">' + (rec ? '<div class="newrec">🏆 ¡Nuevo récord en ' + st.name + '!</div>' : '') +
+      '<button class="btn" id="endAgain">Otra vez</button><div class="row"><button class="btn ghost" id="endArc">Otra estación</button><button class="btn ghost" id="endHome">Inicio</button></div>' +
+      '<button class="phases" id="phasesEnd"></button></div>';
+    $('phasesEnd').innerHTML = phasesCompact(); $('phasesEnd').addEventListener('click', showPhases);
+    $('endAgain').addEventListener('click', () => startArcade(st.id));
+    $('endArc').addEventListener('click', () => { goHome(); showArcade(); }); $('endHome').addEventListener('click', goHome);
+    $('end').hidden = false; $('end').scrollTop = 0;
+  }
+  function showArcade() {
+    const bests = GS.Store.get('arcade') || {};
+    modal('<h2>Arcade</h2><p>Jugá una estación suelta: 5 rondas seguidas, sin clientes esperando.</p><div class="arc">' +
+      GS.STATIONS.map(s => '<button class="arc-b' + (s.soon ? ' soon' : '') + '" data-id="' + s.id + '"' + (s.soon ? ' disabled' : '') + '><span class="ji">' + s.icon + '</span><b>' + s.name + '</b><small>' +
+        (s.soon ? 'Próximamente' : bests[s.id] ? 'Récord: ' + bests[s.id].toLocaleString('es-AR') : 'Sin jugar') + '</small></button>').join('') +
+      '</div><button class="btn ghost" data-close>Volver</button>');
+    $('sheet').querySelectorAll('.arc-b:not(.soon)').forEach(b => b.addEventListener('click', () => startArcade(b.dataset.id)));
   }
 
   /* ---------------- Cierre de caja ---------------- */
   function endDay() {
-    if (!day || state !== 'day') return;
+    if (!day || state !== 'day' || day.arcade) return;
     state = 'end'; MG.close(); W.focus(null); W.showAll(); A.play('endDay');
-    day.customers.slice().forEach(c => { if (c.st !== 'leaving') leave(c, false); });
-    $('hud').hidden = true; $('stations').hidden = true;
     const d = day;
+    d.customers.slice().forEach(c => { if (c.st !== 'leaving') leave(c, false); });
+    d.tasks.slice().forEach(removeTask);
+    $('hud').hidden = true; $('jobs').hidden = true;
+    const done = d.served + d.tasksDone, missed = d.lost + d.tasksLate, errs = d.cajaErr + d.otherErr;
     let stars = 1;
-    if (d.served >= 4 && d.lost <= 1) stars = 2;
-    if (d.served >= 6 && d.lost === 0 && d.cajaErr === 0) stars = 3;
-    if (d.relaxed) stars = d.cajaErr + d.mostErr === 0 ? 3 : d.cajaErr + d.mostErr <= 3 ? 2 : 1;
+    if (d.relaxed) stars = errs === 0 ? 3 : errs <= 4 ? 2 : 1;
+    else { if (done >= 6 && missed <= 2) stars = 2; if (done >= 9 && missed === 0 && d.cajaErr <= 1) stars = 3; }
     const comment = U.pick(stars === 3 ? LN.duenoEndGood : stars === 2 ? LN.duenoEndMid : LN.duenoEndBad);
     const human = U.pick(LN.human).replace('{n}', d.served);
-    const entry = { score: d.score, served: d.served, sales: d.sales, mode: d.relaxed ? 'Tranquilo' : 'Normal', date: new Date().toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit' }) };
+    const entry = { score: d.score, served: done, sales: d.sales, mode: d.relaxed ? 'Tranquilo' : 'Normal', date: new Date().toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit' }) };
     const pos = d.score > 0 ? GS.Store.addScore(entry) : -1;
-    GS.track('fin_jornada', { puntaje: d.score, atendidos: d.served, perdidos: d.lost, estrellas: stars, modo: entry.mode });
+    GS.track('fin_jornada', { puntaje: d.score, atendidos: d.served, tareas: d.tasksDone, perdidos: missed, estrellas: stars, modo: entry.mode });
     $('endCol').innerHTML =
       '<div><div class="ticket"><h3>CIERRE DE CAJA</h3><div class="c">GameShop Simulator · ' + (d.relaxed ? 'turno tranquilo' : 'jornada normal') + '</div>' +
-      '<p><span>Clientes atendidos</span><b>' + d.served + '</b></p><p><span>Se fueron sin comprar</span><b>' + d.lost + '</b></p>' +
-      '<p><span>Errores en mostrador</span><b>' + d.mostErr + '</b></p><p><span>Errores de caja</span><b>' + d.cajaErr + '</b></p>' +
+      '<p><span>Clientes atendidos</span><b>' + d.served + '</b></p><p><span>Tareas del local hechas</span><b>' + d.tasksDone + '</b></p>' +
+      '<p><span>Se fueron sin comprar</span><b>' + d.lost + '</b></p><p><span>Tareas que se pasaron</span><b>' + d.tasksLate + '</b></p>' +
+      '<p><span>Errores (con chiste)</span><b>' + errs + '</b></p>' +
       '<p><span>Mejor racha</span><b>x' + d.bestCombo + '</b></p><p><span>Ventas (ficticias)</span><b>' + U.money(d.sales) + '</b></p><hr>' +
       '<p class="tot"><span>PUNTAJE</span><b>' + d.score.toLocaleString('es-AR') + '</b></p><div class="stars">' + '★'.repeat(stars) + '<span style="opacity:.25">' + '★'.repeat(3 - stars) + '</span></div></div></div>' +
       '<div style="display:flex;flex-direction:column;gap:12px;margin-top:8px">' +
@@ -1479,24 +1854,25 @@ GS.Game = (function () {
     $('end').hidden = false; $('end').scrollTop = 0;
   }
   function goHome() {
-    A.play('click'); clearCustomers(); day = null; state = 'menu'; paused = false;
-    $('end').hidden = true; $('hud').hidden = true; $('stations').hidden = true; $('start').hidden = false; $('toasts').innerHTML = ''; W.showAll();
+    A.play('click'); clearDay();
+    day = null; state = 'menu'; paused = false;
+    $('end').hidden = true; $('hud').hidden = true; $('jobs').hidden = true; $('start').hidden = false; $('toasts').innerHTML = ''; W.showAll();
   }
 
   /* ---------------- Modales: cómo se juega, récords, opciones, pausa ---------------- */
   function showHow(fromDay) {
     if (fromDay) paused = true;
     modal('<h2>Cómo se juega</h2><ul class="how">' +
-      '<li><i>🚪</i><span>Entran clientes y hacen fila. Cada uno tiene una <b>barrita de paciencia</b>.</span></li>' +
-      '<li><i>🛎</i><span>Tocá <b>Mostrador</b> y adiviná qué producto te están pidiendo.</span></li>' +
-      '<li><i>💵</i><span>Después tocá <b>Caja</b> y cobrá bien: 10% OFF en efectivo o transferencia, 3 cuotas sin interés con tarjeta.</span></li>' +
-      '<li><i>🔥</i><span>Encadená aciertos para armar <b>racha</b> y multiplicar el puntaje. Si te equivocás no perdés: solo hay un chiste.</span></li>' +
-      '<li><i>👆</i><span>Arrastrá para mover el local y pellizcá (o usá la rueda) para acercar.</span></li></ul>' +
+      '<li><i>🚪</i><span>Entran clientes y aparecen tareas del local. Todo lo pendiente se muestra <b>abajo</b>, con una barrita de tiempo.</span></li>' +
+      '<li><i>👆</i><span>Tocá un pendiente para resolverlo: son minijuegos de unos segundos.</span></li>' +
+      '<li><i>💵</i><span>Al cobrar acordate: 10% OFF en efectivo o transferencia, 3 cuotas sin interés con tarjeta.</span></li>' +
+      '<li><i>🔥</i><span>Encadená aciertos para armar <b>racha</b>. Si te equivocás no perdés nada: solo hay un chiste.</span></li>' +
+      '<li><i>🔎</i><span>Arrastrá para mover el local y pellizcá (o usá la rueda) para acercar.</span></li></ul>' +
       '<button class="btn" data-close>¡A laburar!</button>', () => { if (fromDay) paused = false; });
   }
   function showRecords() {
     const best = GS.Store.get('best') || [];
-    modal('<h2>Tus mejores jornadas</h2>' + (best.length ? '<ul class="recs">' + best.map((b, i) => '<li><span>' + (i + 1) + '. ' + b.mode + ' · ' + b.served + ' atendidos · ' + b.date + '</span><b>' + b.score.toLocaleString('es-AR') + '</b></li>').join('') + '</ul>'
+    modal('<h2>Tus mejores jornadas</h2>' + (best.length ? '<ul class="recs">' + best.map((b, i) => '<li><span>' + (i + 1) + '. ' + b.mode + ' · ' + b.served + ' hechos · ' + b.date + '</span><b>' + b.score.toLocaleString('es-AR') + '</b></li>').join('') + '</ul>'
       : '<p>Todavía no jugaste ninguna jornada. El récord a batir es cero: aprovechá.</p>') +
       '<p style="font-size:13px;color:#a9a9b2">Se guardan solo en este dispositivo.</p><button class="btn" data-close>Cerrar</button>');
   }
@@ -1521,7 +1897,7 @@ GS.Game = (function () {
   }
   function showPause() {
     if (state !== 'day') return; paused = true;
-    modal('<h2>Pausa</h2><p>El local te espera. Los clientes, no tanto.</p><button class="btn" id="pResume">Seguir</button>' +
+    modal('<h2>Pausa</h2><p>El local te espera. Sin apuro.</p><button class="btn" id="pResume">Seguir</button>' +
       '<div class="row"><button class="btn ghost" id="pOpts">Opciones</button><button class="btn ghost" id="pHow">Cómo se juega</button></div><button class="btn ghost" id="pExit">Salir al inicio</button>');
     $('pResume').addEventListener('click', () => { $('modal').hidden = true; paused = false; A.play('click'); });
     $('pOpts').addEventListener('click', () => showOptions(true));
@@ -1559,13 +1935,13 @@ GS.Game = (function () {
     W.onTap(st => openStation(st));
     $('btnPlay').addEventListener('click', () => startDay(false));
     $('btnRelax').addEventListener('click', () => startDay(true));
+    $('btnArcade').addEventListener('click', () => { A.unlock(); A.play('click'); showArcade(); });
     $('btnHow').addEventListener('click', () => { A.unlock(); A.play('click'); showHow(false); });
     $('btnRecs').addEventListener('click', () => { A.unlock(); A.play('click'); showRecords(); });
     $('btnOpts').addEventListener('click', () => { A.unlock(); A.play('click'); showOptions(false); });
     $('phasesStart').addEventListener('click', showPhases);
     $('chipPhase').addEventListener('click', () => { paused = true; showPhases(); modalOnClose = () => { paused = false; }; });
-    $('stM').addEventListener('click', () => openStation('mostrador'));
-    $('stC').addEventListener('click', () => openStation('caja'));
+    $('jobs').addEventListener('click', e => { const b = e.target.closest('.job[data-i]'); if (b && jobList[b.dataset.i]) openJob(jobList[b.dataset.i]); });
     $('btnPause').addEventListener('click', showPause);
     $('btnMute').addEventListener('click', () => { A.unlock(); A.setMuted(!A.isMuted()); syncMute(); A.play('click'); });
     window.addEventListener('resize', () => W.resize());
@@ -1576,15 +1952,14 @@ GS.Game = (function () {
       if (state !== 'day') return;
       if (e.key === 'Escape') return showPause();
       if (MG.isOpen()) return MG.key(e);
-      if (e.key === '1') openStation('mostrador'); else if (e.key === '2') openStation('caja');
+      const n = parseInt(e.key, 10); if (n >= 1 && n <= jobList.length && !day.arcade) openJob(jobList[n - 1]);
     });
-    // evitar zoom/scroll del navegador mientras se juega
     document.addEventListener('gesturestart', e => e.preventDefault());
     requestAnimationFrame(frame);
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 
-  return { startDay, openStation, endDay, state: () => state, day: () => day };
+  return { startDay, startArcade, openStation, openJob, pendingJobs, endDay, state: () => state, day: () => day };
 })();
 
 </script>

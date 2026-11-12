@@ -7,18 +7,24 @@
 const GS = {};
 
 GS.CONFIG = {
-  version: '0.1.0',
-  phase: 1,                       // fase actual del proyecto (1 a 5)
+  version: '0.2.0',
+  phase: 2,
+  phaseNote: 'Parte A: 5 estaciones nuevas y modo Arcade',                       // fase actual del proyecto (1 a 5)
   links: { tienda: '', instagram: '' },   // se conectan más adelante
   promoMode: null,                // 'hotsale' | 'cyber' | null (Fase 3)
   camera: { tilt: 55, rot: 38, fov: 22 },
   day: {
     seconds: 180,                 // duración de la jornada normal
     relaxedCustomers: 8,          // clientes del turno tranquilo
-    maxCustomers: 4,              // clientes simultáneos en el salón
-    spawnMin: 7, spawnMax: 12,    // segundos entre clientes
-    patienceWait: 46,             // segundos de paciencia esperando
-    patienceGame: 24              // segundos de paciencia dentro de un minijuego
+    relaxedTasks: 4,              // tareas del turno tranquilo
+    maxCustomers: 3,              // clientes simultáneos en el salón
+    spawnMin: 11, spawnMax: 16,   // segundos entre clientes
+    patienceWait: 85,             // segundos de paciencia esperando (sin estrés)
+    patienceGame: 45,             // segundos de paciencia dentro de un minijuego
+    mistakeCost: 0.07,            // paciencia que cuesta un error
+    taskFirst: 22, taskMin: 22, taskMax: 32, maxTasks: 2,   // tareas de otras estaciones
+    taskPatience: 110,            // segundos antes de que una tarea se venza
+    arcadeRounds: 5, arcadeSeconds: 22
   }
 };
 
@@ -142,7 +148,7 @@ GS.LINES = {
     'Hacemos envíos a todo el país. Qué grande es el país, ¿no? Bueno, ahí llegamos.',
     'También se puede retirar en el local. Vengan, que acá hay aire acondicionado.',
     'Aceptamos Mercado Pago. Aceptamos casi todo, menos excusas.',
-    'Service técnico de notebooks, PC y consolas. Si prende fuego, también lo miramos.',
+    'Service técnico de notebooks y PC. Si prende fuego, también lo miramos.',
     'Ya contestamos 400 mensajes hoy. Qué bueno sería que alguien entrara por la puerta.',
     'Le ponemos más RAM a tu notebook. A vos no, lamentablemente.',
     'Recuerden: el cliente siempre tiene razón. Excepto cuando pregunta si es original.',
@@ -169,6 +175,14 @@ GS.LINES = {
     'Hoy nadie te mandó un audio de 4 minutos. En persona duran menos.',
     'Una señora te contó de su nieto. No compró nada. Fue lo mejor del día.'
   ],
+  wrongPc: ['Eso no entra ahí. Yo también probé.', 'Con fuerza entra cualquier cosa, pero no.', 'Ese hueco es de otra pieza. Tranqui.', 'Así queda una PC de colección: no prende.'],
+  flipPc: ['Estaba al revés. Clásico.', 'Ahora sí, del derecho.'],
+  wrongDiag: ['Mmm, no. Pero qué creatividad.', 'Eso lo vas a tener que explicarle vos al cliente.', 'Casi. Bah, no.'],
+  missRam: ['Clac. Ese clac no era el bueno.', 'Casi entra. Casi.', 'La RAM te mira decepcionada.'],
+  wrongBox: ['Entra... si lo doblás. No lo dobles.', 'Con esa caja pagás flete por aire.', 'Baila adentro como maraca. Probá otra.'],
+  wrongLabel: ['Esa etiqueta va a otra provincia. Lindo paseo para el paquete.', 'Ese pedido es de otro comprador.'],
+  wrongChat: ['???', 'Visto ✓✓', 'jajaj no entendi', 'ok... (está escribiendo una reseña)'],
+  wrongShelf: ['Ahí no va. Después nadie lo encuentra. Ni vos.', 'Esa góndola es de otra cosa.', 'Si lo ponés ahí, mañana lo buscás tres horas.'],
   loading: [
     'Acomodando cajas que nadie va a mirar...',
     'Cebando el primer mate...',
@@ -187,13 +201,72 @@ GS.LAYOUT = {
   isla:      { x: -3.2, z: 0.4,  w: 1.8, d: 0.8, h: 1.05 },
   mesa:      { x: 2.2,  z: 1.5,  w: 1.5, d: 3.6, h: 0.9 },
   escritorio:{ x: 2.2,  z: 4.6,  w: 1.6, d: 0.8, h: 0.78 },
-  gondola:   { x: 5.3,  z: 2.2,  w: 0.6, d: 6.0, h: 1.2 },
+  gondola:   { x: 5.3,  z: 2.7,  w: 0.6, d: 4.8, h: 1.2 },
+  service:   { x: 4.9,  z: -5.9, w: 1.8, d: 0.7, h: 0.95 },
+  empaque:   { x: 5.3,  z: -2.3, w: 0.7, d: 1.9, h: 0.9 },
+  reposicion:{ x: -4.9, z: 0.3 },
   arcade:    { x: 0.7,  z: 8.3 },
   puerta:    { x: -0.9 },                              // por dónde entran los clientes
   cartel:    { textos: ['ENTRÁ. ELEGÍ. JUGÁ.', 'EL JUEGO EMPIEZA ACÁ.'] },
   colaMostrador: [ [-3.9, -2.9], [-2.7, -2.9], [-1.5, -2.9], [-0.3, -2.9] ],
   colaCaja:      [ [1.0, -3.4], [1.0, -2.4], [1.0, -1.4], [0.9, -0.4] ]
 };
+
+/* Estaciones de trabajo. pos = dónde hace foco la cámara. soon = llega en la próxima entrega. */
+GS.STATIONS = [
+  { id: 'mostrador', n: 1, name: 'Mostrador', icon: '🛎', pos: [-1.5, -4.0] },
+  { id: 'caja', n: 2, name: 'Caja', icon: '💵', pos: [2.0, -2.9] },
+  { id: 'pc', n: 3, name: 'Armado de PC', icon: '🖥️', pos: [2.2, 1.5],
+    task: { name: 'PC para armar', tag: 'La quiere "con lucecitas"', late: 'El cliente de la PC se cansó de esperar. Se la arma el cuñado.' } },
+  { id: 'service', n: 4, name: 'Service técnico', icon: '🔧', pos: [4.9, -5.6],
+    task: { name: 'Equipo en service', tag: '"No hice nada, se rompió solo"', late: 'El equipo del service sigue esperando. Igual que su dueño.' } },
+  { id: 'ml', n: 5, name: 'Mercado Libre', icon: '📦', pos: [5.1, -2.3],
+    task: { name: 'Pedido para despachar', tag: 'Sale antes de las 14', late: 'Se pasó el corte de las 14. El pedido sale mañana.' } },
+  { id: 'whatsapp', n: 6, name: 'WhatsApp', icon: '💬', pos: [-3.4, -4.2],
+    task: { name: 'WhatsApp sin responder', tag: 'escribiendo...', late: 'Lo dejaste en visto. Te va a escribir de nuevo, pero con mayúsculas.' } },
+  { id: 'repo', n: 7, name: 'Reposición', icon: '🧺', pos: [-4.9, 0.3],
+    task: { name: 'Cajas para reponer', tag: 'Llegó mercadería', late: 'Las cajas siguen en el pasillo. Ya son parte del mobiliario.' } },
+  { id: 'stock', n: 8, name: 'Control de stock', icon: '🔍', soon: true },
+  { id: 'proveedor', n: 9, name: 'Recepción de proveedor', icon: '🚚', soon: true },
+  { id: 'devol', n: 10, name: 'Devoluciones', icon: '↩️', soon: true },
+  { id: 'cierre', n: 11, name: 'Cierre de caja', icon: '🧾', soon: true }
+];
+
+/* Datos de los minijuegos nuevos */
+GS.PC_PARTS = [
+  { id: 'cpu', name: 'Procesador', icon: '🔲' }, { id: 'ram', name: 'Memoria RAM', icon: '📏' }, { id: 'ssd', name: 'Disco SSD', icon: '💽' },
+  { id: 'gpu', name: 'Placa de video', icon: '🧩' }, { id: 'psu', name: 'Fuente', icon: '🔋' }
+];
+GS.DIAGNOSTICS = [
+  { s: 'La notebook no prende. "No hice nada, se rompió sola."', ok: 'El cargador está desenchufado', bad: ['Hay que tirar la notebook', 'Un virus de los fuertes'] },
+  { s: 'La PC hace ruido de turbina de avión.', ok: 'El cooler está tapado de pelusa', bad: ['Le falta nafta', 'Está contenta'] },
+  { s: '"Internet anda lento." Tiene 47 pestañas abiertas.', ok: 'Cerrar pestañas y reiniciar', bad: ['Cambiar el monitor', 'Comprar otro internet'] },
+  { s: 'La pantalla se ve toda negra. El brillo está en cero.', ok: 'Subir el brillo', bad: ['Cambiar la pantalla', 'Formatear todo'] },
+  { s: 'La PC se apaga sola cuando juega.', ok: 'Levanta temperatura: limpieza y pasta térmica', bad: ['Juega demasiado bien', 'Es el horóscopo'] },
+  { s: 'La notebook anda lentísima. Tiene 4 GB de RAM.', ok: 'Ampliarle la memoria RAM', bad: ['Hablarle con cariño', 'Pegarle un sticker gamer'] },
+  { s: 'El joystick se mueve solo para un costado.', ok: 'El stick tiene drift: se repara', bad: ['Está poseído', 'Hay que jugar inclinado'] },
+  { s: '"Se me llenó el disco." Tiene 9.000 fotos del mismo asado.', ok: 'Liberar espacio o sumar un disco', bad: ['Comer menos asado', 'Cambiar el teclado'] }
+];
+GS.CHATS = [
+  { m: 'ola precio?', ok: '¡Hola! ¿De qué producto te paso el precio?', bad: ['Sí.', 'Precio tiene, sí.'] },
+  { m: 'hacen envios??', ok: 'Sí, a todo el país. Comprando antes de las 14 sale en el día.', bad: ['Depende de las ganas.', 'Solo a los vecinos.'] },
+  { m: 'tienen cuotas', ok: 'Sí: 3 cuotas sin interés con tarjeta.', bad: ['Sí: 48 cuotas con mucho interés.', 'Cuotas no, pero fiamos.'] },
+  { m: 'es original??? xq en otro lado esta mas barato', ok: 'Sí, todo nuevo, original y con garantía.', bad: ['Original-original no sabría decirte.', 'Comprá en el otro lado entonces.'] },
+  { m: 'si pago en efectivo me hacen precio', ok: 'Sí: 10% OFF en efectivo o transferencia.', bad: ['Sí, te cobramos el doble.', 'El efectivo ya no se usa.'] },
+  { m: 'arreglan notebooks?', ok: 'Sí, tenemos service técnico de notebooks y PC.', bad: ['Las miramos fijo hasta que andan.', 'No, solo las desarmamos.'] },
+  { m: '🎤 Audio (4:12)', ok: '¿Me lo resumís por escrito? Así te ayudo más rápido 🙂', bad: ['Lo escuché entero. Saludos a tu primo.', 'No.'] },
+  { m: 'puedo pasar a retirar hoy', ok: 'Sí, podés retirar en el local.', bad: ['Hoy no, estamos jugando.', 'Retirar sí, pagar también.'] },
+  { m: 'aceptan mercadopago', ok: 'Sí, aceptamos Mercado Pago.', bad: ['Solo trueque.', 'Aceptamos, pero con desconfianza.'] },
+  { m: 'hola', ok: '¡Hola! ¿En qué te puedo ayudar?', bad: ['Chau.', 'hola (visto)'] },
+  { m: 'me podes mandar foto de TODO lo q tienen', ok: '¿Qué estás buscando? Te paso justo lo que necesitás.', bad: ['Dale, dame 3 semanas.', 'Te mando foto mía mejor.'] }
+];
+GS.SHELVES = [
+  { cat: 'consolas', name: 'Consolas y juegos', icon: '🎮' }, { cat: 'apple', name: 'Apple', icon: '🍏' },
+  { cat: 'pc', name: 'PC y accesorios', icon: '💻' }, { cat: 'perifericos', name: 'Periféricos gamer', icon: '🎧' }
+];
+GS.BOX_SIZE = { chica: ['cable', 'pendrive', 'tinta', 'airpods', 'juego', 'magic', 'watch', 'mouse', 'dualsense', 'homepod'],
+  mediana: ['switch2', 'quest', 'deck', 'ipad', 'router', 'auris', 'gpu', 'streamdeck', 'mic', 'notebook'], grande: ['ps5', 'xbox', 'gabinete', 'silla'] };
+GS.CITIES = ['Córdoba', 'Rosario', 'Mendoza', 'Salta', 'Bariloche', 'La Plata', 'Tucumán', 'Mar del Plata', 'Neuquén', 'Posadas'];
 
 /* Utilidades chicas */
 GS.util = {

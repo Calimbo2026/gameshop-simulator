@@ -2,12 +2,12 @@
 
 Juego web (un solo HTML) que simula una jornada de trabajo en GameShop. Pieza de marca para `juego.gameshop.com.ar`.
 
-## Estado: Etapa 1 de 5
+## Estado: Etapa 2 de 5 (parte A)
 
 | # | Etapa | Qué incluye | Estado |
 |---|-------|-------------|--------|
-| 1 | Base jugable | Inicio, salón 3D, Mostrador y Caja, una jornada completa | **En revisión** |
-| 2 | Minijuegos | Las 11 estaciones, modo Arcade, interrupciones, cordura y combos | Pendiente |
+| 1 | Base jugable | Inicio, salón 3D, Mostrador y Caja, una jornada completa | Lista |
+| 2 | Minijuegos | Las 11 estaciones, modo Arcade, interrupciones, cordura y combos | **En curso**: parte A (7 estaciones + Arcade) en revisión; parte B (4 estaciones, interrupciones, cordura, dificultades) pendiente |
 | 3 | Carrera | Rangos, jornadas-examen, eventos del año, el Dueño y los personajes | Pendiente |
 | 4 | Mundo completo | Exterior, depósito, oficina, música, final y tarjeta para compartir | Pendiente |
 | 5 | Pulido | Rendimiento, balance, bugs, accesibilidad, analítica y lanzamiento | Pendiente |

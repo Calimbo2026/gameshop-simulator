@@ -263,6 +263,25 @@ GS.World = (function () {
     for (let z = gd.z - gd.d / 2 + 0.3; z < gd.z + gd.d / 2 - 0.2; z += 0.5) b.add(0.34, U.rnd(0.24, 0.4), 0.34, pc(), gd.x, gd.h, z);
     b.build();
   }
+  // Puestos de trabajo de la Etapa 2: service técnico, empaque de Mercado Libre y cajas para reponer
+  function buildWorkStations(root) {
+    const b = Batch(root), carton = 0xc49a6c;
+    const sv = L.service;                       // banco de service: tapa verde, notebook abierta y herramientas
+    box(root, sv.w, sv.h, sv.d, 0xffffff, sv.x, 0, sv.z); box(root, sv.w + 0.08, 0.06, sv.d + 0.08, 0x7ed321, sv.x, sv.h, sv.z);
+    notebook(root, sv.x - 0.3, sv.h + 0.06, sv.z);
+    box(root, 0.3, 0.05, 0.1, 0xe10600, sv.x + 0.45, sv.h + 0.06, sv.z + 0.1); box(root, 0.06, 0.04, 0.4, 0xf5c518, sv.x + 0.7, sv.h + 0.06, sv.z);
+    const em = L.empaque;                       // mesa de empaque: cajas de cartón y cinta
+    box(root, em.w, 0.07, em.d, 0xd9b77e, em.x, em.h - 0.07, em.z);
+    box(root, 0.07, em.h - 0.07, 0.07, 0xb48a50, em.x - 0.28, 0, em.z - 0.85); box(root, 0.07, em.h - 0.07, 0.07, 0xb48a50, em.x - 0.28, 0, em.z + 0.85);
+    box(root, 0.07, em.h - 0.07, 0.07, 0xb48a50, em.x + 0.28, 0, em.z - 0.85); box(root, 0.07, em.h - 0.07, 0.07, 0xb48a50, em.x + 0.28, 0, em.z + 0.85);
+    b.add(0.42, 0.3, 0.42, carton, em.x, em.h, em.z - 0.55); b.add(0.3, 0.2, 0.3, carton, em.x, em.h, em.z + 0.05); b.add(0.5, 0.36, 0.5, carton, em.x, 0, em.z + 0.3);
+    b.add(0.36, 0.28, 0.36, carton, em.x, 0.36, em.z + 0.3); b.add(0.02, 0.02, 0.34, 0xf5e663, em.x, em.h + 0.3, em.z - 0.55);
+    const tape = new T.Mesh(new T.CylinderGeometry(0.09, 0.09, 0.06, 12), mat(0xb5894a)); tape.position.set(em.x - 0.1, em.h + 0.03, em.z + 0.6); root.add(tape);
+    const rp = L.reposicion;                    // pila de cajas recién llegadas
+    b.add(0.55, 0.4, 0.5, carton, rp.x, 0, rp.z); b.add(0.5, 0.36, 0.46, 0xb98d5e, rp.x + 0.05, 0.4, rp.z + 0.02); b.add(0.45, 0.34, 0.45, carton, rp.x + 0.6, 0, rp.z + 0.25);
+    b.add(0.3, 0.24, 0.3, 0xb98d5e, rp.x - 0.02, 0.76, rp.z);
+    b.build();
+  }
   function notebook(root, x, y, z) {
     box(root, 0.5, 0.03, 0.36, 0x2a2a2e, x, y, z);
     const lid = box(root, 0.03, 0.34, 0.36, 0x2a2a2e, x + 0.24, y + 0.02, z); lid.rotation.z = -0.25;
@@ -422,7 +441,10 @@ GS.World = (function () {
     if (!ray.ray.intersectPlane(planeY, v3)) return;
     const m = L.mostrador, c = L.caja, pad = 0.9;
     if (Math.abs(v3.x - c.x) < c.w / 2 + pad && Math.abs(v3.z - c.z) < c.d / 2 + pad * 0.6) return tapHandler('caja');
-    if (Math.abs(v3.x - m.x) < m.w / 2 + pad * 0.5 && Math.abs(v3.z - m.z) < m.d / 2 + pad) return tapHandler('mostrador');
+    if (Math.abs(v3.x - m.x) < m.w / 2 + pad * 0.5 && Math.abs(v3.z - m.z) < m.d / 2 + pad && v3.x > -2.6) return tapHandler('mostrador');
+    let best = null, bd = 1.7;
+    for (const st of GS.STATIONS) { if (st.soon) continue; const d = Math.hypot(v3.x - st.pos[0], v3.z - st.pos[1]); if (d < bd) { bd = d; best = st.id; } }
+    if (best) tapHandler(best);
   }
 
   /* ---------- API ---------- */
@@ -443,7 +465,7 @@ GS.World = (function () {
     walls.E = new T.Group(); root.add(walls.E); shelfWall(walls.E, L.salon.xMax, -1, L.salon.zMin + 0.4, L.salon.zMax - 0.3);
     // zócalos bajos donde la pared está "cortada"
     box(root, 0.2, 0.3, L.salon.zMax - L.salon.zMin, 0xdedede, L.salon.xMax + 0.1, 0, (L.salon.zMin + L.salon.zMax) / 2);
-    buildCounter(root); buildCenter(root); buildGallery(root); buildSign(root);
+    buildCounter(root); buildCenter(root); buildWorkStations(root); buildGallery(root); buildSign(root);
 
     // empleados (inventados): vos en el mostrador y Brian, pegado al celular, en la caja
     const yo = makePerson({ shirt: 0xe10600, hair: 0x2b2b3a, skin: SKINS[1] }); yo.setPos(L.mostrador.x, L.mostrador.z - 0.9);
@@ -490,7 +512,7 @@ GS.World = (function () {
     focus(station, biasY, biasX) {
       if (station) {
         if (!cam.saved) cam.saved = { x: cam.gx, z: cam.gz, d: cam.gdist };
-        const s = L[station], d = Math.min(cam.fit * 0.62, fitDistance(5.2)), hw = 2 * d * Math.tan(GS.CONFIG.camera.fov * DEG / 2);
+        const stn = GS.STATIONS.find(a => a.id === station), s = { x: stn.pos[0], z: stn.pos[1] }, d = Math.min(cam.fit * 0.62, fitDistance(5.2)), hw = 2 * d * Math.tan(GS.CONFIG.camera.fov * DEG / 2);
         const by = (biasY || 0) * hw / Math.sin(tilt), bx = (biasX || 0) * hw * camera.aspect;
         cam.gdist = d;
         cam.gx = s.x + Math.sin(rot) * by + Math.cos(rot) * bx;

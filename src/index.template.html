@@ -26,15 +26,12 @@
   <div class="chips">
     <button class="chip phase" id="chipPhase">Fase 1 de 5</button>
     <span class="chip" id="chipSales">💰 $0</span>
-    <span class="chip" id="chipServed">🧍 0 atendidos</span>
+    <span class="chip" id="chipServed">✅ 0 hechos</span>
     <span class="chip combo" id="chipCombo" hidden>🔥 x2</span>
   </div>
 </div>
 <div id="toasts"></div>
-<div id="stations" hidden>
-  <button class="st-btn" id="stM"><span class="n">🛎 Mostrador</span><span class="s" id="stMs">Nadie esperando</span><div class="pb"><i id="stMb"></i></div><span class="q" id="stMq" hidden>0</span><kbd>tecla 1</kbd></button>
-  <button class="st-btn" id="stC"><span class="n">💵 Caja</span><span class="s" id="stCs">Nadie para cobrar</span><div class="pb"><i id="stCb"></i></div><span class="q" id="stCq" hidden>0</span><kbd>tecla 2</kbd></button>
-</div>
+<div id="jobs" hidden></div>
 
 <!-- Panel de minijuego -->
 <div id="mg" hidden></div>
@@ -48,8 +45,9 @@
       <p class="tag">Entrá. Elegí. Sobreviví al turno.</p>
     </div>
     <div style="display:flex;flex-direction:column;gap:12px">
-      <button class="btn" id="btnPlay">Jugar una jornada<small>3 minutos · con clientes apurados</small></button>
+      <button class="btn" id="btnPlay">Jugar una jornada<small>3 minutos · clientes y tareas del local</small></button>
       <button class="btn alt" id="btnRelax">Turno tranquilo<small>Sin reloj ni apuro · para aprender</small></button>
+      <button class="btn ghost" id="btnArcade" style="font-size:18px">🕹️ Arcade · estaciones sueltas</button>
       <div class="row">
         <button class="btn ghost" id="btnHow">Cómo se juega</button>
         <button class="btn ghost" id="btnRecs">Récords</button>
