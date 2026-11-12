@@ -1,0 +1,227 @@
+/* =====================================================================
+   GameShop Simulator — DATOS
+   Todo lo editable sin tocar la lógica vive acá: configuración, fases,
+   catálogo, pedidos de clientes, personajes y frases.
+   Precios y stock son FICTICIOS. Personajes inventados.
+   ===================================================================== */
+const GS = {};
+
+GS.CONFIG = {
+  version: '0.1.0',
+  phase: 1,                       // fase actual del proyecto (1 a 5)
+  links: { tienda: '', instagram: '' },   // se conectan más adelante
+  promoMode: null,                // 'hotsale' | 'cyber' | null (Fase 3)
+  camera: { tilt: 55, rot: 38, fov: 22 },
+  day: {
+    seconds: 180,                 // duración de la jornada normal
+    relaxedCustomers: 8,          // clientes del turno tranquilo
+    maxCustomers: 4,              // clientes simultáneos en el salón
+    spawnMin: 7, spawnMax: 12,    // segundos entre clientes
+    patienceWait: 46,             // segundos de paciencia esperando
+    patienceGame: 24              // segundos de paciencia dentro de un minijuego
+  }
+};
+
+/* Las 5 etapas del proyecto: se muestran siempre mientras esté en construcción */
+GS.PHASES = [
+  { n: 1, name: 'Base jugable',   desc: 'Inicio, salón 3D, Mostrador y Caja, una jornada completa.' },
+  { n: 2, name: 'Minijuegos',     desc: 'Las 11 estaciones, modo Arcade, interrupciones, cordura y combos.' },
+  { n: 3, name: 'Carrera',        desc: 'Rangos, jornadas-examen, eventos del año, el Dueño y los personajes.' },
+  { n: 4, name: 'Mundo completo', desc: 'Exterior, depósito, oficina, música, final y tarjeta para compartir.' },
+  { n: 5, name: 'Pulido',         desc: 'Rendimiento, balance, bugs, accesibilidad, analítica y lanzamiento.' }
+];
+
+/* Catálogo: cada producto es un objeto editable. url = ficha real (se conecta después) */
+GS.CATALOG = [
+  { id: 'ps5',      name: 'PlayStation 5 Slim',      cat: 'consolas',    icon: '🎮', price: 1200000, stock: 4, shelf: 'fondo',   url: '' },
+  { id: 'switch2',  name: 'Nintendo Switch 2',       cat: 'consolas',    icon: '🕹️', price: 990000,  stock: 3, shelf: 'fondo',   url: '' },
+  { id: 'quest',    name: 'Meta Quest 3S',           cat: 'consolas',    icon: '🥽', price: 780000,  stock: 2, shelf: 'fondo',   url: '' },
+  { id: 'deck',     name: 'Steam Deck',              cat: 'consolas',    icon: '📟', price: 1080000, stock: 1, shelf: 'fondo',   url: '' },
+  { id: 'xbox',     name: 'Xbox Series X',           cat: 'consolas',    icon: '⬛', price: 1140000, stock: 2, shelf: 'fondo',   url: '' },
+  { id: 'dualsense',name: 'Joystick DualSense rosa', cat: 'consolas',    icon: '🎮', price: 150000,  stock: 6, shelf: 'fondo',   url: '' },
+  { id: 'juego',    name: 'Juego físico',            cat: 'consolas',    icon: '💿', price: 90000,   stock: 9, shelf: 'fondo',   url: '' },
+  { id: 'airpods',  name: 'AirPods',                 cat: 'apple',       icon: '🎧', price: 360000,  stock: 5, shelf: 'derecha', url: '' },
+  { id: 'homepod',  name: 'HomePod Mini',            cat: 'apple',       icon: '🔊', price: 270000,  stock: 2, shelf: 'derecha', url: '' },
+  { id: 'magic',    name: 'Magic Mouse',             cat: 'apple',       icon: '🖱️', price: 180000,  stock: 3, shelf: 'derecha', url: '' },
+  { id: 'ipad',     name: 'iPad',                    cat: 'apple',       icon: '📱', price: 840000,  stock: 2, shelf: 'derecha', url: '' },
+  { id: 'watch',    name: 'Apple Watch',             cat: 'apple',       icon: '⌚', price: 600000,  stock: 1, shelf: 'derecha', url: '' },
+  { id: 'gpu',      name: 'Placa de video',          cat: 'pc',          icon: '🧩', price: 900000,  stock: 2, shelf: 'derecha', url: '' },
+  { id: 'notebook', name: 'Notebook gamer',          cat: 'pc',          icon: '💻', price: 2100000, stock: 2, shelf: 'mesa',    url: '' },
+  { id: 'gabinete', name: 'Gabinete con vidrio',     cat: 'pc',          icon: '🗄️', price: 240000,  stock: 3, shelf: 'mesa',    url: '' },
+  { id: 'router',   name: 'Router wifi',             cat: 'pc',          icon: '📡', price: 120000,  stock: 4, shelf: 'izquierda', url: '' },
+  { id: 'tinta',    name: 'Cartucho de tinta negra', cat: 'pc',          icon: '🖨️', price: 60000,   stock: 8, shelf: 'izquierda', url: '' },
+  { id: 'pendrive', name: 'Pendrive 128 GB',         cat: 'pc',          icon: '💾', price: 30000,   stock: 9, shelf: 'izquierda', url: '' },
+  { id: 'cable',    name: 'Cable USB-C',             cat: 'pc',          icon: '🔌', price: 30000,   stock: 9, shelf: 'izquierda', url: '' },
+  { id: 'auris',    name: 'Auriculares gamer HyperX',cat: 'perifericos', icon: '🎧', price: 210000,  stock: 5, shelf: 'derecha', url: '' },
+  { id: 'mouse',    name: 'Mouse gamer Logitech',    cat: 'perifericos', icon: '🖱️', price: 120000,  stock: 6, shelf: 'derecha', url: '' },
+  { id: 'streamdeck',name:'Stream Deck',             cat: 'perifericos', icon: '🎛️', price: 330000,  stock: 1, shelf: 'fondo',   url: '' },
+  { id: 'mic',      name: 'Micrófono',               cat: 'perifericos', icon: '🎙️', price: 270000,  stock: 2, shelf: 'fondo',   url: '' },
+  { id: 'silla',    name: 'Silla gamer Raptor',      cat: 'perifericos', icon: '💺', price: 450000,  stock: 3, shelf: 'salon',   url: '' }
+];
+
+/* Pedidos del Mostrador: texto ambiguo -> producto correcto */
+GS.REQUESTS = [
+  { t: 'La Play esa, la blanca finita, la que sale en la tele.', p: 'ps5' },
+  { t: 'La Nintendo nueva. La que viene después de la uno.', p: 'switch2' },
+  { t: 'Los anteojos esos para estar adentro del jueguito.', p: 'quest' },
+  { t: 'Una compu de mano. Tipo consola, pero que es una PC. ¿Existe?', p: 'deck' },
+  { t: 'La caja negra esa de Microsoft. La heladerita.', p: 'xbox' },
+  { t: 'Un joystick de Play, pero que no sea aburrido. Rosa, ponele.', p: 'dualsense' },
+  { t: 'Un juego en caja, de los de antes. Que se pueda prestar.', p: 'juego' },
+  { t: 'Los auriculares de la manzanita. Los que se pierden de a uno.', p: 'airpods' },
+  { t: 'El parlantito redondo ese al que le hablás y te ignora.', p: 'homepod' },
+  { t: 'El mouse de la manzanita. El que se carga panza arriba.', p: 'magic' },
+  { t: 'Una tablet para el nene. Bah, para mí.', p: 'ipad' },
+  { t: 'El reloj ese que te reta si no caminás.', p: 'watch' },
+  { t: 'Algo para que el jueguito ande fluido. Mi hijo dice "la placa".', p: 'gpu' },
+  { t: 'Una notebook con lucecitas. Para "trabajar".', p: 'notebook' },
+  { t: 'Una caja para la PC, con vidrio. Para ver cómo junta pelusa.', p: 'gabinete' },
+  { t: 'El aparato del wifi. El mío anda, pero quiero uno que ande.', p: 'router' },
+  { t: 'Tinta. Para la impresora. No sé cuál. La negra.', p: 'tinta' },
+  { t: 'Un cosito para pasar fotos. Con muchos gigas. Muchos.', p: 'pendrive' },
+  { t: 'Un cable. El finito. El que va ahí, viste.', p: 'cable' },
+  { t: 'Auriculares con micrófono. Para que mi hijo grite con calidad.', p: 'auris' },
+  { t: 'Un mouse con muchos botones. No sé para qué, pero muchos.', p: 'mouse' },
+  { t: 'La botonera esa con pantallitas. La de los streamers.', p: 'streamdeck' },
+  { t: 'Un micrófono. Arranco un podcast. Este año sí.', p: 'mic' },
+  { t: 'Una silla de auto de carrera, pero para estar sentado quieto.', p: 'silla' }
+];
+
+/* Clientes: arquetipos inventados (ninguno es una persona real) */
+GS.CUSTOMERS = [
+  { id: 'ruben', name: 'Don Rubén',  face: '👴', shirt: 0x6b7a8f, hair: 0xdddddd, tag: 'El nostálgico',
+    bye: 'Qué lindo que todavía atienda una persona.', lost: 'Antes esto se arreglaba hablando. Chau.' },
+  { id: 'marta', name: 'Marta',      face: '👵', shirt: 0xb86fa8, hair: 0xc9c9d6, tag: 'La tecnología es extraña',
+    bye: 'Gracias, querido. No entendí nada, pero gracias.', lost: 'Yo de esto no entiendo. Vuelvo con mi nieto.' },
+  { id: 'fede',  name: 'Fede',       face: '🧔', shirt: 0x3d7a4a, hair: 0x3a2a1a, tag: 'Lo vio más barato',
+    bye: 'Igual en Mercado Libre estaba más barato, eh.', lost: 'Listo, lo compro en Mercado Libre.' },
+  { id: 'tano',  name: 'El Tano',    face: '😎', shirt: 0xd9a514, hair: 0x1e1e1e, tag: 'Por ser cliente',
+    bye: '¿Y por ser cliente no me regalás un cablecito?', lost: 'Así tratan a un cliente de toda la vida.' },
+  { id: 'sergio',name: 'Sergio',     face: '👨', shirt: 0x4a6fb5, hair: 0x4a3a2a, tag: 'Padre que no sabe qué compra',
+    bye: 'Si no es este, vuelvo. Seguro vuelvo.', lost: 'Mejor le pregunto de nuevo al nene.' },
+  { id: 'luli',  name: 'Luli',       face: '🤨', shirt: 0xe07a5f, hair: 0x7a3b1e, tag: '¿Es original?',
+    bye: 'Pero es original-original, ¿no?', lost: 'Tanta demora... seguro no era original.' },
+  { id: 'kevin', name: 'Kevin',      face: '🤓', shirt: 0x7b4fd1, hair: 0x15151f, tag: 'Gamer experto',
+    bye: 'Técnicamente no se dice así, pero bueno.', lost: 'En el tiempo que esperé, ya lo speedruneé en otro lado.' },
+  { id: 'nico',  name: 'Nico',       face: '🏃', shirt: 0x21a0a0, hair: 0x5a4632, tag: 'El apurado',
+    bye: '¡Gracias! Dejé el auto en doble fila.', lost: 'Me llevó la grúa. Seguro me llevó la grúa.' },
+  { id: 'sofi',  name: 'Sofi',       face: '🎤', shirt: 0xff5fa2, hair: 0x2b1b3f, tag: 'Streamer en potencia',
+    bye: 'Es para mi canal. Ya tengo 14 seguidores.', lost: 'Esto lo cuento en un vivo. A mis 14 seguidores.' }
+];
+
+GS.LINES = {
+  wrongProduct: [
+    'Eso no. Pero gracias por participar.',
+    'No, eso es otra cosa. Creo. Vos sos el que sabe.',
+    'Mmm, no. Mi sobrino dijo otra cosa.',
+    '¿Seguro que trabajás acá?',
+    'Casi. Bah, no. Ni cerca.',
+    'Eso lo tengo. Bueno, no sé si lo tengo.'
+  ],
+  wrongCash: [
+    'Mirá que yo sumo con los dedos y me dio distinto.',
+    'Esa cuenta no me cierra, jefe.',
+    'A mí me da otra cosa. Y eso que soy de Sociales.',
+    '¿Lo hacemos con la calculadora mejor?'
+  ],
+  changeShort: ['Me falta plata, eh. No soy de quejarme, pero me falta.', 'Faltan billetes. Los conté dos veces.'],
+  changeOver:  ['Me diste de más. No iba a decir nada. Bueno, sí.', 'Sobra plata. Qué generoso el local.'],
+  receiptFake: ['Uy, me confundí de captura. Ahí te mando la buena.', 'Ah, esa era del mes pasado. Perdón, perdón.'],
+  receiptOkRejected: ['¡Pero si está perfecta! Mirala bien.', 'Está aprobada, mirá. Con tilde verde y todo.'],
+  receiptFakeApproved: ['(Se fue silbando bajito. Mala señal.)', '(Saludó muy rápido. Demasiado rápido.)'],
+  payCash:     ['Pago en efectivo.', 'En efectivo, billete sobre billete.', 'Efectivo. ¿Tengo descuento, no?'],
+  payTransfer: ['Te transfiero ahora.', 'Por transferencia. ¿Hay descuento?'],
+  payCuotas:   ['En 3 cuotas, ¿puede ser?', 'Con tarjeta, en 3 cuotitas.'],
+  payDebit:    ['Con débito, en un pago.', 'Con Mercado Pago, un pago.'],
+  /* El Dueño: cada frase lleva un dato comercial real envuelto en un chiste (en Fase 3 serán 40+) */
+  dueno: [
+    '¡Qué bien GameShop, que ofrece 10% OFF en efectivo y transferencia! Increíble.',
+    'Gracias a las 3 cuotas sin interés, nadie tiene que saber cuánto cuesta realmente.',
+    'Antes de las 14 hs el envío sale en el día. Yo ya lo dije, ustedes hagan lo suyo.',
+    'Todo original, todo con garantía. Y si no anda, tenemos service técnico. Qué suerte.',
+    'Hacemos envíos a todo el país. Qué grande es el país, ¿no? Bueno, ahí llegamos.',
+    'También se puede retirar en el local. Vengan, que acá hay aire acondicionado.',
+    'Aceptamos Mercado Pago. Aceptamos casi todo, menos excusas.',
+    'Service técnico de notebooks, PC y consolas. Si prende fuego, también lo miramos.',
+    'Ya contestamos 400 mensajes hoy. Qué bueno sería que alguien entrara por la puerta.',
+    'Le ponemos más RAM a tu notebook. A vos no, lamentablemente.',
+    'Recuerden: el cliente siempre tiene razón. Excepto cuando pregunta si es original.',
+    'Productos nuevos, originales y con garantía. Lo digo yo, que soy el Dueño.'
+  ],
+  duenoEndGood: [
+    'Excelente jornada. Casi tan buena como nuestro 10% OFF en efectivo y transferencia.',
+    'Así se trabaja. Como nuestros envíos antes de las 14: en el día y sin vueltas.',
+    'Impecable. Te pagaría en 3 cuotas sin interés, pero ya cobrás por mes.'
+  ],
+  duenoEndMid: [
+    'Bien. Normal. Como un martes. Igual acá todo es original y con garantía, eh.',
+    'Aceptable. Mañana más sonrisa, que la sonrisa también viene con garantía.',
+    'Ni fu ni fa. Recordá ofrecer las 3 cuotas sin interés, que venden solas.'
+  ],
+  duenoEndBad: [
+    'Se fueron clientes sin comprar. Por suerte hacemos envíos a todo el país y los alcanzamos.',
+    'Jornada complicada. Tranquilo: si algo se rompe, tenemos service técnico.',
+    'Un día difícil. Mañana abrimos igual. Con 10% OFF en efectivo. Y con vos, espero.'
+  ],
+  human: [
+    'Hoy atendiste a {n} personas. Ninguna te miró a los ojos. Excepto una.',
+    'Alguien te dijo "gracias" sin que se lo pidieras. Anotalo.',
+    'Hoy nadie te mandó un audio de 4 minutos. En persona duran menos.',
+    'Una señora te contó de su nieto. No compró nada. Fue lo mejor del día.'
+  ],
+  loading: [
+    'Acomodando cajas que nadie va a mirar...',
+    'Cebando el primer mate...',
+    'Prendiendo el cartel de la calle...',
+    'Contando el cambio. Otra vez.'
+  ]
+};
+
+/* Distribución del salón: muebles como datos, para ajustarla sin tocar la lógica.
+   Coordenadas en metros. x: izquierda(-)/derecha(+). z: fondo(-)/calle(+). */
+GS.LAYOUT = {
+  salon:   { xMin: -6, xMax: 6, zMin: -7, zMax: 6, wallH: 3.2 },
+  galeria: { zMax: 11, pasillo: 1.6 },                 // vidriera tipo galería
+  mostrador: { x: -1.5, z: -4.0, w: 6.0, d: 0.8, h: 1.05 },
+  caja:      { x: 2.0,  z: -2.9, w: 0.8, d: 3.0, h: 1.05 },
+  isla:      { x: -3.2, z: 0.4,  w: 1.8, d: 0.8, h: 1.05 },
+  mesa:      { x: 2.2,  z: 1.5,  w: 1.5, d: 3.6, h: 0.9 },
+  escritorio:{ x: 2.2,  z: 4.6,  w: 1.6, d: 0.8, h: 0.78 },
+  gondola:   { x: 5.3,  z: 2.2,  w: 0.6, d: 6.0, h: 1.2 },
+  arcade:    { x: 0.7,  z: 8.3 },
+  puerta:    { x: -0.9 },                              // por dónde entran los clientes
+  cartel:    { textos: ['ENTRÁ. ELEGÍ. JUGÁ.', 'EL JUEGO EMPIEZA ACÁ.'] },
+  colaMostrador: [ [-3.9, -2.9], [-2.7, -2.9], [-1.5, -2.9], [-0.3, -2.9] ],
+  colaCaja:      [ [1.0, -3.4], [1.0, -2.4], [1.0, -1.4], [0.9, -0.4] ]
+};
+
+/* Utilidades chicas */
+GS.util = {
+  rnd: (a, b) => a + Math.random() * (b - a),
+  pick: arr => arr[Math.floor(Math.random() * arr.length)],
+  shuffle: arr => { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; },
+  money: n => '$' + Math.round(n).toLocaleString('es-AR'),
+  clamp: (v, a, b) => Math.max(a, Math.min(b, v))
+};
+
+/* Analítica: ganchos vacíos. Se conectan en la Fase 5. */
+GS.track = function (evento, datos) {
+  (GS.track.log = GS.track.log || []).push({ evento, datos, t: Date.now() });
+};
+
+/* Guardado local con manejo de error (si no hay almacenamiento, sigue en memoria) */
+GS.Store = (function () {
+  const KEY = 'gameshop_simulator_v1';
+  let data = { best: [], tutorial: false, mute: false, quality: 'auto' };
+  try { const raw = localStorage.getItem(KEY); if (raw) data = Object.assign(data, JSON.parse(raw)); } catch (e) {}
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(data)); } catch (e) {} }
+  return {
+    get: k => data[k],
+    set: (k, v) => { data[k] = v; save(); },
+    addScore(entry) {
+      data.best.push(entry); data.best.sort((a, b) => b.score - a.score); data.best = data.best.slice(0, 5); save();
+      return data.best.indexOf(entry);
+    },
+    reset() { data = { best: [], tutorial: false, mute: data.mute, quality: data.quality }; save(); }
+  };
+})();

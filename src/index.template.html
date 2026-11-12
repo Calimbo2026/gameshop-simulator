@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>GameShop Simulator</title>
+<meta name="description" content="GameShop Simulator: sobreviví a una jornada atendiendo el local. Juego gratis, sin registro.">
+<meta name="theme-color" content="#000000">
+<meta name="robots" content="noindex">
+<style>
+/*__CSS__*/
+</style>
+</head>
+<body>
+<canvas id="c" aria-label="Local de GameShop en 3D"></canvas>
+<div id="labels"></div>
+
+<!-- HUD de la jornada -->
+<div id="hud" hidden>
+  <div class="hud-bar">
+    <button class="icon-btn" id="btnPause" aria-label="Pausa">⏸</button>
+    <div class="clock"><div class="t"><span id="clockT">10:00</span><small id="clockS">Abrimos</small></div><div class="bar"><i id="clockB"></i></div></div>
+    <div class="score"><b id="scoreV">0</b><small>puntos</small></div>
+    <button class="icon-btn" id="btnMute" aria-label="Sonido">🔊</button>
+  </div>
+  <div class="chips">
+    <button class="chip phase" id="chipPhase">Fase 1 de 5</button>
+    <span class="chip" id="chipSales">💰 $0</span>
+    <span class="chip" id="chipServed">🧍 0 atendidos</span>
+    <span class="chip combo" id="chipCombo" hidden>🔥 x2</span>
+  </div>
+</div>
+<div id="toasts"></div>
+<div id="stations" hidden>
+  <button class="st-btn" id="stM"><span class="n">🛎 Mostrador</span><span class="s" id="stMs">Nadie esperando</span><div class="pb"><i id="stMb"></i></div><span class="q" id="stMq" hidden>0</span><kbd>tecla 1</kbd></button>
+  <button class="st-btn" id="stC"><span class="n">💵 Caja</span><span class="s" id="stCs">Nadie para cobrar</span><div class="pb"><i id="stCb"></i></div><span class="q" id="stCq" hidden>0</span><kbd>tecla 2</kbd></button>
+</div>
+
+<!-- Panel de minijuego -->
+<div id="mg" hidden></div>
+
+<!-- Inicio -->
+<section class="screen" id="start">
+  <div class="col">
+    <div>
+      <img class="logo" id="logoImg" alt="GameShop">
+      <div class="sub">SIMULATOR</div>
+      <p class="tag">Entrá. Elegí. Sobreviví al turno.</p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <button class="btn" id="btnPlay">Jugar una jornada<small>3 minutos · con clientes apurados</small></button>
+      <button class="btn alt" id="btnRelax">Turno tranquilo<small>Sin reloj ni apuro · para aprender</small></button>
+      <div class="row">
+        <button class="btn ghost" id="btnHow">Cómo se juega</button>
+        <button class="btn ghost" id="btnRecs">Récords</button>
+        <button class="btn ghost" id="btnOpts">Opciones</button>
+      </div>
+      <button class="phases" id="phasesStart" aria-label="Etapas del proyecto"></button>
+      <p class="fine">Versión en construcción. Precios y stock ficticios.<br>Personajes inventados: cualquier parecido es pura coincidencia.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Cierre de caja -->
+<section class="screen" id="end" hidden><div class="col" id="endCol"></div></section>
+
+<!-- Modal genérico -->
+<div id="modal" hidden><div class="sheet" id="sheet"></div></div>
+
+<script>
+/*__THREE__*/
+</script>
+<script>
+/*__JS__*/
+</script>
+</body>
+</html>
