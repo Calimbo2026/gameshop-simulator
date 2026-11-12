@@ -29,6 +29,7 @@ GS.Minigames = (function () {
   }
   function close() {
     if (cur && cur.timer) clearTimeout(cur.timer);
+    if (cur && cur.cleanup) cur.cleanup();
     const r = root(); r.hidden = true; r.innerHTML = ''; cur = null;
   }
 
@@ -274,13 +275,32 @@ GS.Minigames = (function () {
 
   /* ---------------- 7. REPOSICIÓN: cada caja a su góndola ---------------- */
   function repo(job) {
-    const boxes = U.shuffle(GS.CATALOG).slice(0, 3); let i = 0;
+    // Se juega en el local: la cámara muestra todo el salón y se toca la góndola de verdad
+    const boxes = U.shuffle(GS.CATALOG).slice(0, 3), me = cur; let i = 0;
+    GS.World.home();
+    const layer = document.createElement('div'); layer.className = 'zones';
+    layer.innerHTML = GS.SHELVES.map((s, k) => '<button class="zone-b" data-k="' + k + '"><span>' + s.icon + '</span>' + esc(s.name) + '</button>').join('');
+    document.body.appendChild(layer);
+    const zb = [...layer.querySelectorAll('.zone-b')];
+    me.cleanup = () => layer.remove();
+    (function place() {
+      if (cur !== me) return; requestAnimationFrame(place);
+      GS.SHELVES.forEach((s, k) => { const p = GS.World.project(s.pos[0], 1.9, s.pos[1]); zb[k].style.left = p.x.toFixed(1) + 'px'; zb[k].style.top = p.y.toFixed(1) + 'px'; });
+    })();
     function show() {
       const p = boxes[i];
-      root().innerHTML = head(job, 'Reposición · ' + (i + 1) + ' de 3') + '<div class="bubble" id="mgBubble">📦 En esta caja hay: ' + p.icon + ' ' + esc(p.name) + '</div><div class="info"><b>¿A qué góndola va?</b></div>' +
-        '<div class="opts">' + GS.SHELVES.map((s, k) => '<button class="opt" data-ok="' + (s.cat === p.cat ? 1 : 0) + '"><kbd>' + (k + 1) + '</kbd><span class="i">' + s.icon + '</span><span class="n">' + esc(s.name) + '</span></button>').join('') + '</div>';
-      listOptions(b => b.dataset.ok === '1', () => { i++; if (i < boxes.length) { GS.Audio.play('bill'); show(); } else { GS.Audio.play('ok'); finish(true, '¡Todo acomodado!', 'Por cinco minutos, al menos.', {}); } }, () => mistake('repo', U.pick(LN.wrongShelf)));
+      zb.forEach(b => b.classList.remove('bad'));
+      root().innerHTML = head(job, 'Reposición · ' + (i + 1) + ' de 3') + '<div class="bubble" id="mgBubble">📦 En esta caja hay: ' + p.icon + ' ' + esc(p.name) + '</div>' +
+        '<div class="rule">Tocá en el local la góndola donde va</div>';
     }
+    function choose(k) {
+      if (!cur || cur.done || zb[k].classList.contains('bad')) return;
+      if (GS.SHELVES[k].cat === boxes[i].cat) {
+        i++; if (i < boxes.length) { GS.Audio.play('bill'); show(); } else { GS.Audio.play('ok'); layer.remove(); finish(true, '¡Todo acomodado!', 'Por cinco minutos, al menos.', {}); }
+      } else { zb[k].classList.add('bad'); mistake('repo', U.pick(LN.wrongShelf)); }
+    }
+    zb.forEach((b, k) => b.addEventListener('click', () => choose(k)));
+    me.keys = e => { const n = parseInt(e.key, 10); if (n >= 1 && n <= zb.length) choose(n - 1); };
     show();
   }
 

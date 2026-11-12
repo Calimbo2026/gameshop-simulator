@@ -2,7 +2,7 @@
 
 Juego web (un solo HTML) que simula una jornada de trabajo en GameShop. Pieza de marca para `juego.gameshop.com.ar`.
 
-## Estado: Etapa 2 de 5 (parte A)
+## Estado: Etapa 2 de 5 (parte B en curso)
 
 | # | Etapa | Qué incluye | Estado |
 |---|-------|-------------|--------|
@@ -26,3 +26,14 @@ La etapa actual se cambia en `src/data.js` (`GS.CONFIG.phase`) y se muestra sola
 ## Reglas duras
 
 Sin datos sensibles del negocio, sin personas reales, precios y stock ficticios.
+
+## Decisiones de diseño tomadas con el dueño del proyecto
+
+- **Sin estrés:** paciencia generosa; equivocarse solo trae un chiste.
+- **Jornada por cantidad, en tandas con respiros** (no por reloj). En los respiros habla el Dueño y se ve el local.
+- **De menos a más:** el juego tiene que crecer de a poco para disfrutar cada etapa.
+- **Cantidad de clientes en relación a algo (Etapa 3):**
+  - Cartel del frente en 3 niveles: simple, intermedio y cartel pantalla LED (el mejor). Mejor cartel, más gente.
+  - Clima: los días de lluvia vienen menos clientes al local y salen más pedidos de Mercado Libre.
+  - Fechas: Navidad y Black Friday traen muchos pedidos.
+- **Mejoras del local (Etapa 3):** lugares fijos (sin colocación libre). Al tocar un lugar, la cámara hace zoom y centra el objeto; se desliza entre los modelos disponibles, cada uno con su precio. Se pagan con lo ganado en las jornadas.

@@ -5,6 +5,7 @@ SOLVE = r"""(()=>{const M=GS.Minigames; if(!M.isOpen()||M.isResolving()) return 
  if(q('.part')){const now=q('.slot.now'); if(!now) return 'pc?'; const name=now.textContent.replace(/^\d/,''); const b=qa('.part').find(p=>p.querySelector('.n').textContent===name); b.click(); return 'pc';}
  if(q('.dust')){const d=qa('.dust:not(.gone)'); d.slice(0,4).forEach(e=>{const r=e.getBoundingClientRect(); q('.fan').dispatchEvent(new PointerEvent('pointermove',{clientX:r.x+r.width/2,clientY:r.y+r.height/2,bubbles:true}))}); return 'pelusa';}
  if(q('#mgSnap')){const m=parseFloat(q('#mgMark').style.left||0), z=q('.zone'); const a=parseFloat(z.style.left), w=parseFloat(z.style.width); if(m>=a+2&&m<=a+w-2){q('#mgSnap').click();return 'ram!';} return 'ram';}
+ if(document.querySelector('.zone-b')){const z=[...document.querySelectorAll('.zone-b:not(.bad)')]; z[0].click(); return 'repo';}
  if(q('[data-ok="1"]')){q('[data-ok="1"]').click();return 'ok';}
  if(q('.opt[data-id]')){q('.opt[data-id="'+M.customer().product.id+'"]').click();return 'most';}
  if(q('.opt[data-v]')){q('.opt[data-v]:not(.bad)').click();return 'cobro';}
@@ -22,7 +23,7 @@ async def main():
         await pg.goto('file:///home/claude/gss/dist/index.html'); await pg.wait_for_timeout(1200)
         await pg.screenshot(path='shots/2_start.png')
         await pg.click('#btnArcade'); await pg.wait_for_timeout(300); await pg.screenshot(path='shots/2_arcade.png'); await pg.click('[data-close]')
-        shots={'pc':1,'service':3,'ml':2,'whatsapp':1,'repo':1}
+        shots={'repo':1,'pc':0}
         for st,n in shots.items():
             await pg.evaluate(f"GS.Game.startArcade('{st}')")
             taken=0; seen=set()
@@ -42,7 +43,9 @@ async def main():
             await pg.wait_for_timeout(150)
             if await pg.evaluate("GS.Game.state()")=='end': break
             n = await pg.evaluate("GS.Minigames.isOpen()?-1:GS.Game.pendingJobs().length")
-            if n>=3 and not got: got=True; await pg.screenshot(path='shots/2_day.png')
+            if n>=2 and not got: got=True; await pg.screenshot(path='shots/2_day.png')
+            if await pg.evaluate("document.querySelectorAll('.say').length>0 && !GS.Minigames.isOpen()") and not globals().get('S1'): globals()['S1']=1; await pg.screenshot(path='shots/2_say.png')
+            if await pg.evaluate("GS.Game.day().stage==='rest' && GS.Game.day().wave>=0 && document.querySelector('.toast.dueno')!=null") and not globals().get('S2'): globals()['S2']=1; await pg.screenshot(path='shots/2_rest.png')
             if n>0 and i%12==0: await pg.evaluate("GS.Game.openJob(GS.Game.pendingJobs()[0])")
             await pg.evaluate(SOLVE)
         if not got: await pg.screenshot(path='shots/2_day.png')

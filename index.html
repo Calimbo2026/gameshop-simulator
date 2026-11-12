@@ -97,6 +97,13 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 .plabel .b { width: 42px; height: 6px; border-radius: 3px; background: rgba(0,0,0,.65); overflow: hidden; border: 1px solid rgba(255,255,255,.5); }
 .plabel .b i { display: block; height: 100%; background: var(--ok); }
 
+/* globitos de diálogo sobre los personajes y zonas tocables del local */
+.say { position: absolute; transform: translate(-50%, -100%); max-width: 210px; width: max-content; background: #fff; color: #000; border-radius: 14px 14px 14px 3px; padding: 7px 10px; font-size: 14px; line-height: 1.25; box-shadow: 0 4px 14px rgba(0,0,0,.45); animation: tin .25s ease-out; z-index: 2; }
+.zones { position: fixed; inset: 0; pointer-events: none; z-index: 19; }
+.zone-b { position: absolute; transform: translate(-50%, -50%); pointer-events: auto; background: #fff; color: #000; border: 3px solid var(--red); border-radius: 14px; padding: 5px 7px; font-weight: 700; font-size: 12.5px; line-height: 1.12; min-width: 74px; min-height: 48px; max-width: 98px; text-align: center; box-shadow: 0 4px 14px rgba(0,0,0,.5); animation: pulse 1.5s infinite; }
+.zone-b span { display: block; font-size: 20px; } .zone-b.bad { opacity: .35; animation: none; border-color: #777; } .zone-b:active { transform: translate(-50%, -50%) scale(.95); }
+#jobs.beat { opacity: .45; transition: opacity .2s; }
+
 /* avisos */
 #toasts { position: fixed; left: 10px; right: 10px; top: calc(112px + var(--sat)); z-index: 22; display: flex; flex-direction: column; gap: 6px; align-items: center; pointer-events: none; }
 .toast { max-width: 460px; background: #fff; color: #000; border-radius: 14px; padding: 9px 13px; font-size: 15px; line-height: 1.3; box-shadow: 0 6px 20px rgba(0,0,0,.5); animation: tin .25s ease-out; }
@@ -108,18 +115,18 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 
 /* ---------- Panel de minijuego ---------- */
 #mg { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; background: var(--panel); border-top: 3px solid var(--red); border-radius: 20px 20px 0 0;
-  padding: 12px 14px calc(14px + var(--sab)); max-height: 66%; display: flex; flex-direction: column; gap: 10px; animation: up .22s ease-out; box-shadow: 0 -10px 40px rgba(0,0,0,.6); touch-action: none; }
+  padding: 10px 12px calc(12px + var(--sab)); max-height: 58%; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; animation: up .22s ease-out; box-shadow: 0 -10px 40px rgba(0,0,0,.6); touch-action: none; }
 @keyframes up { from { transform: translateY(40px); opacity: 0; } }
 .mg-head { display: flex; align-items: center; gap: 10px; }
 .mg-face { width: 46px; height: 46px; border-radius: 50%; background: #26262b; display: grid; place-items: center; font-size: 26px; flex: none; }
 .mg-who { flex: 1; min-width: 0; } .mg-who b { font-size: 16px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .mg-who span { color: var(--mute); font-size: 12px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .mg-pat { height: 9px; border-radius: 5px; background: #2b2b30; overflow: hidden; margin-top: 5px; } .mg-pat i { display: block; height: 100%; width: 100%; background: var(--ok); }
 .mg-station { font-family: var(--display); font-size: 13px; letter-spacing: .8px; color: var(--red); text-transform: uppercase; flex: none; max-width: 40%; text-align: right; line-height: 1.2; }
-.bubble { background: #fff; color: #000; border-radius: 16px 16px 16px 4px; padding: 10px 13px; font-size: 17px; line-height: 1.3; min-height: 44px; }
+.bubble { background: #fff; color: #000; border-radius: 16px 16px 16px 4px; padding: 9px 12px; font-size: 16px; line-height: 1.28; }
 .bubble.joke { background: #ffe9a8; } .shake { animation: shake .3s; }
 @keyframes shake { 25% { transform: translateX(-6px); } 50% { transform: translateX(6px); } 75% { transform: translateX(-4px); } }
 .opts { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
-.opt { background: #202025; border: 2px solid #34343b; border-radius: 14px; padding: 10px 8px; min-height: 76px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; position: relative; text-align: center; }
+.opt { background: #202025; border: 2px solid #34343b; border-radius: 14px; padding: 8px 8px; min-height: 66px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; position: relative; text-align: center; }
 .opt .i { font-size: 28px; line-height: 1; } .opt .n { font-size: 14px; font-weight: 600; line-height: 1.15; }
 .opt kbd { position: absolute; top: 5px; left: 8px; font-size: 11px; color: #777; font-family: var(--body); }
 .opt:active { transform: scale(.97); } .opt.bad { opacity: .35; border-color: #5a1a1a; pointer-events: none; } .opt.good { border-color: var(--ok); background: #0e2a1b; }
@@ -249,8 +256,8 @@ body.calm * { animation: none !important; transition: none !important; }
       <p class="tag">Entrá. Elegí. Sobreviví al turno.</p>
     </div>
     <div style="display:flex;flex-direction:column;gap:12px">
-      <button class="btn" id="btnPlay">Jugar una jornada<small>3 minutos · clientes y tareas del local</small></button>
-      <button class="btn alt" id="btnRelax">Turno tranquilo<small>Sin reloj ni apuro · para aprender</small></button>
+      <button class="btn" id="btnPlay">Jugar una jornada<small>8 clientes · en tandas, con respiros</small></button>
+      <button class="btn alt" id="btnRelax">Turno tranquilo<small>Nadie pierde la paciencia · para aprender</small></button>
       <button class="btn ghost" id="btnArcade" style="font-size:18px">🕹️ Arcade · estaciones sueltas</button>
       <div class="row">
         <button class="btn ghost" id="btnHow">Cómo se juega</button>
@@ -290,9 +297,9 @@ const GS = {};
 GS.LOGO = "data:image/png;base64,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";
 
 GS.CONFIG = {
-  version: '0.2.0',
+  version: '0.3.0',
   phase: 2,
-  phaseNote: 'Parte A: 5 estaciones nuevas y modo Arcade',                       // fase actual del proyecto (1 a 5)
+  phaseNote: 'Parte B: ritmo nuevo por tandas (faltan 4 estaciones)',                       // fase actual del proyecto (1 a 5)
   links: { tienda: '', instagram: '' },   // se conectan más adelante
   promoMode: null,                // 'hotsale' | 'cyber' | null (Fase 3)
   camera: { tilt: 55, rot: 38, fov: 22 },
@@ -307,7 +314,12 @@ GS.CONFIG = {
     mistakeCost: 0.07,            // paciencia que cuesta un error
     taskFirst: 22, taskMin: 22, taskMax: 32, maxTasks: 2,   // tareas de otras estaciones
     taskPatience: 110,            // segundos antes de que una tarea se venza
-    arcadeRounds: 5, arcadeSeconds: 22
+    arcadeRounds: 5, arcadeSeconds: 22,
+    // La jornada es por cantidad, en tandas: c = clientes, t = tareas del local. Entre tandas hay un respiro.
+    // En la Etapa 3 esto lo va a armar la Carrera según el cartel del frente, el clima y la fecha (lluvia, Navidad, Black Friday).
+    waves: [{ c: 1, t: 0 }, { c: 2, t: 1 }, { c: 2, t: 1 }, { c: 3, t: 2 }],
+    restSeconds: 8,               // respiro entre tandas: habla el Dueño y se ve el local
+    customerGap: 7, taskGap: 9    // segundos entre llegadas dentro de una tanda
   }
 };
 
@@ -544,8 +556,8 @@ GS.CHATS = [
   { m: 'me podes mandar foto de TODO lo q tienen', ok: '¿Qué estás buscando? Te paso justo lo que necesitás.', bad: ['Dale, dame 3 semanas.', 'Te mando foto mía mejor.'] }
 ];
 GS.SHELVES = [
-  { cat: 'consolas', name: 'Consolas y juegos', icon: '🎮' }, { cat: 'apple', name: 'Apple', icon: '🍏' },
-  { cat: 'pc', name: 'PC y accesorios', icon: '💻' }, { cat: 'perifericos', name: 'Periféricos gamer', icon: '🎧' }
+  { cat: 'consolas', name: 'Consolas y juegos', icon: '🎮', pos: [-2.0, -6.2] }, { cat: 'apple', name: 'Apple', icon: '🍏', pos: [-4.2, 1.6] },
+  { cat: 'pc', name: 'PC y accesorios', icon: '💻', pos: [1.6, 0.2] }, { cat: 'perifericos', name: 'Periféricos gamer', icon: '🎧', pos: [5.6, 5.0] }
 ];
 GS.BOX_SIZE = { chica: ['cable', 'pendrive', 'tinta', 'airpods', 'juego', 'magic', 'watch', 'mouse', 'dualsense', 'homepod'],
   mediana: ['switch2', 'quest', 'deck', 'ipad', 'router', 'auris', 'gpu', 'streamdeck', 'mic', 'notebook'], grande: ['ps5', 'xbox', 'gabinete', 'silla'] };
@@ -1205,6 +1217,7 @@ GS.Minigames = (function () {
   }
   function close() {
     if (cur && cur.timer) clearTimeout(cur.timer);
+    if (cur && cur.cleanup) cur.cleanup();
     const r = root(); r.hidden = true; r.innerHTML = ''; cur = null;
   }
 
@@ -1450,13 +1463,32 @@ GS.Minigames = (function () {
 
   /* ---------------- 7. REPOSICIÓN: cada caja a su góndola ---------------- */
   function repo(job) {
-    const boxes = U.shuffle(GS.CATALOG).slice(0, 3); let i = 0;
+    // Se juega en el local: la cámara muestra todo el salón y se toca la góndola de verdad
+    const boxes = U.shuffle(GS.CATALOG).slice(0, 3), me = cur; let i = 0;
+    GS.World.home();
+    const layer = document.createElement('div'); layer.className = 'zones';
+    layer.innerHTML = GS.SHELVES.map((s, k) => '<button class="zone-b" data-k="' + k + '"><span>' + s.icon + '</span>' + esc(s.name) + '</button>').join('');
+    document.body.appendChild(layer);
+    const zb = [...layer.querySelectorAll('.zone-b')];
+    me.cleanup = () => layer.remove();
+    (function place() {
+      if (cur !== me) return; requestAnimationFrame(place);
+      GS.SHELVES.forEach((s, k) => { const p = GS.World.project(s.pos[0], 1.9, s.pos[1]); zb[k].style.left = p.x.toFixed(1) + 'px'; zb[k].style.top = p.y.toFixed(1) + 'px'; });
+    })();
     function show() {
       const p = boxes[i];
-      root().innerHTML = head(job, 'Reposición · ' + (i + 1) + ' de 3') + '<div class="bubble" id="mgBubble">📦 En esta caja hay: ' + p.icon + ' ' + esc(p.name) + '</div><div class="info"><b>¿A qué góndola va?</b></div>' +
-        '<div class="opts">' + GS.SHELVES.map((s, k) => '<button class="opt" data-ok="' + (s.cat === p.cat ? 1 : 0) + '"><kbd>' + (k + 1) + '</kbd><span class="i">' + s.icon + '</span><span class="n">' + esc(s.name) + '</span></button>').join('') + '</div>';
-      listOptions(b => b.dataset.ok === '1', () => { i++; if (i < boxes.length) { GS.Audio.play('bill'); show(); } else { GS.Audio.play('ok'); finish(true, '¡Todo acomodado!', 'Por cinco minutos, al menos.', {}); } }, () => mistake('repo', U.pick(LN.wrongShelf)));
+      zb.forEach(b => b.classList.remove('bad'));
+      root().innerHTML = head(job, 'Reposición · ' + (i + 1) + ' de 3') + '<div class="bubble" id="mgBubble">📦 En esta caja hay: ' + p.icon + ' ' + esc(p.name) + '</div>' +
+        '<div class="rule">Tocá en el local la góndola donde va</div>';
     }
+    function choose(k) {
+      if (!cur || cur.done || zb[k].classList.contains('bad')) return;
+      if (GS.SHELVES[k].cat === boxes[i].cat) {
+        i++; if (i < boxes.length) { GS.Audio.play('bill'); show(); } else { GS.Audio.play('ok'); layer.remove(); finish(true, '¡Todo acomodado!', 'Por cinco minutos, al menos.', {}); }
+      } else { zb[k].classList.add('bad'); mistake('repo', U.pick(LN.wrongShelf)); }
+    }
+    zb.forEach((b, k) => b.addEventListener('click', () => choose(k)));
+    me.keys = e => { const n = parseInt(e.key, 10); if (n >= 1 && n <= zb.length) choose(n - 1); };
     show();
   }
 
@@ -1542,9 +1574,36 @@ GS.Game = (function () {
   function newDay(extra) {
     return Object.assign({
       relaxed: false, arcade: null, t: 0, dur: C.day.seconds, score: 0, combo: 0, bestCombo: 0, sales: 0, served: 0, lost: 0, cajaErr: 0, otherErr: 0,
-      tasksDone: 0, tasksLate: 0, customers: [], tasks: [], spawned: 0, tasksSpawned: 0, nextSpawn: 0.4, nextTask: C.day.taskFirst, nextDueno: U.rnd(18, 26),
+      tasksDone: 0, tasksLate: 0, customers: [], tasks: [], spawned: 0, tasksSpawned: 0,
+      plan: planDay(), wave: -1, stage: 'rest', rest: 0.6, queue: [], says: [], beat: 0, duenoBag: U.shuffle(LN.dueno),
       cajaCount: 0, closing: false, jobSig: '', reqBag: U.shuffle(GS.REQUESTS), archBag: U.shuffle(GS.CUSTOMERS), taskBag: []
     }, extra || {});
+  }
+  // Arma la jornada: cuántos clientes y tareas trae cada tanda. Va de menos a más.
+  // (Etapa 3: acá entran el cartel del frente, el clima y las fechas especiales.)
+  function planDay() { return C.day.waves.map(w => ({ c: w.c, t: w.t })); }
+  function planTotals(plan) { return plan.reduce((a, w) => ({ c: a.c + w.c, t: a.t + w.t }), { c: 0, t: 0 }); }
+  function startWave() {
+    day.wave++; day.stage = 'work'; day.queue = [];
+    const w = day.plan[day.wave];
+    for (let i = 0; i < w.c; i++) day.queue.push({ kind: 'c', t: 0.3 + i * C.day.customerGap });
+    for (let i = 0; i < w.t; i++) day.queue.push({ kind: 't', t: 5 + i * C.day.taskGap });
+    day.queue.sort((a, b) => a.t - b.t);
+  }
+  function endWave() {
+    if (day.wave >= day.plan.length - 1) { day.closing = true; setTimeout(endDay, 2800); return; }
+    day.stage = 'rest'; day.rest = C.day.restSeconds; W.focus(null); W.home();
+    const d = day;
+    setTimeout(() => {                       // en el respiro habla el Dueño, sin nada tapando el local
+      if (day !== d || state !== 'day' || d.stage !== 'rest') return;
+      if (!d.duenoBag.length) d.duenoBag = U.shuffle(LN.dueno);
+      A.play('speaker'); toast('<b>📢 El Dueño, por el altavoz</b>' + d.duenoBag.pop(), 'dueno', 5200);
+    }, 1100);
+  }
+  // Globito de diálogo sobre la cabeza de un personaje (el remate se ve en el salón, no en un cartel)
+  function sayAt(person, text, ms) {
+    const el = document.createElement('div'); el.className = 'say'; el.textContent = text; $('labels').appendChild(el);
+    day.says.push({ el, person, left: (ms || 3200) / 1000 });
   }
   function enterPlay() {
     $('start').hidden = true; $('end').hidden = true; $('hud').hidden = false; $('modal').hidden = true; $('toasts').innerHTML = '';
@@ -1559,7 +1618,7 @@ GS.Game = (function () {
     if (!GS.Store.get('tutorial2')) { GS.Store.set('tutorial2', true); showHow(true); }
   }
   function clearDay() {
-    if (day) { day.customers.forEach(c => { if (c.person) c.person.remove(); c.label.remove(); }); day.tasks.forEach(t => t.label.remove()); }
+    if (day) { day.customers.forEach(c => { if (c.person) c.person.remove(); c.label.remove(); }); day.tasks.forEach(t => t.label.remove()); day.says.forEach(x => x.el.remove()); }
     MG.close(); W.focus(null);
   }
   function makeLabel(icon) {
@@ -1585,7 +1644,7 @@ GS.Game = (function () {
     if (day.tasks.some(t => t.station === st)) { const alt = TASK_STATIONS.filter(s => !day.tasks.some(t => t.station === s)); if (!alt.length) return; st = U.pick(alt); }
     const task = { id: ++uid, station: st, arche: { face: st.icon, name: st.task.name, tag: st.task.tag }, pat: 1, st: 'wait', label: makeLabel(st.icon) };
     day.tasks.push(task); day.tasksSpawned++; A.play('speaker');
-    toast('<b>' + st.icon + ' ' + st.name + '</b>' + st.task.name + '. Cuando puedas.', '', 2400);
+    toast('<b>' + st.icon + ' ' + st.name + '</b>' + st.task.name + '. Cuando puedas.', '', 2200);
   }
   function freeSlot(key, n) {
     for (let i = 0; i < n; i++) if (!day.customers.some(c => c[key] === i && c.st !== 'leaving')) return i;
@@ -1629,7 +1688,7 @@ GS.Game = (function () {
     openJob(job);
   }
   function openJob(job) {
-    if (state !== 'day' || paused || MG.isOpen() || day.closing) return;
+    if (state !== 'day' || paused || MG.isOpen() || day.closing || day.beat > 0) return;
     A.unlock(); A.play('click');
     const ref = job.ref, isCust = job.type === 'mostrador' || job.type === 'caja';
     ref.st = isCust ? (job.type === 'mostrador' ? 'inM' : 'inC') : 'in'; ref.pat = Math.max(ref.pat, 0.55);
@@ -1637,9 +1696,9 @@ GS.Game = (function () {
     const cb = {
       onMistake(kind) { breakCombo(); if (kind === 'caja') day.cajaErr++; else day.otherErr++; if (!day.relaxed) ref.pat = Math.max(0.05, ref.pat - C.day.mistakeCost); },
       onEnd(ok, info) {
-        W.focus(null);
+        if (job.type !== 'caja') W.focus(null);
         if (job.type === 'mostrador') {
-          addScore(100, ref.pat); ref.st = 'toCaja'; ref.slotM = -1; ref.pat = Math.max(ref.pat, 0.8);
+          addScore(100, ref.pat); sayAt(ref.person, '¡Eso! Voy a la caja.', 1900); ref.st = 'toCaja'; ref.slotM = -1; ref.pat = Math.max(ref.pat, 0.8);
           ref.slotC = Math.max(0, freeSlot('slotC', L.colaCaja.length));
           ref.person.walk([[0.1, -2.1], L.colaCaja[ref.slotC]], () => { ref.st = 'waitC'; ref.person.face(Math.PI / 2); });
         } else if (job.type === 'caja') {
@@ -1647,7 +1706,9 @@ GS.Game = (function () {
           if (info.total) day.sales += info.total;
           if (info.cajaError) day.score = Math.max(0, day.score - 100);
           if (ok) addScore(150, ref.pat);
-          if (Math.random() < 0.6) toast('<b>' + ref.arche.name + '</b>' + ref.arche.bye, '', 2600);
+          // remate en el salón: la cámara se queda un momento y el cliente dice su frase al irse
+          sayAt(ref.person, ref.arche.bye, 3600); day.beat = 1.5;
+          const d = day; setTimeout(() => { if (day === d && !MG.isOpen()) W.focus(null); }, 2300);
           leave(ref, !!info.total);
         } else { day.tasksDone++; addScore(130, ref.pat); removeTask(ref); }
       }
@@ -1662,19 +1723,16 @@ GS.Game = (function () {
     if (day.arcade) return updateArcade(dt);
     day.t += dt;
     const cfg = C.day, open = MG.isOpen();
-    // llegada de clientes
-    const total = day.customers.filter(c => c.st !== 'leaving').length;
-    const canSpawn = !day.closing && total < cfg.maxCustomers && (day.relaxed ? day.spawned < cfg.relaxedCustomers : day.t < day.dur - 15);
-    day.nextSpawn -= dt;
-    if (day.nextSpawn <= 0 && canSpawn) {
-      spawnCustomer();
-      const rush = day.relaxed ? 0.8 : 1 - 0.2 * (day.t / day.dur);
-      day.nextSpawn = U.rnd(cfg.spawnMin, cfg.spawnMax) * rush;
+    if (day.beat > 0) day.beat -= dt;
+    // tandas: llegan unos pocos pendientes, se resuelven y viene un respiro
+    if (!day.closing) {
+      if (day.stage === 'rest') { day.rest -= dt; if (day.rest <= 0) startWave(); }
+      else {
+        for (const q of day.queue) q.t -= dt;
+        while (day.queue.length && day.queue[0].t <= 0) { const q = day.queue.shift(); if (q.kind === 'c') spawnCustomer(); else spawnTask(); }
+        if (!day.queue.length && !day.tasks.length && !open && day.customers.every(c => c.st === 'leaving')) endWave();
+      }
     }
-    // tareas de las otras estaciones
-    day.nextTask -= dt;
-    const canTask = !day.closing && day.tasks.length < cfg.maxTasks && (day.relaxed ? day.tasksSpawned < cfg.relaxedTasks : day.t < day.dur - 25);
-    if (day.nextTask <= 0 && canTask) { spawnTask(); day.nextTask = U.rnd(cfg.taskMin, cfg.taskMax); }
     // paciencia (en el turno tranquilo no baja)
     if (!day.relaxed) {
       for (const cu of day.customers.slice()) {
@@ -1683,7 +1741,7 @@ GS.Game = (function () {
         if (cu.pat <= 0 && (cu.st === 'waitM' || cu.st === 'waitC' || cu.st === 'inM' || cu.st === 'inC')) {
           if (cu.st === 'inM' || cu.st === 'inC') { if (MG.isResolving()) { cu.pat = 0.01; continue; } MG.close(); W.focus(null); }
           day.lost++; breakCombo(); A.play('lost');
-          toast('<b>' + cu.arche.name + ' se fue</b>' + cu.arche.lost, '', 3000);
+          sayAt(cu.person, cu.arche.lost, 3600); toast('<b>' + cu.arche.name + ' se fue sin comprar</b>', '', 2200);
           leave(cu, false);
         }
       }
@@ -1698,15 +1756,7 @@ GS.Game = (function () {
       }
     }
     if (open && MG.customer()) MG.setPatience(day.relaxed ? 1 : MG.customer().pat);
-    // el Dueño por el altavoz
-    day.nextDueno -= dt;
-    if (day.nextDueno <= 0 && !open) { day.nextDueno = U.rnd(30, 42); A.play('speaker'); toast('<b>📢 El Dueño, por el altavoz</b>' + U.pick(LN.dueno), 'dueno', 4600); }
-    // fin de la jornada
-    const over = day.relaxed
-      ? (day.spawned >= cfg.relaxedCustomers && day.tasksSpawned >= cfg.relaxedTasks && !day.tasks.length && day.customers.every(c => c.st === 'leaving'))
-      : day.t >= day.dur;
-    if (over && !day.closing && !MG.isOpen()) { day.closing = true; setTimeout(endDay, 700); }
-    updateHud(); updateJobs(); updateLabels();
+    updateHud(); updateJobs(); updateLabels(dt);
   }
 
   function fmtClock(f) { const m = Math.round(600 + f * 600); return String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(Math.floor(m % 60 / 10) * 10).padStart(2, '0'); }
@@ -1716,15 +1766,14 @@ GS.Game = (function () {
       $('clockT').textContent = 'Ronda ' + Math.max(1, Math.min(day.round, C.day.arcadeRounds)) + '/' + C.day.arcadeRounds; $('clockS').textContent = 'Arcade · ' + ST(day.arcade).name;
       $('clockB').style.width = (Math.max(0, day.round - 1) / C.day.arcadeRounds * 100) + '%';
     } else {
-      const total = C.day.relaxedCustomers + C.day.relaxedTasks;
-      const f = day.relaxed ? Math.min(1, (day.served + day.lost + day.tasksDone) / total) : Math.min(1, day.t / day.dur);
-      $('clockT').textContent = fmtClock(f); $('clockB').style.width = (f * 100).toFixed(1) + '%';
-      if (!day.relaxed) { const left = Math.max(0, Math.ceil(day.dur - day.t)); $('clockS').textContent = left <= 20 ? 'Cerramos en ' + left + ' s' : 'Cierra a las 20:00'; }
+      const tot = planTotals(day.plan), all = tot.c + tot.t, doneN = day.served + day.lost + day.tasksDone + day.tasksLate;
+      $('clockT').textContent = 'Tanda ' + Math.max(1, day.wave + 1) + '/' + day.plan.length; $('clockB').style.width = (Math.min(1, doneN / all) * 100).toFixed(1) + '%';
+      $('clockS').textContent = day.closing ? 'Cerrando el local' : day.stage === 'rest' && day.wave >= 0 ? 'Respiro ☕' : 'Clientes ' + (day.served + day.lost) + '/' + tot.c;
     }
     $('scoreV').textContent = day.score.toLocaleString('es-AR');
     $('chipSales').hidden = !!day.arcade; $('chipServed').hidden = !!day.arcade;
     $('chipSales').textContent = '💰 ' + U.money(day.sales);
-    $('chipServed').textContent = '✅ ' + (day.served + day.tasksDone) + ' hechos';
+    { const n = day.served + day.tasksDone; $('chipServed').textContent = '✅ ' + n + (n === 1 ? ' hecho' : ' hechos'); }
     $('chipCombo').hidden = day.combo < 2; $('chipCombo').textContent = '🔥 racha x' + day.combo;
   }
   // Tarjetas de pendientes (abajo): hasta 4, primero lo más urgente
@@ -1737,8 +1786,9 @@ GS.Game = (function () {
       box.innerHTML = jobList.length
         ? jobList.map((j, i) => '<button class="job" data-i="' + i + '"><span class="ji">' + j.icon + '</span><span class="jt"><b>' + j.title + '</b><small>' + j.sub + '</small></span><span class="pb"><i></i></span><kbd>' + (i + 1) + '</kbd></button>').join('') +
           (all.length > 4 ? '<div class="more">+' + (all.length - 4) + ' más esperando</div>' : '')
-        : '<div class="job idle"><span class="ji">☕</span><span class="jt"><b>Todo en orden</b><small>Respirá. Ya va a entrar alguien.</small></span></div>';
+        : '<div class="job idle"><span class="ji">☕</span><span class="jt"><b>Todo en orden</b><small>Respirá y mirá el local. Ya va a entrar alguien.</small></span></div>';
     }
+    box.classList.toggle('beat', day.beat > 0);
     const bars = box.querySelectorAll('.job .pb i');
     jobList.forEach((j, i) => { if (bars[i]) { bars[i].style.width = Math.max(4, j.pat * 100) + '%'; bars[i].style.background = barColor(j.pat); } });
   }
@@ -1749,7 +1799,12 @@ GS.Game = (function () {
     if (icon) label.firstChild.textContent = icon;
     const i = label.lastChild.firstChild; i.style.width = Math.max(0, pat * 100) + '%'; i.style.background = barColor(pat);
   }
-  function updateLabels() {
+  function updateLabels(dt) {
+    for (const sy of day.says.slice()) {
+      sy.left -= dt || 0;
+      if (sy.left <= 0) { sy.el.remove(); day.says.splice(day.says.indexOf(sy), 1); continue; }
+      const g = sy.person.group.position, p = W.project(g.x, 2.25, g.z); sy.el.style.left = p.x.toFixed(1) + 'px'; sy.el.style.top = p.y.toFixed(1) + 'px';
+    }
     for (const cu of day.customers) {
       const show = cu.st === 'waitM' || cu.st === 'waitC' || cu.st === 'toCaja';
       cu.label.hidden = !show; if (!show) continue;
@@ -1825,12 +1880,12 @@ GS.Game = (function () {
     state = 'end'; MG.close(); W.focus(null); W.showAll(); A.play('endDay');
     const d = day;
     d.customers.slice().forEach(c => { if (c.st !== 'leaving') leave(c, false); });
-    d.tasks.slice().forEach(removeTask);
+    d.tasks.slice().forEach(removeTask); d.says.forEach(x => x.el.remove()); d.says = [];
     $('hud').hidden = true; $('jobs').hidden = true;
     const done = d.served + d.tasksDone, missed = d.lost + d.tasksLate, errs = d.cajaErr + d.otherErr;
     let stars = 1;
     if (d.relaxed) stars = errs === 0 ? 3 : errs <= 4 ? 2 : 1;
-    else { if (done >= 6 && missed <= 2) stars = 2; if (done >= 9 && missed === 0 && d.cajaErr <= 1) stars = 3; }
+    else { if (missed <= 2) stars = 2; if (missed === 0 && errs <= 3) stars = 3; }
     const comment = U.pick(stars === 3 ? LN.duenoEndGood : stars === 2 ? LN.duenoEndMid : LN.duenoEndBad);
     const human = U.pick(LN.human).replace('{n}', d.served);
     const entry = { score: d.score, served: done, sales: d.sales, mode: d.relaxed ? 'Tranquilo' : 'Normal', date: new Date().toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit' }) };
@@ -1863,7 +1918,7 @@ GS.Game = (function () {
   function showHow(fromDay) {
     if (fromDay) paused = true;
     modal('<h2>Cómo se juega</h2><ul class="how">' +
-      '<li><i>🚪</i><span>Entran clientes y aparecen tareas del local. Todo lo pendiente se muestra <b>abajo</b>, con una barrita de tiempo.</span></li>' +
+      '<li><i>🚪</i><span>La jornada viene en <b>tandas</b>: entran unos pocos clientes y tareas, los resolvés y hay un respiro. Lo pendiente se muestra <b>abajo</b>.</span></li>' +
       '<li><i>👆</i><span>Tocá un pendiente para resolverlo: son minijuegos de unos segundos.</span></li>' +
       '<li><i>💵</i><span>Al cobrar acordate: 10% OFF en efectivo o transferencia, 3 cuotas sin interés con tarjeta.</span></li>' +
       '<li><i>🔥</i><span>Encadená aciertos para armar <b>racha</b>. Si te equivocás no perdés nada: solo hay un chiste.</span></li>' +

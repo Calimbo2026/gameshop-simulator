@@ -49,9 +49,36 @@ GS.Game = (function () {
   function newDay(extra) {
     return Object.assign({
       relaxed: false, arcade: null, t: 0, dur: C.day.seconds, score: 0, combo: 0, bestCombo: 0, sales: 0, served: 0, lost: 0, cajaErr: 0, otherErr: 0,
-      tasksDone: 0, tasksLate: 0, customers: [], tasks: [], spawned: 0, tasksSpawned: 0, nextSpawn: 0.4, nextTask: C.day.taskFirst, nextDueno: U.rnd(18, 26),
+      tasksDone: 0, tasksLate: 0, customers: [], tasks: [], spawned: 0, tasksSpawned: 0,
+      plan: planDay(), wave: -1, stage: 'rest', rest: 0.6, queue: [], says: [], beat: 0, duenoBag: U.shuffle(LN.dueno),
       cajaCount: 0, closing: false, jobSig: '', reqBag: U.shuffle(GS.REQUESTS), archBag: U.shuffle(GS.CUSTOMERS), taskBag: []
     }, extra || {});
+  }
+  // Arma la jornada: cuántos clientes y tareas trae cada tanda. Va de menos a más.
+  // (Etapa 3: acá entran el cartel del frente, el clima y las fechas especiales.)
+  function planDay() { return C.day.waves.map(w => ({ c: w.c, t: w.t })); }
+  function planTotals(plan) { return plan.reduce((a, w) => ({ c: a.c + w.c, t: a.t + w.t }), { c: 0, t: 0 }); }
+  function startWave() {
+    day.wave++; day.stage = 'work'; day.queue = [];
+    const w = day.plan[day.wave];
+    for (let i = 0; i < w.c; i++) day.queue.push({ kind: 'c', t: 0.3 + i * C.day.customerGap });
+    for (let i = 0; i < w.t; i++) day.queue.push({ kind: 't', t: 5 + i * C.day.taskGap });
+    day.queue.sort((a, b) => a.t - b.t);
+  }
+  function endWave() {
+    if (day.wave >= day.plan.length - 1) { day.closing = true; setTimeout(endDay, 2800); return; }
+    day.stage = 'rest'; day.rest = C.day.restSeconds; W.focus(null); W.home();
+    const d = day;
+    setTimeout(() => {                       // en el respiro habla el Dueño, sin nada tapando el local
+      if (day !== d || state !== 'day' || d.stage !== 'rest') return;
+      if (!d.duenoBag.length) d.duenoBag = U.shuffle(LN.dueno);
+      A.play('speaker'); toast('<b>📢 El Dueño, por el altavoz</b>' + d.duenoBag.pop(), 'dueno', 5200);
+    }, 1100);
+  }
+  // Globito de diálogo sobre la cabeza de un personaje (el remate se ve en el salón, no en un cartel)
+  function sayAt(person, text, ms) {
+    const el = document.createElement('div'); el.className = 'say'; el.textContent = text; $('labels').appendChild(el);
+    day.says.push({ el, person, left: (ms || 3200) / 1000 });
   }
   function enterPlay() {
     $('start').hidden = true; $('end').hidden = true; $('hud').hidden = false; $('modal').hidden = true; $('toasts').innerHTML = '';
@@ -66,7 +93,7 @@ GS.Game = (function () {
     if (!GS.Store.get('tutorial2')) { GS.Store.set('tutorial2', true); showHow(true); }
   }
   function clearDay() {
-    if (day) { day.customers.forEach(c => { if (c.person) c.person.remove(); c.label.remove(); }); day.tasks.forEach(t => t.label.remove()); }
+    if (day) { day.customers.forEach(c => { if (c.person) c.person.remove(); c.label.remove(); }); day.tasks.forEach(t => t.label.remove()); day.says.forEach(x => x.el.remove()); }
     MG.close(); W.focus(null);
   }
   function makeLabel(icon) {
@@ -92,7 +119,7 @@ GS.Game = (function () {
     if (day.tasks.some(t => t.station === st)) { const alt = TASK_STATIONS.filter(s => !day.tasks.some(t => t.station === s)); if (!alt.length) return; st = U.pick(alt); }
     const task = { id: ++uid, station: st, arche: { face: st.icon, name: st.task.name, tag: st.task.tag }, pat: 1, st: 'wait', label: makeLabel(st.icon) };
     day.tasks.push(task); day.tasksSpawned++; A.play('speaker');
-    toast('<b>' + st.icon + ' ' + st.name + '</b>' + st.task.name + '. Cuando puedas.', '', 2400);
+    toast('<b>' + st.icon + ' ' + st.name + '</b>' + st.task.name + '. Cuando puedas.', '', 2200);
   }
   function freeSlot(key, n) {
     for (let i = 0; i < n; i++) if (!day.customers.some(c => c[key] === i && c.st !== 'leaving')) return i;
@@ -136,7 +163,7 @@ GS.Game = (function () {
     openJob(job);
   }
   function openJob(job) {
-    if (state !== 'day' || paused || MG.isOpen() || day.closing) return;
+    if (state !== 'day' || paused || MG.isOpen() || day.closing || day.beat > 0) return;
     A.unlock(); A.play('click');
     const ref = job.ref, isCust = job.type === 'mostrador' || job.type === 'caja';
     ref.st = isCust ? (job.type === 'mostrador' ? 'inM' : 'inC') : 'in'; ref.pat = Math.max(ref.pat, 0.55);
@@ -144,9 +171,9 @@ GS.Game = (function () {
     const cb = {
       onMistake(kind) { breakCombo(); if (kind === 'caja') day.cajaErr++; else day.otherErr++; if (!day.relaxed) ref.pat = Math.max(0.05, ref.pat - C.day.mistakeCost); },
       onEnd(ok, info) {
-        W.focus(null);
+        if (job.type !== 'caja') W.focus(null);
         if (job.type === 'mostrador') {
-          addScore(100, ref.pat); ref.st = 'toCaja'; ref.slotM = -1; ref.pat = Math.max(ref.pat, 0.8);
+          addScore(100, ref.pat); sayAt(ref.person, '¡Eso! Voy a la caja.', 1900); ref.st = 'toCaja'; ref.slotM = -1; ref.pat = Math.max(ref.pat, 0.8);
           ref.slotC = Math.max(0, freeSlot('slotC', L.colaCaja.length));
           ref.person.walk([[0.1, -2.1], L.colaCaja[ref.slotC]], () => { ref.st = 'waitC'; ref.person.face(Math.PI / 2); });
         } else if (job.type === 'caja') {
@@ -154,7 +181,9 @@ GS.Game = (function () {
           if (info.total) day.sales += info.total;
           if (info.cajaError) day.score = Math.max(0, day.score - 100);
           if (ok) addScore(150, ref.pat);
-          if (Math.random() < 0.6) toast('<b>' + ref.arche.name + '</b>' + ref.arche.bye, '', 2600);
+          // remate en el salón: la cámara se queda un momento y el cliente dice su frase al irse
+          sayAt(ref.person, ref.arche.bye, 3600); day.beat = 1.5;
+          const d = day; setTimeout(() => { if (day === d && !MG.isOpen()) W.focus(null); }, 2300);
           leave(ref, !!info.total);
         } else { day.tasksDone++; addScore(130, ref.pat); removeTask(ref); }
       }
@@ -169,19 +198,16 @@ GS.Game = (function () {
     if (day.arcade) return updateArcade(dt);
     day.t += dt;
     const cfg = C.day, open = MG.isOpen();
-    // llegada de clientes
-    const total = day.customers.filter(c => c.st !== 'leaving').length;
-    const canSpawn = !day.closing && total < cfg.maxCustomers && (day.relaxed ? day.spawned < cfg.relaxedCustomers : day.t < day.dur - 15);
-    day.nextSpawn -= dt;
-    if (day.nextSpawn <= 0 && canSpawn) {
-      spawnCustomer();
-      const rush = day.relaxed ? 0.8 : 1 - 0.2 * (day.t / day.dur);
-      day.nextSpawn = U.rnd(cfg.spawnMin, cfg.spawnMax) * rush;
+    if (day.beat > 0) day.beat -= dt;
+    // tandas: llegan unos pocos pendientes, se resuelven y viene un respiro
+    if (!day.closing) {
+      if (day.stage === 'rest') { day.rest -= dt; if (day.rest <= 0) startWave(); }
+      else {
+        for (const q of day.queue) q.t -= dt;
+        while (day.queue.length && day.queue[0].t <= 0) { const q = day.queue.shift(); if (q.kind === 'c') spawnCustomer(); else spawnTask(); }
+        if (!day.queue.length && !day.tasks.length && !open && day.customers.every(c => c.st === 'leaving')) endWave();
+      }
     }
-    // tareas de las otras estaciones
-    day.nextTask -= dt;
-    const canTask = !day.closing && day.tasks.length < cfg.maxTasks && (day.relaxed ? day.tasksSpawned < cfg.relaxedTasks : day.t < day.dur - 25);
-    if (day.nextTask <= 0 && canTask) { spawnTask(); day.nextTask = U.rnd(cfg.taskMin, cfg.taskMax); }
     // paciencia (en el turno tranquilo no baja)
     if (!day.relaxed) {
       for (const cu of day.customers.slice()) {
@@ -190,7 +216,7 @@ GS.Game = (function () {
         if (cu.pat <= 0 && (cu.st === 'waitM' || cu.st === 'waitC' || cu.st === 'inM' || cu.st === 'inC')) {
           if (cu.st === 'inM' || cu.st === 'inC') { if (MG.isResolving()) { cu.pat = 0.01; continue; } MG.close(); W.focus(null); }
           day.lost++; breakCombo(); A.play('lost');
-          toast('<b>' + cu.arche.name + ' se fue</b>' + cu.arche.lost, '', 3000);
+          sayAt(cu.person, cu.arche.lost, 3600); toast('<b>' + cu.arche.name + ' se fue sin comprar</b>', '', 2200);
           leave(cu, false);
         }
       }
@@ -205,15 +231,7 @@ GS.Game = (function () {
       }
     }
     if (open && MG.customer()) MG.setPatience(day.relaxed ? 1 : MG.customer().pat);
-    // el Dueño por el altavoz
-    day.nextDueno -= dt;
-    if (day.nextDueno <= 0 && !open) { day.nextDueno = U.rnd(30, 42); A.play('speaker'); toast('<b>📢 El Dueño, por el altavoz</b>' + U.pick(LN.dueno), 'dueno', 4600); }
-    // fin de la jornada
-    const over = day.relaxed
-      ? (day.spawned >= cfg.relaxedCustomers && day.tasksSpawned >= cfg.relaxedTasks && !day.tasks.length && day.customers.every(c => c.st === 'leaving'))
-      : day.t >= day.dur;
-    if (over && !day.closing && !MG.isOpen()) { day.closing = true; setTimeout(endDay, 700); }
-    updateHud(); updateJobs(); updateLabels();
+    updateHud(); updateJobs(); updateLabels(dt);
   }
 
   function fmtClock(f) { const m = Math.round(600 + f * 600); return String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(Math.floor(m % 60 / 10) * 10).padStart(2, '0'); }
@@ -223,15 +241,14 @@ GS.Game = (function () {
       $('clockT').textContent = 'Ronda ' + Math.max(1, Math.min(day.round, C.day.arcadeRounds)) + '/' + C.day.arcadeRounds; $('clockS').textContent = 'Arcade · ' + ST(day.arcade).name;
       $('clockB').style.width = (Math.max(0, day.round - 1) / C.day.arcadeRounds * 100) + '%';
     } else {
-      const total = C.day.relaxedCustomers + C.day.relaxedTasks;
-      const f = day.relaxed ? Math.min(1, (day.served + day.lost + day.tasksDone) / total) : Math.min(1, day.t / day.dur);
-      $('clockT').textContent = fmtClock(f); $('clockB').style.width = (f * 100).toFixed(1) + '%';
-      if (!day.relaxed) { const left = Math.max(0, Math.ceil(day.dur - day.t)); $('clockS').textContent = left <= 20 ? 'Cerramos en ' + left + ' s' : 'Cierra a las 20:00'; }
+      const tot = planTotals(day.plan), all = tot.c + tot.t, doneN = day.served + day.lost + day.tasksDone + day.tasksLate;
+      $('clockT').textContent = 'Tanda ' + Math.max(1, day.wave + 1) + '/' + day.plan.length; $('clockB').style.width = (Math.min(1, doneN / all) * 100).toFixed(1) + '%';
+      $('clockS').textContent = day.closing ? 'Cerrando el local' : day.stage === 'rest' && day.wave >= 0 ? 'Respiro ☕' : 'Clientes ' + (day.served + day.lost) + '/' + tot.c;
     }
     $('scoreV').textContent = day.score.toLocaleString('es-AR');
     $('chipSales').hidden = !!day.arcade; $('chipServed').hidden = !!day.arcade;
     $('chipSales').textContent = '💰 ' + U.money(day.sales);
-    $('chipServed').textContent = '✅ ' + (day.served + day.tasksDone) + ' hechos';
+    { const n = day.served + day.tasksDone; $('chipServed').textContent = '✅ ' + n + (n === 1 ? ' hecho' : ' hechos'); }
     $('chipCombo').hidden = day.combo < 2; $('chipCombo').textContent = '🔥 racha x' + day.combo;
   }
   // Tarjetas de pendientes (abajo): hasta 4, primero lo más urgente
@@ -244,8 +261,9 @@ GS.Game = (function () {
       box.innerHTML = jobList.length
         ? jobList.map((j, i) => '<button class="job" data-i="' + i + '"><span class="ji">' + j.icon + '</span><span class="jt"><b>' + j.title + '</b><small>' + j.sub + '</small></span><span class="pb"><i></i></span><kbd>' + (i + 1) + '</kbd></button>').join('') +
           (all.length > 4 ? '<div class="more">+' + (all.length - 4) + ' más esperando</div>' : '')
-        : '<div class="job idle"><span class="ji">☕</span><span class="jt"><b>Todo en orden</b><small>Respirá. Ya va a entrar alguien.</small></span></div>';
+        : '<div class="job idle"><span class="ji">☕</span><span class="jt"><b>Todo en orden</b><small>Respirá y mirá el local. Ya va a entrar alguien.</small></span></div>';
     }
+    box.classList.toggle('beat', day.beat > 0);
     const bars = box.querySelectorAll('.job .pb i');
     jobList.forEach((j, i) => { if (bars[i]) { bars[i].style.width = Math.max(4, j.pat * 100) + '%'; bars[i].style.background = barColor(j.pat); } });
   }
@@ -256,7 +274,12 @@ GS.Game = (function () {
     if (icon) label.firstChild.textContent = icon;
     const i = label.lastChild.firstChild; i.style.width = Math.max(0, pat * 100) + '%'; i.style.background = barColor(pat);
   }
-  function updateLabels() {
+  function updateLabels(dt) {
+    for (const sy of day.says.slice()) {
+      sy.left -= dt || 0;
+      if (sy.left <= 0) { sy.el.remove(); day.says.splice(day.says.indexOf(sy), 1); continue; }
+      const g = sy.person.group.position, p = W.project(g.x, 2.25, g.z); sy.el.style.left = p.x.toFixed(1) + 'px'; sy.el.style.top = p.y.toFixed(1) + 'px';
+    }
     for (const cu of day.customers) {
       const show = cu.st === 'waitM' || cu.st === 'waitC' || cu.st === 'toCaja';
       cu.label.hidden = !show; if (!show) continue;
@@ -332,12 +355,12 @@ GS.Game = (function () {
     state = 'end'; MG.close(); W.focus(null); W.showAll(); A.play('endDay');
     const d = day;
     d.customers.slice().forEach(c => { if (c.st !== 'leaving') leave(c, false); });
-    d.tasks.slice().forEach(removeTask);
+    d.tasks.slice().forEach(removeTask); d.says.forEach(x => x.el.remove()); d.says = [];
     $('hud').hidden = true; $('jobs').hidden = true;
     const done = d.served + d.tasksDone, missed = d.lost + d.tasksLate, errs = d.cajaErr + d.otherErr;
     let stars = 1;
     if (d.relaxed) stars = errs === 0 ? 3 : errs <= 4 ? 2 : 1;
-    else { if (done >= 6 && missed <= 2) stars = 2; if (done >= 9 && missed === 0 && d.cajaErr <= 1) stars = 3; }
+    else { if (missed <= 2) stars = 2; if (missed === 0 && errs <= 3) stars = 3; }
     const comment = U.pick(stars === 3 ? LN.duenoEndGood : stars === 2 ? LN.duenoEndMid : LN.duenoEndBad);
     const human = U.pick(LN.human).replace('{n}', d.served);
     const entry = { score: d.score, served: done, sales: d.sales, mode: d.relaxed ? 'Tranquilo' : 'Normal', date: new Date().toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit' }) };
@@ -370,7 +393,7 @@ GS.Game = (function () {
   function showHow(fromDay) {
     if (fromDay) paused = true;
     modal('<h2>Cómo se juega</h2><ul class="how">' +
-      '<li><i>🚪</i><span>Entran clientes y aparecen tareas del local. Todo lo pendiente se muestra <b>abajo</b>, con una barrita de tiempo.</span></li>' +
+      '<li><i>🚪</i><span>La jornada viene en <b>tandas</b>: entran unos pocos clientes y tareas, los resolvés y hay un respiro. Lo pendiente se muestra <b>abajo</b>.</span></li>' +
       '<li><i>👆</i><span>Tocá un pendiente para resolverlo: son minijuegos de unos segundos.</span></li>' +
       '<li><i>💵</i><span>Al cobrar acordate: 10% OFF en efectivo o transferencia, 3 cuotas sin interés con tarjeta.</span></li>' +
       '<li><i>🔥</i><span>Encadená aciertos para armar <b>racha</b>. Si te equivocás no perdés nada: solo hay un chiste.</span></li>' +

@@ -7,9 +7,9 @@
 const GS = {};
 
 GS.CONFIG = {
-  version: '0.2.0',
+  version: '0.3.0',
   phase: 2,
-  phaseNote: 'Parte A: 5 estaciones nuevas y modo Arcade',                       // fase actual del proyecto (1 a 5)
+  phaseNote: 'Parte B: ritmo nuevo por tandas (faltan 4 estaciones)',                       // fase actual del proyecto (1 a 5)
   links: { tienda: '', instagram: '' },   // se conectan más adelante
   promoMode: null,                // 'hotsale' | 'cyber' | null (Fase 3)
   camera: { tilt: 55, rot: 38, fov: 22 },
@@ -24,7 +24,12 @@ GS.CONFIG = {
     mistakeCost: 0.07,            // paciencia que cuesta un error
     taskFirst: 22, taskMin: 22, taskMax: 32, maxTasks: 2,   // tareas de otras estaciones
     taskPatience: 110,            // segundos antes de que una tarea se venza
-    arcadeRounds: 5, arcadeSeconds: 22
+    arcadeRounds: 5, arcadeSeconds: 22,
+    // La jornada es por cantidad, en tandas: c = clientes, t = tareas del local. Entre tandas hay un respiro.
+    // En la Etapa 3 esto lo va a armar la Carrera según el cartel del frente, el clima y la fecha (lluvia, Navidad, Black Friday).
+    waves: [{ c: 1, t: 0 }, { c: 2, t: 1 }, { c: 2, t: 1 }, { c: 3, t: 2 }],
+    restSeconds: 8,               // respiro entre tandas: habla el Dueño y se ve el local
+    customerGap: 7, taskGap: 9    // segundos entre llegadas dentro de una tanda
   }
 };
 
@@ -261,8 +266,8 @@ GS.CHATS = [
   { m: 'me podes mandar foto de TODO lo q tienen', ok: '¿Qué estás buscando? Te paso justo lo que necesitás.', bad: ['Dale, dame 3 semanas.', 'Te mando foto mía mejor.'] }
 ];
 GS.SHELVES = [
-  { cat: 'consolas', name: 'Consolas y juegos', icon: '🎮' }, { cat: 'apple', name: 'Apple', icon: '🍏' },
-  { cat: 'pc', name: 'PC y accesorios', icon: '💻' }, { cat: 'perifericos', name: 'Periféricos gamer', icon: '🎧' }
+  { cat: 'consolas', name: 'Consolas y juegos', icon: '🎮', pos: [-2.0, -6.2] }, { cat: 'apple', name: 'Apple', icon: '🍏', pos: [-4.2, 1.6] },
+  { cat: 'pc', name: 'PC y accesorios', icon: '💻', pos: [1.6, 0.2] }, { cat: 'perifericos', name: 'Periféricos gamer', icon: '🎧', pos: [5.6, 5.0] }
 ];
 GS.BOX_SIZE = { chica: ['cable', 'pendrive', 'tinta', 'airpods', 'juego', 'magic', 'watch', 'mouse', 'dualsense', 'homepod'],
   mediana: ['switch2', 'quest', 'deck', 'ipad', 'router', 'auris', 'gpu', 'streamdeck', 'mic', 'notebook'], grande: ['ps5', 'xbox', 'gabinete', 'silla'] };
