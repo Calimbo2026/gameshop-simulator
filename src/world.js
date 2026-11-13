@@ -107,18 +107,25 @@ GS.World = (function () {
 
   // Productos del salón: los mismos dibujos del catálogo, parados sobre los muebles y mirando a la cámara
   const iconCache = {};
+  // Cada producto tiene su caja de color (como un packaging real) con el dibujo grande en una ventana clara
+  const PACK = { consolas: ['#0b4fa8', '#c8102e', '#107c10', '#2b2b33', '#e8a400', '#6a2fb5'], apple: ['#aeb7c6', '#8f9bb0', '#c9b9a6'], pc: ['#16181d', '#e86a00', '#0e6cc4', '#3c4250'], perifericos: ['#141416', '#c40000', '#0f9a93', '#6a3fc0', '#d9d9de'] };
   function iconMats(id) {
     if (iconCache[id]) return iconCache[id];
+    const prod = GS.CATALOG.find(q => q.id === id), pal = PACK[prod.cat], col = pal[GS.CATALOG.indexOf(prod) % pal.length];
     const c = document.createElement('canvas'); c.width = c.height = 128; const g = c.getContext('2d'), t = new T.CanvasTexture(c), img = new Image();
-    g.fillStyle = '#ffffff'; g.fillRect(0, 0, 128, 128); g.strokeStyle = '#d5d5dd'; g.lineWidth = 6; g.strokeRect(3, 3, 122, 122);
-    img.onload = () => { g.drawImage(img, 14, 14, 100, 100); t.needsUpdate = true; };
+    const paint = () => {
+      g.fillStyle = col; g.fillRect(0, 0, 128, 128);
+      g.fillStyle = 'rgba(255,255,255,.93)'; g.beginPath(); g.moveTo(26, 12); g.arcTo(116, 12, 116, 104, 16); g.arcTo(116, 104, 12, 104, 16); g.arcTo(12, 104, 12, 12, 16); g.arcTo(12, 12, 116, 12, 16); g.fill();
+      g.fillStyle = 'rgba(255,255,255,.85)'; g.fillRect(34, 112, 60, 6);          // rayita tipo marca en la base
+    };
+    paint(); img.onload = () => { paint(); g.drawImage(img, 14, 8, 100, 100); t.needsUpdate = true; };
     img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(GS.ICONS[id].replace('<svg ', '<svg width="128" height="128" '));
-    const face = new T.MeshBasicMaterial({ map: t }), side = mat(0xf4f4f6);
+    const face = new T.MeshBasicMaterial({ map: t }), side = new T.MeshLambertMaterial({ color: col });
     return (iconCache[id] = [face, side, side, side, face, side]);   // +x y +z: las dos caras que ve la cámara
   }
   // Caja de producto: mismo tamaño para todas, bien alineadas (como una góndola real)
   function sprite(parent, id, x, y, z, size) {
-    const m = new T.Mesh(unitBox, iconMats(id)); m.scale.set(size * 0.74, size * 0.74, size * 0.74); m.position.set(x, y + size * 0.37, z); parent.add(m); return m;
+    const m = new T.Mesh(unitBox, iconMats(id)); m.scale.set(size * 0.86, size * 0.86, size * 0.86); m.position.set(x, y + size * 0.43, z); parent.add(m); return m;
   }
   const idsOf = cat => GS.CATALOG.filter(p => p.cat === cat).map(p => p.id);
   function sign(parent, text, w, h, x, y, z, ry) {
@@ -393,7 +400,8 @@ GS.World = (function () {
         gShadow = new T.CircleGeometry(0.36, 16);
   const shadowMat = new T.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.2, depthWrite: false });
   const gCone = new T.CylinderGeometry(0.15, 0.34, 0.86, 12), gBun = new T.SphereGeometry(0.15, 8, 8), gCurl = new T.SphereGeometry(0.13, 7, 6),
-        gBeard = new T.SphereGeometry(0.345, 12, 8, 0, Math.PI * 2, Math.PI * 0.52, Math.PI * 0.48);
+        gBeard = new T.SphereGeometry(0.348, 14, 6, Math.PI * 0.06, Math.PI * 0.88, Math.PI * 0.6, Math.PI * 0.36),
+        gCap = new T.SphereGeometry(0.355, 14, 8, 0, Math.PI * 2, 0, Math.PI * 0.42), gMass = new T.SphereGeometry(0.36, 12, 10);
   function makePerson(o) {
     o = o || {};
     const g = new T.Group(), base = o.scale || 1; g.scale.setScalar(base); g.userData.base = base;
@@ -416,14 +424,16 @@ GS.World = (function () {
     function style(a) {
       if (acc) g.remove(acc); acc = new T.Group(); acc.position.y = 1.14; g.add(acc);
       head.material = mat(a.skin || SKINS[1]); const hm = mat(a.hair || 0x3a2a1a), st = a.hairStyle || 'corto';
-      const cap = () => { const m = new T.Mesh(gHair, hm); m.position.y = 0.02; m.rotation.x = -0.25; acc.add(m); };
+      const cap = () => { const m = new T.Mesh(gCap, hm); m.rotation.x = -0.42; acc.add(m); };      // casquete que deja la frente libre
       if (st === 'corto' || st === 'largo' || st === 'rodete') cap();
-      if (st === 'largo') { box(acc, 0.62, 0.52, 0.2, hm, 0, -0.44, -0.24); box(acc, 0.1, 0.4, 0.3, hm, -0.31, -0.36, -0.06); box(acc, 0.1, 0.4, 0.3, hm, 0.31, -0.36, -0.06); }
-      if (st === 'rodete') { const b = new T.Mesh(gBun, hm); b.position.set(0, 0.42, -0.1); acc.add(b); }
-      if (st === 'rulos') [[0, 0.3, 0], [0.2, 0.24, 0.02], [-0.2, 0.24, 0.02], [0, 0.24, -0.2], [0.16, 0.2, 0.18], [-0.16, 0.2, 0.18], [0.24, 0.1, -0.16], [-0.24, 0.1, -0.16], [0, 0.26, 0.2]].forEach(q => { const c = new T.Mesh(gCurl, hm); c.position.set(q[0], q[1], q[2]); acc.add(c); });
+      if (st === 'largo') { const m = new T.Mesh(gMass, hm); m.scale.set(1.06, 1.3, 0.8); m.position.set(0, -0.2, -0.16); acc.add(m); }   // melena redondeada por detrás
+      if (st === 'rodete') { const b = new T.Mesh(gBun, hm); b.position.set(0, 0.4, -0.12); acc.add(b); }
+      if (st === 'rulos') { for (let i = 0; i < 9; i++) { const an = i / 9 * Math.PI * 2, c = new T.Mesh(gCurl, hm); c.scale.setScalar(1.25); c.position.set(Math.cos(an) * 0.25, 0.2, Math.sin(an) * 0.25 - 0.05); acc.add(c); }
+        [[0, 0.36, -0.04], [0.14, 0.33, 0.06], [-0.14, 0.33, 0.06], [0, 0.32, -0.2]].forEach(q => { const c = new T.Mesh(gCurl, hm); c.scale.setScalar(1.3); c.position.set(q[0], q[1], q[2]); acc.add(c); }); }
       if (st === 'mohicano') { box(acc, 0.1, 0.26, 0.62, hm, 0, 0.22, -0.03); box(acc, 0.1, 0.14, 0.3, hm, 0, 0.44, -0.03); }
-      if (a.beard) { const m = new T.Mesh(gBeard, hm); m.rotation.x = 0.4; m.position.z = 0.03; acc.add(m); }
+      if (a.beard) acc.add(new T.Mesh(gBeard, hm));                                                  // sigue la forma del mentón, solo por delante
       if (a.glasses) { box(acc, 0.16, 0.12, 0.03, 0x111111, -0.12, -0.07, 0.3); box(acc, 0.16, 0.12, 0.03, 0x111111, 0.12, -0.07, 0.3); box(acc, 0.1, 0.03, 0.03, 0x111111, 0, -0.01, 0.3); }
+      if (a.lashes) [-0.12, 0.12].forEach(x => { const l = box(acc, 0.13, 0.025, 0.03, 0x111111, x, 0.06, 0.3); l.rotation.z = x < 0 ? 0.3 : -0.3; });
       if (a.lips) box(acc, 0.14, 0.05, 0.05, 0xd81e5b, 0, -0.19, 0.28);
     }
     style(o);

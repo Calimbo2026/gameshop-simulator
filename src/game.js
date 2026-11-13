@@ -7,6 +7,7 @@ GS.Game = (function () {
   const $ = id => document.getElementById(id);
   const ST = id => GS.STATIONS.find(s => s.id === id);
   const TASK_STATIONS = GS.STATIONS.filter(s => s.task && !s.finalOnly);
+  let walkT = 2, walkers = 0;
   let state = 'menu', day = null, paused = false, lastT = 0, calm = false, uid = 0;
 
   /* ---------------- Etapas del proyecto ---------------- */
@@ -156,7 +157,7 @@ GS.Game = (function () {
     if (!day.archBag.length) day.archBag = U.shuffle(GS.CUSTOMERS);
     const req = day.reqBag.pop(), arche = day.archBag.pop(), product = GS.CATALOG.find(p => p.id === req.p);
     const k = arche.id.charCodeAt(0) + arche.id.length * 7;   // cada personaje mantiene su look
-    const person = W.makePerson({ shirt: arche.shirt, hair: arche.hair, hairStyle: GS.HAIRSTYLES[k % 5][0], glasses: k % 3 === 0, beard: k % 4 === 1, lips: k % 2 === 0 });
+    const person = W.makePerson({ shirt: arche.shirt, hair: arche.hair, hairStyle: GS.HAIRSTYLES[k % 5][0], glasses: k % 3 === 0, beard: k % 4 === 1, lips: k % 2 === 0, lashes: k % 5 < 2 });
     const dx = L.puerta.x; person.setPos(dx + U.rnd(-0.5, 0.5), day.spawned === 0 ? L.salon.zMax + 1 : L.galeria.zMax + 2.4);
     const cu = { id: ++uid, arche, request: req.t, product, st: 'entering', pat: 1, person, slotM: slot, slotC: -1, label: makeLabel('❓') };
     day.customers.push(cu); day.spawned++;
@@ -498,18 +499,21 @@ GS.Game = (function () {
   }
   function closeShop() { $('shop').hidden = true; W.setUpgrades(upNow()); state = 'menu'; $('start').hidden = false; refreshStart(); W.showAll(); A.play('click'); }
   function avatarSvg(a) {
-    const hex = n => '#' + n.toString(16).padStart(6, '0'), h = hex(a.hair), st = a.hairStyle || 'corto';
-    let v = '<svg viewBox="0 0 100 120" width="110" height="132"><path d="M36 118 L44 62 H56 L64 118z" fill="#e10600"/>';
-    if (st === 'largo') v += '<path d="M22 44 q0 -30 28 -30 q28 0 28 30 v34 h-14 v-30 h-28 v30 h-14z" fill="' + h + '"/>';
-    v += '<circle cx="50" cy="44" r="26" fill="' + hex(a.skin) + '"/>';
-    if (st === 'corto' || st === 'largo' || st === 'rodete') v += '<path d="M24 42 q0 -26 26 -26 q26 0 26 26 q-14 -14 -52 0z" fill="' + h + '"/>';
-    if (st === 'rodete') v += '<circle cx="50" cy="12" r="10" fill="' + h + '"/>';
-    if (st === 'rulos') v += [[30, 26], [42, 18], [58, 18], [70, 26], [24, 38], [76, 38], [50, 14]].map(c => '<circle cx="' + c[0] + '" cy="' + c[1] + '" r="10" fill="' + h + '"/>').join('');
-    if (st === 'mohicano') v += '<path d="M44 26 L46 2 H54 L56 26z" fill="' + h + '"/>';
-    if (a.beard) v += '<path d="M27 50 q23 44 46 0 q-6 6 -23 6 q-17 0 -23 -6z" fill="' + h + '"/>';
-    v += '<circle cx="40" cy="42" r="3.500" fill="#111"/><circle cx="60" cy="42" r="3.500" fill="#111"/>';
-    if (a.glasses) v += '<g fill="none" stroke="#111" stroke-width="3"><rect x="30" y="34" width="17" height="14" rx="4"/><rect x="53" y="34" width="17" height="14" rx="4"/><path d="M47 40h6"/></g>';
-    v += a.lips ? '<path d="M42 56 q8 7 16 0 q-8 -4 -16 0z" fill="#d81e5b"/>' : '<path d="M43 56 q7 5 14 0" fill="none" stroke="#7a3b1e" stroke-width="2.500" stroke-linecap="round"/>';
+    const hex = n => '#' + n.toString(16).padStart(6, '0'), h = hex(a.hair), sk = hex(a.skin), st = a.hairStyle || 'corto';
+    const top = '<path d="M23 42 A27 27 0 0 1 77 42 Q70 29 50 31 Q33 29 23 42z" fill="' + h + '"/>';   // pelo arriba, con flequillo suave
+    let v = '<svg viewBox="0 0 100 124" width="120" height="149"><path d="M33 122 L43 66 H57 L67 122z" fill="#e10600"/><path d="M43 66 H57 L50 76z" fill="#fff"/>';
+    if (st === 'largo') v += '<rect x="19" y="18" width="62" height="72" rx="28" fill="' + h + '"/>';
+    v += '<circle cx="50" cy="44" r="26" fill="' + sk + '"/><circle cx="33" cy="52" r="5" fill="#ff6b6b" opacity=".22"/><circle cx="67" cy="52" r="5" fill="#ff6b6b" opacity=".22"/>';
+    if (st === 'corto' || st === 'rodete') v += top;
+    if (st === 'largo') v += top + '<path d="M23 42 Q20 62 24 80 Q30 62 28 40z M77 42 Q80 62 76 80 Q70 62 72 40z" fill="' + h + '"/>';
+    if (st === 'rodete') v += '<circle cx="50" cy="13" r="10" fill="' + h + '"/>';
+    if (st === 'rulos') { v += top; for (let i = 0; i < 9; i++) { const an = Math.PI * (1.02 + i * 0.12); v += '<circle cx="' + (50 + Math.cos(an) * 27).toFixed(1) + '" cy="' + (42 + Math.sin(an) * 27).toFixed(1) + '" r="9.500" fill="' + h + '"/>'; } v += '<circle cx="40" cy="24" r="8" fill="' + h + '"/><circle cx="60" cy="24" r="8" fill="' + h + '"/><circle cx="50" cy="20" r="8" fill="' + h + '"/>'; }
+    if (st === 'mohicano') v += '<path d="M43 30 L45 6 L50 14 L55 4 L57 30 Q50 26 43 30z" fill="' + h + '"/>';
+    if (a.beard) v += '<path d="M24.500 48 A26.500 26.500 0 0 0 75.500 48 Q70 57 60 54 Q50 49 40 54 Q30 57 24.500 48z" fill="' + h + '"/>';
+    v += '<ellipse cx="40" cy="43" rx="3.400" ry="4.200" fill="#16161c"/><ellipse cx="60" cy="43" rx="3.400" ry="4.200" fill="#16161c"/><circle cx="41.200" cy="41.500" r="1.100" fill="#fff"/><circle cx="61.200" cy="41.500" r="1.100" fill="#fff"/>';
+    if (a.lashes) v += '<g stroke="#16161c" stroke-width="1.800" stroke-linecap="round"><path d="M35.500 39.500l-3-2.500M38 37.800l-1.500-3.300M41 37.300l.5-3.500M64.500 39.500l3-2.500M62 37.800l1.500-3.300M59 37.300l-.5-3.500"/></g>';
+    if (a.glasses) v += '<g fill="rgba(255,255,255,.18)" stroke="#16161c" stroke-width="2.400"><circle cx="40" cy="43" r="8.500"/><circle cx="60" cy="43" r="8.500"/></g><path d="M48.500 43h3" stroke="#16161c" stroke-width="2.400"/>';
+    v += a.lips ? '<path d="M43 58 Q46.500 55.500 50 57.500 Q53.500 55.500 57 58 Q50 65 43 58z" fill="#d81e5b"/>' : '<path d="M43.500 58 Q50 63 56.500 58" fill="none" stroke="' + (a.beard ? '#fff' : '#8a4a2a') + '" stroke-width="2.400" stroke-linecap="round" opacity=".9"/>';
     return v + '</svg>';
   }
   function showAvatar(then) {
@@ -518,7 +522,7 @@ GS.Game = (function () {
     modal('<h2>Tu personaje</h2><p>Sos quien atiende el mostrador. Combiná lo que quieras.</p><div class="avprev" id="avPrev"></div>' +
       '<div class="setting"><span>Piel</span>' + sw('skin', GS.SKINS) + '</div><div class="setting"><span>Pelo</span>' + sw('hair', GS.HAIRS) + '</div>' +
       '<div class="setting"><span>Peinado</span><div class="seg" id="avStyle">' + GS.HAIRSTYLES.map(h => '<button data-v="' + h[0] + '" class="' + (a.hairStyle === h[0] ? 'on' : '') + '">' + h[1] + '</button>').join('') + '</div></div>' +
-      '<div class="setting"><span>Accesorios</span><div class="seg" id="avAcc">' + [['glasses', 'Anteojos'], ['beard', 'Barba'], ['lips', 'Labios pintados']].map(x => '<button data-v="' + x[0] + '" class="' + (a[x[0]] ? 'on' : '') + '">' + x[1] + '</button>').join('') + '</div></div>' +
+      '<div class="setting"><span>Accesorios</span><div class="seg" id="avAcc">' + [['glasses', 'Anteojos'], ['beard', 'Barba'], ['lips', 'Labios pintados'], ['lashes', 'Pestañas']].map(x => '<button data-v="' + x[0] + '" class="' + (a[x[0]] ? 'on' : '') + '">' + x[1] + '</button>').join('') + '</div></div>' +
       '<button class="btn" data-close>Listo</button>', () => { GS.Store.set('avatar', a); W.setPlayerLook(a); if (then) then(); });
     const paint = () => { $('avPrev').innerHTML = avatarSvg(a); W.setPlayerLook(a); };
     $('sheet').querySelectorAll('.sw').forEach(s => s.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; a[s.dataset.k] = Number(b.dataset.c); s.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); paint(); }));
@@ -605,6 +609,12 @@ GS.Game = (function () {
     if (document.hidden) { lastT = t; return; }             // pestaña oculta: no se dibuja ni corre el reloj
     const dt = Math.min(0.05, (t - lastT) / 1000 || 0); lastT = t;
     if (state === 'day' && !paused) updateDay(dt);
+    if (!paused && (walkT -= dt) <= 0 && walkers < 4) {                 // peatones: pasan por la vereda y siguen de largo
+      walkT = U.rnd(3, 7) * (day && day.cond === 'lluvia' ? 2.2 : 1); walkers++;
+      const dir = Math.random() < 0.5 ? 1 : -1, z = L.galeria.zMax + U.rnd(1.6, 2.6), hs = U.pick(GS.HAIRSTYLES)[0];
+      const w = W.makePerson({ shirt: U.pick([0x6b7a8f, 0x3d7a4a, 0xd9a514, 0x4a6fb5, 0xb86fa8, 0x21a0a0, 0x555560]), hair: U.pick(GS.HAIRS), hairStyle: hs, glasses: Math.random() < 0.3, beard: Math.random() < 0.2, speed: U.rnd(1.3, 2) });
+      w.setPos(-7.5 * dir, z); w.walk([[7.5 * dir, z]], () => { w.remove(); walkers--; });
+    }
     W.update(paused ? 0 : dt); W.render();
   }
 

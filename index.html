@@ -303,6 +303,7 @@ body.calm * { animation: none !important; transition: none !important; }
 #rain { position: fixed; inset: 0; pointer-events: none; z-index: 4; background-color: rgba(20, 45, 90, .26);
   background-image: repeating-linear-gradient(103deg, transparent 0 17px, rgba(190, 215, 255, .30) 17px 18px, transparent 18px 46px); background-size: 230px 230px; animation: rain .45s linear infinite; }
 @keyframes rain { to { background-position: -53px 230px; } }
+.avprev { width: 120px; height: 149px; }
 
 </style>
 </head>
@@ -394,7 +395,7 @@ GS.LOGO = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAtAAAAC0CAMAAACKc+vLAAA
 GS.CONFIG = {
   version: '0.8.0',
   phase: 4,
-  phaseNote: 'Parte A: avatares, lluvia visible y muebles mejorados',                       // fase actual del proyecto (1 a 5)
+  phaseNote: 'Parte B en curso: vereda con gente, cajas y avatares nuevos',                       // fase actual del proyecto (1 a 5)
   links: { tienda: '', instagram: '' },   // se conectan más adelante
   promoMode: null,                // 'hotsale' | 'cyber' | null (Fase 3)
   camera: { tilt: 55, rot: 38, fov: 22 },
@@ -1094,18 +1095,25 @@ GS.World = (function () {
 
   // Productos del salón: los mismos dibujos del catálogo, parados sobre los muebles y mirando a la cámara
   const iconCache = {};
+  // Cada producto tiene su caja de color (como un packaging real) con el dibujo grande en una ventana clara
+  const PACK = { consolas: ['#0b4fa8', '#c8102e', '#107c10', '#2b2b33', '#e8a400', '#6a2fb5'], apple: ['#aeb7c6', '#8f9bb0', '#c9b9a6'], pc: ['#16181d', '#e86a00', '#0e6cc4', '#3c4250'], perifericos: ['#141416', '#c40000', '#0f9a93', '#6a3fc0', '#d9d9de'] };
   function iconMats(id) {
     if (iconCache[id]) return iconCache[id];
+    const prod = GS.CATALOG.find(q => q.id === id), pal = PACK[prod.cat], col = pal[GS.CATALOG.indexOf(prod) % pal.length];
     const c = document.createElement('canvas'); c.width = c.height = 128; const g = c.getContext('2d'), t = new T.CanvasTexture(c), img = new Image();
-    g.fillStyle = '#ffffff'; g.fillRect(0, 0, 128, 128); g.strokeStyle = '#d5d5dd'; g.lineWidth = 6; g.strokeRect(3, 3, 122, 122);
-    img.onload = () => { g.drawImage(img, 14, 14, 100, 100); t.needsUpdate = true; };
+    const paint = () => {
+      g.fillStyle = col; g.fillRect(0, 0, 128, 128);
+      g.fillStyle = 'rgba(255,255,255,.93)'; g.beginPath(); g.moveTo(26, 12); g.arcTo(116, 12, 116, 104, 16); g.arcTo(116, 104, 12, 104, 16); g.arcTo(12, 104, 12, 12, 16); g.arcTo(12, 12, 116, 12, 16); g.fill();
+      g.fillStyle = 'rgba(255,255,255,.85)'; g.fillRect(34, 112, 60, 6);          // rayita tipo marca en la base
+    };
+    paint(); img.onload = () => { paint(); g.drawImage(img, 14, 8, 100, 100); t.needsUpdate = true; };
     img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(GS.ICONS[id].replace('<svg ', '<svg width="128" height="128" '));
-    const face = new T.MeshBasicMaterial({ map: t }), side = mat(0xf4f4f6);
+    const face = new T.MeshBasicMaterial({ map: t }), side = new T.MeshLambertMaterial({ color: col });
     return (iconCache[id] = [face, side, side, side, face, side]);   // +x y +z: las dos caras que ve la cámara
   }
   // Caja de producto: mismo tamaño para todas, bien alineadas (como una góndola real)
   function sprite(parent, id, x, y, z, size) {
-    const m = new T.Mesh(unitBox, iconMats(id)); m.scale.set(size * 0.74, size * 0.74, size * 0.74); m.position.set(x, y + size * 0.37, z); parent.add(m); return m;
+    const m = new T.Mesh(unitBox, iconMats(id)); m.scale.set(size * 0.86, size * 0.86, size * 0.86); m.position.set(x, y + size * 0.43, z); parent.add(m); return m;
   }
   const idsOf = cat => GS.CATALOG.filter(p => p.cat === cat).map(p => p.id);
   function sign(parent, text, w, h, x, y, z, ry) {
@@ -1380,7 +1388,8 @@ GS.World = (function () {
         gShadow = new T.CircleGeometry(0.36, 16);
   const shadowMat = new T.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.2, depthWrite: false });
   const gCone = new T.CylinderGeometry(0.15, 0.34, 0.86, 12), gBun = new T.SphereGeometry(0.15, 8, 8), gCurl = new T.SphereGeometry(0.13, 7, 6),
-        gBeard = new T.SphereGeometry(0.345, 12, 8, 0, Math.PI * 2, Math.PI * 0.52, Math.PI * 0.48);
+        gBeard = new T.SphereGeometry(0.348, 14, 6, Math.PI * 0.06, Math.PI * 0.88, Math.PI * 0.6, Math.PI * 0.36),
+        gCap = new T.SphereGeometry(0.355, 14, 8, 0, Math.PI * 2, 0, Math.PI * 0.42), gMass = new T.SphereGeometry(0.36, 12, 10);
   function makePerson(o) {
     o = o || {};
     const g = new T.Group(), base = o.scale || 1; g.scale.setScalar(base); g.userData.base = base;
@@ -1403,14 +1412,16 @@ GS.World = (function () {
     function style(a) {
       if (acc) g.remove(acc); acc = new T.Group(); acc.position.y = 1.14; g.add(acc);
       head.material = mat(a.skin || SKINS[1]); const hm = mat(a.hair || 0x3a2a1a), st = a.hairStyle || 'corto';
-      const cap = () => { const m = new T.Mesh(gHair, hm); m.position.y = 0.02; m.rotation.x = -0.25; acc.add(m); };
+      const cap = () => { const m = new T.Mesh(gCap, hm); m.rotation.x = -0.42; acc.add(m); };      // casquete que deja la frente libre
       if (st === 'corto' || st === 'largo' || st === 'rodete') cap();
-      if (st === 'largo') { box(acc, 0.62, 0.52, 0.2, hm, 0, -0.44, -0.24); box(acc, 0.1, 0.4, 0.3, hm, -0.31, -0.36, -0.06); box(acc, 0.1, 0.4, 0.3, hm, 0.31, -0.36, -0.06); }
-      if (st === 'rodete') { const b = new T.Mesh(gBun, hm); b.position.set(0, 0.42, -0.1); acc.add(b); }
-      if (st === 'rulos') [[0, 0.3, 0], [0.2, 0.24, 0.02], [-0.2, 0.24, 0.02], [0, 0.24, -0.2], [0.16, 0.2, 0.18], [-0.16, 0.2, 0.18], [0.24, 0.1, -0.16], [-0.24, 0.1, -0.16], [0, 0.26, 0.2]].forEach(q => { const c = new T.Mesh(gCurl, hm); c.position.set(q[0], q[1], q[2]); acc.add(c); });
+      if (st === 'largo') { const m = new T.Mesh(gMass, hm); m.scale.set(1.06, 1.3, 0.8); m.position.set(0, -0.2, -0.16); acc.add(m); }   // melena redondeada por detrás
+      if (st === 'rodete') { const b = new T.Mesh(gBun, hm); b.position.set(0, 0.4, -0.12); acc.add(b); }
+      if (st === 'rulos') { for (let i = 0; i < 9; i++) { const an = i / 9 * Math.PI * 2, c = new T.Mesh(gCurl, hm); c.scale.setScalar(1.25); c.position.set(Math.cos(an) * 0.25, 0.2, Math.sin(an) * 0.25 - 0.05); acc.add(c); }
+        [[0, 0.36, -0.04], [0.14, 0.33, 0.06], [-0.14, 0.33, 0.06], [0, 0.32, -0.2]].forEach(q => { const c = new T.Mesh(gCurl, hm); c.scale.setScalar(1.3); c.position.set(q[0], q[1], q[2]); acc.add(c); }); }
       if (st === 'mohicano') { box(acc, 0.1, 0.26, 0.62, hm, 0, 0.22, -0.03); box(acc, 0.1, 0.14, 0.3, hm, 0, 0.44, -0.03); }
-      if (a.beard) { const m = new T.Mesh(gBeard, hm); m.rotation.x = 0.4; m.position.z = 0.03; acc.add(m); }
+      if (a.beard) acc.add(new T.Mesh(gBeard, hm));                                                  // sigue la forma del mentón, solo por delante
       if (a.glasses) { box(acc, 0.16, 0.12, 0.03, 0x111111, -0.12, -0.07, 0.3); box(acc, 0.16, 0.12, 0.03, 0x111111, 0.12, -0.07, 0.3); box(acc, 0.1, 0.03, 0.03, 0x111111, 0, -0.01, 0.3); }
+      if (a.lashes) [-0.12, 0.12].forEach(x => { const l = box(acc, 0.13, 0.025, 0.03, 0x111111, x, 0.06, 0.3); l.rotation.z = x < 0 ? 0.3 : -0.3; });
       if (a.lips) box(acc, 0.14, 0.05, 0.05, 0xd81e5b, 0, -0.19, 0.28);
     }
     style(o);
@@ -2035,6 +2046,7 @@ GS.Game = (function () {
   const $ = id => document.getElementById(id);
   const ST = id => GS.STATIONS.find(s => s.id === id);
   const TASK_STATIONS = GS.STATIONS.filter(s => s.task && !s.finalOnly);
+  let walkT = 2, walkers = 0;
   let state = 'menu', day = null, paused = false, lastT = 0, calm = false, uid = 0;
 
   /* ---------------- Etapas del proyecto ---------------- */
@@ -2184,7 +2196,7 @@ GS.Game = (function () {
     if (!day.archBag.length) day.archBag = U.shuffle(GS.CUSTOMERS);
     const req = day.reqBag.pop(), arche = day.archBag.pop(), product = GS.CATALOG.find(p => p.id === req.p);
     const k = arche.id.charCodeAt(0) + arche.id.length * 7;   // cada personaje mantiene su look
-    const person = W.makePerson({ shirt: arche.shirt, hair: arche.hair, hairStyle: GS.HAIRSTYLES[k % 5][0], glasses: k % 3 === 0, beard: k % 4 === 1, lips: k % 2 === 0 });
+    const person = W.makePerson({ shirt: arche.shirt, hair: arche.hair, hairStyle: GS.HAIRSTYLES[k % 5][0], glasses: k % 3 === 0, beard: k % 4 === 1, lips: k % 2 === 0, lashes: k % 5 < 2 });
     const dx = L.puerta.x; person.setPos(dx + U.rnd(-0.5, 0.5), day.spawned === 0 ? L.salon.zMax + 1 : L.galeria.zMax + 2.4);
     const cu = { id: ++uid, arche, request: req.t, product, st: 'entering', pat: 1, person, slotM: slot, slotC: -1, label: makeLabel('❓') };
     day.customers.push(cu); day.spawned++;
@@ -2526,18 +2538,21 @@ GS.Game = (function () {
   }
   function closeShop() { $('shop').hidden = true; W.setUpgrades(upNow()); state = 'menu'; $('start').hidden = false; refreshStart(); W.showAll(); A.play('click'); }
   function avatarSvg(a) {
-    const hex = n => '#' + n.toString(16).padStart(6, '0'), h = hex(a.hair), st = a.hairStyle || 'corto';
-    let v = '<svg viewBox="0 0 100 120" width="110" height="132"><path d="M36 118 L44 62 H56 L64 118z" fill="#e10600"/>';
-    if (st === 'largo') v += '<path d="M22 44 q0 -30 28 -30 q28 0 28 30 v34 h-14 v-30 h-28 v30 h-14z" fill="' + h + '"/>';
-    v += '<circle cx="50" cy="44" r="26" fill="' + hex(a.skin) + '"/>';
-    if (st === 'corto' || st === 'largo' || st === 'rodete') v += '<path d="M24 42 q0 -26 26 -26 q26 0 26 26 q-14 -14 -52 0z" fill="' + h + '"/>';
-    if (st === 'rodete') v += '<circle cx="50" cy="12" r="10" fill="' + h + '"/>';
-    if (st === 'rulos') v += [[30, 26], [42, 18], [58, 18], [70, 26], [24, 38], [76, 38], [50, 14]].map(c => '<circle cx="' + c[0] + '" cy="' + c[1] + '" r="10" fill="' + h + '"/>').join('');
-    if (st === 'mohicano') v += '<path d="M44 26 L46 2 H54 L56 26z" fill="' + h + '"/>';
-    if (a.beard) v += '<path d="M27 50 q23 44 46 0 q-6 6 -23 6 q-17 0 -23 -6z" fill="' + h + '"/>';
-    v += '<circle cx="40" cy="42" r="3.500" fill="#111"/><circle cx="60" cy="42" r="3.500" fill="#111"/>';
-    if (a.glasses) v += '<g fill="none" stroke="#111" stroke-width="3"><rect x="30" y="34" width="17" height="14" rx="4"/><rect x="53" y="34" width="17" height="14" rx="4"/><path d="M47 40h6"/></g>';
-    v += a.lips ? '<path d="M42 56 q8 7 16 0 q-8 -4 -16 0z" fill="#d81e5b"/>' : '<path d="M43 56 q7 5 14 0" fill="none" stroke="#7a3b1e" stroke-width="2.500" stroke-linecap="round"/>';
+    const hex = n => '#' + n.toString(16).padStart(6, '0'), h = hex(a.hair), sk = hex(a.skin), st = a.hairStyle || 'corto';
+    const top = '<path d="M23 42 A27 27 0 0 1 77 42 Q70 29 50 31 Q33 29 23 42z" fill="' + h + '"/>';   // pelo arriba, con flequillo suave
+    let v = '<svg viewBox="0 0 100 124" width="120" height="149"><path d="M33 122 L43 66 H57 L67 122z" fill="#e10600"/><path d="M43 66 H57 L50 76z" fill="#fff"/>';
+    if (st === 'largo') v += '<rect x="19" y="18" width="62" height="72" rx="28" fill="' + h + '"/>';
+    v += '<circle cx="50" cy="44" r="26" fill="' + sk + '"/><circle cx="33" cy="52" r="5" fill="#ff6b6b" opacity=".22"/><circle cx="67" cy="52" r="5" fill="#ff6b6b" opacity=".22"/>';
+    if (st === 'corto' || st === 'rodete') v += top;
+    if (st === 'largo') v += top + '<path d="M23 42 Q20 62 24 80 Q30 62 28 40z M77 42 Q80 62 76 80 Q70 62 72 40z" fill="' + h + '"/>';
+    if (st === 'rodete') v += '<circle cx="50" cy="13" r="10" fill="' + h + '"/>';
+    if (st === 'rulos') { v += top; for (let i = 0; i < 9; i++) { const an = Math.PI * (1.02 + i * 0.12); v += '<circle cx="' + (50 + Math.cos(an) * 27).toFixed(1) + '" cy="' + (42 + Math.sin(an) * 27).toFixed(1) + '" r="9.500" fill="' + h + '"/>'; } v += '<circle cx="40" cy="24" r="8" fill="' + h + '"/><circle cx="60" cy="24" r="8" fill="' + h + '"/><circle cx="50" cy="20" r="8" fill="' + h + '"/>'; }
+    if (st === 'mohicano') v += '<path d="M43 30 L45 6 L50 14 L55 4 L57 30 Q50 26 43 30z" fill="' + h + '"/>';
+    if (a.beard) v += '<path d="M24.500 48 A26.500 26.500 0 0 0 75.500 48 Q70 57 60 54 Q50 49 40 54 Q30 57 24.500 48z" fill="' + h + '"/>';
+    v += '<ellipse cx="40" cy="43" rx="3.400" ry="4.200" fill="#16161c"/><ellipse cx="60" cy="43" rx="3.400" ry="4.200" fill="#16161c"/><circle cx="41.200" cy="41.500" r="1.100" fill="#fff"/><circle cx="61.200" cy="41.500" r="1.100" fill="#fff"/>';
+    if (a.lashes) v += '<g stroke="#16161c" stroke-width="1.800" stroke-linecap="round"><path d="M35.500 39.500l-3-2.500M38 37.800l-1.500-3.300M41 37.300l.5-3.500M64.500 39.500l3-2.500M62 37.800l1.500-3.300M59 37.300l-.5-3.500"/></g>';
+    if (a.glasses) v += '<g fill="rgba(255,255,255,.18)" stroke="#16161c" stroke-width="2.400"><circle cx="40" cy="43" r="8.500"/><circle cx="60" cy="43" r="8.500"/></g><path d="M48.500 43h3" stroke="#16161c" stroke-width="2.400"/>';
+    v += a.lips ? '<path d="M43 58 Q46.500 55.500 50 57.500 Q53.500 55.500 57 58 Q50 65 43 58z" fill="#d81e5b"/>' : '<path d="M43.500 58 Q50 63 56.500 58" fill="none" stroke="' + (a.beard ? '#fff' : '#8a4a2a') + '" stroke-width="2.400" stroke-linecap="round" opacity=".9"/>';
     return v + '</svg>';
   }
   function showAvatar(then) {
@@ -2546,7 +2561,7 @@ GS.Game = (function () {
     modal('<h2>Tu personaje</h2><p>Sos quien atiende el mostrador. Combiná lo que quieras.</p><div class="avprev" id="avPrev"></div>' +
       '<div class="setting"><span>Piel</span>' + sw('skin', GS.SKINS) + '</div><div class="setting"><span>Pelo</span>' + sw('hair', GS.HAIRS) + '</div>' +
       '<div class="setting"><span>Peinado</span><div class="seg" id="avStyle">' + GS.HAIRSTYLES.map(h => '<button data-v="' + h[0] + '" class="' + (a.hairStyle === h[0] ? 'on' : '') + '">' + h[1] + '</button>').join('') + '</div></div>' +
-      '<div class="setting"><span>Accesorios</span><div class="seg" id="avAcc">' + [['glasses', 'Anteojos'], ['beard', 'Barba'], ['lips', 'Labios pintados']].map(x => '<button data-v="' + x[0] + '" class="' + (a[x[0]] ? 'on' : '') + '">' + x[1] + '</button>').join('') + '</div></div>' +
+      '<div class="setting"><span>Accesorios</span><div class="seg" id="avAcc">' + [['glasses', 'Anteojos'], ['beard', 'Barba'], ['lips', 'Labios pintados'], ['lashes', 'Pestañas']].map(x => '<button data-v="' + x[0] + '" class="' + (a[x[0]] ? 'on' : '') + '">' + x[1] + '</button>').join('') + '</div></div>' +
       '<button class="btn" data-close>Listo</button>', () => { GS.Store.set('avatar', a); W.setPlayerLook(a); if (then) then(); });
     const paint = () => { $('avPrev').innerHTML = avatarSvg(a); W.setPlayerLook(a); };
     $('sheet').querySelectorAll('.sw').forEach(s => s.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; a[s.dataset.k] = Number(b.dataset.c); s.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); paint(); }));
@@ -2633,6 +2648,12 @@ GS.Game = (function () {
     if (document.hidden) { lastT = t; return; }             // pestaña oculta: no se dibuja ni corre el reloj
     const dt = Math.min(0.05, (t - lastT) / 1000 || 0); lastT = t;
     if (state === 'day' && !paused) updateDay(dt);
+    if (!paused && (walkT -= dt) <= 0 && walkers < 4) {                 // peatones: pasan por la vereda y siguen de largo
+      walkT = U.rnd(3, 7) * (day && day.cond === 'lluvia' ? 2.2 : 1); walkers++;
+      const dir = Math.random() < 0.5 ? 1 : -1, z = L.galeria.zMax + U.rnd(1.6, 2.6), hs = U.pick(GS.HAIRSTYLES)[0];
+      const w = W.makePerson({ shirt: U.pick([0x6b7a8f, 0x3d7a4a, 0xd9a514, 0x4a6fb5, 0xb86fa8, 0x21a0a0, 0x555560]), hair: U.pick(GS.HAIRS), hairStyle: hs, glasses: Math.random() < 0.3, beard: Math.random() < 0.2, speed: U.rnd(1.3, 2) });
+      w.setPos(-7.5 * dir, z); w.walk([[7.5 * dir, z]], () => { w.remove(); walkers--; });
+    }
     W.update(paused ? 0 : dt); W.render();
   }
 

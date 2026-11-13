@@ -9,7 +9,7 @@ const GS = {};
 GS.CONFIG = {
   version: '0.8.0',
   phase: 4,
-  phaseNote: 'Parte A: avatares, lluvia visible y muebles mejorados',                       // fase actual del proyecto (1 a 5)
+  phaseNote: 'Parte B en curso: vereda con gente, cajas y avatares nuevos',                       // fase actual del proyecto (1 a 5)
   links: { tienda: '', instagram: '' },   // se conectan más adelante
   promoMode: null,                // 'hotsale' | 'cyber' | null (Fase 3)
   camera: { tilt: 55, rot: 38, fov: 22 },

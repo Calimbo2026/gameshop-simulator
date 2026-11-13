@@ -293,3 +293,4 @@ body.calm * { animation: none !important; transition: none !important; }
 #rain { position: fixed; inset: 0; pointer-events: none; z-index: 4; background-color: rgba(20, 45, 90, .26);
   background-image: repeating-linear-gradient(103deg, transparent 0 17px, rgba(190, 215, 255, .30) 17px 18px, transparent 18px 46px); background-size: 230px 230px; animation: rain .45s linear infinite; }
 @keyframes rain { to { background-position: -53px 230px; } }
+.avprev { width: 120px; height: 149px; }
