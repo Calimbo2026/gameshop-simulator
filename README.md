@@ -2,14 +2,14 @@
 
 Juego web (un solo HTML) que simula una jornada de trabajo en GameShop. Pieza de marca para `juego.gameshop.com.ar`.
 
-## Estado: Etapa 4 de 5 (parte A en revisión)
+## Estado: Etapa 4 de 5 (completa, en revisión)
 
 | # | Etapa | Qué incluye | Estado |
 |---|-------|-------------|--------|
 | 1 | Base jugable | Inicio, salón 3D, Mostrador y Caja, una jornada completa | Lista |
-| 2 | Minijuegos | Las 11 estaciones, modo Arcade, interrupciones, cordura y combos | **En curso**: parte A (7 estaciones + Arcade) en revisión; parte B (4 estaciones, interrupciones, cordura, dificultades) pendiente |
-| 3 | Carrera | Rangos, jornadas-examen, eventos del año, el Dueño y los personajes | Pendiente |
-| 4 | Mundo completo | Exterior, depósito, oficina, música, final y tarjeta para compartir | Pendiente |
+| 2 | Minijuegos | Las 12 estaciones, modo Arcade y combos | Lista |
+| 3 | Carrera | Rangos, progresión por jornadas, clima y fechas, el Dueño, mejoras del local | Lista |
+| 4 | Mundo completo | Exterior, depósito, oficina, música, cordura, interrupciones, final y tarjeta para compartir | **Completa, en revisión** |
 | 5 | Pulido | Rendimiento, balance, bugs, accesibilidad, analítica y lanzamiento | Pendiente |
 
 La etapa actual se cambia en `src/data.js` (`GS.CONFIG.phase`) y se muestra sola en el juego.
@@ -65,4 +65,15 @@ Sin datos sensibles del negocio, sin personas reales, precios y stock ficticios.
 
 **Parte B (avance):** depósito al costado del salón con una estantería por sector (ahí se juega la Reposición), minijuego de Vidriera (estación 12; según cómo quede, los clientes dicen que lo vieron en la vidriera), todas las estanterías con cajas de producto, pelo negro, peinados concéntricos con la cabeza, peatones.
 
-**Falta de la Etapa 4:** oficina del Dueño, música y balbuceos, escena final, tarjeta para compartir, cordura e interrupciones suaves, más lugares de mejora.
+**Cierre de la etapa (hecho):**
+
+- **Oficina del Dueño** al costado derecho, delante del depósito (`buildOffice` en `src/world.js`). El Dueño es un solo personaje: vive en su oficina, sale unos pasos por la puerta a hablar y vuelve.
+- **Música** generada por código (`src/audio.js`, `MOODS`): un clima para el inicio, otro para la jornada, otro para la lluvia, otro para Black Friday y Navidad y otro para el final. Se apaga desde Opciones.
+- **Balbuceos:** cada globito suena con el tono del personaje (el Dueño, más grave).
+- **Cordura** (`GS.CONFIG.cord`): sube en los respiros, con las rachas y con las interrupciones bien resueltas; baja con errores y cuando se juntan muchos pendientes. Con 70 o más da +10% de puntos y al cierre suma puntos. Nunca hay castigo: si baja de 30, Brian ceba un mate y todos esperan un poco más.
+- **Interrupciones suaves** (`GS.INTERRUPTS`, desde la jornada 2): una tarjeta con dos respuestas. Si no se contesta, se resuelve sola sin castigo.
+- **Mejoras nuevas** (`GS.UPGRADES`): plantas y alfombra, cafetera, luces LED, vidriera iluminada y segunda caja. Cada una se ve en el local y tiene su efecto.
+- **Escena final** (`GS.FINAL`, al terminar la jornada `GS.CONFIG.finalDay` = 10, que cae en Navidad): los clientes entran, el Dueño da su discurso y hay ascenso a "Mano derecha del Dueño". Después se puede seguir jugando. Para verla sin llegar: Opciones, "Escena final".
+- **Tarjeta para compartir:** imagen de 1080 x 1350 con el personaje, el rango y los números. Se abre desde el cierre de caja y desde el final. En el celular se comparte directo; en la compu se descarga. La dirección impresa sale de `GS.CONFIG.shareUrl` (vacío = la dirección desde donde se juega).
+
+**Pruebas:** `python3 test/v7.py` (capturas de todo lo nuevo) y `python3 test/v8.py` (juega sola una jornada entera).

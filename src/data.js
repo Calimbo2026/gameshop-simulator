@@ -7,10 +7,12 @@
 const GS = {};
 
 GS.CONFIG = {
-  version: '0.8.0',
+  version: '0.9.0',
   phase: 4,
-  phaseNote: 'Parte B en curso: depósito, vidriera y cajas de producto',                       // fase actual del proyecto (1 a 5)
+  phaseNote: 'Completa y en revisión: oficina, música, cordura, interrupciones, final y tarjeta',                       // fase actual del proyecto (1 a 5)
   links: { tienda: '', instagram: '' },   // se conectan más adelante
+  shareUrl: '',                   // dirección que se imprime en la tarjeta para compartir (vacío = la dirección desde donde se juega)
+  finalDay: 10,                   // jornada que cierra la temporada y dispara la escena final
   promoMode: null,                // 'hotsale' | 'cyber' | null (Fase 3)
   camera: { tilt: 55, rot: 38, fov: 22 },
   day: {
@@ -30,7 +32,10 @@ GS.CONFIG = {
     waves: [{ c: 1, t: 0 }, { c: 2, t: 1 }, { c: 2, t: 1 }, { c: 3, t: 2 }],
     restSeconds: 9,               // respiro entre tandas: habla el Dueño y se ve el local
     customerGap: 7, taskGap: 9    // segundos entre llegadas dentro de una tanda
-  }
+  },
+  // Cordura: nunca hay Game Over. Sube en los respiros y con las rachas; baja con errores y cuando se junta mucho.
+  cord: { start: 60, rest: 2.5, busy: 0.7, busyFrom: 3, mistake: 4, lost: 10, late: 6, streak: 1, focus: 70, burnt: 30, mateBoost: 25, bonus: 3,
+    intrOk: 8, intrBad: 4, intrSeconds: 11, intrFromDay: 2 }
 };
 
 /* Las 5 etapas del proyecto: se muestran siempre mientras esté en construcción */
@@ -211,9 +216,14 @@ GS.UPGRADES = [
   { id: 'isla', name: 'Isla Apple', icon: '🍏', pos: [-3.2, 0.4], levels: [{ n: 'Isla de productos Apple', d: 'Más para vender: +10% de monedas por jornada.', price: 500 }] },
   { id: 'gondola', name: 'Góndola de periféricos', icon: '🎧', pos: [5.0, 2.7], levels: [{ n: 'Góndola de periféricos gamer', d: 'Más para vender: +10% de monedas por jornada.', price: 600 }] },
   { id: 'arcade', name: 'Arcade en la entrada', icon: '🕹️', pos: [0.7, 8.3], levels: [{ n: 'Arcade en la galería', d: 'Llama la atención desde la vereda: +1 cliente por jornada.', price: 700 }] },
-  { id: 'escritorio', name: 'Escritorio gamer', icon: '🖥️', pos: [2.0, 4.6], levels: [{ n: 'Escritorio gamer para probar', d: 'Los clientes se entretienen: +15% de paciencia.', price: 900 }] }
+  { id: 'escritorio', name: 'Escritorio gamer', icon: '🖥️', pos: [2.0, 4.6], levels: [{ n: 'Escritorio gamer para probar', d: 'Los clientes se entretienen: +15% de paciencia.', price: 900 }] },
+  { id: 'plantas', name: 'Plantas y alfombra', icon: '🪴', pos: [-3.4, 5.0], levels: [{ n: 'Plantas y alfombra de entrada', d: 'El local respira: la cordura baja más despacio.', price: 450 }] },
+  { id: 'cafetera', name: 'Cafetera', icon: '☕', pos: [0.9, -5.6], zoom: 0.3, levels: [{ n: 'Cafetera detrás del mostrador', d: 'Respiros que rinden: recuperás cordura más rápido.', price: 550 }] },
+  { id: 'luces', name: 'Luces LED', icon: '💡', pos: [-1.5, -4.6], zoom: 0.5, levels: [{ n: 'Tiras LED en el salón', d: 'Todo se luce más: +10% de monedas por jornada.', price: 650 }] },
+  { id: 'vidluz', name: 'Vidriera iluminada', icon: '🪟', pos: [3.6, 8.5], zoom: 0.45, levels: [{ n: 'Luces en la vidriera', d: 'Se ve desde la vereda de enfrente: +1 cliente y más gente que entra por la vidriera.', price: 1000 }] },
+  { id: 'caja2', name: 'Segunda caja', icon: '🧾', pos: [2.0, -2.4], zoom: 0.3, levels: [{ n: 'Segunda caja con Brian', d: 'Brian deja el celular y ayuda: la cola de la caja espera el doble.', price: 1200 }] }
 ];
-GS.RANKS = [[1, 'Vendedor nuevo'], [3, 'Vendedor'], [5, 'Vendedor senior'], [8, 'Encargado']];
+GS.RANKS = [[1, 'Vendedor nuevo'], [3, 'Vendedor'], [5, 'Vendedor senior'], [8, 'Encargado'], [11, 'Mano derecha del Dueño']];
 /* Condiciones del día: cambian cuánta gente viene y cuántos pedidos salen */
 GS.CONDITIONS = {
   lluvia: { name: '🌧️ Día de lluvia', say: 'Llueve. Va a venir menos gente al local, pero van a salir más pedidos de Mercado Libre.', cust: -2, ml: 2 },
@@ -419,6 +429,34 @@ GS.STATIONS = [
 ];
 GS.THEMES = [{ t: 'Semana gamer', cat: 'perifericos' }, { t: 'Vuelta al cole', cat: 'pc' }, { t: 'Día del niño', cat: 'consolas' }, { t: 'Mundo Apple', cat: 'apple' }];
 
+/* Interrupciones suaves: aparecen de a una, se contestan con un toque y si no las contestás se resuelven solas (sin castigo).
+   ok = la respuesta con criterio (suma cordura); bad = la otra (resta un poquito y trae un chiste). r = remate. mate = recupera más. */
+GS.INTERRUPTS = [
+  { ic: '📞', who: 'Suena el teléfono', t: '"Hola, ¿es la pizzería?"', ok: 'No, pero vendemos joysticks', bad: 'Sí, ¿grande de muzza?', r: 'Número equivocado. Igual anotó la dirección del local.', rb: 'Ahora hay que conseguir una grande de muzza.' },
+  { ic: '📞', who: 'Suena el teléfono', t: '"¿Hasta qué hora están?"', ok: 'De 10 a 19', bad: 'Hasta que nos cansemos', r: 'Dijo que pasa a las 18:55. Clásico.', rb: 'Abrimos de 10 a 19. Ni un minuto más, ni uno menos.' },
+  { ic: '📞', who: 'Suena el teléfono', t: '"¿Hacen envíos a Jujuy?"', ok: 'Sí, a todo el país', bad: 'Solo si no llueve', r: 'A todo el país. Hasta donde llegue el correo.', rb: 'Hacemos envíos a todo el país, llueva o truene.' },
+  { ic: '🧉', who: 'Brian, desde la caja', t: '"¿Va un mate?"', ok: 'Dale, uno y sigo', bad: 'No tengo tiempo ni para respirar', r: 'Un mate a tiempo ordena la cabeza.', rb: 'Brian se lo tomó solo. Vos te lo perdiste.', mate: true },
+  { ic: '📱', who: 'Brian, desde la caja', t: '"Che, ¿cuál era la clave del wifi?"', ok: 'Está pegada en el monitor', bad: 'Preguntale a un cliente', r: 'Estaba pegada en el monitor. Desde marzo.', rb: 'Un cliente le pasó la del bar de enfrente.' },
+  { ic: '🎵', who: 'Brian, desde la caja', t: 'Subió la música al máximo.', ok: 'Bajale un poquito', bad: 'Subile, que se enteren en la esquina', r: 'Volumen de local, no de boliche.', rb: 'Ahora los clientes piden a los gritos.' },
+  { ic: '🚪', who: 'El vecino de al lado', t: '"¿Me cambiás mil en monedas?"', ok: 'Ahora no, pasá a la tarde', bad: 'Sí, vaciemos la caja', r: 'Entendió perfecto. Vuelve a la tarde, seguro.', rb: 'El cierre de caja de hoy va a ser una aventura.' },
+  { ic: '📦', who: 'Un cartero apurado', t: '"Firmame acá. Es para el local de al lado."', ok: 'Es al lado, la otra puerta', bad: 'Firmo cualquier cosa', r: 'Cada paquete con su dueño.', rb: 'Ahora tenemos un paquete que no es nuestro.' },
+  { ic: '🚗', who: 'En la calle', t: 'Suena la alarma de un auto. Hace rato.', ok: 'Respirar hondo y seguir', bad: 'Salir a retar al auto', r: 'Inhalar, exhalar. Ya paró.', rb: 'El auto no te contestó. Era de esperar.' },
+  { ic: '🐕', who: 'Entró un perro', t: 'Mueve la cola frente a los joysticks.', ok: 'Acompañarlo a la puerta con cariño', bad: 'Ofrecerle 3 cuotas sin interés', r: 'Se fue contento. Quedó de volver con el dueño.', rb: 'No tenía tarjeta. Ni bolsillos.' },
+  { ic: '💡', who: 'Parpadeó la luz', t: 'Dos segundos y volvió.', ok: 'Esperar: ya volvió', bad: 'Cerrar el local para siempre', r: 'Todo sigue prendido. Hasta el cartel.', rb: 'Calma: fueron dos segundos.' },
+  { ic: '🧾', who: 'Volvió un cliente', t: '"Me olvidé el ticket en el mostrador."', ok: 'Acá está, te lo guardé', bad: '¿Qué ticket?', r: 'Con el ticket tiene la garantía en regla.', rb: 'Apareció abajo del frasco de caramelos.' }
+];
+/* Escena final: se ve al terminar la jornada GS.CONFIG.finalDay. {rank} = el rango nuevo. */
+GS.FINAL = {
+  boss: [
+    'Diez jornadas. Nadie había durado tanto desde... bueno, desde Brian.',
+    'Atendiste, cobraste, contaste, embalaste y contestaste WhatsApp. Y casi nunca perdiste la cordura.',
+    'Por eso, desde hoy sos {rank}. Te ganaste la llave del local y el grupo de WhatsApp de proveedores. Suerte con eso.',
+    'Gracias por jugar. Y acordate: 10% OFF en efectivo y transferencia. Eso no cambia nunca.'
+  ],
+  crowd: ['¡Bravo!', '¡Grande!', '¡Ídolo!', '¡Así se atiende!', '¡Que hable!', '¡Aplausos!', '¿Hay descuento por el festejo?', '¡Esto lo subo a mi canal!'],
+  card: ['Sobreviví a {n} jornadas en GameShop.', 'Atendí {c} clientes y sigo en pie.', 'Mi cordura: {k}%. La de Brian: sin datos.']
+};
+
 /* Datos de los minijuegos nuevos */
 GS.PC_PARTS = [
   { id: 'cpu', name: 'Procesador', svg: '<svg viewBox="0 0 40 40"><rect x="5" y="5" width="30" height="30" rx="3" fill="#c9ccd1"/><rect x="11" y="11" width="18" height="18" rx="1" fill="#8d9199"/><path d="M5 35h7l-7-7z" fill="#d4a017"/></svg>' },
@@ -487,6 +525,6 @@ GS.Store = (function () {
       data.best.push(entry); data.best.sort((a, b) => b.score - a.score); data.best = data.best.slice(0, 5); save();
       return data.best.indexOf(entry);
     },
-    reset() { data = { best: [], tutorial: false, mute: data.mute, quality: data.quality }; save(); }
+    reset() { data = { best: [], tutorial: false, mute: data.mute, music: data.music, quality: data.quality }; save(); }
   };
 })();

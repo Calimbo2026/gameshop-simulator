@@ -307,6 +307,23 @@ body.calm * { animation: none !important; transition: none !important; }
 .opts.four { grid-template-columns: repeat(4, 1fr); gap: 6px; } .opts.four .opt { min-height: 92px; padding: 6px 2px; } .opts.four .opt .n { font-size: 11px; font-weight: 600; } .opts.four .opt .pic { width: 48px; height: 48px; }
 .opt.sel { border-color: var(--warn); background: #2c2713; box-shadow: 0 0 0 2px var(--warn); } .opt.dim { opacity: .35; }
 
+/* ---------- Etapa 4: cordura, interrupciones, final y tarjeta ---------- */
+.chip.cord { color: #fff; } .chip.cord.hi { border-color: var(--ok); color: #9ff0c4; font-weight: 700; } .chip.cord.lo { border-color: var(--red); color: #ffb3b3; font-weight: 700; }
+.intr { grid-column: 1 / -1; background: #fff; color: #000; border: 2px solid var(--warn); border-radius: 14px; padding: 8px 10px; display: grid; grid-template-columns: auto 1fr; gap: 4px 8px; align-items: center; animation: tin .25s ease-out; box-shadow: 0 6px 20px rgba(0,0,0,.5); }
+.intr .ji { font-size: 26px; line-height: 1; } .intr b { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .6px; color: var(--red2); } .intr small { display: block; font-size: 14.5px; line-height: 1.25; color: #000; }
+.intr .ib { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; } .intr .ib button { background: #111; color: #fff; border-radius: 10px; padding: 9px 8px; font-size: 13.5px; font-weight: 700; line-height: 1.2; min-height: 44px; }
+.intr .ib button:active { transform: scale(.97); } .intr .pb { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ddd; overflow: hidden; } .intr .pb i { display: block; height: 100%; width: 100%; background: var(--warn); }
+#final { position: fixed; inset: 0; z-index: 26; pointer-events: none; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding: calc(12px + var(--sat)) 14px calc(16px + var(--sab)); }
+#finSkip { pointer-events: auto; position: absolute; right: 12px; top: calc(12px + var(--sat)); width: auto; padding: 9px 14px; font-size: 15px; background: rgba(0,0,0,.75); }
+.fin-card { pointer-events: auto; width: 100%; max-width: 440px; background: var(--panel); border: 2px solid var(--warn); border-radius: 18px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; text-align: center; animation: up .3s ease-out; }
+.fin-card h2 { margin: 0; font-family: var(--display); font-weight: 400; font-size: 30px; text-transform: uppercase; letter-spacing: .6px; } .fin-card h2 span { color: var(--warn); } .fin-card p { margin: 0; font-size: 15px; line-height: 1.4; color: #d6d6dd; } .fin-card small { color: var(--mute); font-size: 12px; }
+.confetti { position: absolute; inset: 0; overflow: hidden; } .confetti i { position: absolute; top: -20px; width: 9px; height: 15px; border-radius: 2px; opacity: 0; }
+#final.party .confetti i { animation: conf linear infinite; opacity: .95; } @keyframes conf { from { transform: translateY(-20px) rotate(0); } to { transform: translateY(105vh) rotate(720deg); } }
+body.calm .confetti { display: none; }
+a.btn { text-decoration: none; text-align: center; } .cardimg { width: 100%; max-height: 52vh; object-fit: contain; border-radius: 12px; background: #000; }
+.btn.gold { background: var(--warn); color: #000; box-shadow: 0 5px 0 #a8860c; }
+@media (orientation: landscape) and (max-height: 560px) { #final { align-items: flex-end; } .fin-card { max-width: 360px; padding: 10px 12px; gap: 6px; } .fin-card h2 { font-size: 22px; } .cardimg { max-height: 44vh; } }
+
 </style>
 </head>
 <body>
@@ -326,6 +343,7 @@ body.calm * { animation: none !important; transition: none !important; }
     <button class="chip phase" id="chipPhase">Fase 1 de 5</button>
     <span class="chip" id="chipSales">💰 $0</span>
     <span class="chip" id="chipRep">⭐ 3,0</span>
+    <button class="chip cord" id="chipCord">🧠 75</button>
     <span class="chip rep" id="chipCond" hidden></span>
     <span class="chip combo" id="chipCombo" hidden>🔥 x2</span>
   </div>
@@ -368,6 +386,9 @@ body.calm * { animation: none !important; transition: none !important; }
   <div class="shop-panel"><div class="shop-slots" id="shopSlots"></div><div class="shop-cards" id="shopCards"></div><div class="rule" id="shopHint"></div></div>
 </div>
 
+<!-- Escena final -->
+<div id="final" hidden><div class="confetti" id="confetti"></div><button class="btn ghost" id="finSkip">Saltar ›</button><div class="fin-card" id="finCard" hidden></div></div>
+
 <!-- Cierre de caja -->
 <section class="screen" id="end" hidden><div class="col" id="endCol"></div></section>
 
@@ -395,10 +416,12 @@ const GS = {};
 GS.LOGO = "data:image/png;base64,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";
 
 GS.CONFIG = {
-  version: '0.8.0',
+  version: '0.9.0',
   phase: 4,
-  phaseNote: 'Parte B en curso: depósito, vidriera y cajas de producto',                       // fase actual del proyecto (1 a 5)
+  phaseNote: 'Completa y en revisión: oficina, música, cordura, interrupciones, final y tarjeta',                       // fase actual del proyecto (1 a 5)
   links: { tienda: '', instagram: '' },   // se conectan más adelante
+  shareUrl: '',                   // dirección que se imprime en la tarjeta para compartir (vacío = la dirección desde donde se juega)
+  finalDay: 10,                   // jornada que cierra la temporada y dispara la escena final
   promoMode: null,                // 'hotsale' | 'cyber' | null (Fase 3)
   camera: { tilt: 55, rot: 38, fov: 22 },
   day: {
@@ -418,7 +441,10 @@ GS.CONFIG = {
     waves: [{ c: 1, t: 0 }, { c: 2, t: 1 }, { c: 2, t: 1 }, { c: 3, t: 2 }],
     restSeconds: 9,               // respiro entre tandas: habla el Dueño y se ve el local
     customerGap: 7, taskGap: 9    // segundos entre llegadas dentro de una tanda
-  }
+  },
+  // Cordura: nunca hay Game Over. Sube en los respiros y con las rachas; baja con errores y cuando se junta mucho.
+  cord: { start: 60, rest: 2.5, busy: 0.7, busyFrom: 3, mistake: 4, lost: 10, late: 6, streak: 1, focus: 70, burnt: 30, mateBoost: 25, bonus: 3,
+    intrOk: 8, intrBad: 4, intrSeconds: 11, intrFromDay: 2 }
 };
 
 /* Las 5 etapas del proyecto: se muestran siempre mientras esté en construcción */
@@ -599,9 +625,14 @@ GS.UPGRADES = [
   { id: 'isla', name: 'Isla Apple', icon: '🍏', pos: [-3.2, 0.4], levels: [{ n: 'Isla de productos Apple', d: 'Más para vender: +10% de monedas por jornada.', price: 500 }] },
   { id: 'gondola', name: 'Góndola de periféricos', icon: '🎧', pos: [5.0, 2.7], levels: [{ n: 'Góndola de periféricos gamer', d: 'Más para vender: +10% de monedas por jornada.', price: 600 }] },
   { id: 'arcade', name: 'Arcade en la entrada', icon: '🕹️', pos: [0.7, 8.3], levels: [{ n: 'Arcade en la galería', d: 'Llama la atención desde la vereda: +1 cliente por jornada.', price: 700 }] },
-  { id: 'escritorio', name: 'Escritorio gamer', icon: '🖥️', pos: [2.0, 4.6], levels: [{ n: 'Escritorio gamer para probar', d: 'Los clientes se entretienen: +15% de paciencia.', price: 900 }] }
+  { id: 'escritorio', name: 'Escritorio gamer', icon: '🖥️', pos: [2.0, 4.6], levels: [{ n: 'Escritorio gamer para probar', d: 'Los clientes se entretienen: +15% de paciencia.', price: 900 }] },
+  { id: 'plantas', name: 'Plantas y alfombra', icon: '🪴', pos: [-3.4, 5.0], levels: [{ n: 'Plantas y alfombra de entrada', d: 'El local respira: la cordura baja más despacio.', price: 450 }] },
+  { id: 'cafetera', name: 'Cafetera', icon: '☕', pos: [0.9, -5.6], zoom: 0.3, levels: [{ n: 'Cafetera detrás del mostrador', d: 'Respiros que rinden: recuperás cordura más rápido.', price: 550 }] },
+  { id: 'luces', name: 'Luces LED', icon: '💡', pos: [-1.5, -4.6], zoom: 0.5, levels: [{ n: 'Tiras LED en el salón', d: 'Todo se luce más: +10% de monedas por jornada.', price: 650 }] },
+  { id: 'vidluz', name: 'Vidriera iluminada', icon: '🪟', pos: [3.6, 8.5], zoom: 0.45, levels: [{ n: 'Luces en la vidriera', d: 'Se ve desde la vereda de enfrente: +1 cliente y más gente que entra por la vidriera.', price: 1000 }] },
+  { id: 'caja2', name: 'Segunda caja', icon: '🧾', pos: [2.0, -2.4], zoom: 0.3, levels: [{ n: 'Segunda caja con Brian', d: 'Brian deja el celular y ayuda: la cola de la caja espera el doble.', price: 1200 }] }
 ];
-GS.RANKS = [[1, 'Vendedor nuevo'], [3, 'Vendedor'], [5, 'Vendedor senior'], [8, 'Encargado']];
+GS.RANKS = [[1, 'Vendedor nuevo'], [3, 'Vendedor'], [5, 'Vendedor senior'], [8, 'Encargado'], [11, 'Mano derecha del Dueño']];
 /* Condiciones del día: cambian cuánta gente viene y cuántos pedidos salen */
 GS.CONDITIONS = {
   lluvia: { name: '🌧️ Día de lluvia', say: 'Llueve. Va a venir menos gente al local, pero van a salir más pedidos de Mercado Libre.', cust: -2, ml: 2 },
@@ -807,6 +838,34 @@ GS.STATIONS = [
 ];
 GS.THEMES = [{ t: 'Semana gamer', cat: 'perifericos' }, { t: 'Vuelta al cole', cat: 'pc' }, { t: 'Día del niño', cat: 'consolas' }, { t: 'Mundo Apple', cat: 'apple' }];
 
+/* Interrupciones suaves: aparecen de a una, se contestan con un toque y si no las contestás se resuelven solas (sin castigo).
+   ok = la respuesta con criterio (suma cordura); bad = la otra (resta un poquito y trae un chiste). r = remate. mate = recupera más. */
+GS.INTERRUPTS = [
+  { ic: '📞', who: 'Suena el teléfono', t: '"Hola, ¿es la pizzería?"', ok: 'No, pero vendemos joysticks', bad: 'Sí, ¿grande de muzza?', r: 'Número equivocado. Igual anotó la dirección del local.', rb: 'Ahora hay que conseguir una grande de muzza.' },
+  { ic: '📞', who: 'Suena el teléfono', t: '"¿Hasta qué hora están?"', ok: 'De 10 a 19', bad: 'Hasta que nos cansemos', r: 'Dijo que pasa a las 18:55. Clásico.', rb: 'Abrimos de 10 a 19. Ni un minuto más, ni uno menos.' },
+  { ic: '📞', who: 'Suena el teléfono', t: '"¿Hacen envíos a Jujuy?"', ok: 'Sí, a todo el país', bad: 'Solo si no llueve', r: 'A todo el país. Hasta donde llegue el correo.', rb: 'Hacemos envíos a todo el país, llueva o truene.' },
+  { ic: '🧉', who: 'Brian, desde la caja', t: '"¿Va un mate?"', ok: 'Dale, uno y sigo', bad: 'No tengo tiempo ni para respirar', r: 'Un mate a tiempo ordena la cabeza.', rb: 'Brian se lo tomó solo. Vos te lo perdiste.', mate: true },
+  { ic: '📱', who: 'Brian, desde la caja', t: '"Che, ¿cuál era la clave del wifi?"', ok: 'Está pegada en el monitor', bad: 'Preguntale a un cliente', r: 'Estaba pegada en el monitor. Desde marzo.', rb: 'Un cliente le pasó la del bar de enfrente.' },
+  { ic: '🎵', who: 'Brian, desde la caja', t: 'Subió la música al máximo.', ok: 'Bajale un poquito', bad: 'Subile, que se enteren en la esquina', r: 'Volumen de local, no de boliche.', rb: 'Ahora los clientes piden a los gritos.' },
+  { ic: '🚪', who: 'El vecino de al lado', t: '"¿Me cambiás mil en monedas?"', ok: 'Ahora no, pasá a la tarde', bad: 'Sí, vaciemos la caja', r: 'Entendió perfecto. Vuelve a la tarde, seguro.', rb: 'El cierre de caja de hoy va a ser una aventura.' },
+  { ic: '📦', who: 'Un cartero apurado', t: '"Firmame acá. Es para el local de al lado."', ok: 'Es al lado, la otra puerta', bad: 'Firmo cualquier cosa', r: 'Cada paquete con su dueño.', rb: 'Ahora tenemos un paquete que no es nuestro.' },
+  { ic: '🚗', who: 'En la calle', t: 'Suena la alarma de un auto. Hace rato.', ok: 'Respirar hondo y seguir', bad: 'Salir a retar al auto', r: 'Inhalar, exhalar. Ya paró.', rb: 'El auto no te contestó. Era de esperar.' },
+  { ic: '🐕', who: 'Entró un perro', t: 'Mueve la cola frente a los joysticks.', ok: 'Acompañarlo a la puerta con cariño', bad: 'Ofrecerle 3 cuotas sin interés', r: 'Se fue contento. Quedó de volver con el dueño.', rb: 'No tenía tarjeta. Ni bolsillos.' },
+  { ic: '💡', who: 'Parpadeó la luz', t: 'Dos segundos y volvió.', ok: 'Esperar: ya volvió', bad: 'Cerrar el local para siempre', r: 'Todo sigue prendido. Hasta el cartel.', rb: 'Calma: fueron dos segundos.' },
+  { ic: '🧾', who: 'Volvió un cliente', t: '"Me olvidé el ticket en el mostrador."', ok: 'Acá está, te lo guardé', bad: '¿Qué ticket?', r: 'Con el ticket tiene la garantía en regla.', rb: 'Apareció abajo del frasco de caramelos.' }
+];
+/* Escena final: se ve al terminar la jornada GS.CONFIG.finalDay. {rank} = el rango nuevo. */
+GS.FINAL = {
+  boss: [
+    'Diez jornadas. Nadie había durado tanto desde... bueno, desde Brian.',
+    'Atendiste, cobraste, contaste, embalaste y contestaste WhatsApp. Y casi nunca perdiste la cordura.',
+    'Por eso, desde hoy sos {rank}. Te ganaste la llave del local y el grupo de WhatsApp de proveedores. Suerte con eso.',
+    'Gracias por jugar. Y acordate: 10% OFF en efectivo y transferencia. Eso no cambia nunca.'
+  ],
+  crowd: ['¡Bravo!', '¡Grande!', '¡Ídolo!', '¡Así se atiende!', '¡Que hable!', '¡Aplausos!', '¿Hay descuento por el festejo?', '¡Esto lo subo a mi canal!'],
+  card: ['Sobreviví a {n} jornadas en GameShop.', 'Atendí {c} clientes y sigo en pie.', 'Mi cordura: {k}%. La de Brian: sin datos.']
+};
+
 /* Datos de los minijuegos nuevos */
 GS.PC_PARTS = [
   { id: 'cpu', name: 'Procesador', svg: '<svg viewBox="0 0 40 40"><rect x="5" y="5" width="30" height="30" rx="3" fill="#c9ccd1"/><rect x="11" y="11" width="18" height="18" rx="1" fill="#8d9199"/><path d="M5 35h7l-7-7z" fill="#d4a017"/></svg>' },
@@ -875,7 +934,7 @@ GS.Store = (function () {
       data.best.push(entry); data.best.sort((a, b) => b.score - a.score); data.best = data.best.slice(0, 5); save();
       return data.best.indexOf(entry);
     },
-    reset() { data = { best: [], tutorial: false, mute: data.mute, quality: data.quality }; save(); }
+    reset() { data = { best: [], tutorial: false, mute: data.mute, music: data.music, quality: data.quality }; save(); }
   };
 })();
 
@@ -932,10 +991,11 @@ GS.Store = (function () {
 
 /* =====================================================================
    SONIDO — todo generado por código con Web Audio (sin archivos).
-   Arranca con el primer toque del usuario. Música: Fase 4.
+   Arranca con el primer toque del usuario. Incluye la música (un loop
+   generativo tranquilo, distinto según el momento) y los balbuceos.
    ===================================================================== */
 GS.Audio = (function () {
-  let ctx = null, master = null, muted = !!GS.Store.get('mute');
+  let ctx = null, master = null, mGain = null, muted = !!GS.Store.get('mute'), musicOn = GS.Store.get('music') !== false;
 
   function unlock() {
     if (ctx) { if (ctx.state === 'suspended') ctx.resume(); return; }
@@ -944,6 +1004,8 @@ GS.Audio = (function () {
       if (!AC) return;
       ctx = new AC(); master = ctx.createGain();
       master.gain.value = muted ? 0 : 0.5; master.connect(ctx.destination);
+      mGain = ctx.createGain(); mGain.gain.value = musicOn ? 1 : 0; mGain.connect(master);
+      if (!mTimer) mTimer = setInterval(pump, 90);
     } catch (e) { ctx = null; }
   }
 
@@ -971,6 +1033,51 @@ GS.Audio = (function () {
     s.connect(f); f.connect(g); g.connect(master); s.start(t);
   }
 
+  /* ---------- Música: loop generativo, sin archivos. Cada momento tiene su clima ---------- */
+  const N = n => 440 * Math.pow(2, (n - 69) / 12);      // nota MIDI a frecuencia
+  const MOODS = {
+    menu:  { bpm: 76,  prog: [[48, 64, 67, 71], [45, 64, 67, 72], [41, 65, 69, 72], [43, 62, 67, 71]], arp: 'sine',     hat: 0,    bass: [0, 8] },
+    day:   { bpm: 96,  prog: [[48, 64, 67, 71], [45, 60, 64, 67], [41, 65, 69, 72], [43, 62, 67, 71]], arp: 'triangle', hat: 0.03, bass: [0, 6, 8, 14] },
+    rain:  { bpm: 72,  prog: [[45, 64, 69, 72], [41, 65, 69, 72], [48, 64, 67, 72], [43, 62, 67, 71]], arp: 'sine',     hat: 0,    bass: [0, 8] },
+    party: { bpm: 108, prog: [[48, 64, 67, 72], [43, 62, 67, 71], [45, 64, 69, 72], [41, 65, 69, 72]], arp: 'triangle', hat: 0.04, bass: [0, 4, 8, 12] },
+    final: { bpm: 112, prog: [[48, 64, 67, 72], [41, 65, 69, 72], [43, 67, 71, 74], [48, 67, 72, 76]], arp: 'square',   hat: 0.04, bass: [0, 4, 8, 12] }
+  };
+  const ARP = [0, 1, 2, 1, 2, 1, 0, 2];
+  let mood = 'menu', mStep = 0, mNext = 0, mTimer = null;
+  function voice(freq, dur, type, vol, t, att) {
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = type; o.frequency.setValueAtTime(freq, t);
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + (att || 0.015)); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(mGain); o.start(t); o.stop(t + dur + 0.05);
+  }
+  function hat(t, vol) {
+    const len = Math.floor(ctx.sampleRate * 0.03), buf = ctx.createBuffer(1, len, ctx.sampleRate), d = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / len);
+    const s = ctx.createBufferSource(), f = ctx.createBiquadFilter(), g = ctx.createGain(); s.buffer = buf; f.type = 'highpass'; f.frequency.value = 6000; g.gain.value = vol;
+    s.connect(f); f.connect(g); g.connect(mGain); s.start(t);
+  }
+  // Agenda las notas un rato antes de que suenen (así no se corta si el juego se traba un instante)
+  function pump() {
+    if (!ctx || muted || !musicOn || document.hidden || ctx.state !== 'running') { mNext = 0; return; }
+    const m = MOODS[mood], sp = 60 / m.bpm / 4;
+    if (mNext < ctx.currentTime) mNext = ctx.currentTime + 0.06;
+    while (mNext < ctx.currentTime + 0.3) {
+      const st = mStep % 16, ch = m.prog[Math.floor(mStep / 16) % m.prog.length], t = mNext;
+      if (st === 0) for (let i = 1; i < 4; i++) voice(N(ch[i]), sp * 15, 'sine', 0.035, t, 0.25);         // colchón del acorde
+      if (m.bass.indexOf(st) >= 0) voice(N(ch[0] - (st === 6 || st === 14 ? 0 : 12)), sp * 3.2, 'triangle', 0.16, t);
+      if (st % 2 === 0) voice(N(ch[1 + ARP[(st / 2) % 8]] + 12), sp * 1.7, m.arp, m.arp === 'square' ? 0.028 : 0.06, t);
+      if (m.hat && st % 4 === 2) hat(t, m.hat);
+      mStep++; mNext += sp;
+    }
+  }
+
+  // Balbuceo: sílabas cortitas en el tono de cada personaje (no dice nada, pero suena a que habla)
+  function babble(text, pitch) {
+    if (!ctx || muted) return;
+    const n = Math.min(9, Math.max(3, Math.round(String(text).length / 9))), p = pitch || 320;
+    for (let i = 0; i < n; i++) { const c = String(text).charCodeAt(i * 3 % text.length) || 65; tone(p * (1 + ((c % 7) - 3) * 0.055), 0.06, 'triangle', 0.09, i * 0.075, p * (1 + ((c % 5) - 2) * 0.05)); }
+  }
+
   const sfx = {
     click() { tone(520, 0.05, 'square', 0.08); },
     bell()  { tone(1568, 0.5, 'sine', 0.22); tone(2093, 0.6, 'sine', 0.14, 0.09); },          // campanita de la puerta
@@ -982,12 +1089,19 @@ GS.Audio = (function () {
     lost()  { tone(392, 0.16, 'triangle', 0.2); tone(294, 0.3, 'triangle', 0.2, 0.15); },
     speaker(){ tone(880, 0.12, 'sine', 0.14); tone(698, 0.2, 'sine', 0.14, 0.13); },          // altavoz del Dueño
     combo(n){ tone(520 + Math.min(n, 8) * 70, 0.09, 'square', 0.1); },
+    intr()  { tone(784, 0.09, 'sine', 0.16); tone(1047, 0.14, 'sine', 0.16, 0.1); },                    // aviso suave de interrupción
+    mate()  { noise(0.22, 0.08, 0, 700); tone(330, 0.2, 'sine', 0.12, 0.2, 440); },                      // sorbito
+    fanfare(){ [523, 659, 784, 1047, 784, 1047, 1319].forEach((f, i) => tone(f, i === 6 ? 0.7 : 0.16, 'triangle', 0.22, i * 0.14)); },
     endDay(){ [523, 659, 784, 1047].forEach((f, i) => tone(f, 0.22, 'triangle', 0.22, i * 0.13)); }
   };
 
   return {
     unlock,
     play(name, arg) { if (sfx[name]) sfx[name](arg); },
+    babble,
+    setMood(m) { if (MOODS[m] && m !== mood) { mood = m; mStep = 0; } },
+    isMusicOn: () => musicOn,
+    setMusic(v) { musicOn = v; GS.Store.set('music', v); if (mGain) mGain.gain.value = v ? 1 : 0; },
     isMuted: () => muted,
     setMuted(m) { muted = m; GS.Store.set('mute', m); if (master) master.gain.value = m ? 0 : 0.5; }
   };
@@ -1005,7 +1119,8 @@ GS.World = (function () {
   const people = [];
   const walls = {};            // grupos de pared alta: N (fondo), S (frente), E (derecha), O (izquierda)
   const animated = [];         // cosas que se animan (pantallas, cartel)
-  let tapHandler = null, yo = null;
+  let tapHandler = null, yo = null, boss = null, brian = null;
+  const BOSS_HOME = [9.3, 0.7];
 
   /* ---------- Cámara tipo diorama ---------- */
   const cam = { tx: 0, tz: -0.4, dist: 100, gx: 0, gz: -0.4, gdist: 100, fit: 100, saved: null };
@@ -1249,6 +1364,80 @@ GS.World = (function () {
   function upGroup(root, id, lvl) { const g = new T.Group(); root.add(g); (ups[id] = ups[id] || {})[lvl] = g; return g; }
   function applyUpgrades(state) {
     for (const id in ups) for (const lvl in ups[id]) ups[id][lvl].visible = id === 'cartel' ? (state[id] || 0) === Number(lvl) : (state[id] || 0) >= Number(lvl);
+    if (brian) brian.phone(!(state.caja2 > 0));       // con la segunda caja, Brian larga el celular
+  }
+  const glowMat = c => new T.MeshBasicMaterial({ color: c });
+  const gPot = new T.CylinderGeometry(0.17, 0.12, 0.3, 8), gLeaf = new T.SphereGeometry(0.2, 8, 6);
+  function plant(parent, x, z, k) {
+    const g = new T.Group(); g.position.set(x, 0, z); g.scale.setScalar(k || 1); parent.add(g);
+    const pot = new T.Mesh(gPot, mat(0xf4f4f2)); pot.position.y = 0.15; g.add(pot);
+    box(g, 0.03, 0.4, 0.03, 0x3d6b33, 0, 0.3, 0);
+    [[0, 0.78, 0, 1.15], [-0.17, 0.6, 0.05, 0.9], [0.16, 0.62, -0.04, 0.95], [0.02, 0.56, 0.16, 0.8]].forEach(q => { const m = new T.Mesh(gLeaf, mat(q[3] > 1 ? 0x3bb54a : 0x2f9a41)); m.scale.setScalar(q[3]); m.position.set(q[0], q[1], q[2]); g.add(m); });
+    return g;
+  }
+  // Mejoras nuevas de la Etapa 4: plantas, cafetera, luces LED, vidriera iluminada y segunda caja
+  function buildExtras(root) {
+    const s = L.salon, m = L.mostrador, c = L.caja, top = m.h + 0.08;
+    { const g = upGroup(root, 'plantas', 1);
+      plant(g, -5.0, 5.4, 1.15); plant(g, -2.7, 5.55, 0.9); plant(g, 5.3, 5.65, 1.05); plant(g, -5.1, -1.6, 0.85);
+      box(g, 1.9, 0.02, 1.1, 0xc40000, L.puerta.x, 0.005, 5.2); box(g, 1.6, 0.022, 0.08, 0xffffff, L.puerta.x, 0.006, 4.85); box(g, 1.6, 0.022, 0.08, 0xffffff, L.puerta.x, 0.006, 5.55); }
+    { const g = upGroup(root, 'cafetera', 1), x = 0.9, y = 0.7, z = s.zMin + 0.3;
+      box(g, 0.44, 0.46, 0.34, 0x1a1a1e, x, y, z); box(g, 0.46, 0.06, 0.36, 0xe10600, x, y + 0.46, z); box(g, 0.2, 0.12, 0.02, 0xc9ccd1, x, y + 0.28, z + 0.18);
+      box(g, 0.3, 0.03, 0.14, 0x3a3a40, x, y, z + 0.22); box(g, 0.04, 0.1, 0.04, 0x8d9199, x, y + 0.18, z + 0.2);
+      const cup = new T.Mesh(new T.CylinderGeometry(0.055, 0.045, 0.09, 10), mat(0xffffff)); cup.position.set(x, y + 0.075, z + 0.22); g.add(cup);
+      const th = new T.Mesh(new T.CylinderGeometry(0.06, 0.06, 0.32, 10), mat(0xb9c0c8)); th.position.set(x - 0.42, y + 0.16, z); g.add(th); box(g, 0.08, 0.05, 0.08, 0x111111, x - 0.42, y + 0.32, z);
+      [0.36, 0.5].forEach(dx => { const k = new T.Mesh(new T.CylinderGeometry(0.05, 0.04, 0.09, 8), mat(dx > 0.4 ? 0xe10600 : 0xffffff)); k.position.set(x + dx, y + 0.045, z + 0.05); g.add(k); }); }
+    { const g = upGroup(root, 'luces', 1), red = glowMat(0xff2a2a), cy = glowMat(0x57e6ff);
+      box(g, s.xMax - s.xMin + 0.4, 0.07, 0.09, red, 0, s.wallH, s.zMin - 0.1); box(g, 0.09, 0.07, s.zMax - s.zMin, red, s.xMin - 0.1, s.wallH, (s.zMin + s.zMax) / 2);
+      box(g, m.w, 0.05, 0.05, cy, m.x, 0.02, m.z + m.d / 2 + 0.04); box(g, 0.05, 0.05, c.d, cy, c.x + c.w / 2 + 0.04, 0.02, c.z);
+      const halo = new T.MeshBasicMaterial({ color: 0x57e6ff, transparent: true, opacity: 0.2, depthWrite: false });
+      plane(g, m.w, 0.7, halo, m.x, 0.012, m.z + m.d / 2 + 0.38, 0, -Math.PI / 2); plane(g, 0.7, c.d, halo, c.x + c.w / 2 + 0.38, 0.012, c.z, 0, -Math.PI / 2);
+    }
+    { const g = upGroup(root, 'vidluz', 1), warm = glowMat(0xfff0a8), zA = s.zMax, zB = L.galeria.zMax, p = L.galeria.pasillo, cz = (zA + zB) / 2, d = zB - zA - 0.2;
+      const halo = new T.MeshBasicMaterial({ color: 0xfff0a8, transparent: true, opacity: 0.22, depthWrite: false });
+      [-1, 1].forEach(side => { const x0 = side * p, x1 = side * s.xMax, cx = (x0 + x1) / 2, w = Math.abs(x1 - x0);
+        box(g, 0.07, 0.07, d, warm, x0 + side * 0.06, 2.36, cz); box(g, w, 0.07, 0.07, warm, cx, 2.36, zB - 0.14);
+        box(g, 0.05, 0.05, d - 0.4, warm, x0 + side * 0.52, 0.95, cz); box(g, 0.05, 0.05, d - 0.4, warm, x0 + side * 2.32, 1.4, cz);
+        plane(g, w - 0.2, d - 0.3, halo, cx, 0.512, cz, 0, -Math.PI / 2); }); }
+    { const g = upGroup(root, 'caja2', 1), z = c.z + 1.05;
+      box(g, 0.5, 0.22, 0.4, 0x222222, c.x, top, z); box(g, 0.36, 0.2, 0.06, 0x57e6ff, c.x - 0.05, top + 0.22, z, { emissive: 0x1c8aa0 }); box(g, 0.14, 0.05, 0.22, 0x2d6cdf, c.x + 0.05, top, z - 0.42);
+      sign(g, 'CAJA 2', 0.7, 0.2, c.x + c.w / 2 + 0.045, 0.72, z, Math.PI / 2); }
+  }
+  // Oficina del Dueño: al costado derecho, delante del depósito. De acá sale a hablar y acá vuelve.
+  function buildOffice(root) {
+    const x0 = L.salon.xMax + 0.5, x1 = 11.4, zA = -0.9, zB = 3.6, cx = (x0 + x1) / 2, cz = (zA + zB) / 2, gold = 0xd4a017;
+    const wood = canvasTex(128, 128, g => { g.fillStyle = '#8a6444'; g.fillRect(0, 0, 128, 128); g.strokeStyle = '#6f4f35'; g.lineWidth = 3; for (let i = 0; i <= 4; i++) { g.beginPath(); g.moveTo(0, i * 32); g.lineTo(128, i * 32); g.stroke(); } g.beginPath(); g.moveTo(40, 0); g.lineTo(40, 32); g.moveTo(96, 32); g.lineTo(96, 64); g.moveTo(24, 64); g.lineTo(24, 96); g.moveTo(80, 96); g.lineTo(80, 128); g.stroke(); });
+    wood.wrapS = wood.wrapT = T.RepeatWrapping; wood.repeat.set(4, 4);
+    box(root, x1 - x0 + 0.4, 0.5, zB - zA + 0.4, 0x18181b, cx, -0.52, cz); plane(root, x1 - x0, zB - zA, new T.MeshLambertMaterial({ map: wood }), cx, 0.005, cz, 0, -Math.PI / 2);
+    box(root, x1 - x0, 2.25, 0.2, 0xf4f4f2, cx, 0, zA - 0.1); box(root, x1 - x0, 0.9, 0.02, 0x16161a, cx, 0, zA + 0.011);          // pared del fondo con zócalo oscuro
+    box(root, 0.2, 0.3, zB - zA, 0xdedede, x1 + 0.1, 0, cz); box(root, x1 - x0, 0.3, 0.2, 0xdedede, cx, 0, zB + 0.1);
+    sign(root, 'OFICINA DEL DUEÑO', 2.8, 0.3, cx, 2.03, zA + 0.03);
+    // cuadro con el logo, estante de trofeos y pantalla con las ventas
+    box(root, 1.3, 0.62, 0.05, 0x0c0c0c, 7.6, 1.1, zA + 0.03);
+    plane(root, 1.2, 0.52, new T.MeshBasicMaterial({ map: logoTex(512, 220, (g, w, h, img) => { g.fillStyle = '#000'; g.fillRect(0, 0, w, h); const iw = w * 0.86, ih = iw * img.height / img.width; g.drawImage(img, (w - iw) / 2, (h - ih) / 2, iw, ih); }) }), 7.6, 1.41, zA + 0.06);
+    box(root, 1.3, 0.05, 0.26, 0x2a2a2e, 9.3, 1.15, zA + 0.14);
+    [[-0.42, 0.9], [0, 1.2], [0.42, 0.9]].forEach(q => { const tx = 9.3 + q[0], k = q[1];
+      box(root, 0.16 * k, 0.05, 0.14, 0x1a1a1e, tx, 1.2, zA + 0.14); box(root, 0.04, 0.1 * k, 0.04, gold, tx, 1.25, zA + 0.14);
+      const cup = new T.Mesh(new T.CylinderGeometry(0.09 * k, 0.05 * k, 0.16 * k, 10), mat(gold, { emissive: 0x3a2a00 })); cup.position.set(tx, 1.25 + 0.1 * k + 0.08 * k, zA + 0.14); root.add(cup); });
+    box(root, 1.2, 0.72, 0.06, 0x111111, 10.75, 1.05, zA + 0.04);
+    plane(root, 1.1, 0.62, new T.MeshBasicMaterial({ map: canvasTex(256, 144, (g, w, h) => { g.fillStyle = '#0d1512'; g.fillRect(0, 0, w, h); g.fillStyle = '#fff'; g.font = '900 20px Impact, "Arial Black", sans-serif'; g.fillText('VENTAS', 12, 26);
+      const v = [30, 42, 38, 58, 66, 84, 104]; v.forEach((b, i) => { g.fillStyle = i === v.length - 1 ? '#e10600' : '#25c26e'; g.fillRect(16 + i * 33, h - 12 - b, 22, b); }); }) }), 10.75, 1.41, zA + 0.075);
+    // alfombra, escritorio y sillón
+    box(root, 3.3, 0.02, 2.5, 0x8a1010, 9.3, 0.008, 1.25); box(root, 3.0, 0.022, 0.07, 0xe9c46a, 9.3, 0.009, 0.2); box(root, 3.0, 0.022, 0.07, 0xe9c46a, 9.3, 0.009, 2.3);
+    box(root, 2.2, 0.09, 0.9, 0x3a2416, 9.3, 0.74, 1.6); box(root, 0.5, 0.74, 0.8, 0x4a2e1c, 8.5, 0, 1.6); box(root, 0.5, 0.74, 0.8, 0x4a2e1c, 10.1, 0, 1.6); box(root, 1.1, 0.5, 0.05, 0x4a2e1c, 9.3, 0.24, 2.0);
+    plane(root, 1.0, 0.2, new T.MeshBasicMaterial({ map: textTex('EL DUEÑO', { bg: '#111', fg: '#f5c518', w: 256, h: 52 }) }), 9.3, 0.5, 2.03);
+    const mon = monitor(root, 9.9, 0.83, 1.45, Math.PI - 0.5); mon.scale.setScalar(1.2);
+    box(root, 0.3, 0.03, 0.4, 0xffffff, 8.75, 0.83, 1.6); box(root, 0.28, 0.03, 0.38, 0xf1f1f1, 8.77, 0.86, 1.62);                       // papeles
+    box(root, 0.08, 0.2, 0.05, 0x111111, 9.3, 0.83, 1.85); box(root, 0.015, 0.14, 0.015, 0x111111, 9.33, 1.03, 1.85);                       // handy
+    const mate = new T.Mesh(new T.CylinderGeometry(0.07, 0.055, 0.14, 8), mat(0x6b3e1e)); mate.position.set(9.05, 0.9, 1.4); root.add(mate); box(root, 0.015, 0.14, 0.015, 0xcccccc, 9.08, 0.93, 1.4);
+    gamingChair(root, 9.3, 0.1, 0, 0x111111, gold);
+    // caja fuerte, sillón para visitas y planta
+    box(root, 0.7, 0.8, 0.6, 0x4a4f58, 10.85, 0, -0.45); box(root, 0.6, 0.7, 0.02, 0x3a3f47, 10.85, 0.05, -0.14);
+    const dial = new T.Mesh(new T.CylinderGeometry(0.1, 0.1, 0.04, 14), mat(0xc9ccd1)); dial.rotation.x = Math.PI / 2; dial.position.set(10.78, 0.45, -0.11); root.add(dial); box(root, 0.05, 0.2, 0.04, 0xc9ccd1, 11.02, 0.35, -0.11);
+    box(root, 1.5, 0.34, 0.62, 0xc40000, 7.6, 0.08, 3.0); box(root, 1.5, 0.5, 0.16, 0xa80000, 7.6, 0.42, 2.72); box(root, 0.16, 0.26, 0.62, 0xa80000, 6.93, 0.42, 3.0); box(root, 0.16, 0.26, 0.62, 0xa80000, 8.27, 0.42, 3.0);
+    plant(root, 10.9, 3.15, 1.3);
+    // marco de la puerta que da al salón
+    box(root, 0.14, 2.2, 0.14, 0xe10600, x0 - 0.4, 0, -0.85); box(root, 0.14, 2.2, 0.14, 0xe10600, x0 - 0.4, 0, 0.25); box(root, 0.14, 0.14, 1.24, 0xe10600, x0 - 0.4, 2.2, -0.3);
   }
   function buildCenter(root) {
     { // isla Apple
@@ -1417,7 +1606,7 @@ GS.World = (function () {
     [-0.12, 0.12].forEach(x => { const e = new T.Mesh(gEye, mat(0x111111)); e.position.set(x, 1.14, 0.3); g.add(e); });
     const sh = new T.Mesh(gShadow, shadowMat); sh.rotation.x = -Math.PI / 2; sh.position.y = 0.02; g.add(sh);
     const bag = box(g, 0.26, 0.3, 0.12, 0xe10600, 0.3, 0.3, 0.1); bag.visible = false;
-    if (o.phone) box(g, 0.1, 0.18, 0.03, 0x111111, 0.12, 0.72, 0.26);
+    const phone = o.phone ? box(g, 0.1, 0.18, 0.03, 0x111111, 0.12, 0.72, 0.26) : null;
     let cargo = null;
     if (o.cart) {
       box(g, 0.62, 0.06, 0.8, 0x3a6fd1, 0, 0.16, 0.85); box(g, 0.05, 0.9, 0.05, 0x3a6fd1, -0.26, 0.16, 0.48); box(g, 0.05, 0.9, 0.05, 0x3a6fd1, 0.26, 0.16, 0.48);
@@ -1453,6 +1642,8 @@ GS.World = (function () {
       bag(v) { bag.visible = v; },
       look(a) { style(a); },
       cargo(v) { if (cargo) cargo.visible = v; },
+      phone(v) { if (phone) phone.visible = v; },
+      stop() { p.path = []; p.moving = false; p.onArrive = null; g.position.y = 0; },
       remove() { scene.remove(g); const i = people.indexOf(p); if (i >= 0) people.splice(i, 1); }
     };
     people.push(p); return p;
@@ -1544,12 +1735,14 @@ GS.World = (function () {
     walls.O = new T.Group(); root.add(walls.O); shelfWall(walls.O, L.salon.xMin, 1, L.salon.zMin + 0.4, L.salon.zMax - 0.3);
     walls.E = new T.Group(); root.add(walls.E); shelfWall(walls.E, L.salon.xMax, -1, L.salon.zMin + 0.4, L.salon.zMax - 0.3);
     // zócalos bajos donde la pared está "cortada"
-    box(root, 0.2, 0.3, L.salon.zMax - L.salon.zMin, 0xdedede, L.salon.xMax + 0.1, 0, (L.salon.zMin + L.salon.zMax) / 2);
-    buildCounter(root); buildCenter(root); buildWorkStations(root); buildDepot(root); buildGallery(root); buildSign(root);
+    box(root, 0.2, 0.3, -0.85 - L.salon.zMin, 0xdedede, L.salon.xMax + 0.1, 0, (L.salon.zMin - 0.85) / 2);          // hueco: la puerta de la oficina
+    box(root, 0.2, 0.3, L.salon.zMax - 0.25, 0xdedede, L.salon.xMax + 0.1, 0, (L.salon.zMax + 0.25) / 2);
+    buildCounter(root); buildCenter(root); buildWorkStations(root); buildDepot(root); buildOffice(root); buildGallery(root); buildSign(root); buildExtras(root);
 
     // empleados (inventados): vos en el mostrador y Brian, pegado al celular, en la caja
     yo = makePerson({ shirt: 0xe10600, hair: 0x2b2b3a, skin: SKINS[1] }); yo.setPos(L.mostrador.x, L.mostrador.z - 0.9);
-    const brian = makePerson({ shirt: 0xe10600, hair: 0x2d6cdf, skin: SKINS[0], phone: true }); brian.setPos(L.caja.x + 1.0, L.caja.z + 0.2); brian.face(-Math.PI / 2);
+    brian = makePerson({ shirt: 0xe10600, hair: 0x2d6cdf, skin: SKINS[0], phone: true }); brian.setPos(L.caja.x + 1.0, L.caja.z + 0.2); brian.face(-Math.PI / 2);
+    boss = makePerson({ shirt: 0x111111, hair: 0xb4b4bd, hairStyle: 'mohicano', skin: 0xe0ac7e, scale: 1.18, speed: 3.4 }); boss.setPos(BOSS_HOME[0], BOSS_HOME[1]);
 
     setupInput(); resize(true); updateWalls(); ok = true; return true;
   }
@@ -1583,6 +1776,10 @@ GS.World = (function () {
     makePerson,
     setUpgrades: applyUpgrades,
     setPlayerLook(a) { if (yo && a) yo.look(a); },
+    // El Dueño: un solo personaje que vive en su oficina
+    boss: () => boss,
+    bossHome() { if (boss) { boss.stop(); boss.setPos(BOSS_HOME[0], BOSS_HOME[1]); boss.face(0); } },
+    BOSS_HOME,
     // Zoom a un punto del local (para la tienda de mejoras)
     focusAt(x, z, factor, biasY) {
       const d = cam.fit * (factor || 0.45), by = (biasY || 0) * 2 * d * Math.tan(GS.CONFIG.camera.fov * DEG / 2) / Math.sin(tilt);
@@ -2084,7 +2281,7 @@ GS.Minigames = (function () {
    HUD, pantallas y bucle principal.
    ===================================================================== */
 GS.Game = (function () {
-  const U = GS.util, C = GS.CONFIG, L = GS.LAYOUT, LN = GS.LINES, W = GS.World, MG = GS.Minigames, A = GS.Audio;
+  const U = GS.util, C = GS.CONFIG, CD = GS.CONFIG.cord, L = GS.LAYOUT, LN = GS.LINES, W = GS.World, MG = GS.Minigames, A = GS.Audio;
   const $ = id => document.getElementById(id);
   const ST = id => GS.STATIONS.find(s => s.id === id);
   const TASK_STATIONS = GS.STATIONS.filter(s => s.task && !s.finalOnly);
@@ -2133,7 +2330,7 @@ GS.Game = (function () {
       relaxed: false, arcade: null, t: 0, dur: C.day.seconds, score: 0, combo: 0, bestCombo: 0, sales: 0, served: 0, lost: 0, cajaErr: 0, otherErr: 0,
       tasksDone: 0, tasksLate: 0, customers: [], tasks: [], spawned: 0, tasksSpawned: 0,
       extras: [], n: 1, unlocked: unlockedFor(1), plan: planDay(1), rep0: repNow(), dueno: null, wave: -1, stage: 'rest', rest: 0.6, queue: [], says: [], beat: 0, duenoBag: U.shuffle(LN.dueno),
-      cajaCount: 0, closing: false, jobSig: '', reqBag: U.shuffle(GS.REQUESTS), archBag: U.shuffle(GS.CUSTOMERS), taskBag: []
+      cajaCount: 0, closing: false, jobSig: '', cord: CD.start, mate: false, intr: null, intrN: 0, intrOk: 0, intrBag: [], reqBag: U.shuffle(GS.REQUESTS), archBag: U.shuffle(GS.CUSTOMERS), taskBag: []
     }, extra || {});
   }
   // Arma la jornada: cuántos clientes y tareas trae cada tanda. Va de menos a más.
@@ -2144,7 +2341,7 @@ GS.Game = (function () {
   function unlockedFor(n) { return GS.UNLOCKS.slice(0, n).reduce((a, b) => a.concat(b), []); }
   const upNow = () => GS.Store.get('up') || {};
   const coinsNow = () => GS.Store.get('coins') || 0;
-  const coinMult = () => { const u = upNow(); return 1 + 0.1 * ((u.mesa || 0) + (u.isla || 0) + (u.gondola || 0)); };
+  const coinMult = () => { const u = upNow(); return 1 + 0.1 * ((u.mesa || 0) + (u.isla || 0) + (u.gondola || 0) + (u.luces || 0)); };
   const patMult = () => { const u = upNow(); return 1 + 0.15 * (u.escritorio || 0) + 0.1 * (u.sillas || 0); };
   function conditionFor(n) {
     const forced = GS.Store.get('testCond'); if (forced) return forced === 'ninguna' ? null : forced;             // fechas especiales fijas y lluvia al azar (nunca en las primeras jornadas)
@@ -2154,7 +2351,7 @@ GS.Game = (function () {
   }
   function planDay(n, cond) {
     const un = unlockedFor(n), pool = TASK_STATIONS.filter(s => un.indexOf(s.id) >= 0), u = upNow(), c = cond ? GS.CONDITIONS[cond] : null, r = repNow();
-    let cust = Math.min(3 + n, 7) + (u.cartel || 0) + (u.arcade || 0) + (r >= 4 ? 1 : r < 2 ? -1 : 0) + (c ? c.cust : 0);   // cartel, arcade y reputación traen gente
+    let cust = Math.min(3 + n, 7) + (u.cartel || 0) + (u.arcade || 0) + (u.vidluz || 0) + (r >= 4 ? 1 : r < 2 ? -1 : 0) + (c ? c.cust : 0);   // cartel, arcade y reputación traen gente
     cust = U.clamp(cust, 3, 12);
     const tasks = pool.length ? Math.min(n - 1, 5) : 0, extraMl = c && un.indexOf('ml') >= 0 ? c.ml : 0, nw = cust <= 5 ? 3 : 4;
     const plan = Array.from({ length: nw }, () => ({ c: 0, t: 0, ml: 0 }));
@@ -2170,13 +2367,38 @@ GS.Game = (function () {
   // El Dueño sale del depósito, camina hasta el salón, dice lo suyo y se vuelve
   function duenoSpeak(text) {
     const d = day; if (!d || d.arcade || state !== 'day') return;
-    if (d.dueno) { sayAt(d.dueno, text, 5600, 'boss'); return; }
-    const p = W.makePerson({ shirt: 0x111111, hair: 0xb4b4bd, hairStyle: 'mohicano', skin: 0xe0ac7e, scale: 1.18, speed: 3.4 }); d.dueno = p; d.extras.push(p);
-    p.setPos(3.4, -6.3);
-    p.walk([[3.4, -5.1]], () => {
-      p.face(0.2); A.play('speaker'); sayAt(p, text, 5600, 'boss');
-      setTimeout(() => { if (day !== d) return; p.walk([[3.4, -6.3]], () => { p.remove(); d.dueno = null; }); }, 5900);
+    const p = W.boss();
+    if (d.dueno) { sayAt(p, text, 5600, 'boss'); return; }
+    d.dueno = p;
+    p.walk([[7.3, -0.3], [5.0, -0.3]], () => {
+      p.face(-0.5); A.play('speaker'); sayAt(p, text, 5600, 'boss');
+      setTimeout(() => { if (day !== d) return; p.walk([[7.3, -0.3], W.BOSS_HOME], () => { p.face(0); d.dueno = null; }); }, 5900);
     });
+  }
+  /* ---------------- Cordura: nunca hay Game Over, solo un mate a tiempo ---------------- */
+  function addCord(v) { if (day && !day.arcade) day.cord = U.clamp(day.cord + v, 0, 100); }
+  function mateRescue() {
+    day.mate = true; addCord(CD.mateBoost); A.play('mate');
+    day.customers.forEach(c => { c.pat = Math.min(1, c.pat + 0.25); }); day.tasks.forEach(t => { t.pat = Math.min(1, t.pat + 0.25); });
+    toast('<b>🧉 Brian te ceba un mate</b>"Respirá, que yo te cubro un toque." Todos esperan un poco más.', 'dueno', 4600);
+  }
+  function showCord() {
+    paused = true;
+    modal('<h2>🧠 Cordura</h2><ul class="how"><li><i>☕</i><span><b>Sube</b> en los respiros, con las rachas y cuando resolvés bien una interrupción.</span></li>' +
+      '<li><i>😵</i><span><b>Baja</b> con los errores, cuando alguien se va sin comprar o cuando se juntan muchos pendientes.</span></li>' +
+      '<li><i>🎯</i><span>Con ' + CD.focus + ' o más estás <b>enfocado</b>: +10% de puntos. Al cierre, la cordura que te queda suma puntos.</span></li>' +
+      '<li><i>🧉</i><span>Si baja mucho no pasa nada malo: Brian te ceba un mate y todos esperan un poco más.</span></li></ul><button class="btn" data-close>Entendido</button>', () => { paused = false; });
+  }
+  /* ---------------- Interrupciones suaves: un toque y listo; si no contestás, se resuelven solas ---------------- */
+  function spawnIntr() {
+    if (MG.isOpen() || day.beat > 0 || day.intr) { day.queue.push({ kind: 'i', t: 2.5 }); day.queue.sort((a, b) => a.t - b.t); return; }
+    if (!day.intrBag.length) day.intrBag = U.shuffle(GS.INTERRUPTS);
+    day.intr = { it: day.intrBag.pop(), left: CD.intrSeconds, flip: Math.random() < 0.5 }; day.jobSig = ''; A.play('intr');
+  }
+  function answerIntr(ok) {
+    const x = day && day.intr; if (!x || paused) return; day.intr = null; day.jobSig = '';
+    if (ok) { addCord(CD.intrOk * (x.it.mate ? 2 : 1)); day.score += 40; day.intrOk++; A.play(x.it.mate ? 'mate' : 'ok'); toast('<b>' + x.it.ic + ' Bien resuelto · sube la cordura</b>' + x.it.r, '', 3200); }
+    else { addCord(-CD.intrBad); A.play('error'); toast('<b>' + x.it.ic + ' Ups</b>' + x.it.rb, '', 3200); }
   }
   function planTotals(plan) { return plan.reduce((a, w) => ({ c: a.c + w.c, t: a.t + w.t + (w.ml || 0) }), { c: 0, t: 0 }); }
   function startWave() {
@@ -2185,11 +2407,13 @@ GS.Game = (function () {
     for (let i = 0; i < w.c; i++) day.queue.push({ kind: 'c', t: 0.3 + i * C.day.customerGap });
     for (let i = 0; i < w.t; i++) day.queue.push({ kind: w.final ? 'f' : 't', t: (w.final ? 0.6 : 5) + i * C.day.taskGap });
     for (let i = 0; i < (w.ml || 0); i++) day.queue.push({ kind: 'm', t: 3 + i * C.day.taskGap });
+    if (GS.DEBUG_INTR || (day.n >= CD.intrFromDay && !w.final && day.wave >= 1 && day.intrN < (day.n >= 6 ? 3 : 2) && Math.random() < 0.6)) { day.queue.push({ kind: 'i', t: U.rnd(5, 11) }); day.intrN++; }
     day.queue.sort((a, b) => a.t - b.t);
   }
   function endWave() {
     if (day.wave >= day.plan.length - 1) { day.closing = true; setTimeout(endDay, 2800); return; }
     day.stage = 'rest'; day.rest = C.day.restSeconds; W.focus(null); W.home();
+    { const seen = GS.Store.get('seen') || {}; if (!seen.cord) { seen.cord = 1; GS.Store.set('seen', seen); toast('<b>🧠 Cordura</b>Sube en los respiros y con las rachas. Si baja mucho, Brian te ceba un mate.', 'dueno', 5200); } }
     const d = day;
     setTimeout(() => {                       // en el respiro habla el Dueño, sin nada tapando el local
       if (day !== d || state !== 'day' || d.stage !== 'rest') return;
@@ -2198,13 +2422,14 @@ GS.Game = (function () {
     }, 1100);
   }
   // Globito de diálogo sobre la cabeza de un personaje (el remate se ve en el salón, no en un cartel)
-  function sayAt(person, text, ms, cls) {
+  function sayAt(person, text, ms, cls, quiet) {
+    if (!quiet) A.babble(text, cls === 'boss' ? 150 : person.voice || 330);
     const el = document.createElement('div'); el.className = 'say ' + (cls || ''); el.textContent = text; $('labels').appendChild(el);
     day.says.push({ el, person, left: (ms || 3200) / 1000 });
   }
   function enterPlay() {
     $('start').hidden = true; $('end').hidden = true; $('hud').hidden = false; $('modal').hidden = true; $('toasts').innerHTML = '';
-    paused = false; W.home();
+    $('final').hidden = true; paused = false; W.home();
   }
   function startDay(relaxed) {
     A.unlock();
@@ -2213,6 +2438,7 @@ GS.Game = (function () {
     const n = dayNumber(), un = unlockedFor(n), fresh = n <= GS.UNLOCKS.length ? GS.UNLOCKS[n - 1] : [];
     const cond = conditionFor(n);
     day = newDay({ relaxed, n, cond, unlocked: un, plan: planDay(n, cond), rest: 7.5 }); state = 'day'; enterPlay(); $('jobs').hidden = false;
+    A.setMood(cond === 'lluvia' ? 'rain' : cond ? 'party' : 'day');
     const d = day, msg = n === 1 ? 'Bienvenido a GameShop. Abrimos de 10 a 19. Hoy: mostrador y caja. Con las monedas que ganes vamos a ir mejorando el local.'
       : cond ? GS.CONDITIONS[cond].name.slice(3) + '. ' + GS.CONDITIONS[cond].say
       : fresh.length ? 'Jornada ' + n + '. Hoy sumamos: ' + fresh.map(id => ST(id).name).join(' y ') + '. Cuando aparezcan, te explico.' : 'Jornada ' + n + '. ' + U.pick(LN.dueno);
@@ -2225,7 +2451,7 @@ GS.Game = (function () {
   }
   function clearDay() {
     if (day) { day.customers.forEach(c => { if (c.person) c.person.remove(); c.label.remove(); }); day.tasks.forEach(t => { t.label.remove(); if (t.boxes) t.boxes.remove(); }); day.says.forEach(x => x.el.remove()); day.extras.forEach(x => x.remove()); }
-    MG.close(); W.focus(null);
+    MG.close(); W.focus(null); W.bossHome();
   }
   function makeLabel(icon) {
     const label = document.createElement('div'); label.className = 'plabel'; label.innerHTML = '<span class="ic">' + icon + '</span><span class="b"><i></i></span>'; label.hidden = true;
@@ -2240,6 +2466,7 @@ GS.Game = (function () {
     const k = arche.id.charCodeAt(0) + arche.id.length * 7;   // cada personaje mantiene su look
     const person = W.makePerson({ shirt: arche.shirt, hair: arche.hair, hairStyle: GS.HAIRSTYLES[k % 5][0], glasses: k % 3 === 0, beard: k % 4 === 1, lips: k % 2 === 0, lashes: k % 5 < 2 });
     const dx = L.puerta.x; person.setPos(dx + U.rnd(-0.5, 0.5), day.spawned === 0 ? L.salon.zMax + 1 : L.galeria.zMax + 2.4);
+    person.voice = 230 + (k % 7) * 45;
     const cu = { id: ++uid, arche, request: req.t, product, st: 'entering', pat: 1, person, slotM: slot, slotC: -1, label: makeLabel('❓') };
     day.customers.push(cu); day.spawned++;
     person.walk([[dx, L.salon.zMax + 0.2], [dx, -1.3], L.colaMostrador[slot]], () => { cu.st = 'waitM'; person.face(Math.PI); });
@@ -2277,7 +2504,8 @@ GS.Game = (function () {
   function removeTask(task) { task.label.remove(); if (task.boxes) task.boxes.remove(); const i = day.tasks.indexOf(task); if (i >= 0) day.tasks.splice(i, 1); }
 
   function addScore(base, pat) {
-    const mult = 1 + Math.min(day.combo, 8) * 0.25, pts = Math.round((base + Math.max(0, pat) * 100) * mult);
+    const mult = (1 + Math.min(day.combo, 8) * 0.25) * (!day.arcade && day.cord >= CD.focus ? 1.1 : 1), pts = Math.round((base + Math.max(0, pat) * 100) * mult);
+    addCord(day.combo >= 2 ? 1.5 + CD.streak : 1.5);
     day.score += pts; day.combo++; day.bestCombo = Math.max(day.bestCombo, day.combo);
     toast('+' + pts + (day.combo > 1 ? ' · racha x' + day.combo : ''), 'pts', 1100);
     if (day.combo > 1) A.play('combo', day.combo);
@@ -2311,11 +2539,11 @@ GS.Game = (function () {
     ref.st = isCust ? (job.type === 'mostrador' ? 'inM' : 'inC') : 'in'; ref.pat = Math.max(ref.pat, 0.55);
     focusFor(job.type);
     const cb = {
-      onMistake(kind) { breakCombo(); addRep(-0.02); if (kind === 'caja') day.cajaErr++; else day.otherErr++; if (!day.relaxed) ref.pat = Math.max(0.05, ref.pat - C.day.mistakeCost); },
+      onMistake(kind) { breakCombo(); addRep(-0.02); addCord(-CD.mistake); if (kind === 'caja') day.cajaErr++; else day.otherErr++; if (!day.relaxed) ref.pat = Math.max(0.05, ref.pat - C.day.mistakeCost); },
       onEnd(ok, info) {
         if (job.type !== 'caja') W.focus(null);
         if (job.type === 'mostrador') {
-          addScore(100, ref.pat); addRep(0.02); { const v = GS.Store.get('vid') || 0, saw = Math.random() < v * 0.7; if (saw) addRep(0.02); sayAt(ref.person, saw ? U.pick(LN.sawWindow) : '¡Eso! Voy a la caja.', saw ? 3000 : 1900); } ref.st = 'toCaja'; ref.slotM = -1; ref.pat = Math.max(ref.pat, 0.8);
+          addScore(100, ref.pat); addRep(0.02); { const v = GS.Store.get('vid') || 0, saw = Math.random() < v * 0.7 + (upNow().vidluz ? 0.15 : 0); if (saw) addRep(0.02); sayAt(ref.person, saw ? U.pick(LN.sawWindow) : '¡Eso! Voy a la caja.', saw ? 3000 : 1900); } ref.st = 'toCaja'; ref.slotM = -1; ref.pat = Math.max(ref.pat, 0.8);
           ref.slotC = Math.max(0, freeSlot('slotC', L.colaCaja.length));
           ref.person.walk([[0.1, -2.1], L.colaCaja[ref.slotC]], () => { ref.st = 'waitC'; ref.person.face(Math.PI / 2); });
         } else if (job.type === 'caja') {
@@ -2357,18 +2585,24 @@ GS.Game = (function () {
       if (day.stage === 'rest') { day.rest -= dt; if (day.rest <= 0) startWave(); }
       else {
         for (const q of day.queue) q.t -= dt;
-        while (day.queue.length && day.queue[0].t <= 0) { const q = day.queue.shift(); if (q.kind === 'c') spawnCustomer(); else spawnTask(q.kind === 'f' ? ST('cierre') : q.kind === 'm' ? ST('ml') : null); }
-        if (!day.queue.length && !day.tasks.length && !open && day.customers.every(c => c.st === 'leaving')) endWave();
+        while (day.queue.length && day.queue[0].t <= 0) { const q = day.queue.shift(); if (q.kind === 'c') spawnCustomer(); else if (q.kind === 'i') spawnIntr(); else spawnTask(q.kind === 'f' ? ST('cierre') : q.kind === 'm' ? ST('ml') : null); }
+        if (!day.queue.length && !day.tasks.length && !open && !day.intr && day.customers.every(c => c.st === 'leaving')) endWave();
       }
     }
+    // cordura: se recupera en los respiros y baja despacito cuando se junta mucho
+    { const u = upNow();
+      if (day.stage === 'rest' && day.wave >= 0 && !day.closing) addCord(CD.rest * (u.cafetera ? 1.6 : 1) * dt);
+      else if (!day.relaxed && pendingJobs().length >= CD.busyFrom) addCord(-CD.busy * (u.plantas ? 0.6 : 1) * dt);
+      if (day.cord < CD.burnt && !day.mate && !day.closing) mateRescue();
+      if (day.intr && !open) { day.intr.left -= dt; if (day.intr.left <= 0) { day.intr = null; day.jobSig = ''; toast('Se resolvió solo. A veces pasa.', '', 1700); } } }
     // paciencia (en el turno tranquilo no baja)
     if (!day.relaxed) {
       for (const cu of day.customers.slice()) {
-        if (cu.st === 'waitM' || cu.st === 'waitC') cu.pat -= dt / (cfg.patienceWait * patMult());
+        if (cu.st === 'waitM' || cu.st === 'waitC') cu.pat -= dt / (cfg.patienceWait * patMult() * (cu.st === 'waitC' && upNow().caja2 ? 2 : 1));
         else if ((cu.st === 'inM' || cu.st === 'inC') && !MG.isResolving()) cu.pat -= dt / cfg.patienceGame;
         if (cu.pat <= 0 && (cu.st === 'waitM' || cu.st === 'waitC' || cu.st === 'inM' || cu.st === 'inC')) {
           if (cu.st === 'inM' || cu.st === 'inC') { if (MG.isResolving()) { cu.pat = 0.01; continue; } MG.close(); W.focus(null); }
-          day.lost++; breakCombo(); addRep(-0.15); A.play('lost');
+          day.lost++; breakCombo(); addRep(-0.15); addCord(-CD.lost); A.play('lost');
           sayAt(cu.person, cu.arche.lost, 3600); toast('<b>' + cu.arche.name + ' se fue sin comprar</b>', '', 2200);
           leave(cu, false);
         }
@@ -2378,7 +2612,7 @@ GS.Game = (function () {
         else if (!MG.isResolving()) t.pat -= dt / (cfg.patienceGame * 1.3);
         if (t.pat <= 0) {
           if (t.st === 'in') { if (MG.isResolving()) { t.pat = 0.01; continue; } MG.close(); W.focus(null); }
-          day.tasksLate++; breakCombo(); addRep(-0.08); A.play('lost');
+          day.tasksLate++; breakCombo(); addRep(-0.08); addCord(-CD.late); A.play('lost');
           toast('<b>' + t.station.icon + ' ' + t.station.name + '</b>' + t.station.task.late, '', 3200); removeTask(t);
         }
       }
@@ -2402,20 +2636,23 @@ GS.Game = (function () {
     $('scoreV').textContent = day.score.toLocaleString('es-AR');
     $('chipSales').hidden = !!day.arcade; $('chipRep').hidden = !!day.arcade; $('chipRep').textContent = '⭐ ' + repTxt(repNow());
     $('chipSales').textContent = '🪙 ' + (coinsNow() + Math.round(day.score / 20 * coinMult()));
+    { const k = Math.round(day.cord), el = $('chipCord'); el.hidden = !!day.arcade || !!day.fin; el.textContent = (k < CD.burnt ? '😵 ' : '🧠 ') + k + (k >= CD.focus ? ' · enfocado' : ''); el.className = 'chip cord' + (k >= CD.focus ? ' hi' : k < CD.burnt ? ' lo' : ''); }
     $('chipCombo').hidden = day.combo < 2; $('chipCombo').textContent = '🔥 racha x' + day.combo;
   }
   // Tarjetas de pendientes (abajo): hasta 4, primero lo más urgente
   let jobList = [];
   function updateJobs() {
     const all = pendingJobs(); jobList = all.slice(0, 4);
-    const sig = jobList.map(j => j.key).join(',') + '|' + all.length, box = $('jobs');
+    const ix = day.intr, sig = jobList.map(j => j.key).join(',') + '|' + all.length + (ix ? '|i' + ix.it.t : ''), box = $('jobs');
     if (sig !== day.jobSig) {
       day.jobSig = sig;
-      box.innerHTML = jobList.length
+      const bt = (ok, k) => '<button data-intr="' + (ok ? 1 : 0) + '">' + (ok ? ix.it.ok : ix.it.bad) + '</button>';
+      box.innerHTML = (ix ? '<div class="intr"><span class="ji">' + ix.it.ic + '</span><span class="jt"><b>' + ix.it.who + '</b><small>' + ix.it.t + '</small></span><div class="ib">' + bt(!ix.flip) + bt(ix.flip) + '</div><span class="pb"><i id="intrBar"></i></span></div>' : '') + (jobList.length
         ? jobList.map((j, i) => '<button class="job" data-i="' + i + '"><span class="ji">' + j.icon + '</span><span class="jt"><b>' + j.title + '</b><small>' + j.sub + '</small></span><span class="pb"><i></i></span><kbd>' + (i + 1) + '</kbd></button>').join('') +
           (all.length > 4 ? '<div class="more">+' + (all.length - 4) + ' más esperando</div>' : '')
-        : '<div class="job idle"><span class="ji">☕</span><span class="jt"><b>Todo en orden</b><small>Respirá y mirá el local. Ya va a entrar alguien.</small></span></div>';
+        : ix ? '' : '<div class="job idle"><span class="ji">☕</span><span class="jt"><b>Todo en orden</b><small>Respirá y mirá el local. Ya va a entrar alguien.</small></span></div>');
     }
+    if (ix && $('intrBar')) $('intrBar').style.width = Math.max(0, ix.left / CD.intrSeconds * 100) + '%';
     box.classList.toggle('beat', day.beat > 0);
     const bars = box.querySelectorAll('.job .pb i');
     jobList.forEach((j, i) => { if (bars[i]) { bars[i].style.width = Math.max(4, j.pat * 100) + '%'; bars[i].style.background = barColor(j.pat); } });
@@ -2444,7 +2681,7 @@ GS.Game = (function () {
   /* ---------------- Arcade: una estación suelta, 5 rondas seguidas ---------------- */
   function startArcade(id) {
     A.unlock(); A.play('click'); clearDay();
-    day = newDay({ arcade: id, round: 0, job: null, wait: 0.5 }); state = 'day'; enterPlay(); $('jobs').hidden = true;
+    day = newDay({ arcade: id, round: 0, job: null, wait: 0.5 }); state = 'day'; enterPlay(); $('jobs').hidden = true; A.setMood('day');
     updateHud(); GS.track('inicio_minijuego', { estacion: id, modo: 'arcade' });
   }
   function arcadeJob(id) {
@@ -2477,7 +2714,7 @@ GS.Game = (function () {
   }
   function endArcade() {
     if (!day || state !== 'day') return;
-    state = 'end'; MG.close(); W.focus(null); W.showAll(); A.play('endDay'); $('hud').hidden = true;
+    state = 'end'; MG.close(); W.focus(null); W.showAll(); A.play('endDay'); A.setMood('menu'); $('hud').hidden = true;
     const d = day, st = ST(d.arcade), bests = GS.Store.get('arcade') || {}, prev = bests[st.id] || 0, rec = d.score > prev;
     if (rec) { bests[st.id] = d.score; GS.Store.set('arcade', bests); }
     GS.track('fin_minijuego', { estacion: st.id, puntaje: d.score });
@@ -2505,8 +2742,9 @@ GS.Game = (function () {
   /* ---------------- Cierre de caja ---------------- */
   function endDay() {
     if (!day || state !== 'day' || day.arcade) return;
-    state = 'end'; MG.close(); W.focus(null); W.showAll(); A.play('endDay'); $('rain').hidden = true;
-    const d = day;
+    state = 'end'; MG.close(); W.focus(null); W.showAll(); A.play('endDay'); A.setMood('menu'); $('rain').hidden = true;
+    const d = day; d.intr = null;
+    const cordEnd = Math.round(d.cord), cordPts = cordEnd * CD.bonus; d.score += cordPts;
     d.customers.slice().forEach(c => { if (c.st !== 'leaving') leave(c, false); });
     d.tasks.slice().forEach(removeTask); d.says.forEach(x => x.el.remove()); d.says = [];
     $('hud').hidden = true; $('jobs').hidden = true;
@@ -2519,6 +2757,9 @@ GS.Game = (function () {
     const entry = { score: d.score, served: done, sales: d.sales, mode: d.relaxed ? 'Tranquilo' : 'Normal', date: new Date().toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit' }) };
     const pos = d.score > 0 ? GS.Store.addScore(entry) : -1;
     if (!GS.Store.get('testDay')) GS.Store.set('days', Math.max(GS.Store.get('days') || 0, d.n));
+    { const tot = GS.Store.get('tot') || { c: 0, d: 0 }; tot.c += d.served; tot.d++; GS.Store.set('tot', tot); }
+    const isFinal = d.n === C.finalDay && !GS.Store.get('testDay') && !GS.Store.get('finalSeen');
+    lastCard = { n: d.n, score: d.score, stars, cord: cordEnd };
     const earned = Math.round(d.score / 20 * coinMult()); GS.Store.set('coins', coinsNow() + earned);
     const rv = repNow(), rd = rv - d.rep0; refreshStart();
     GS.track('fin_jornada', { puntaje: d.score, atendidos: d.served, tareas: d.tasksDone, perdidos: missed, estrellas: stars, modo: entry.mode });
@@ -2528,6 +2769,8 @@ GS.Game = (function () {
       '<p><span>Se fueron sin comprar</span><b>' + d.lost + '</b></p><p><span>Tareas que se pasaron</span><b>' + d.tasksLate + '</b></p>' +
       '<p><span>Errores (con chiste)</span><b>' + errs + '</b></p>' +
       (d.caught ? '<p><span>Comprobantes truchos frenados</span><b>' + d.caught + '</b></p>' : '') +
+      (d.intrOk ? '<p><span>Interrupciones bien resueltas</span><b>' + d.intrOk + '</b></p>' : '') +
+      '<p><span>Cordura al cierre</span><b>🧠 ' + cordEnd + ' (+' + cordPts + ' pts)</b></p>' +
       '<p><span>Mejor racha</span><b>x' + d.bestCombo + '</b></p><p><span>Ventas (ficticias)</span><b>' + U.money(d.sales) + '</b></p>' +
       '<p><span>Monedas ganadas hoy</span><b>🪙 ' + earned + '</b></p><p><span>Reputación del local</span><b>⭐ ' + repTxt(rv) + ' (' + (rd >= 0 ? '+' : '−') + repTxt(Math.abs(rd)) + ')</b></p><hr>' +
       '<p class="tot"><span>PUNTAJE</span><b>' + d.score.toLocaleString('es-AR') + '</b></p><div class="stars">' + '★'.repeat(stars) + '<span style="opacity:.25">' + '★'.repeat(3 - stars) + '</span></div></div></div>' +
@@ -2536,9 +2779,12 @@ GS.Game = (function () {
       (pos === 0 ? '<div class="newrec">🏆 ¡Nuevo récord personal!</div>' : '') +
       '<div class="quote"><b>El Dueño opina</b>' + comment + '</div><p class="humanline">' + human + '</p>' +
       goalHtml() + '<button class="btn alt" id="endShop">🛠 Mejorar el local</button>' +
-      '<button class="btn" id="endAgain">Siguiente jornada</button><div class="row"><button class="btn ghost" id="endHome">Inicio</button><button class="btn ghost" id="endRecs">Récords</button></div>' +
+      (isFinal ? '<button class="btn gold" id="endFinal">🎬 Ver el final de la temporada</button>' : '') +
+      '<button class="btn' + (isFinal ? ' ghost' : '') + '" id="endAgain">Siguiente jornada</button><button class="btn ghost" id="endCard">📸 Tarjeta para compartir</button>' +
+      '<div class="row"><button class="btn ghost" id="endHome">Inicio</button><button class="btn ghost" id="endRecs">Récords</button></div>' +
       '<button class="phases" id="phasesEnd"></button></div>';
     $('phasesEnd').innerHTML = phasesCompact(); $('phasesEnd').addEventListener('click', showPhases);
+    $('endCard').addEventListener('click', () => showCard()); if (isFinal) $('endFinal').addEventListener('click', () => startFinal());
     $('endAgain').addEventListener('click', () => startDay(d.relaxed));
     $('endHome').addEventListener('click', goHome); $('endRecs').addEventListener('click', showRecords); $('endShop').addEventListener('click', openShop);
     $('end').hidden = false; $('end').scrollTop = 0;
@@ -2557,7 +2803,7 @@ GS.Game = (function () {
   const rankOf = n => { let rk = GS.RANKS[0][1]; GS.RANKS.forEach(r => { if (n >= r[0]) rk = r[1]; }); return rk; };
   let shopSel = 0;
   function openShop() {
-    A.unlock(); A.play('click'); state = 'shop'; $('start').hidden = true; $('end').hidden = true; $('shop').hidden = false; shopSel = 0;
+    A.unlock(); A.play('click'); A.setMood('menu'); state = 'shop'; $('start').hidden = true; $('end').hidden = true; $('shop').hidden = false; shopSel = 0;
     const t = nextGoal(); if (t) shopSel = GS.UPGRADES.indexOf(t.g);
     renderShop();
   }
@@ -2618,9 +2864,101 @@ GS.Game = (function () {
     $('playS').textContent = n === 1 ? 'Inducción: mostrador y caja · de 10 a 19' : fresh.length ? 'Se suma: ' + fresh.map(id => ST(id).name).join(' y ') : 'De 10 a 19 · reputación ⭐ ' + repTxt(repNow());
   }
   function goHome() {
-    A.play('click'); clearDay(); $('rain').hidden = true;
+    A.play('click'); A.setMood('menu'); clearDay(); $('rain').hidden = true; $('final').hidden = true;
     day = null; state = 'menu'; paused = false;
     $('end').hidden = true; $('hud').hidden = true; $('jobs').hidden = true; $('start').hidden = false; $('toasts').innerHTML = ''; W.showAll();
+  }
+
+  /* ---------------- Escena final: el Dueño sale, los clientes festejan y queda la tarjeta ---------------- */
+  let lastCard = null;
+  function startFinal() {
+    A.unlock(); clearDay(); ['rain', 'end', 'start', 'hud', 'jobs', 'modal', 'finCard'].forEach(id => { $(id).hidden = true; }); $('toasts').innerHTML = '';
+    $('final').hidden = false; $('final').classList.remove('party'); $('finSkip').hidden = false;
+    if (!$('confetti').children.length) $('confetti').innerHTML = Array.from({ length: 36 }, (_, i) => '<i style="left:' + (i * 2.8 + Math.random() * 2).toFixed(1) + '%;background:' + ['#ff0000', '#fff', '#f5c518', '#57e6ff'][i % 4] + ';animation-duration:' + (2.6 + Math.random() * 2.4).toFixed(2) + 's;animation-delay:-' + (Math.random() * 4).toFixed(2) + 's"></i>').join('');
+    day = newDay({ fin: { i: -1, t: 3.2, crowd: [], done: false } }); state = 'final'; paused = false; W.setUpgrades(upNow()); A.setMood('final'); A.play('fanfare');
+    W.focusAt(0.6, -1.4, 0.66, -0.08);
+    const d = day, f = d.fin, bx = 4.3, bz = -0.5, dx = L.puerta.x;
+    const spots = [[-3.3, -1.7], [-1.9, -0.9], [-0.5, -1.8], [0.5, -0.5], [-2.8, 0.5], [-1.1, 0.7], [0.3, 1.3], [-4.2, -0.4], [1.2, -1.6]];
+    f.lines = GS.FINAL.boss.map(x => x.replace('{rank}', rankOf(C.finalDay + 1)));
+    GS.CUSTOMERS.forEach((ar, i) => {
+      const k = ar.id.charCodeAt(0) + ar.id.length * 7, sp = spots[i % spots.length];
+      const p = W.makePerson({ shirt: ar.shirt, hair: ar.hair, hairStyle: GS.HAIRSTYLES[k % 5][0], glasses: k % 3 === 0, beard: k % 4 === 1, lips: k % 2 === 0, lashes: k % 5 < 2, speed: 3.6 });
+      p.setPos(dx + U.rnd(-0.4, 0.4), L.salon.zMax + 0.6 + i * 0.7); d.extras.push(p); f.crowd.push(p);
+      p.walk([[dx, 3.4], sp], () => p.face(Math.atan2(bx - sp[0], bz - sp[1])));
+    });
+    const boss = W.boss(); d.dueno = boss;
+    setTimeout(() => { if (day === d) boss.walk([[7.3, -0.3], [bx, bz]], () => boss.face(-1.25)); }, 1200);
+    GS.track('final_visto', {});
+  }
+  function updateFinal(dt) {
+    const f = day.fin;
+    if (!f.done && (f.t -= dt) <= 0) {
+      f.i++;
+      if (f.i < f.lines.length) {
+        A.play('speaker'); sayAt(W.boss(), f.lines[f.i], 5400, 'boss'); f.t = 5.9;
+        if (f.i >= 2) $('final').classList.add('party');
+        if (f.i >= 1) { const d = day; setTimeout(() => { if (day !== d) return; U.shuffle(f.crowd).slice(0, 3).forEach((p, j) => sayAt(p, U.pick(GS.FINAL.crowd), 2000, '', j > 0)); }, 3300); }
+      } else finishFinal();
+    }
+    updateLabels(dt);
+  }
+  function finishFinal() {
+    const f = day && day.fin; if (!f || f.done) return; f.done = true; GS.Store.set('finalSeen', true);
+    day.says.forEach(x => x.el.remove()); day.says = []; $('final').classList.add('party'); $('finSkip').hidden = true; A.play('fanfare');
+    f.crowd.forEach((p, j) => { if (j % 2 === 0) sayAt(p, U.pick(GS.FINAL.crowd), 60000, '', true); });
+    $('finCard').innerHTML = '<h2>Fin de la <span>temporada</span></h2><p>Llegaste a <b>' + rankOf(C.finalDay + 1) + '</b>. El local sigue abierto: podés seguir jugando jornadas, comprar las mejoras que falten y batir tus récords.</p>' +
+      '<button class="btn" id="finShare">📸 Tarjeta para compartir</button><button class="btn ghost" id="finGo">Seguir jugando</button><small>Un juego de GameShop · Gracias por jugar</small>';
+    $('finCard').hidden = false;
+    $('finShare').addEventListener('click', () => showCard(true)); $('finGo').addEventListener('click', goHome);
+  }
+  /* ---------------- Tarjeta para compartir: una imagen con tu personaje, tu rango y tus números ---------------- */
+  const loadImg = src => new Promise(res => { const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); im.src = src; });
+  function drawCard(fin) {
+    const n = Math.max(1, GS.Store.get('days') || 0), tot = GS.Store.get('tot') || { c: 0 }, best = (GS.Store.get('best') || [])[0], lc = lastCard || {};
+    const a = Object.assign({ skin: GS.SKINS[2], hair: GS.HAIRS[0], hairStyle: 'corto' }, GS.Store.get('avatar') || {});
+    const url = C.shareUrl || (/^http/.test(location.protocol) ? (location.host + location.pathname).replace(/\/(index\.html)?$/, '') : 'www.gameshop.com.ar');
+    const svg = avatarSvg(a).replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" ').replace('width="120" height="149"', 'width="480" height="596"');
+    return Promise.all([loadImg(GS.LOGO), loadImg('data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg))]).then(im => {
+      const W_ = 1080, H = 1350, cv = document.createElement('canvas'); cv.width = W_; cv.height = H; const g = cv.getContext('2d'), F = (px, w) => (w || '900') + ' ' + px + 'px Impact, Haettenschweiler, "Arial Narrow", "Arial Black", sans-serif';
+      const bg = g.createRadialGradient(W_ / 2, 520, 60, W_ / 2, 520, 900); bg.addColorStop(0, '#4a0d0d'); bg.addColorStop(0.5, '#170607'); bg.addColorStop(1, '#000'); g.fillStyle = bg; g.fillRect(0, 0, W_, H);
+      const stripe = (x, w, c) => { g.fillStyle = c; g.beginPath(); g.moveTo(x, 0); g.lineTo(x + w, 0); g.lineTo(x + w - 150, 300); g.lineTo(x - 150, 300); g.fill(); };
+      g.save(); g.globalAlpha = 0.9; stripe(120, 46, '#ff0000'); stripe(196, 30, '#fff'); stripe(W_ - 20, 46, '#ff0000'); stripe(W_ - 96, 30, '#fff'); g.restore();
+      g.textAlign = 'center'; g.textBaseline = 'alphabetic';
+      if (im[0]) { const lw = 600, lh = lw * im[0].height / im[0].width; g.drawImage(im[0], (W_ - lw) / 2, 78, lw, lh); }
+      g.fillStyle = '#fff'; g.font = F(58, '400'); g.fillText('S I M U L A T O R', W_ / 2, 300);
+      // personaje en un círculo
+      g.fillStyle = '#fff'; g.beginPath(); g.arc(W_ / 2, 560, 218, 0, 7); g.fill(); g.fillStyle = '#e9e9ee'; g.beginPath(); g.arc(W_ / 2, 560, 204, 0, 7); g.fill();
+      if (im[1]) { g.save(); g.beginPath(); g.arc(W_ / 2, 560, 204, 0, 7); g.clip(); try { g.drawImage(im[1], W_ / 2 - 190, 372, 380, 472); } catch (e) {} g.restore(); }
+      g.lineWidth = 10; g.strokeStyle = '#ff0000'; g.beginPath(); g.arc(W_ / 2, 560, 223, 0, 7); g.stroke();
+      // rango
+      const rk = rankOf(n + 1).toUpperCase(); g.font = F(64); const rw = Math.min(940, g.measureText(rk).width + 90);
+      g.fillStyle = '#f5c518'; g.beginPath(); g.moveTo(W_ / 2 - rw / 2 + 24, 770); g.lineTo(W_ / 2 + rw / 2, 770); g.lineTo(W_ / 2 + rw / 2 - 24, 868); g.lineTo(W_ / 2 - rw / 2, 868); g.fill();
+      g.fillStyle = '#000'; g.fillText(rk, W_ / 2, 843, 860);
+      g.fillStyle = '#fff'; g.font = F(50, '700'); g.fillText(GS.FINAL.card[0].replace('{n}', n), W_ / 2, 946, 980);
+      // tres números
+      const stats = [[(best ? best.score : lc.score || 0).toLocaleString('es-AR'), 'MEJOR PUNTAJE'], [String(tot.c), 'CLIENTES ATENDIDOS'], [repTxt(repNow()) + ' / 5', 'REPUTACIÓN']];
+      stats.forEach((st, i) => { const x = 60 + i * 325, w = 310; g.fillStyle = 'rgba(255,255,255,.08)'; g.fillRect(x, 990, w, 150); g.fillStyle = '#ff0000'; g.fillRect(x, 990, w, 8);
+        g.fillStyle = '#fff'; g.font = F(72); g.fillText(st[0], x + w / 2, 1080, w - 24); g.fillStyle = '#c9c9d2'; g.font = '700 24px system-ui, Arial, sans-serif'; g.fillText(st[1], x + w / 2, 1120, w - 16); });
+      if (fin || GS.Store.get('finalSeen')) { g.fillStyle = '#f5c518'; g.font = F(34, '700'); g.fillText('★  TEMPORADA COMPLETA  ★', W_ / 2, 368); }
+      g.fillStyle = '#ff0000'; g.fillRect(0, 1180, W_, 170); g.fillStyle = '#fff'; g.font = F(60); g.fillText('¿TE ANIMÁS A UN TURNO?', W_ / 2, 1256, 1000); g.font = '700 34px system-ui, Arial, sans-serif'; g.fillText(url, W_ / 2, 1312, 1000);
+      return cv;
+    });
+  }
+  function showCard(fin) {
+    A.unlock(); A.play('click');
+    drawCard(fin).then(cv => {
+      let data = ''; try { data = cv.toDataURL('image/png'); } catch (e) {}
+      if (!data) return modal('<h2>Tu tarjeta</h2><p>Este navegador no pudo armar la imagen. Probá con una captura de pantalla del cierre de caja.</p><button class="btn" data-close>Cerrar</button>');
+      modal('<h2>Tu tarjeta</h2><img class="cardimg" id="cardImg" alt="Tarjeta de GameShop Simulator" src="' + data + '"><button class="btn" id="cardShare" hidden>Compartir</button>' +
+        '<a class="btn ' + (navigator.share ? 'ghost' : '') + '" id="cardDown" download="gameshop-simulator.png" href="' + data + '">Descargar imagen</a><button class="btn ghost" data-close>Cerrar</button>');
+      cv.toBlob(blob => {
+        if (!blob || !navigator.share || !window.File || !$('cardShare')) return;
+        const file = new File([blob], 'gameshop-simulator.png', { type: 'image/png' });
+        if (navigator.canShare && !navigator.canShare({ files: [file] })) return;
+        $('cardShare').hidden = false;
+        $('cardShare').addEventListener('click', () => { GS.track('compartir', {}); navigator.share({ files: [file], title: 'GameShop Simulator', text: GS.FINAL.card[0].replace('{n}', Math.max(1, GS.Store.get('days') || 0)) + ' ¿Te animás a un turno?' }).catch(() => {}); });
+      }, 'image/png');
+    });
   }
 
   /* ---------------- Modales: cómo se juega, récords, opciones, pausa ---------------- */
@@ -2631,6 +2969,7 @@ GS.Game = (function () {
       '<li><i>👆</i><span>Tocá un pendiente para resolverlo: son minijuegos de unos segundos.</span></li>' +
       '<li><i>💵</i><span>Al cobrar acordate: 10% OFF en efectivo o transferencia, 3 cuotas sin interés con tarjeta.</span></li>' +
       '<li><i>🔥</i><span>Encadená aciertos para armar <b>racha</b>. Si te equivocás no perdés nada: solo hay un chiste.</span></li>' +
+      '<li><i>🧠</i><span>Tu <b>cordura</b> sube en los respiros y baja si se junta mucho. A veces hay <b>interrupciones</b>: se contestan con un toque, y si no, se resuelven solas.</span></li>' +
       '<li><i>🔎</i><span>Arrastrá para mover el local y pellizcá (o usá la rueda) para acercar.</span></li></ul>' +
       '<button class="btn" data-close>¡A laburar!</button>', () => { if (fromDay) paused = false; });
   }
@@ -2645,11 +2984,13 @@ GS.Game = (function () {
     const seg = (name, vals, curv) => '<div class="seg" data-seg="' + name + '">' + vals.map(v => '<button data-v="' + v[0] + '" class="' + (v[0] === curv ? 'on' : '') + '">' + v[1] + '</button>').join('') + '</div>';
     modal('<h2>Opciones</h2>' +
       '<div class="setting"><span>Sonido</span>' + seg('mute', [['0', 'Con sonido'], ['1', 'Silencio']], A.isMuted() ? '1' : '0') + '</div>' +
+      '<div class="setting"><span>Música</span>' + seg('music', [['1', 'Con música'], ['0', 'Sin música']], A.isMusicOn() ? '1' : '0') + '</div>' +
       '<div class="setting"><span>Calidad gráfica</span>' + seg('quality', [['auto', 'Auto'], ['alta', 'Alta'], ['media', 'Media'], ['baja', 'Baja']], q) + '</div>' +
       '<div class="setting"><span>Reducir movimiento</span>' + seg('calm', [['0', 'No'], ['1', 'Sí']], calm ? '1' : '0') + '</div>' +
       '<div class="setting"><span>Tu personaje</span><button class="btn ghost" id="optAv" style="width:auto">Cambiar</button></div>' +
       '<div class="setting"><span>Jornada (modo prueba)</span>' + seg('testDay', [['0', 'Auto'], ['1', '1'], ['2', '2'], ['3', '3'], ['4', '4'], ['5', '5'], ['6', '6'], ['8', '8']], String(GS.Store.get('testDay') || 0)) + '</div>' +
       '<div class="setting"><span>Clima (modo prueba)</span>' + seg('testCond', [['', 'Auto'], ['ninguna', 'Normal'], ['lluvia', 'Lluvia'], ['blackfriday', 'Black Friday'], ['navidad', 'Navidad']], GS.Store.get('testCond') || '') + '</div>' +
+      (fromPause ? '' : '<div class="setting"><span>Escena final<br><small>' + (GS.Store.get('finalSeen') ? 'Volver a verla' : 'Se ve al terminar la jornada ' + C.finalDay + ' (modo prueba)') + '</small></span><button class="btn ghost" id="optFinal" style="width:auto">Ver</button></div>') +
       '<div class="setting"><span>Volver a la jornada 1<br><small>Conserva monedas y mejoras</small></span><button class="btn ghost" id="optDay1" style="width:auto">Volver</button></div>' +
       '<div class="setting"><span>Borrar todo<br><small>Jornadas, monedas, mejoras y récords</small></span><button class="btn ghost" id="optReset" style="width:auto">Reiniciar</button></div>' +
       '<button class="btn" data-close>Listo</button>', () => { if (fromPause) showPause(); });
@@ -2658,6 +2999,7 @@ GS.Game = (function () {
       s.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
       const name = s.dataset.seg, v = b.dataset.v;
       if (name === 'mute') { A.unlock(); A.setMuted(v === '1'); syncMute(); A.play('click'); }
+      if (name === 'music') { A.unlock(); A.setMusic(v === '1'); }
       if (name === 'quality') { GS.Store.set('quality', v); W.setQuality(v === 'auto' ? autoQuality() : v); }
       if (name === 'calm') { setCalm(v === '1'); GS.Store.set('calm', calm); }
       if (name === 'testDay') { GS.Store.set('testDay', Number(v)); refreshStart(); }
@@ -2665,6 +3007,7 @@ GS.Game = (function () {
     }));
     $('optDay1').addEventListener('click', e => { GS.Store.set('days', 0); GS.Store.set('seen', {}); GS.Store.set('testDay', 0); refreshStart(); e.target.textContent = 'Listo ✔'; });
     $('optAv').addEventListener('click', () => showAvatar(() => showOptions(fromPause)));
+    if ($('optFinal')) $('optFinal').addEventListener('click', () => { modalOnClose = null; $('modal').hidden = true; startFinal(); });
     $('optReset').addEventListener('click', e => { GS.Store.reset(); W.setUpgrades({}); refreshStart(); e.target.textContent = 'Borrado ✔'; });
   }
   function showPause() {
@@ -2690,6 +3033,7 @@ GS.Game = (function () {
     if (document.hidden) { lastT = t; return; }             // pestaña oculta: no se dibuja ni corre el reloj
     const dt = Math.min(0.05, (t - lastT) / 1000 || 0); lastT = t;
     if (state === 'day' && !paused) updateDay(dt);
+    if (state === 'final' && !paused) updateFinal(dt);
     if (!paused && (walkT -= dt) <= 0 && walkers < 4) {                 // peatones: pasan por la vereda y siguen de largo
       walkT = U.rnd(3, 7) * (day && day.cond === 'lluvia' ? 2.2 : 1); walkers++;
       const dir = Math.random() < 0.5 ? 1 : -1, z = L.galeria.zMax + U.rnd(1.6, 2.6), hs = U.pick(GS.HAIRSTYLES)[0];
@@ -2723,7 +3067,8 @@ GS.Game = (function () {
     $('btnOpts').addEventListener('click', () => { A.unlock(); A.play('click'); showOptions(false); });
     $('phasesStart').addEventListener('click', showPhases);
     $('chipPhase').addEventListener('click', () => { paused = true; showPhases(); modalOnClose = () => { paused = false; }; });
-    $('jobs').addEventListener('click', e => { const b = e.target.closest('.job[data-i]'); if (b && jobList[b.dataset.i]) openJob(jobList[b.dataset.i]); });
+    $('chipCord').addEventListener('click', showCord); $('finSkip').addEventListener('click', finishFinal);
+    $('jobs').addEventListener('click', e => { const ib = e.target.closest('[data-intr]'); if (ib) return answerIntr(ib.dataset.intr === '1'); const b = e.target.closest('.job[data-i]'); if (b && jobList[b.dataset.i]) openJob(jobList[b.dataset.i]); });
     $('btnPause').addEventListener('click', showPause);
     $('btnMute').addEventListener('click', () => { A.unlock(); A.setMuted(!A.isMuted()); syncMute(); A.play('click'); });
     window.addEventListener('resize', () => W.resize());
@@ -2734,6 +3079,7 @@ GS.Game = (function () {
       if (state !== 'day') return;
       if (e.key === 'Escape') return showPause();
       if (MG.isOpen()) return MG.key(e);
+      if (day.intr && (e.key === 'a' || e.key === 'b' || e.key === 'A' || e.key === 'B')) { const first = e.key.toLowerCase() === 'a'; return answerIntr(first ? !day.intr.flip : day.intr.flip); }
       const n = parseInt(e.key, 10); if (n >= 1 && n <= jobList.length && !day.arcade) openJob(jobList[n - 1]);
     });
     document.addEventListener('gesturestart', e => e.preventDefault());
@@ -2741,7 +3087,7 @@ GS.Game = (function () {
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 
-  return { startDay, startArcade, openStation, openJob, pendingJobs, endDay, debugTask: id => spawnTask(ST(id)), state: () => state, day: () => day };
+  return { startDay, startArcade, startFinal, showCard, drawCard, debugIntr: () => spawnIntr(), openStation, openJob, pendingJobs, endDay, debugTask: id => spawnTask(ST(id)), state: () => state, day: () => day };
 })();
 
 </script>
