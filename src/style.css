@@ -252,8 +252,8 @@ body.calm * { animation: none !important; transition: none !important; }
 
 /* dibujos de productos */
 .pic { display: inline-flex; width: 46px; height: 46px; flex: none; } .pic svg { width: 100%; height: 100%; }
-.pic.sm { width: 22px; height: 22px; vertical-align: -5px; margin-right: 4px; }
-.opt .pic { width: 54px; height: 54px; }
+.pic.sm { width: 26px; height: 26px; vertical-align: -7px; margin-right: 5px; background: #f3f3f6; border-radius: 6px; padding: 2px; }
+.opt .pic { width: 62px; height: 62px; background: #f3f3f6; border-radius: 12px; padding: 5px; box-shadow: inset 0 0 0 1px #d5d5dd; }
 /* estaciones 8 a 11 */
 .shelfv { background: #fdfdf8; border-radius: 12px; border-bottom: 8px solid #c9ccd1; padding: 10px 8px 4px; display: flex; flex-wrap: wrap; gap: 4px 6px; justify-content: center; min-height: 64px; }
 .opts.three.low .opt { min-height: 54px; justify-content: center; } .opt .n.big { font-family: var(--display); font-size: 30px; font-weight: 700; }
@@ -284,3 +284,12 @@ body.calm * { animation: none !important; transition: none !important; }
 .sw { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; } .sw button { width: 34px; height: 34px; border-radius: 50%; border: 3px solid #34343b; } .sw button.on { border-color: #fff; box-shadow: 0 0 0 2px var(--red); }
 .avprev { position: relative; width: 84px; height: 96px; margin: 0 auto; } .avprev i { position: absolute; left: 50%; transform: translateX(-50%); }
 #avF { top: 8px; width: 60px; height: 56px; border-radius: 50%; } #avH { top: 0; width: 64px; height: 34px; border-radius: 34px 34px 8px 8px; z-index: 1; } #avB { top: 58px; width: 46px; height: 38px; border-radius: 12px 12px 6px 6px; background: var(--red); }
+
+/* contraste: los dibujos siempre sobre fondo claro */
+.shelfv .pic { background: none; } .parts .opt .pi { background: #f3f3f6; border-radius: 8px; height: 34px; padding: 3px; }
+.avprev { width: 110px; height: 132px; } .setting small { color: var(--mute); font-size: 12px; }
+.promo { text-align: center; background: linear-gradient(90deg, #5a4300, #8a6a00, #5a4300); border: 2px solid var(--warn); border-radius: 14px; padding: 9px; font-weight: 800; color: #fff; } .promo b { display: block; font-family: var(--display); font-size: 22px; text-transform: uppercase; }
+/* lluvia */
+#rain { position: fixed; inset: 0; pointer-events: none; z-index: 4; background-color: rgba(20, 45, 90, .26);
+  background-image: repeating-linear-gradient(103deg, transparent 0 17px, rgba(190, 215, 255, .30) 17px 18px, transparent 18px 46px); background-size: 230px 230px; animation: rain .45s linear infinite; }
+@keyframes rain { to { background-position: -53px 230px; } }

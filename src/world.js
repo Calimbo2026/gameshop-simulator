@@ -107,17 +107,18 @@ GS.World = (function () {
 
   // Productos del salón: los mismos dibujos del catálogo, parados sobre los muebles y mirando a la cámara
   const iconCache = {};
-  function iconTex(id) {
+  function iconMats(id) {
     if (iconCache[id]) return iconCache[id];
-    const c = document.createElement('canvas'); c.width = c.height = 128; const t = new T.CanvasTexture(c), img = new Image();
-    img.onload = () => { c.getContext('2d').drawImage(img, 0, 0, 128, 128); t.needsUpdate = true; };
+    const c = document.createElement('canvas'); c.width = c.height = 128; const g = c.getContext('2d'), t = new T.CanvasTexture(c), img = new Image();
+    g.fillStyle = '#ffffff'; g.fillRect(0, 0, 128, 128); g.strokeStyle = '#d5d5dd'; g.lineWidth = 6; g.strokeRect(3, 3, 122, 122);
+    img.onload = () => { g.drawImage(img, 14, 14, 100, 100); t.needsUpdate = true; };
     img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(GS.ICONS[id].replace('<svg ', '<svg width="128" height="128" '));
-    return (iconCache[id] = t);
+    const face = new T.MeshBasicMaterial({ map: t }), side = mat(0xf4f4f6);
+    return (iconCache[id] = [face, side, side, side, face, side]);   // +x y +z: las dos caras que ve la cámara
   }
-  const gSprite = new T.PlaneGeometry(1, 1);
+  // Caja de producto: mismo tamaño para todas, bien alineadas (como una góndola real)
   function sprite(parent, id, x, y, z, size) {
-    const m = new T.Mesh(gSprite, new T.MeshBasicMaterial({ map: iconTex(id), transparent: true, alphaTest: 0.35, side: T.DoubleSide }));
-    m.scale.set(size, size, 1); m.rotation.order = 'YXZ'; m.rotation.y = rot; m.rotation.x = -0.62; m.position.set(x, y + size * 0.42, z); parent.add(m); return m;
+    const m = new T.Mesh(unitBox, iconMats(id)); m.scale.set(size * 0.74, size * 0.74, size * 0.74); m.position.set(x, y + size * 0.37, z); parent.add(m); return m;
   }
   const idsOf = cat => GS.CATALOG.filter(p => p.cat === cat).map(p => p.id);
   function sign(parent, text, w, h, x, y, z, ry) {
@@ -154,9 +155,9 @@ GS.World = (function () {
       let z = zA + 0.2, sec = 0;
       while (z < zB - 0.2) {
         const pal = palettes[(Math.floor((z - zA) / 2.4) + lvl) % palettes.length];
-        const w = U.rnd(0.22, 0.4), h = U.rnd(0.22, 0.42);
-        if (Math.random() > 0.08) b.add(depth * 0.7, h, w, U.pick(pal), sx, y + 0.05, z + w / 2);
-        z += w + 0.05; sec++;
+        const w = 0.3, h = 0.34;                       // cajas parejas y alineadas
+        b.add(depth * 0.7, h, w, pal[sec % pal.length], sx, y + 0.05, z + w / 2);
+        z += w + 0.09; sec++;
       }
     }
     // columnas negras con gráfica, como en el local
@@ -176,7 +177,7 @@ GS.World = (function () {
       const y = 1.25 + i * 0.6;
       box(g, 7.2, 0.04, 0.42, glow, -2.0, y, z + 0.26);
       const ids = idsOf('consolas'); let k = i * 3;
-      for (let x = -5.3; x < 1.5; x += 0.62) sprite(g, ids[k++ % ids.length], x, y + 0.04, z + 0.34, 0.56);
+      for (let x = -5.25; x < 1.5; x += 0.6) sprite(g, ids[k++ % ids.length], x, y + 0.04, z + 0.3, 0.54);
     }
     sign(g, 'CONSOLAS Y JUEGOS', 4.2, 0.36, -2.0, 3.0, z + 0.03);
     // mueble bajo blanco
@@ -252,7 +253,7 @@ GS.World = (function () {
       const g = upGroup(root, 'isla', 1), b = Batch(g), i = L.isla;
       box(g, i.w, i.h, i.d, 0xffffff, i.x, 0, i.z); box(g, i.w - 0.2, i.h - 0.3, 0.03, 0xe2e2e2, i.x, 0.2, i.z + i.d / 2 + 0.01);
       for (let r = 0; r < 2; r++) for (let k = 0; k < 6; k++) b.add(0.2, 0.26, 0.05, pc(), i.x - 0.65 + k * 0.26, 0.3 + r * 0.36, i.z + i.d / 2 + 0.05);
-      idsOf('apple').forEach((id, k) => sprite(g, id, i.x - 0.68 + k * 0.34, i.h, i.z, 0.5));
+      idsOf('apple').forEach((id, k) => sprite(g, id, i.x - 0.66 + k * 0.33, i.h, i.z + 0.1, 0.4));
       sign(g, 'APPLE', 1.3, 0.24, i.x, 0.14, i.z + i.d / 2 + 0.06); b.build();
     }
     { // mesa de madera con PC y accesorios
@@ -261,18 +262,19 @@ GS.World = (function () {
       box(g, t.w - 0.1, t.h - 0.09, 0.1, wood, t.x, 0, t.z - t.d / 2 + 0.05); box(g, t.w - 0.1, t.h - 0.09, 0.1, wood, t.x, 0, t.z + t.d / 2 - 0.05);
       box(g, 0.08, t.h - 0.09, t.d, 0xc9a56b, t.x - t.w / 2 + 0.3, 0, t.z);
       [[-1.1, 0x111111], [-0.2, 0xf4f4f4], [0.7, 0x111111]].forEach(a => box(g, 0.5, 0.62, 0.62, a[1], t.x + 0.35, 0, t.z + a[0]));
-      notebook(g, t.x - 0.2, t.h, t.z - 1.3); notebook(g, t.x + 0.25, t.h, t.z - 0.5);
-      ['gpu', 'ram', 'disco', 'router', 'impresora', 'monitor', 'gabinete'].forEach((id, k) => sprite(g, id, t.x + (k % 2 ? 0.3 : -0.25), t.h, t.z - 0.2 + k * 0.3, 0.56));
+      notebook(g, t.x, t.h, t.z - 1.35); notebook(g, t.x, t.h, t.z - 0.75);
+      ['gpu', 'monitor', 'ram', 'gabinete', 'disco', 'impresora', 'router', 'cargador'].forEach((id, k) => sprite(g, id, t.x + (k % 2 ? 0.32 : -0.32), t.h, t.z - 0.1 + Math.floor(k / 2) * 0.48, 0.5));
       sign(g, 'PC Y ACCESORIOS', 2.8, 0.34, t.x + t.w / 2 + 0.02, 0.42, t.z, Math.PI / 2);
     }
     { // escritorio gamer con monitor, teclado blanco y silla gris
       const g = upGroup(root, 'escritorio', 1), e = L.escritorio;
       box(g, e.w, 0.06, e.d, 0x151515, e.x, e.h - 0.06, e.z);
       box(g, 0.08, e.h - 0.06, e.d - 0.1, 0x151515, e.x - e.w / 2 + 0.08, 0, e.z); box(g, 0.08, e.h - 0.06, e.d - 0.1, 0x151515, e.x + e.w / 2 - 0.08, 0, e.z);
-      const mon = monitor(g, e.x + 0.1, e.h, e.z, -Math.PI / 2 - 0.2); mon.scale.set(1.5, 1.5, 1.5);
+      const mon = monitor(g, e.x - 0.3, e.h, e.z, Math.PI / 2 - 0.25); mon.scale.set(1.5, 1.5, 1.5);
       const screen = plane(mon, 0.56, 0.34, new T.MeshBasicMaterial({ color: 0x7be07b }), 0, 0.38, 0.025); animated.push({ type: 'screen', mesh: screen });
-      box(g, 0.16, 0.03, 0.44, 0xf5f5f5, e.x - 0.35, e.h, e.z); box(g, 0.36, 0.01, 0.9, 0x19c37d, e.x - 0.35, e.h - 0.005, e.z);
-      gamingChair(g, e.x - 1.15, e.z, Math.PI / 2, 0x8a8f98, 0x60656e);
+      box(g, 0.16, 0.03, 0.44, 0xf5f5f5, e.x + 0.3, e.h, e.z); box(g, 0.4, 0.01, 0.74, 0x7b4fd1, e.x + 0.3, e.h - 0.005, e.z);
+      box(g, 0.3, 0.5, 0.26, 0x15151a, e.x - 0.2, 0, e.z + 0.75); box(g, 0.02, 0.36, 0.2, 0x56d6ff, e.x - 0.04, 0.07, e.z + 0.75, { emissive: 0x2a8aa0 });
+      gamingChair(g, e.x + 1.2, e.z, -Math.PI / 2, 0x8a8f98, 0xe10600);
     }
     { // sillas gamer contra la pared izquierda
       const g = upGroup(root, 'sillas', 1);
@@ -306,13 +308,14 @@ GS.World = (function () {
     b.add(0.3, 0.24, 0.3, 0xb98d5e, rp.x - 0.02, 0.76, rp.z);
     b.build();
   }
-  function notebook(root, x, y, z) {
-    box(root, 0.5, 0.03, 0.36, 0x2a2a2e, x, y, z);
-    const lid = box(root, 0.03, 0.34, 0.36, 0x2a2a2e, x + 0.24, y + 0.02, z); lid.rotation.z = -0.25;
-    const scr = box(root, 0.01, 0.28, 0.3, 0x57e6ff, x + 0.215, y + 0.05, z, { emissive: 0x1c6a80 }); scr.rotation.z = -0.25;
+  function notebook(root, x, y, z) {          // abierta, con la pantalla mirando a la cámara
+    box(root, 0.36, 0.03, 0.5, 0x2a2a2e, x, y, z); box(root, 0.24, 0.005, 0.4, 0x1a1a1e, x + 0.03, y + 0.03, z);
+    const lid = new T.Group(); lid.position.set(x - 0.18, y + 0.03, z); lid.rotation.z = 0.28; root.add(lid);
+    box(lid, 0.03, 0.34, 0.5, 0x2a2a2e, 0, 0, 0); box(lid, 0.012, 0.28, 0.44, 0x56d6ff, 0.02, 0.03, 0, { emissive: 0x2a8aa0 });
   }
 
   // Vidriera tipo galería: dos cajas de vidrio a los costados de un pasillo, arcade en el medio
+  let vk = 0;
   function buildGallery(root) {
     const s = L.salon, zA = s.zMax, zB = L.galeria.zMax, p = L.galeria.pasillo, b = Batch(root);
     const band = textTex('www.GameShop.com.ar', { bg: '#0a0a0a', fg: '#ffffff', w: 512, h: 64, font: '900 40px Impact, "Arial Black", sans-serif' });
@@ -326,11 +329,10 @@ GS.World = (function () {
       // gradas blancas con productos
       box(root, w - 1.0, 0.45, d - 0.4, 0xffffff, cx + side * 0.4, 0.5, cz);
       box(root, w - 2.4, 0.45, d - 0.4, 0xffffff, cx + side * 1.1, 0.95, cz);
-      for (let z = zA + 0.5; z < zB - 0.4; z += 0.42) {
-        b.add(0.3, U.rnd(0.25, 0.45), 0.3, pc(), x0 + side * 0.75, 0.95, z);
-        b.add(0.3, U.rnd(0.25, 0.45), 0.3, pc(), x0 + side * 1.6, 0.95, z + 0.1);
-        b.add(0.34, U.rnd(0.3, 0.5), 0.3, pc(), x0 + side * 2.9, 1.4, z);
-        b.add(0.34, U.rnd(0.3, 0.5), 0.3, pc(), x0 + side * 3.7, 1.4, z + 0.12);
+      for (let z = zA + 0.5; z < zB - 0.4; z += 0.5) {
+        const all = GS.CATALOG;
+        sprite(root, all[vk++ % all.length].id, x0 + side * 0.8, 0.95, z, 0.46); sprite(root, all[vk++ % all.length].id, x0 + side * 1.6, 0.95, z, 0.46);
+        sprite(root, all[vk++ % all.length].id, x0 + side * 2.9, 1.4, z, 0.46); sprite(root, all[vk++ % all.length].id, x0 + side * 3.7, 1.4, z, 0.46);
       }
       // vidrio
       const gl = new T.Mesh(unitBox, glass); gl.scale.set(w, 1.9, d); gl.position.set(cx, 0.5 + 0.95, cz); root.add(gl);
@@ -390,25 +392,41 @@ GS.World = (function () {
         gHair = new T.SphereGeometry(0.35, 12, 8, 0, Math.PI * 2, 0, Math.PI * 0.52), gEye = new T.SphereGeometry(0.04, 6, 6),
         gShadow = new T.CircleGeometry(0.36, 16);
   const shadowMat = new T.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.2, depthWrite: false });
+  const gCone = new T.CylinderGeometry(0.15, 0.34, 0.86, 12), gBun = new T.SphereGeometry(0.15, 8, 8), gCurl = new T.SphereGeometry(0.13, 7, 6),
+        gBeard = new T.SphereGeometry(0.345, 12, 8, 0, Math.PI * 2, Math.PI * 0.52, Math.PI * 0.48);
   function makePerson(o) {
     o = o || {};
-    const g = new T.Group();
-    const body = new T.Mesh(gBody, mat(o.shirt || 0x4a6fb5)); body.position.y = 0.45; g.add(body);
-    const head = new T.Mesh(gHead, mat(o.skin || U.pick(SKINS))); head.position.y = 1.12; g.add(head);
-    const hair = new T.Mesh(gHair, mat(o.hair || 0x3a2a1a)); hair.position.y = 1.14; hair.rotation.x = -0.25; g.add(hair);
-    [-0.12, 0.12].forEach(x => { const e = new T.Mesh(gEye, mat(0x111111)); e.position.set(x, 1.12, 0.3); g.add(e); });
+    const g = new T.Group(), base = o.scale || 1; g.scale.setScalar(base); g.userData.base = base;
+    const body = new T.Mesh(gCone, mat(o.shirt || 0x4a6fb5)); body.position.y = 0.45; g.add(body);
+    const head = new T.Mesh(gHead, mat(SKINS[0])); head.position.y = 1.14; g.add(head);
+    [-0.12, 0.12].forEach(x => { const e = new T.Mesh(gEye, mat(0x111111)); e.position.set(x, 1.14, 0.3); g.add(e); });
     const sh = new T.Mesh(gShadow, shadowMat); sh.rotation.x = -Math.PI / 2; sh.position.y = 0.02; g.add(sh);
     const bag = box(g, 0.26, 0.3, 0.12, 0xe10600, 0.3, 0.3, 0.1); bag.visible = false;
     if (o.phone) box(g, 0.1, 0.18, 0.03, 0x111111, 0.12, 0.72, 0.26);
     let cargo = null;
-    if (o.cart) {                                    // carreta de reparto con cajas
+    if (o.cart) {
       box(g, 0.62, 0.06, 0.8, 0x3a6fd1, 0, 0.16, 0.85); box(g, 0.05, 0.9, 0.05, 0x3a6fd1, -0.26, 0.16, 0.48); box(g, 0.05, 0.9, 0.05, 0x3a6fd1, 0.26, 0.16, 0.48);
       box(g, 0.58, 0.05, 0.05, 0x3a6fd1, 0, 1.02, 0.48);
       [-0.3, 0.3].forEach(x => { const w = new T.Mesh(new T.CylinderGeometry(0.12, 0.12, 0.06, 10), mat(0x111111)); w.rotation.z = Math.PI / 2; w.position.set(x, 0.12, 1.05); g.add(w); });
       cargo = new T.Group(); g.add(cargo);
       box(cargo, 0.5, 0.36, 0.5, 0xc49a6c, 0, 0.22, 0.9); box(cargo, 0.44, 0.3, 0.44, 0xb98d5e, 0.02, 0.58, 0.9); box(cargo, 0.3, 0.22, 0.3, 0xc49a6c, -0.04, 0.88, 0.9);
     }
-    const base = o.scale || 1; g.scale.setScalar(base); g.userData.base = base;
+    // Estilo libre: cualquier combinación de peinado y accesorios (sin distinguir géneros)
+    let acc = null;
+    function style(a) {
+      if (acc) g.remove(acc); acc = new T.Group(); acc.position.y = 1.14; g.add(acc);
+      head.material = mat(a.skin || SKINS[1]); const hm = mat(a.hair || 0x3a2a1a), st = a.hairStyle || 'corto';
+      const cap = () => { const m = new T.Mesh(gHair, hm); m.position.y = 0.02; m.rotation.x = -0.25; acc.add(m); };
+      if (st === 'corto' || st === 'largo' || st === 'rodete') cap();
+      if (st === 'largo') { box(acc, 0.62, 0.52, 0.2, hm, 0, -0.44, -0.24); box(acc, 0.1, 0.4, 0.3, hm, -0.31, -0.36, -0.06); box(acc, 0.1, 0.4, 0.3, hm, 0.31, -0.36, -0.06); }
+      if (st === 'rodete') { const b = new T.Mesh(gBun, hm); b.position.set(0, 0.42, -0.1); acc.add(b); }
+      if (st === 'rulos') [[0, 0.3, 0], [0.2, 0.24, 0.02], [-0.2, 0.24, 0.02], [0, 0.24, -0.2], [0.16, 0.2, 0.18], [-0.16, 0.2, 0.18], [0.24, 0.1, -0.16], [-0.24, 0.1, -0.16], [0, 0.26, 0.2]].forEach(q => { const c = new T.Mesh(gCurl, hm); c.position.set(q[0], q[1], q[2]); acc.add(c); });
+      if (st === 'mohicano') { box(acc, 0.1, 0.26, 0.62, hm, 0, 0.22, -0.03); box(acc, 0.1, 0.14, 0.3, hm, 0, 0.44, -0.03); }
+      if (a.beard) { const m = new T.Mesh(gBeard, hm); m.rotation.x = 0.4; m.position.z = 0.03; acc.add(m); }
+      if (a.glasses) { box(acc, 0.16, 0.12, 0.03, 0x111111, -0.12, -0.07, 0.3); box(acc, 0.16, 0.12, 0.03, 0x111111, 0.12, -0.07, 0.3); box(acc, 0.1, 0.03, 0.03, 0x111111, 0, -0.01, 0.3); }
+      if (a.lips) box(acc, 0.14, 0.05, 0.05, 0xd81e5b, 0, -0.19, 0.28);
+    }
+    style(o);
     scene.add(g);
     const p = {
       group: g, path: [], speed: o.speed || 2.9, t: Math.random() * 6, onArrive: null, moving: false,
@@ -416,7 +434,7 @@ GS.World = (function () {
       face(ry) { g.rotation.y = ry; },
       walk(points, cb) { p.path = points.slice(); p.onArrive = cb || null; p.moving = true; },
       bag(v) { bag.visible = v; },
-      look(sk, hr) { head.material = mat(sk); hair.material = mat(hr); },
+      look(a) { style(a); },
       cargo(v) { if (cargo) cargo.visible = v; },
       remove() { scene.remove(g); const i = people.indexOf(p); if (i >= 0) people.splice(i, 1); }
     };
@@ -547,7 +565,7 @@ GS.World = (function () {
     setReduceMotion(v) { reduceMotion = v; },
     makePerson,
     setUpgrades: applyUpgrades,
-    setPlayerLook(a) { if (yo && a) yo.look(a.skin, a.hair); },
+    setPlayerLook(a) { if (yo && a) yo.look(a); },
     // Zoom a un punto del local (para la tienda de mejoras)
     focusAt(x, z, factor, biasY) {
       const d = cam.fit * (factor || 0.45), by = (biasY || 0) * 2 * d * Math.tan(GS.CONFIG.camera.fov * DEG / 2) / Math.sin(tilt);

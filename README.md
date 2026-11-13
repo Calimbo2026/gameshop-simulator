@@ -2,7 +2,7 @@
 
 Juego web (un solo HTML) que simula una jornada de trabajo en GameShop. Pieza de marca para `juego.gameshop.com.ar`.
 
-## Estado: Etapa 3 de 5 (completa, en revisión)
+## Estado: Etapa 4 de 5 (parte A en revisión)
 
 | # | Etapa | Qué incluye | Estado |
 |---|-------|-------------|--------|
@@ -56,3 +56,9 @@ Sin datos sensibles del negocio, sin personas reales, precios y stock ficticios.
 **Idea rectora:** para que repetir no canse tiene que haber un porqué: ahorrar para una mejora visible. La próxima mejora y cuánto falta se muestran siempre.
 
 **Pasa a etapas siguientes:** cordura e interrupciones suaves, más lugares de mejora (vidriera, luces, segunda caja), lluvia visible, mejores avatares.
+
+## Etapa 4
+
+**Parte A (hecha):** avatares tipo cono con peinados (corto, largo, rodete, rulos, mohicano, pelado) y accesorios (anteojos, barba, labios pintados) combinables libremente; el Dueño con mohicano gris; el repartidor pelado y con barba; lluvia visible; productos exhibidos como cajas prolijas con el dibujo impreso; vidriera con productos; notebook y escritorio gamer rehechos; contraste de los dibujos en los paneles; ascenso de rango visible; "Volver a la jornada 1" y clima de prueba en Opciones; frases corregidas por el dueño del proyecto.
+
+**Parte B (pendiente):** exterior con vereda y peatones, depósito y oficina del Dueño, música y balbuceos, escena final, tarjeta para compartir, cordura e interrupciones suaves, más lugares de mejora.

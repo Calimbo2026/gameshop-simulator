@@ -44,4 +44,7 @@
     cargador: S('<rect x="4" y="16" width="24" height="16" rx="3" fill="#23232b"/><path d="M28 24q9 0 9 8t6 8" fill="none" stroke="#23232b" stroke-width="2.500"/><rect x="41" y="38" width="5" height="6" rx="1" fill="#9a9aa3"/><circle cx="9" cy="24" r="1.500" fill="#3bb54a"/>'),
     ram: S('<rect x="2" y="15" width="44" height="13" rx="1" fill="#1f8f4e"/><g fill="#101010"><rect x="6" y="18" width="7" height="7"/><rect x="16" y="18" width="7" height="7"/><rect x="26" y="18" width="7" height="7"/><rect x="36" y="18" width="7" height="7"/></g><rect x="2" y="28" width="44" height="4" fill="#d4a017"/>')
   };
+  // el armado de PC usa los mismos dibujos del catálogo
+  GS.PC_PARTS.find(p => p.id === 'gpu').svg = GS.ICONS.gpu.replace('viewBox="0 0 48 48"', 'viewBox="0 9 48 30"');
+  GS.PC_PARTS.find(p => p.id === 'ram').svg = GS.ICONS.ram.replace('viewBox="0 0 48 48"', 'viewBox="0 13 48 21"');
 })();

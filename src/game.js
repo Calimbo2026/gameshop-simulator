@@ -64,10 +64,11 @@ GS.Game = (function () {
   const coinsNow = () => GS.Store.get('coins') || 0;
   const coinMult = () => { const u = upNow(); return 1 + 0.1 * ((u.mesa || 0) + (u.isla || 0) + (u.gondola || 0)); };
   const patMult = () => { const u = upNow(); return 1 + 0.15 * (u.escritorio || 0) + 0.1 * (u.sillas || 0); };
-  function conditionFor(n) {             // fechas especiales fijas y lluvia al azar (nunca en las primeras jornadas)
+  function conditionFor(n) {
+    const forced = GS.Store.get('testCond'); if (forced) return forced === 'ninguna' ? null : forced;             // fechas especiales fijas y lluvia al azar (nunca en las primeras jornadas)
     if (n >= 5 && n % 10 === 5) return 'blackfriday';
     if (n >= 10 && n % 10 === 0) return 'navidad';
-    return n >= 3 && Math.random() < 0.25 ? 'lluvia' : null;
+    return n >= 3 && Math.random() < 0.3 ? 'lluvia' : null;
   }
   function planDay(n, cond) {
     const un = unlockedFor(n), pool = TASK_STATIONS.filter(s => un.indexOf(s.id) >= 0), u = upNow(), c = cond ? GS.CONDITIONS[cond] : null, r = repNow();
@@ -88,7 +89,7 @@ GS.Game = (function () {
   function duenoSpeak(text) {
     const d = day; if (!d || d.arcade || state !== 'day') return;
     if (d.dueno) { sayAt(d.dueno, text, 5600, 'boss'); return; }
-    const p = W.makePerson({ shirt: 0x111111, hair: 0x9a9aa3, skin: 0xe0ac7e, scale: 1.18, speed: 3.4 }); d.dueno = p; d.extras.push(p);
+    const p = W.makePerson({ shirt: 0x111111, hair: 0xb4b4bd, hairStyle: 'mohicano', skin: 0xe0ac7e, scale: 1.18, speed: 3.4 }); d.dueno = p; d.extras.push(p);
     p.setPos(3.4, -6.3);
     p.walk([[3.4, -5.1]], () => {
       p.face(0.2); A.play('speaker'); sayAt(p, text, 5600, 'boss');
@@ -134,6 +135,7 @@ GS.Game = (function () {
       : cond ? GS.CONDITIONS[cond].name.slice(3) + '. ' + GS.CONDITIONS[cond].say
       : fresh.length ? 'Jornada ' + n + '. Hoy sumamos: ' + fresh.map(id => ST(id).name).join(' y ') + '. Cuando aparezcan, te explico.' : 'Jornada ' + n + '. ' + U.pick(LN.dueno);
     setTimeout(() => { if (day === d) duenoSpeak(msg); }, 500);
+    $('rain').hidden = cond !== 'lluvia'; $('chipCond').hidden = !cond; if (cond) { $('chipCond').textContent = GS.CONDITIONS[cond].name; toast('<b>Hoy</b>' + GS.CONDITIONS[cond].name, 'dueno', 3800); }
     $('clockS').textContent = relaxed ? 'Turno tranquilo' : 'Abrimos';
     updateHud();
     GS.track('inicio_partida', { modo: relaxed ? 'tranquilo' : 'normal' });
@@ -153,7 +155,8 @@ GS.Game = (function () {
     if (!day.reqBag.length) day.reqBag = U.shuffle(GS.REQUESTS);
     if (!day.archBag.length) day.archBag = U.shuffle(GS.CUSTOMERS);
     const req = day.reqBag.pop(), arche = day.archBag.pop(), product = GS.CATALOG.find(p => p.id === req.p);
-    const person = W.makePerson({ shirt: arche.shirt, hair: arche.hair });
+    const k = arche.id.charCodeAt(0) + arche.id.length * 7;   // cada personaje mantiene su look
+    const person = W.makePerson({ shirt: arche.shirt, hair: arche.hair, hairStyle: GS.HAIRSTYLES[k % 5][0], glasses: k % 3 === 0, beard: k % 4 === 1, lips: k % 2 === 0 });
     const dx = L.puerta.x; person.setPos(dx + U.rnd(-0.5, 0.5), day.spawned === 0 ? L.salon.zMax + 1 : L.galeria.zMax + 2.4);
     const cu = { id: ++uid, arche, request: req.t, product, st: 'entering', pat: 1, person, slotM: slot, slotC: -1, label: makeLabel('❓') };
     day.customers.push(cu); day.spawned++;
@@ -169,7 +172,7 @@ GS.Game = (function () {
     const task = { id: ++uid, station: st, arche: { face: st.icon, name: st.task.name, tag: st.task.tag }, pat: 1, st: 'wait', label: makeLabel(st.icon) };
     day.tasks.push(task); day.tasksSpawned++; A.play('speaker');
     if (st.id === 'proveedor') {                    // llega el repartidor con la carreta y deja las cajas
-      const dx = L.puerta.x, dp = W.makePerson({ shirt: 0x8a6b3f, hair: 0x2b2b2b, cart: true, speed: 2.4 }), d = day;
+      const dx = L.puerta.x, dp = W.makePerson({ shirt: 0x8a6b3f, hair: 0x3a2a1a, hairStyle: 'pelado', beard: true, cart: true, speed: 2.4 }), d = day;
       dp.setPos(dx, L.galeria.zMax + 2.4); d.extras.push(dp);
       dp.walk([[dx, L.salon.zMax + 0.2], [dx, -0.6], [4.0, -0.6], [4.0, -4.3]], () => {
         if (day === d && d.tasks.indexOf(task) >= 0) task.boxes = W.dropBoxes(3.5, -5.6);
@@ -316,7 +319,7 @@ GS.Game = (function () {
     }
     $('scoreV').textContent = day.score.toLocaleString('es-AR');
     $('chipSales').hidden = !!day.arcade; $('chipRep').hidden = !!day.arcade; $('chipRep').textContent = '⭐ ' + repTxt(repNow());
-    $('chipSales').textContent = '🪙 ' + (coinsNow() + Math.round(day.score / 20 * coinMult())) + (day.cond ? ' · ' + GS.CONDITIONS[day.cond].name : '');
+    $('chipSales').textContent = '🪙 ' + (coinsNow() + Math.round(day.score / 20 * coinMult()));
     $('chipCombo').hidden = day.combo < 2; $('chipCombo').textContent = '🔥 racha x' + day.combo;
   }
   // Tarjetas de pendientes (abajo): hasta 4, primero lo más urgente
@@ -420,7 +423,7 @@ GS.Game = (function () {
   /* ---------------- Cierre de caja ---------------- */
   function endDay() {
     if (!day || state !== 'day' || day.arcade) return;
-    state = 'end'; MG.close(); W.focus(null); W.showAll(); A.play('endDay');
+    state = 'end'; MG.close(); W.focus(null); W.showAll(); A.play('endDay'); $('rain').hidden = true;
     const d = day;
     d.customers.slice().forEach(c => { if (c.st !== 'leaving') leave(c, false); });
     d.tasks.slice().forEach(removeTask); d.says.forEach(x => x.el.remove()); d.says = [];
@@ -438,7 +441,7 @@ GS.Game = (function () {
     const rv = repNow(), rd = rv - d.rep0; refreshStart();
     GS.track('fin_jornada', { puntaje: d.score, atendidos: d.served, tareas: d.tasksDone, perdidos: missed, estrellas: stars, modo: entry.mode });
     $('endCol').innerHTML =
-      '<div><div class="ticket"><h3>CIERRE DE CAJA</h3><div class="c">GameShop Simulator · jornada ' + d.n + (d.relaxed ? ' · turno tranquilo' : '') + '</div>' +
+      '<div><div class="ticket"><h3>CIERRE DE CAJA</h3><div class="c">Jornada ' + d.n + ' · ' + rankOf(d.n) + (d.cond ? ' · ' + GS.CONDITIONS[d.cond].name : '') + (d.relaxed ? ' · turno tranquilo' : '') + '</div>' +
       '<p><span>Clientes atendidos</span><b>' + d.served + '</b></p><p><span>Tareas del local hechas</span><b>' + d.tasksDone + '</b></p>' +
       '<p><span>Se fueron sin comprar</span><b>' + d.lost + '</b></p><p><span>Tareas que se pasaron</span><b>' + d.tasksLate + '</b></p>' +
       '<p><span>Errores (con chiste)</span><b>' + errs + '</b></p>' +
@@ -447,6 +450,7 @@ GS.Game = (function () {
       '<p><span>Monedas ganadas hoy</span><b>🪙 ' + earned + '</b></p><p><span>Reputación del local</span><b>⭐ ' + repTxt(rv) + ' (' + (rd >= 0 ? '+' : '−') + repTxt(Math.abs(rd)) + ')</b></p><hr>' +
       '<p class="tot"><span>PUNTAJE</span><b>' + d.score.toLocaleString('es-AR') + '</b></p><div class="stars">' + '★'.repeat(stars) + '<span style="opacity:.25">' + '★'.repeat(3 - stars) + '</span></div></div></div>' +
       '<div style="display:flex;flex-direction:column;gap:12px;margin-top:8px">' +
+      (rankOf(d.n + 1) !== rankOf(d.n) && !GS.Store.get('testDay') ? '<div class="promo">🎖 ¡Ascenso!<b>Ahora sos ' + rankOf(d.n + 1) + '</b></div>' : '') +
       (pos === 0 ? '<div class="newrec">🏆 ¡Nuevo récord personal!</div>' : '') +
       '<div class="quote"><b>El Dueño opina</b>' + comment + '</div><p class="humanline">' + human + '</p>' +
       goalHtml() + '<button class="btn alt" id="endShop">🛠 Mejorar el local</button>' +
@@ -468,6 +472,7 @@ GS.Game = (function () {
     const f = Math.min(1, c / t.lv.price);
     return '<div class="goal"><b>' + t.g.icon + ' Próxima mejora: ' + t.lv.n + '</b><span>' + (f >= 1 ? '¡Ya te alcanza! Andá a Mejorar el local.' : 'Ahorraste 🪙 ' + c + ' de ' + t.lv.price) + '</span><div class="pb"><i style="width:' + (f * 100).toFixed(0) + '%"></i></div></div>';
   }
+  const rankOf = n => { let rk = GS.RANKS[0][1]; GS.RANKS.forEach(r => { if (n >= r[0]) rk = r[1]; }); return rk; };
   let shopSel = 0;
   function openShop() {
     A.unlock(); A.play('click'); state = 'shop'; $('start').hidden = true; $('end').hidden = true; $('shop').hidden = false; shopSel = 0;
@@ -492,24 +497,43 @@ GS.Game = (function () {
     u[g.id] = i + 1; GS.Store.set('up', u); GS.Store.set('coins', coinsNow() - lv.price); A.play('cash'); toast('<b>¡Mejora comprada!</b>' + lv.n, '', 2600); renderShop();
   }
   function closeShop() { $('shop').hidden = true; W.setUpgrades(upNow()); state = 'menu'; $('start').hidden = false; refreshStart(); W.showAll(); A.play('click'); }
+  function avatarSvg(a) {
+    const hex = n => '#' + n.toString(16).padStart(6, '0'), h = hex(a.hair), st = a.hairStyle || 'corto';
+    let v = '<svg viewBox="0 0 100 120" width="110" height="132"><path d="M36 118 L44 62 H56 L64 118z" fill="#e10600"/>';
+    if (st === 'largo') v += '<path d="M22 44 q0 -30 28 -30 q28 0 28 30 v34 h-14 v-30 h-28 v30 h-14z" fill="' + h + '"/>';
+    v += '<circle cx="50" cy="44" r="26" fill="' + hex(a.skin) + '"/>';
+    if (st === 'corto' || st === 'largo' || st === 'rodete') v += '<path d="M24 42 q0 -26 26 -26 q26 0 26 26 q-14 -14 -52 0z" fill="' + h + '"/>';
+    if (st === 'rodete') v += '<circle cx="50" cy="12" r="10" fill="' + h + '"/>';
+    if (st === 'rulos') v += [[30, 26], [42, 18], [58, 18], [70, 26], [24, 38], [76, 38], [50, 14]].map(c => '<circle cx="' + c[0] + '" cy="' + c[1] + '" r="10" fill="' + h + '"/>').join('');
+    if (st === 'mohicano') v += '<path d="M44 26 L46 2 H54 L56 26z" fill="' + h + '"/>';
+    if (a.beard) v += '<path d="M27 50 q23 44 46 0 q-6 6 -23 6 q-17 0 -23 -6z" fill="' + h + '"/>';
+    v += '<circle cx="40" cy="42" r="3.500" fill="#111"/><circle cx="60" cy="42" r="3.500" fill="#111"/>';
+    if (a.glasses) v += '<g fill="none" stroke="#111" stroke-width="3"><rect x="30" y="34" width="17" height="14" rx="4"/><rect x="53" y="34" width="17" height="14" rx="4"/><path d="M47 40h6"/></g>';
+    v += a.lips ? '<path d="M42 56 q8 7 16 0 q-8 -4 -16 0z" fill="#d81e5b"/>' : '<path d="M43 56 q7 5 14 0" fill="none" stroke="#7a3b1e" stroke-width="2.500" stroke-linecap="round"/>';
+    return v + '</svg>';
+  }
   function showAvatar(then) {
-    const a = GS.Store.get('avatar') || { skin: GS.SKINS[2], hair: GS.HAIRS[0] }, hex = n => '#' + n.toString(16).padStart(6, '0');
+    const a = Object.assign({ skin: GS.SKINS[2], hair: GS.HAIRS[0], hairStyle: 'corto', glasses: false, beard: false, lips: false }, GS.Store.get('avatar') || {}), hex = n => '#' + n.toString(16).padStart(6, '0');
     const sw = (key, list) => '<div class="sw" data-k="' + key + '">' + list.map(c => '<button style="background:' + hex(c) + '" data-c="' + c + '" class="' + (a[key] === c ? 'on' : '') + '"></button>').join('') + '</div>';
-    modal('<h2>Tu personaje</h2><p>Sos quien atiende el mostrador. Elegí cómo te ves (se puede cambiar después en Opciones).</p><div class="avprev"><i id="avH"></i><i id="avF"></i><i id="avB"></i></div>' +
-      '<div class="setting"><span>Piel</span>' + sw('skin', GS.SKINS) + '</div><div class="setting"><span>Pelo</span>' + sw('hair', GS.HAIRS) + '</div><button class="btn" data-close>Listo</button>',
-      () => { GS.Store.set('avatar', a); W.setPlayerLook(a); if (then) then(); });
-    const paint = () => { $('avH').style.background = hex(a.hair); $('avF').style.background = hex(a.skin); W.setPlayerLook(a); };
+    modal('<h2>Tu personaje</h2><p>Sos quien atiende el mostrador. Combiná lo que quieras.</p><div class="avprev" id="avPrev"></div>' +
+      '<div class="setting"><span>Piel</span>' + sw('skin', GS.SKINS) + '</div><div class="setting"><span>Pelo</span>' + sw('hair', GS.HAIRS) + '</div>' +
+      '<div class="setting"><span>Peinado</span><div class="seg" id="avStyle">' + GS.HAIRSTYLES.map(h => '<button data-v="' + h[0] + '" class="' + (a.hairStyle === h[0] ? 'on' : '') + '">' + h[1] + '</button>').join('') + '</div></div>' +
+      '<div class="setting"><span>Accesorios</span><div class="seg" id="avAcc">' + [['glasses', 'Anteojos'], ['beard', 'Barba'], ['lips', 'Labios pintados']].map(x => '<button data-v="' + x[0] + '" class="' + (a[x[0]] ? 'on' : '') + '">' + x[1] + '</button>').join('') + '</div></div>' +
+      '<button class="btn" data-close>Listo</button>', () => { GS.Store.set('avatar', a); W.setPlayerLook(a); if (then) then(); });
+    const paint = () => { $('avPrev').innerHTML = avatarSvg(a); W.setPlayerLook(a); };
     $('sheet').querySelectorAll('.sw').forEach(s => s.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; a[s.dataset.k] = Number(b.dataset.c); s.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); paint(); }));
+    $('avStyle').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; a.hairStyle = b.dataset.v; $('avStyle').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); paint(); });
+    $('avAcc').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; a[b.dataset.v] = !a[b.dataset.v]; b.classList.toggle('on', a[b.dataset.v]); paint(); });
     paint();
   }
   function refreshStart() {
     const n = dayNumber(), fresh = n <= GS.UNLOCKS.length ? GS.UNLOCKS[n - 1] : [];
     $('playT').textContent = 'Jugar la jornada ' + n; $('goalStart').innerHTML = goalHtml();
-    { let rk = GS.RANKS[0][1]; GS.RANKS.forEach(r => { if (n >= r[0]) rk = r[1]; }); $('rankT').textContent = rk + ' · ⭐ ' + repTxt(repNow()) + ' · 🪙 ' + coinsNow(); }
+    $('rankT').textContent = '🎖 ' + rankOf(n) + ' · ⭐ ' + repTxt(repNow()) + ' · 🪙 ' + coinsNow();
     $('playS').textContent = n === 1 ? 'Inducción: mostrador y caja · de 10 a 19' : fresh.length ? 'Se suma: ' + fresh.map(id => ST(id).name).join(' y ') : 'De 10 a 19 · reputación ⭐ ' + repTxt(repNow());
   }
   function goHome() {
-    A.play('click'); clearDay();
+    A.play('click'); clearDay(); $('rain').hidden = true;
     day = null; state = 'menu'; paused = false;
     $('end').hidden = true; $('hud').hidden = true; $('jobs').hidden = true; $('start').hidden = false; $('toasts').innerHTML = ''; W.showAll();
   }
@@ -540,7 +564,9 @@ GS.Game = (function () {
       '<div class="setting"><span>Reducir movimiento</span>' + seg('calm', [['0', 'No'], ['1', 'Sí']], calm ? '1' : '0') + '</div>' +
       '<div class="setting"><span>Tu personaje</span><button class="btn ghost" id="optAv" style="width:auto">Cambiar</button></div>' +
       '<div class="setting"><span>Jornada (modo prueba)</span>' + seg('testDay', [['0', 'Auto'], ['1', '1'], ['2', '2'], ['3', '3'], ['4', '4'], ['5', '5'], ['6', '6'], ['8', '8']], String(GS.Store.get('testDay') || 0)) + '</div>' +
-      '<div class="setting"><span>Borrar récords y progreso</span><button class="btn ghost" id="optReset" style="width:auto">Reiniciar</button></div>' +
+      '<div class="setting"><span>Clima (modo prueba)</span>' + seg('testCond', [['', 'Auto'], ['ninguna', 'Normal'], ['lluvia', 'Lluvia'], ['blackfriday', 'Black Friday'], ['navidad', 'Navidad']], GS.Store.get('testCond') || '') + '</div>' +
+      '<div class="setting"><span>Volver a la jornada 1<br><small>Conserva monedas y mejoras</small></span><button class="btn ghost" id="optDay1" style="width:auto">Volver</button></div>' +
+      '<div class="setting"><span>Borrar todo<br><small>Jornadas, monedas, mejoras y récords</small></span><button class="btn ghost" id="optReset" style="width:auto">Reiniciar</button></div>' +
       '<button class="btn" data-close>Listo</button>', () => { if (fromPause) showPause(); });
     $('sheet').querySelectorAll('.seg').forEach(s => s.addEventListener('click', e => {
       const b = e.target.closest('button'); if (!b) return;
@@ -550,7 +576,9 @@ GS.Game = (function () {
       if (name === 'quality') { GS.Store.set('quality', v); W.setQuality(v === 'auto' ? autoQuality() : v); }
       if (name === 'calm') { setCalm(v === '1'); GS.Store.set('calm', calm); }
       if (name === 'testDay') { GS.Store.set('testDay', Number(v)); refreshStart(); }
+      if (name === 'testCond') GS.Store.set('testCond', v);
     }));
+    $('optDay1').addEventListener('click', e => { GS.Store.set('days', 0); GS.Store.set('seen', {}); GS.Store.set('testDay', 0); refreshStart(); e.target.textContent = 'Listo ✔'; });
     $('optAv').addEventListener('click', () => showAvatar(() => showOptions(fromPause)));
     $('optReset').addEventListener('click', e => { GS.Store.reset(); W.setUpgrades({}); refreshStart(); e.target.textContent = 'Borrado ✔'; });
   }
