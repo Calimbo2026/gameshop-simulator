@@ -234,7 +234,7 @@ GS.Game = (function () {
       onEnd(ok, info) {
         if (job.type !== 'caja') W.focus(null);
         if (job.type === 'mostrador') {
-          addScore(100, ref.pat); addRep(0.02); sayAt(ref.person, '¡Eso! Voy a la caja.', 1900); ref.st = 'toCaja'; ref.slotM = -1; ref.pat = Math.max(ref.pat, 0.8);
+          addScore(100, ref.pat); addRep(0.02); { const v = GS.Store.get('vid') || 0, saw = Math.random() < v * 0.7; if (saw) addRep(0.02); sayAt(ref.person, saw ? U.pick(LN.sawWindow) : '¡Eso! Voy a la caja.', saw ? 3000 : 1900); } ref.st = 'toCaja'; ref.slotM = -1; ref.pat = Math.max(ref.pat, 0.8);
           ref.slotC = Math.max(0, freeSlot('slotC', L.colaCaja.length));
           ref.person.walk([[0.1, -2.1], L.colaCaja[ref.slotC]], () => { ref.st = 'waitC'; ref.person.face(Math.PI / 2); });
         } else if (job.type === 'caja') {
@@ -251,7 +251,7 @@ GS.Game = (function () {
           sayAt(ref.person, ref.arche.bye, 3600); day.beat = 1.5;
           const d = day; setTimeout(() => { if (day === d && !MG.isOpen()) W.focus(null); }, 2300);
           leave(ref, !!info.total);
-        } else { day.tasksDone++; addScore(130, ref.pat); addRep(job.type === 'whatsapp' ? 0.05 : 0.03); removeTask(ref); }
+        } else { day.tasksDone++; addScore(130, ref.pat); addRep(job.type === 'whatsapp' ? 0.05 : 0.03); if (job.type === 'vidriera') { GS.Store.set('vid', info.quality || 0); addRep((info.quality - 0.5) * 0.12); } removeTask(ref); }
       }
     };
     const seen = GS.Store.get('seen') || {};
@@ -500,14 +500,14 @@ GS.Game = (function () {
   function closeShop() { $('shop').hidden = true; W.setUpgrades(upNow()); state = 'menu'; $('start').hidden = false; refreshStart(); W.showAll(); A.play('click'); }
   function avatarSvg(a) {
     const hex = n => '#' + n.toString(16).padStart(6, '0'), h = hex(a.hair), sk = hex(a.skin), st = a.hairStyle || 'corto';
-    const top = '<path d="M23 42 A27 27 0 0 1 77 42 Q70 29 50 31 Q33 29 23 42z" fill="' + h + '"/>';   // pelo arriba, con flequillo suave
+    const top = '<path d="M22.600 46 A27.400 27.400 0 0 1 77.400 46 L73.500 46 Q71 33 50 33.500 Q29 33 26.500 46z" fill="' + h + '"/>';   // casquete concéntrico con la cabeza, con patillas
     let v = '<svg viewBox="0 0 100 124" width="120" height="149"><path d="M33 122 L43 66 H57 L67 122z" fill="#e10600"/><path d="M43 66 H57 L50 76z" fill="#fff"/>';
-    if (st === 'largo') v += '<rect x="19" y="18" width="62" height="72" rx="28" fill="' + h + '"/>';
+    if (st === 'largo') v += '<path d="M19.500 44 A30.500 30.500 0 0 1 80.500 44 V82 Q80.500 92 71 92 H29 Q19.500 92 19.500 82z" fill="' + h + '"/>';
     v += '<circle cx="50" cy="44" r="26" fill="' + sk + '"/><circle cx="33" cy="52" r="5" fill="#ff6b6b" opacity=".22"/><circle cx="67" cy="52" r="5" fill="#ff6b6b" opacity=".22"/>';
     if (st === 'corto' || st === 'rodete') v += top;
-    if (st === 'largo') v += top + '<path d="M23 42 Q20 62 24 80 Q30 62 28 40z M77 42 Q80 62 76 80 Q70 62 72 40z" fill="' + h + '"/>';
+    if (st === 'largo') v += top;
     if (st === 'rodete') v += '<circle cx="50" cy="13" r="10" fill="' + h + '"/>';
-    if (st === 'rulos') { v += top; for (let i = 0; i < 9; i++) { const an = Math.PI * (1.02 + i * 0.12); v += '<circle cx="' + (50 + Math.cos(an) * 27).toFixed(1) + '" cy="' + (42 + Math.sin(an) * 27).toFixed(1) + '" r="9.500" fill="' + h + '"/>'; } v += '<circle cx="40" cy="24" r="8" fill="' + h + '"/><circle cx="60" cy="24" r="8" fill="' + h + '"/><circle cx="50" cy="20" r="8" fill="' + h + '"/>'; }
+    if (st === 'rulos') { v += top; for (let i = 0; i < 9; i++) { const an = Math.PI * (1.02 + i * 0.12); v += '<circle cx="' + (50 + Math.cos(an) * 26).toFixed(1) + '" cy="' + (44 + Math.sin(an) * 26).toFixed(1) + '" r="9.500" fill="' + h + '"/>'; } v += '<circle cx="40" cy="24" r="8" fill="' + h + '"/><circle cx="60" cy="24" r="8" fill="' + h + '"/><circle cx="50" cy="20" r="8" fill="' + h + '"/>'; }
     if (st === 'mohicano') v += '<path d="M43 30 L45 6 L50 14 L55 4 L57 30 Q50 26 43 30z" fill="' + h + '"/>';
     if (a.beard) v += '<path d="M24.500 48 A26.500 26.500 0 0 0 75.500 48 Q70 57 60 54 Q50 49 40 54 Q30 57 24.500 48z" fill="' + h + '"/>';
     v += '<ellipse cx="40" cy="43" rx="3.400" ry="4.200" fill="#16161c"/><ellipse cx="60" cy="43" rx="3.400" ry="4.200" fill="#16161c"/><circle cx="41.200" cy="41.500" r="1.100" fill="#fff"/><circle cx="61.200" cy="41.500" r="1.100" fill="#fff"/>';

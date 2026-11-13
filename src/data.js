@@ -9,7 +9,7 @@ const GS = {};
 GS.CONFIG = {
   version: '0.8.0',
   phase: 4,
-  phaseNote: 'Parte B en curso: vereda con gente, cajas y avatares nuevos',                       // fase actual del proyecto (1 a 5)
+  phaseNote: 'Parte B en curso: depósito, vidriera y cajas de producto',                       // fase actual del proyecto (1 a 5)
   links: { tienda: '', instagram: '' },   // se conectan más adelante
   promoMode: null,                // 'hotsale' | 'cyber' | null (Fase 3)
   camera: { tilt: 55, rot: 38, fov: 22 },
@@ -222,16 +222,17 @@ GS.CONDITIONS = {
 };
 GS.HAIRSTYLES = [['corto', 'Corto'], ['largo', 'Largo'], ['rodete', 'Rodete'], ['rulos', 'Rulos'], ['mohicano', 'Mohicano'], ['pelado', 'Pelado']];
 GS.SKINS = [0xf6d7bd, 0xf2c9a0, 0xe0ac7e, 0xc68a5c, 0x9a643c, 0x6b4428];
-GS.HAIRS = [0x2b2b3a, 0x4a3a2a, 0x7a3b1e, 0xd9a514, 0xc9c9d6, 0x2d6cdf, 0xff5fa2, 0x3bb54a];
+GS.HAIRS = [0x000000, 0x2b2b3a, 0x4a3a2a, 0x7a3b1e, 0xd9a514, 0xc9c9d6, 0x2d6cdf, 0xff5fa2, 0x3bb54a];
 
 /* Progresión: qué estaciones se suman en cada jornada (de menos a más) y cómo las explica el Dueño */
-GS.UNLOCKS = [['mostrador', 'caja'], ['whatsapp', 'cierre'], ['repo', 'stock'], ['ml', 'proveedor'], ['pc', 'service'], ['devol']];
+GS.UNLOCKS = [['mostrador', 'caja'], ['whatsapp', 'cierre'], ['repo', 'stock', 'vidriera'], ['ml', 'proveedor'], ['pc', 'service'], ['devol']];
 GS.EXPLAIN = {
+  vidriera: 'Armá la vidriera según el tema: elegí los 4 productos que mejor van. Si queda bien, va a entrar gente diciendo que lo vio ahí.',
   mostrador: 'El cliente pide como puede. Vos elegís el producto correcto. Ojo: siempre hay uno parecido para confundirte.',
   caja: 'Al cobrar: 10% OFF en efectivo o transferencia, y 3 cuotas sin interés con tarjeta. Si te muestran un comprobante, compará cada dato antes de aprobar. Si hay uno incorrecto, selecciónalo.',
   whatsapp: 'Contestá con el dato correcto y buena onda. Cada respuesta cuida nuestra reputación.',
   cierre: 'Antes de irnos a las 19, sumá los cobros en efectivo y fijate si coincide con lo que hay en el cajón.',
-  repo: 'Cada caja va a su sector. Tocá en el local el sector que corresponde.',
+  repo: 'En el depósito, cada caja va a su estantería. Tocá la estantería que corresponde.',
   stock: 'Contá lo que hay de verdad en la góndola. El sistema a veces sueña.',
   ml: 'Caja del tamaño justo, cinta de punta a punta y la etiqueta correcta. Lo que se compra antes de las 14 sale en el día.',
   proveedor: 'Compará el remito con lo que bajó de la carreta. Si falta algo, no firmes.',
@@ -291,6 +292,7 @@ GS.LINES = {
     '¡Encima que les iba a comprar!',
     'Seguro es un error del banco. Me voy ofendido.'
   ],
+  sawWindow: ['Lo vi en la vidriera y entré.', 'Pasaba, lo vi en la vidriera y dije: es hoy.', 'Qué linda la vidriera. Vengo por eso que tienen ahí.'],
   rowFine: ['Ese dato está bien. El problema es otro.', 'Eso está perfecto. Mirá los demás.'],
   rowFineAll: ['Ese dato está bien. Compará tranquilo con lo de arriba.', 'Eso coincide. ¿Hay algo que no?'],
   receiptFake: ['Uy, me confundí de captura. Ahí te mando la buena.', 'Ah, esa era del mes pasado. Perdón, perdón.'],
@@ -402,7 +404,7 @@ GS.STATIONS = [
     task: { name: 'Pedido para despachar', tag: 'Sale antes de las 14', late: 'Se pasó el corte de las 14. El pedido sale mañana.' } },
   { id: 'whatsapp', n: 6, name: 'WhatsApp', icon: '💬', pos: [-3.4, -4.2],
     task: { name: 'WhatsApp sin responder', tag: 'escribiendo...', late: 'Lo dejaste en visto. Te va a escribir de nuevo, pero con mayúsculas.' } },
-  { id: 'repo', n: 7, name: 'Reposición', icon: '🧺', pos: [-4.9, 0.3],
+  { id: 'repo', n: 7, name: 'Reposición', icon: '🧺', pos: [8.7, -4.3],
     task: { name: 'Cajas para reponer', tag: 'Llegó mercadería', late: 'Las cajas siguen en el pasillo. Ya son parte del mobiliario.' } },
   { id: 'stock', n: 8, name: 'Control de stock', icon: '🔍', pos: [-5.0, -3.2],
     task: { name: 'Contar una góndola', tag: 'El sistema dice una cosa...', late: 'Nadie contó la góndola. El sistema sigue soñando.' } },
@@ -411,8 +413,11 @@ GS.STATIONS = [
   { id: 'devol', n: 10, name: 'Devoluciones', icon: '↩️', pos: [0.2, -4.0],
     task: { name: 'Quieren devolver algo', tag: '"Lo usé poquito"', late: 'El de la devolución se fue. Vuelve mañana, con refuerzos.' } },
   { id: 'cierre', n: 11, name: 'Cierre de caja', icon: '🧾', pos: [2.0, -3.4], finalOnly: true,
-    task: { name: 'Cerrar la caja', tag: 'Última tarea del día', late: 'La caja quedó sin cerrar. Mañana va a ser un día largo.' } }
+    task: { name: 'Cerrar la caja', tag: 'Última tarea del día', late: 'La caja quedó sin cerrar. Mañana va a ser un día largo.' } },
+  { id: 'vidriera', n: 12, name: 'Vidriera', icon: '🪟', pos: [3.6, 8.5],
+    task: { name: 'Armar la vidriera', tag: 'Que se luzca desde la vereda', late: 'La vidriera quedó como estaba. Nadie lo notó. Ese es el problema.' } }
 ];
+GS.THEMES = [{ t: 'Semana gamer', cat: 'perifericos' }, { t: 'Vuelta al cole', cat: 'pc' }, { t: 'Día del niño', cat: 'consolas' }, { t: 'Mundo Apple', cat: 'apple' }];
 
 /* Datos de los minijuegos nuevos */
 GS.PC_PARTS = [
@@ -446,8 +451,8 @@ GS.CHATS = [
   { m: 'me podes mandar foto de TODO lo q tienen', ok: '¿Qué estás buscando? Te paso justo lo que necesitás.', bad: ['Dale, dame 3 semanas.', 'Te mando foto mía mejor.'] }
 ];
 GS.SHELVES = [
-  { cat: 'consolas', name: 'Consolas y juegos', icon: '🎮', pos: [-2.0, -6.2] }, { cat: 'apple', name: 'Apple', icon: '🍏', pos: [-3.7, 1.0] },
-  { cat: 'pc', name: 'PC y accesorios', icon: '💻', pos: [1.6, 0.2] }, { cat: 'perifericos', name: 'Periféricos gamer', icon: '🎧', pos: [5.6, 5.0] }
+  { cat: 'consolas', name: 'Consolas y juegos', icon: '🎮', pos: [7.5, -6.0] }, { cat: 'apple', name: 'Apple', icon: '🍏', pos: [9.9, -6.0] },
+  { cat: 'pc', name: 'PC y accesorios', icon: '💻', pos: [7.5, -2.6] }, { cat: 'perifericos', name: 'Periféricos gamer', icon: '🎧', pos: [9.9, -2.6] }
 ];
 GS.BOX_SIZE = { chica: ['cable', 'pendrive', 'tinta', 'airpods', 'juego', 'magic', 'watch', 'mouse', 'dualsense', 'homepod', 'webcam', 'joyxbox', 'muneco', 'disco', 'cargador', 'ram'],
   mediana: ['switch2', 'quest', 'deck', 'ipad', 'router', 'auris', 'gpu', 'streamdeck', 'mic', 'notebook', 'teclado', 'parlante', 'mousepad'], grande: ['ps5', 'xbox', 'gabinete', 'silla', 'volante', 'monitor', 'impresora'] };

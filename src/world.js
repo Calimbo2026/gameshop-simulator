@@ -23,7 +23,7 @@ GS.World = (function () {
     return radius / Math.sin(Math.min(v, h));
   }
   function clampCam() {
-    cam.gx = U.clamp(cam.gx, L.salon.xMin, L.salon.xMax);
+    cam.gx = U.clamp(cam.gx, L.salon.xMin, 11);
     cam.gz = U.clamp(cam.gz, L.salon.zMin, L.galeria.zMax + 1);
     cam.gdist = U.clamp(cam.gdist, cam.fit * 0.3, cam.fit * 1.35);
   }
@@ -151,6 +151,7 @@ GS.World = (function () {
   }
 
   // Pared con estantes llenos de productos, a lo largo de z (para izquierda y derecha)
+  const WALL_IDS = ['teclado', 'router', 'mouse', 'disco', 'auris', 'tinta', 'webcam', 'pendrive', 'parlante', 'cargador', 'mousepad', 'cable', 'mic', 'ram', 'streamdeck'];
   function shelfWall(group, x, dir, zA, zB) {
     const s = L.salon, b = Batch(group);
     box(group, 0.2, s.wallH, s.zMax - s.zMin, 0xf4f4f2, x + dir * -0.1, 0, (s.zMin + s.zMax) / 2);
@@ -162,9 +163,8 @@ GS.World = (function () {
       let z = zA + 0.2, sec = 0;
       while (z < zB - 0.2) {
         const pal = palettes[(Math.floor((z - zA) / 2.4) + lvl) % palettes.length];
-        const w = 0.3, h = 0.34;                       // cajas parejas y alineadas
-        b.add(depth * 0.7, h, w, pal[sec % pal.length], sx, y + 0.05, z + w / 2);
-        z += w + 0.09; sec++;
+        if (lvl < 3 && dir > 0) sprite(group, WALL_IDS[(sec + lvl * 5) % WALL_IDS.length], sx + 0.02, y + 0.05, z + 0.25, 0.5);   // cajas de producto (solo la pared que se ve)
+        z += 0.6; sec++;
       }
     }
     // columnas negras con gráfica, como en el local
@@ -200,7 +200,7 @@ GS.World = (function () {
     // estantería a la derecha de la puerta
     for (let i = 0; i < 4; i++) {
       const y = 0.5 + i * 0.6; box(g, 1.5, 0.05, 0.4, 0xffffff, 5.1, y, z + 0.22);
-      for (let x = 4.5; x < 5.7; x += 0.36) b.add(0.3, U.rnd(0.25, 0.4), 0.26, pc(), x, y + 0.05, z + 0.22);
+      if (i < 3) [4.75, 5.4].forEach((x, k) => sprite(g, WALL_IDS[(i * 2 + k + 7) % WALL_IDS.length], x, y + 0.05, z + 0.24, 0.48));
     }
     b.build();
   }
@@ -259,7 +259,6 @@ GS.World = (function () {
     { // isla Apple
       const g = upGroup(root, 'isla', 1), b = Batch(g), i = L.isla;
       box(g, i.w, i.h, i.d, 0xffffff, i.x, 0, i.z); box(g, i.w - 0.2, i.h - 0.3, 0.03, 0xe2e2e2, i.x, 0.2, i.z + i.d / 2 + 0.01);
-      for (let r = 0; r < 2; r++) for (let k = 0; k < 6; k++) b.add(0.2, 0.26, 0.05, pc(), i.x - 0.65 + k * 0.26, 0.3 + r * 0.36, i.z + i.d / 2 + 0.05);
       idsOf('apple').forEach((id, k) => sprite(g, id, i.x - 0.66 + k * 0.33, i.h, i.z + 0.1, 0.4));
       sign(g, 'APPLE', 1.3, 0.24, i.x, 0.14, i.z + i.d / 2 + 0.06); b.build();
     }
@@ -290,8 +289,6 @@ GS.World = (function () {
     { // góndola de periféricos del lado derecho
       const g = upGroup(root, 'gondola', 1), b = Batch(g), gd = L.gondola;
       box(g, gd.w, gd.h, gd.d, 0xffffff, gd.x, 0, gd.z);
-      for (let lvl = 0; lvl < 2; lvl++) for (let z = gd.z - gd.d / 2 + 0.25; z < gd.z + gd.d / 2 - 0.2; z += 0.36)
-        b.add(0.08, 0.3, 0.28, U.pick([0x16b8b0, 0xffffff, 0x1a1a1a, 0xe10600, 0x7b4fd1]), gd.x - gd.w / 2 - 0.05, 0.2 + lvl * 0.45, z);
       const ids = idsOf('perifericos'); let k = 0; for (let z = gd.z - gd.d / 2 + 0.3; z < gd.z + gd.d / 2 - 0.1; z += 0.5) sprite(g, ids[k++ % ids.length], gd.x, gd.h, z, 0.6);
       sign(g, 'PERIFÉRICOS GAMER', 3.4, 0.36, gd.x + gd.w / 2 + 0.02, 0.6, gd.z, Math.PI / 2); b.build();
     }
@@ -313,6 +310,21 @@ GS.World = (function () {
     const rp = L.reposicion;                    // pila de cajas recién llegadas
     b.add(0.55, 0.4, 0.5, carton, rp.x, 0, rp.z); b.add(0.5, 0.36, 0.46, 0xb98d5e, rp.x + 0.05, 0.4, rp.z + 0.02); b.add(0.45, 0.34, 0.45, carton, rp.x + 0.6, 0, rp.z + 0.25);
     b.add(0.3, 0.24, 0.3, 0xb98d5e, rp.x - 0.02, 0.76, rp.z);
+    b.build();
+  }
+  // Depósito: al costado derecho del salón, con una estantería por sector (acá se juega la reposición)
+  function buildDepot(root) {
+    const x0 = L.salon.xMax + 0.5, x1 = 11.4, zA = -7, zB = -1.2, b = Batch(root), cx = (x0 + x1) / 2, cz = (zA + zB) / 2;
+    box(root, x1 - x0, 0.06, zB - zA, 0x9a9aa0, cx, -0.02, cz); box(root, x1 - x0 + 0.4, 0.5, zB - zA + 0.4, 0x18181b, cx, -0.52, cz);
+    box(root, x1 - x0, 2.6, 0.2, 0xd8d8d4, cx, 0, zA - 0.1); box(root, 0.2, 0.3, zB - zA, 0xd8d8d4, x1 + 0.1, 0, cz);
+    sign(root, 'DEPÓSITO', 2.4, 0.4, cx, 2.3, zA + 0.03);
+    GS.SHELVES.forEach((sh, k) => {
+      const x = sh.pos[0], z = sh.pos[1];
+      [[-0.75, -0.3], [0.75, -0.3], [-0.75, 0.3], [0.75, 0.3]].forEach(q => box(root, 0.06, 1.9, 0.06, 0x3a4a6a, x + q[0], 0, z + q[1]));
+      for (let l = 0; l < 3; l++) { box(root, 1.6, 0.05, 0.66, 0x51658f, x, 0.3 + l * 0.6, z); for (let i = 0; i < 3; i++) b.add(0.42, 0.34, 0.46, i % 2 ? 0xc49a6c : 0xb98d5e, x - 0.5 + i * 0.5, 0.35 + l * 0.6, z); }
+      const ids = idsOf(sh.cat); sprite(root, ids[0], x - 0.5, 1.55, z, 0.5); sprite(root, ids[1 % ids.length], x, 1.55, z, 0.5); sprite(root, ids[2 % ids.length], x + 0.5, 1.55, z, 0.5);
+      sign(root, sh.name.toUpperCase(), 1.6, 0.26, x, 0.16, z + 0.35);
+    });
     b.build();
   }
   function notebook(root, x, y, z) {          // abierta, con la pantalla mirando a la cámara
@@ -401,7 +413,7 @@ GS.World = (function () {
   const shadowMat = new T.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.2, depthWrite: false });
   const gCone = new T.CylinderGeometry(0.15, 0.34, 0.86, 12), gBun = new T.SphereGeometry(0.15, 8, 8), gCurl = new T.SphereGeometry(0.13, 7, 6),
         gBeard = new T.SphereGeometry(0.348, 14, 6, Math.PI * 0.06, Math.PI * 0.88, Math.PI * 0.6, Math.PI * 0.36),
-        gCap = new T.SphereGeometry(0.355, 14, 8, 0, Math.PI * 2, 0, Math.PI * 0.42), gMass = new T.SphereGeometry(0.36, 12, 10);
+        gCap = new T.SphereGeometry(0.348, 16, 10, 0, Math.PI * 2, 0, Math.PI * 0.47), gMass = new T.SphereGeometry(0.36, 12, 10);
   function makePerson(o) {
     o = o || {};
     const g = new T.Group(), base = o.scale || 1; g.scale.setScalar(base); g.userData.base = base;
@@ -424,7 +436,7 @@ GS.World = (function () {
     function style(a) {
       if (acc) g.remove(acc); acc = new T.Group(); acc.position.y = 1.14; g.add(acc);
       head.material = mat(a.skin || SKINS[1]); const hm = mat(a.hair || 0x3a2a1a), st = a.hairStyle || 'corto';
-      const cap = () => { const m = new T.Mesh(gCap, hm); m.rotation.x = -0.42; acc.add(m); };      // casquete que deja la frente libre
+      const cap = () => { const m = new T.Mesh(gCap, hm); m.rotation.x = -0.5; acc.add(m); };      // casquete concéntrico con la cabeza que deja la frente libre
       if (st === 'corto' || st === 'largo' || st === 'rodete') cap();
       if (st === 'largo') { const m = new T.Mesh(gMass, hm); m.scale.set(1.06, 1.3, 0.8); m.position.set(0, -0.2, -0.16); acc.add(m); }   // melena redondeada por detrás
       if (st === 'rodete') { const b = new T.Mesh(gBun, hm); b.position.set(0, 0.4, -0.12); acc.add(b); }
@@ -538,7 +550,7 @@ GS.World = (function () {
     walls.E = new T.Group(); root.add(walls.E); shelfWall(walls.E, L.salon.xMax, -1, L.salon.zMin + 0.4, L.salon.zMax - 0.3);
     // zócalos bajos donde la pared está "cortada"
     box(root, 0.2, 0.3, L.salon.zMax - L.salon.zMin, 0xdedede, L.salon.xMax + 0.1, 0, (L.salon.zMin + L.salon.zMax) / 2);
-    buildCounter(root); buildCenter(root); buildWorkStations(root); buildGallery(root); buildSign(root);
+    buildCounter(root); buildCenter(root); buildWorkStations(root); buildDepot(root); buildGallery(root); buildSign(root);
 
     // empleados (inventados): vos en el mostrador y Brian, pegado al celular, en la caja
     yo = makePerson({ shirt: 0xe10600, hair: 0x2b2b3a, skin: SKINS[1] }); yo.setPos(L.mostrador.x, L.mostrador.z - 0.9);

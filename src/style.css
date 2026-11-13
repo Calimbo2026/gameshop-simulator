@@ -294,3 +294,5 @@ body.calm * { animation: none !important; transition: none !important; }
   background-image: repeating-linear-gradient(103deg, transparent 0 17px, rgba(190, 215, 255, .30) 17px 18px, transparent 18px 46px); background-size: 230px 230px; animation: rain .45s linear infinite; }
 @keyframes rain { to { background-position: -53px 230px; } }
 .avprev { width: 120px; height: 149px; }
+.opts.four { grid-template-columns: repeat(4, 1fr); gap: 6px; } .opts.four .opt { min-height: 92px; padding: 6px 2px; } .opts.four .opt .n { font-size: 11px; font-weight: 600; } .opts.four .opt .pic { width: 48px; height: 48px; }
+.opt.sel { border-color: var(--warn); background: #2c2713; box-shadow: 0 0 0 2px var(--warn); } .opt.dim { opacity: .35; }

@@ -298,7 +298,7 @@ GS.Minigames = (function () {
   function repo(job) {
     // Se juega en el local: la cámara muestra todo el salón y se toca la góndola de verdad
     const boxes = U.shuffle(GS.CATALOG).slice(0, 3), me = cur; let i = 0;
-    GS.World.home();
+    GS.World.focusAt(8.7, -4.3, 0.42, 0.16);
     const layer = document.createElement('div'); layer.className = 'zones';
     layer.innerHTML = GS.SHELVES.map((s, k) => '<button class="zone-b" data-k="' + k + '"><span>' + s.icon + '</span>' + esc(s.name) + '</button>').join('');
     document.body.appendChild(layer);
@@ -312,7 +312,7 @@ GS.Minigames = (function () {
       const p = boxes[i];
       zb.forEach(b => b.classList.remove('bad'));
       root().innerHTML = head(job, 'Reposición · ' + (i + 1) + ' de 3') + '<div class="bubble" id="mgBubble">📦 En esta caja hay: ' + ico(p) + esc(p.name) + '</div>' +
-        '<div class="rule">Tocá en el local la góndola donde va</div>';
+        '<div class="rule">Tocá en el depósito la estantería donde va</div>';
     }
     function choose(k) {
       if (!cur || cur.done || zb[k].classList.contains('bad')) return;
@@ -393,6 +393,29 @@ GS.Minigames = (function () {
     listOptions(b => b.dataset.ok === '1', () => { GS.Audio.play('cash'); finish(true, '¡Caja cerrada!', d === 0 ? 'Cerró perfecto. Sacale una foto.' : 'Diferencia detectada. Mañana se revisa con un mate.', {}); }, () => mistake('cierre', U.pick(LN.wrongCount)));
   }
 
+  /* ---------------- 12. VIDRIERA: elegir los 4 productos que van con el tema ---------------- */
+  function vidriera(job) {
+    const th = U.pick(GS.THEMES), good = U.shuffle(GS.CATALOG.filter(p => p.cat === th.cat)).slice(0, 4), bad = U.shuffle(GS.CATALOG.filter(p => p.cat !== th.cat)).slice(0, 4), all = U.shuffle(good.concat(bad));
+    root().innerHTML = head(job, 'Vidriera') + '<div class="bubble" id="mgBubble">Tema de la vidriera: <b>' + esc(th.t) + '</b>. Elegí los 4 productos que mejor van.</div>' +
+      '<div class="opts four">' + all.map((p, i) => '<button class="opt" data-i="' + i + '"><kbd>' + (i + 1) + '</kbd>' + pic(p) + '<span class="n">' + esc(p.name) + '</span></button>').join('') + '</div>' +
+      '<div class="rule">Elegidos: <span id="mgN">0</span> de 4 · tocá de nuevo para sacar uno</div>';
+    const btns = [...root().querySelectorAll('.opt')], me = cur;
+    function toggle(b) {
+      if (!cur || cur.done) return;
+      const on = btns.filter(x => x.classList.contains('sel'));
+      if (!b.classList.contains('sel') && on.length >= 4) return;
+      b.classList.toggle('sel'); GS.Audio.play('bill');
+      const sel = btns.filter(x => x.classList.contains('sel')); document.getElementById('mgN').textContent = sel.length;
+      if (sel.length === 4) {
+        const n = sel.filter(x => good.indexOf(all[x.dataset.i]) >= 0).length;
+        btns.forEach(x => x.classList.add(good.indexOf(all[x.dataset.i]) >= 0 ? 'good' : 'dim'));
+        setTimeout(() => { if (cur !== me) return; GS.Audio.play(n >= 3 ? 'ok' : 'click'); finish(true, n === 4 ? '¡Vidriera perfecta!' : n >= 2 ? 'Vidriera aceptable' : 'Vidriera... original', n + ' de 4 productos van con "' + th.t + '".', { quality: n / 4 }); }, 700);
+      }
+    }
+    btns.forEach(b => b.addEventListener('click', () => toggle(b)));
+    cur.keys = e => { const n = parseInt(e.key, 10); if (n >= 1 && n <= btns.length) toggle(btns[n - 1]); };
+  }
+
   // Ayuda común: lista de opciones con una correcta; las equivocadas se apagan
   function listOptions(isOk, onOk, onBad) {
     const btns = [...root().querySelectorAll('.opt')];
@@ -404,7 +427,7 @@ GS.Minigames = (function () {
     cur.keys = e => { const n = parseInt(e.key, 10); if (n >= 1 && n <= btns.length) choose(btns[n - 1]); };
   }
 
-  const GAMES = { mostrador, caja, pc, service, ml, whatsapp, repo, stock, proveedor, devol, cierre };
+  const GAMES = { mostrador, caja, pc, service, ml, whatsapp, repo, stock, proveedor, devol, cierre, vidriera };
   return {
     // type: 'mostrador' | 'caja'; opts.variant para caja: 'cobro' | 'vuelto' | 'comprobante'
     open(type, cust, cb, opts) {

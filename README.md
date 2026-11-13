@@ -62,3 +62,7 @@ Sin datos sensibles del negocio, sin personas reales, precios y stock ficticios.
 **Parte A (hecha):** avatares tipo cono con peinados (corto, largo, rodete, rulos, mohicano, pelado) y accesorios (anteojos, barba, labios pintados) combinables libremente; el Dueño con mohicano gris; el repartidor pelado y con barba; lluvia visible; productos exhibidos como cajas prolijas con el dibujo impreso; vidriera con productos; notebook y escritorio gamer rehechos; contraste de los dibujos en los paneles; ascenso de rango visible; "Volver a la jornada 1" y clima de prueba en Opciones; frases corregidas por el dueño del proyecto.
 
 **Parte B (pendiente):** exterior con vereda y peatones, depósito y oficina del Dueño, música y balbuceos, escena final, tarjeta para compartir, cordura e interrupciones suaves, más lugares de mejora.
+
+**Parte B (avance):** depósito al costado del salón con una estantería por sector (ahí se juega la Reposición), minijuego de Vidriera (estación 12; según cómo quede, los clientes dicen que lo vieron en la vidriera), todas las estanterías con cajas de producto, pelo negro, peinados concéntricos con la cabeza, peatones.
+
+**Falta de la Etapa 4:** oficina del Dueño, música y balbuceos, escena final, tarjeta para compartir, cordura e interrupciones suaves, más lugares de mejora.

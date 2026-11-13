@@ -304,6 +304,8 @@ body.calm * { animation: none !important; transition: none !important; }
   background-image: repeating-linear-gradient(103deg, transparent 0 17px, rgba(190, 215, 255, .30) 17px 18px, transparent 18px 46px); background-size: 230px 230px; animation: rain .45s linear infinite; }
 @keyframes rain { to { background-position: -53px 230px; } }
 .avprev { width: 120px; height: 149px; }
+.opts.four { grid-template-columns: repeat(4, 1fr); gap: 6px; } .opts.four .opt { min-height: 92px; padding: 6px 2px; } .opts.four .opt .n { font-size: 11px; font-weight: 600; } .opts.four .opt .pic { width: 48px; height: 48px; }
+.opt.sel { border-color: var(--warn); background: #2c2713; box-shadow: 0 0 0 2px var(--warn); } .opt.dim { opacity: .35; }
 
 </style>
 </head>
@@ -395,7 +397,7 @@ GS.LOGO = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAtAAAAC0CAMAAACKc+vLAAA
 GS.CONFIG = {
   version: '0.8.0',
   phase: 4,
-  phaseNote: 'Parte B en curso: vereda con gente, cajas y avatares nuevos',                       // fase actual del proyecto (1 a 5)
+  phaseNote: 'Parte B en curso: depósito, vidriera y cajas de producto',                       // fase actual del proyecto (1 a 5)
   links: { tienda: '', instagram: '' },   // se conectan más adelante
   promoMode: null,                // 'hotsale' | 'cyber' | null (Fase 3)
   camera: { tilt: 55, rot: 38, fov: 22 },
@@ -608,16 +610,17 @@ GS.CONDITIONS = {
 };
 GS.HAIRSTYLES = [['corto', 'Corto'], ['largo', 'Largo'], ['rodete', 'Rodete'], ['rulos', 'Rulos'], ['mohicano', 'Mohicano'], ['pelado', 'Pelado']];
 GS.SKINS = [0xf6d7bd, 0xf2c9a0, 0xe0ac7e, 0xc68a5c, 0x9a643c, 0x6b4428];
-GS.HAIRS = [0x2b2b3a, 0x4a3a2a, 0x7a3b1e, 0xd9a514, 0xc9c9d6, 0x2d6cdf, 0xff5fa2, 0x3bb54a];
+GS.HAIRS = [0x000000, 0x2b2b3a, 0x4a3a2a, 0x7a3b1e, 0xd9a514, 0xc9c9d6, 0x2d6cdf, 0xff5fa2, 0x3bb54a];
 
 /* Progresión: qué estaciones se suman en cada jornada (de menos a más) y cómo las explica el Dueño */
-GS.UNLOCKS = [['mostrador', 'caja'], ['whatsapp', 'cierre'], ['repo', 'stock'], ['ml', 'proveedor'], ['pc', 'service'], ['devol']];
+GS.UNLOCKS = [['mostrador', 'caja'], ['whatsapp', 'cierre'], ['repo', 'stock', 'vidriera'], ['ml', 'proveedor'], ['pc', 'service'], ['devol']];
 GS.EXPLAIN = {
+  vidriera: 'Armá la vidriera según el tema: elegí los 4 productos que mejor van. Si queda bien, va a entrar gente diciendo que lo vio ahí.',
   mostrador: 'El cliente pide como puede. Vos elegís el producto correcto. Ojo: siempre hay uno parecido para confundirte.',
   caja: 'Al cobrar: 10% OFF en efectivo o transferencia, y 3 cuotas sin interés con tarjeta. Si te muestran un comprobante, compará cada dato antes de aprobar. Si hay uno incorrecto, selecciónalo.',
   whatsapp: 'Contestá con el dato correcto y buena onda. Cada respuesta cuida nuestra reputación.',
   cierre: 'Antes de irnos a las 19, sumá los cobros en efectivo y fijate si coincide con lo que hay en el cajón.',
-  repo: 'Cada caja va a su sector. Tocá en el local el sector que corresponde.',
+  repo: 'En el depósito, cada caja va a su estantería. Tocá la estantería que corresponde.',
   stock: 'Contá lo que hay de verdad en la góndola. El sistema a veces sueña.',
   ml: 'Caja del tamaño justo, cinta de punta a punta y la etiqueta correcta. Lo que se compra antes de las 14 sale en el día.',
   proveedor: 'Compará el remito con lo que bajó de la carreta. Si falta algo, no firmes.',
@@ -677,6 +680,7 @@ GS.LINES = {
     '¡Encima que les iba a comprar!',
     'Seguro es un error del banco. Me voy ofendido.'
   ],
+  sawWindow: ['Lo vi en la vidriera y entré.', 'Pasaba, lo vi en la vidriera y dije: es hoy.', 'Qué linda la vidriera. Vengo por eso que tienen ahí.'],
   rowFine: ['Ese dato está bien. El problema es otro.', 'Eso está perfecto. Mirá los demás.'],
   rowFineAll: ['Ese dato está bien. Compará tranquilo con lo de arriba.', 'Eso coincide. ¿Hay algo que no?'],
   receiptFake: ['Uy, me confundí de captura. Ahí te mando la buena.', 'Ah, esa era del mes pasado. Perdón, perdón.'],
@@ -788,7 +792,7 @@ GS.STATIONS = [
     task: { name: 'Pedido para despachar', tag: 'Sale antes de las 14', late: 'Se pasó el corte de las 14. El pedido sale mañana.' } },
   { id: 'whatsapp', n: 6, name: 'WhatsApp', icon: '💬', pos: [-3.4, -4.2],
     task: { name: 'WhatsApp sin responder', tag: 'escribiendo...', late: 'Lo dejaste en visto. Te va a escribir de nuevo, pero con mayúsculas.' } },
-  { id: 'repo', n: 7, name: 'Reposición', icon: '🧺', pos: [-4.9, 0.3],
+  { id: 'repo', n: 7, name: 'Reposición', icon: '🧺', pos: [8.7, -4.3],
     task: { name: 'Cajas para reponer', tag: 'Llegó mercadería', late: 'Las cajas siguen en el pasillo. Ya son parte del mobiliario.' } },
   { id: 'stock', n: 8, name: 'Control de stock', icon: '🔍', pos: [-5.0, -3.2],
     task: { name: 'Contar una góndola', tag: 'El sistema dice una cosa...', late: 'Nadie contó la góndola. El sistema sigue soñando.' } },
@@ -797,8 +801,11 @@ GS.STATIONS = [
   { id: 'devol', n: 10, name: 'Devoluciones', icon: '↩️', pos: [0.2, -4.0],
     task: { name: 'Quieren devolver algo', tag: '"Lo usé poquito"', late: 'El de la devolución se fue. Vuelve mañana, con refuerzos.' } },
   { id: 'cierre', n: 11, name: 'Cierre de caja', icon: '🧾', pos: [2.0, -3.4], finalOnly: true,
-    task: { name: 'Cerrar la caja', tag: 'Última tarea del día', late: 'La caja quedó sin cerrar. Mañana va a ser un día largo.' } }
+    task: { name: 'Cerrar la caja', tag: 'Última tarea del día', late: 'La caja quedó sin cerrar. Mañana va a ser un día largo.' } },
+  { id: 'vidriera', n: 12, name: 'Vidriera', icon: '🪟', pos: [3.6, 8.5],
+    task: { name: 'Armar la vidriera', tag: 'Que se luzca desde la vereda', late: 'La vidriera quedó como estaba. Nadie lo notó. Ese es el problema.' } }
 ];
+GS.THEMES = [{ t: 'Semana gamer', cat: 'perifericos' }, { t: 'Vuelta al cole', cat: 'pc' }, { t: 'Día del niño', cat: 'consolas' }, { t: 'Mundo Apple', cat: 'apple' }];
 
 /* Datos de los minijuegos nuevos */
 GS.PC_PARTS = [
@@ -832,8 +839,8 @@ GS.CHATS = [
   { m: 'me podes mandar foto de TODO lo q tienen', ok: '¿Qué estás buscando? Te paso justo lo que necesitás.', bad: ['Dale, dame 3 semanas.', 'Te mando foto mía mejor.'] }
 ];
 GS.SHELVES = [
-  { cat: 'consolas', name: 'Consolas y juegos', icon: '🎮', pos: [-2.0, -6.2] }, { cat: 'apple', name: 'Apple', icon: '🍏', pos: [-3.7, 1.0] },
-  { cat: 'pc', name: 'PC y accesorios', icon: '💻', pos: [1.6, 0.2] }, { cat: 'perifericos', name: 'Periféricos gamer', icon: '🎧', pos: [5.6, 5.0] }
+  { cat: 'consolas', name: 'Consolas y juegos', icon: '🎮', pos: [7.5, -6.0] }, { cat: 'apple', name: 'Apple', icon: '🍏', pos: [9.9, -6.0] },
+  { cat: 'pc', name: 'PC y accesorios', icon: '💻', pos: [7.5, -2.6] }, { cat: 'perifericos', name: 'Periféricos gamer', icon: '🎧', pos: [9.9, -2.6] }
 ];
 GS.BOX_SIZE = { chica: ['cable', 'pendrive', 'tinta', 'airpods', 'juego', 'magic', 'watch', 'mouse', 'dualsense', 'homepod', 'webcam', 'joyxbox', 'muneco', 'disco', 'cargador', 'ram'],
   mediana: ['switch2', 'quest', 'deck', 'ipad', 'router', 'auris', 'gpu', 'streamdeck', 'mic', 'notebook', 'teclado', 'parlante', 'mousepad'], grande: ['ps5', 'xbox', 'gabinete', 'silla', 'volante', 'monitor', 'impresora'] };
@@ -1011,7 +1018,7 @@ GS.World = (function () {
     return radius / Math.sin(Math.min(v, h));
   }
   function clampCam() {
-    cam.gx = U.clamp(cam.gx, L.salon.xMin, L.salon.xMax);
+    cam.gx = U.clamp(cam.gx, L.salon.xMin, 11);
     cam.gz = U.clamp(cam.gz, L.salon.zMin, L.galeria.zMax + 1);
     cam.gdist = U.clamp(cam.gdist, cam.fit * 0.3, cam.fit * 1.35);
   }
@@ -1139,6 +1146,7 @@ GS.World = (function () {
   }
 
   // Pared con estantes llenos de productos, a lo largo de z (para izquierda y derecha)
+  const WALL_IDS = ['teclado', 'router', 'mouse', 'disco', 'auris', 'tinta', 'webcam', 'pendrive', 'parlante', 'cargador', 'mousepad', 'cable', 'mic', 'ram', 'streamdeck'];
   function shelfWall(group, x, dir, zA, zB) {
     const s = L.salon, b = Batch(group);
     box(group, 0.2, s.wallH, s.zMax - s.zMin, 0xf4f4f2, x + dir * -0.1, 0, (s.zMin + s.zMax) / 2);
@@ -1150,9 +1158,8 @@ GS.World = (function () {
       let z = zA + 0.2, sec = 0;
       while (z < zB - 0.2) {
         const pal = palettes[(Math.floor((z - zA) / 2.4) + lvl) % palettes.length];
-        const w = 0.3, h = 0.34;                       // cajas parejas y alineadas
-        b.add(depth * 0.7, h, w, pal[sec % pal.length], sx, y + 0.05, z + w / 2);
-        z += w + 0.09; sec++;
+        if (lvl < 3 && dir > 0) sprite(group, WALL_IDS[(sec + lvl * 5) % WALL_IDS.length], sx + 0.02, y + 0.05, z + 0.25, 0.5);   // cajas de producto (solo la pared que se ve)
+        z += 0.6; sec++;
       }
     }
     // columnas negras con gráfica, como en el local
@@ -1188,7 +1195,7 @@ GS.World = (function () {
     // estantería a la derecha de la puerta
     for (let i = 0; i < 4; i++) {
       const y = 0.5 + i * 0.6; box(g, 1.5, 0.05, 0.4, 0xffffff, 5.1, y, z + 0.22);
-      for (let x = 4.5; x < 5.7; x += 0.36) b.add(0.3, U.rnd(0.25, 0.4), 0.26, pc(), x, y + 0.05, z + 0.22);
+      if (i < 3) [4.75, 5.4].forEach((x, k) => sprite(g, WALL_IDS[(i * 2 + k + 7) % WALL_IDS.length], x, y + 0.05, z + 0.24, 0.48));
     }
     b.build();
   }
@@ -1247,7 +1254,6 @@ GS.World = (function () {
     { // isla Apple
       const g = upGroup(root, 'isla', 1), b = Batch(g), i = L.isla;
       box(g, i.w, i.h, i.d, 0xffffff, i.x, 0, i.z); box(g, i.w - 0.2, i.h - 0.3, 0.03, 0xe2e2e2, i.x, 0.2, i.z + i.d / 2 + 0.01);
-      for (let r = 0; r < 2; r++) for (let k = 0; k < 6; k++) b.add(0.2, 0.26, 0.05, pc(), i.x - 0.65 + k * 0.26, 0.3 + r * 0.36, i.z + i.d / 2 + 0.05);
       idsOf('apple').forEach((id, k) => sprite(g, id, i.x - 0.66 + k * 0.33, i.h, i.z + 0.1, 0.4));
       sign(g, 'APPLE', 1.3, 0.24, i.x, 0.14, i.z + i.d / 2 + 0.06); b.build();
     }
@@ -1278,8 +1284,6 @@ GS.World = (function () {
     { // góndola de periféricos del lado derecho
       const g = upGroup(root, 'gondola', 1), b = Batch(g), gd = L.gondola;
       box(g, gd.w, gd.h, gd.d, 0xffffff, gd.x, 0, gd.z);
-      for (let lvl = 0; lvl < 2; lvl++) for (let z = gd.z - gd.d / 2 + 0.25; z < gd.z + gd.d / 2 - 0.2; z += 0.36)
-        b.add(0.08, 0.3, 0.28, U.pick([0x16b8b0, 0xffffff, 0x1a1a1a, 0xe10600, 0x7b4fd1]), gd.x - gd.w / 2 - 0.05, 0.2 + lvl * 0.45, z);
       const ids = idsOf('perifericos'); let k = 0; for (let z = gd.z - gd.d / 2 + 0.3; z < gd.z + gd.d / 2 - 0.1; z += 0.5) sprite(g, ids[k++ % ids.length], gd.x, gd.h, z, 0.6);
       sign(g, 'PERIFÉRICOS GAMER', 3.4, 0.36, gd.x + gd.w / 2 + 0.02, 0.6, gd.z, Math.PI / 2); b.build();
     }
@@ -1301,6 +1305,21 @@ GS.World = (function () {
     const rp = L.reposicion;                    // pila de cajas recién llegadas
     b.add(0.55, 0.4, 0.5, carton, rp.x, 0, rp.z); b.add(0.5, 0.36, 0.46, 0xb98d5e, rp.x + 0.05, 0.4, rp.z + 0.02); b.add(0.45, 0.34, 0.45, carton, rp.x + 0.6, 0, rp.z + 0.25);
     b.add(0.3, 0.24, 0.3, 0xb98d5e, rp.x - 0.02, 0.76, rp.z);
+    b.build();
+  }
+  // Depósito: al costado derecho del salón, con una estantería por sector (acá se juega la reposición)
+  function buildDepot(root) {
+    const x0 = L.salon.xMax + 0.5, x1 = 11.4, zA = -7, zB = -1.2, b = Batch(root), cx = (x0 + x1) / 2, cz = (zA + zB) / 2;
+    box(root, x1 - x0, 0.06, zB - zA, 0x9a9aa0, cx, -0.02, cz); box(root, x1 - x0 + 0.4, 0.5, zB - zA + 0.4, 0x18181b, cx, -0.52, cz);
+    box(root, x1 - x0, 2.6, 0.2, 0xd8d8d4, cx, 0, zA - 0.1); box(root, 0.2, 0.3, zB - zA, 0xd8d8d4, x1 + 0.1, 0, cz);
+    sign(root, 'DEPÓSITO', 2.4, 0.4, cx, 2.3, zA + 0.03);
+    GS.SHELVES.forEach((sh, k) => {
+      const x = sh.pos[0], z = sh.pos[1];
+      [[-0.75, -0.3], [0.75, -0.3], [-0.75, 0.3], [0.75, 0.3]].forEach(q => box(root, 0.06, 1.9, 0.06, 0x3a4a6a, x + q[0], 0, z + q[1]));
+      for (let l = 0; l < 3; l++) { box(root, 1.6, 0.05, 0.66, 0x51658f, x, 0.3 + l * 0.6, z); for (let i = 0; i < 3; i++) b.add(0.42, 0.34, 0.46, i % 2 ? 0xc49a6c : 0xb98d5e, x - 0.5 + i * 0.5, 0.35 + l * 0.6, z); }
+      const ids = idsOf(sh.cat); sprite(root, ids[0], x - 0.5, 1.55, z, 0.5); sprite(root, ids[1 % ids.length], x, 1.55, z, 0.5); sprite(root, ids[2 % ids.length], x + 0.5, 1.55, z, 0.5);
+      sign(root, sh.name.toUpperCase(), 1.6, 0.26, x, 0.16, z + 0.35);
+    });
     b.build();
   }
   function notebook(root, x, y, z) {          // abierta, con la pantalla mirando a la cámara
@@ -1389,7 +1408,7 @@ GS.World = (function () {
   const shadowMat = new T.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.2, depthWrite: false });
   const gCone = new T.CylinderGeometry(0.15, 0.34, 0.86, 12), gBun = new T.SphereGeometry(0.15, 8, 8), gCurl = new T.SphereGeometry(0.13, 7, 6),
         gBeard = new T.SphereGeometry(0.348, 14, 6, Math.PI * 0.06, Math.PI * 0.88, Math.PI * 0.6, Math.PI * 0.36),
-        gCap = new T.SphereGeometry(0.355, 14, 8, 0, Math.PI * 2, 0, Math.PI * 0.42), gMass = new T.SphereGeometry(0.36, 12, 10);
+        gCap = new T.SphereGeometry(0.348, 16, 10, 0, Math.PI * 2, 0, Math.PI * 0.47), gMass = new T.SphereGeometry(0.36, 12, 10);
   function makePerson(o) {
     o = o || {};
     const g = new T.Group(), base = o.scale || 1; g.scale.setScalar(base); g.userData.base = base;
@@ -1412,7 +1431,7 @@ GS.World = (function () {
     function style(a) {
       if (acc) g.remove(acc); acc = new T.Group(); acc.position.y = 1.14; g.add(acc);
       head.material = mat(a.skin || SKINS[1]); const hm = mat(a.hair || 0x3a2a1a), st = a.hairStyle || 'corto';
-      const cap = () => { const m = new T.Mesh(gCap, hm); m.rotation.x = -0.42; acc.add(m); };      // casquete que deja la frente libre
+      const cap = () => { const m = new T.Mesh(gCap, hm); m.rotation.x = -0.5; acc.add(m); };      // casquete concéntrico con la cabeza que deja la frente libre
       if (st === 'corto' || st === 'largo' || st === 'rodete') cap();
       if (st === 'largo') { const m = new T.Mesh(gMass, hm); m.scale.set(1.06, 1.3, 0.8); m.position.set(0, -0.2, -0.16); acc.add(m); }   // melena redondeada por detrás
       if (st === 'rodete') { const b = new T.Mesh(gBun, hm); b.position.set(0, 0.4, -0.12); acc.add(b); }
@@ -1526,7 +1545,7 @@ GS.World = (function () {
     walls.E = new T.Group(); root.add(walls.E); shelfWall(walls.E, L.salon.xMax, -1, L.salon.zMin + 0.4, L.salon.zMax - 0.3);
     // zócalos bajos donde la pared está "cortada"
     box(root, 0.2, 0.3, L.salon.zMax - L.salon.zMin, 0xdedede, L.salon.xMax + 0.1, 0, (L.salon.zMin + L.salon.zMax) / 2);
-    buildCounter(root); buildCenter(root); buildWorkStations(root); buildGallery(root); buildSign(root);
+    buildCounter(root); buildCenter(root); buildWorkStations(root); buildDepot(root); buildGallery(root); buildSign(root);
 
     // empleados (inventados): vos en el mostrador y Brian, pegado al celular, en la caja
     yo = makePerson({ shirt: 0xe10600, hair: 0x2b2b3a, skin: SKINS[1] }); yo.setPos(L.mostrador.x, L.mostrador.z - 0.9);
@@ -1901,7 +1920,7 @@ GS.Minigames = (function () {
   function repo(job) {
     // Se juega en el local: la cámara muestra todo el salón y se toca la góndola de verdad
     const boxes = U.shuffle(GS.CATALOG).slice(0, 3), me = cur; let i = 0;
-    GS.World.home();
+    GS.World.focusAt(8.7, -4.3, 0.42, 0.16);
     const layer = document.createElement('div'); layer.className = 'zones';
     layer.innerHTML = GS.SHELVES.map((s, k) => '<button class="zone-b" data-k="' + k + '"><span>' + s.icon + '</span>' + esc(s.name) + '</button>').join('');
     document.body.appendChild(layer);
@@ -1915,7 +1934,7 @@ GS.Minigames = (function () {
       const p = boxes[i];
       zb.forEach(b => b.classList.remove('bad'));
       root().innerHTML = head(job, 'Reposición · ' + (i + 1) + ' de 3') + '<div class="bubble" id="mgBubble">📦 En esta caja hay: ' + ico(p) + esc(p.name) + '</div>' +
-        '<div class="rule">Tocá en el local la góndola donde va</div>';
+        '<div class="rule">Tocá en el depósito la estantería donde va</div>';
     }
     function choose(k) {
       if (!cur || cur.done || zb[k].classList.contains('bad')) return;
@@ -1996,6 +2015,29 @@ GS.Minigames = (function () {
     listOptions(b => b.dataset.ok === '1', () => { GS.Audio.play('cash'); finish(true, '¡Caja cerrada!', d === 0 ? 'Cerró perfecto. Sacale una foto.' : 'Diferencia detectada. Mañana se revisa con un mate.', {}); }, () => mistake('cierre', U.pick(LN.wrongCount)));
   }
 
+  /* ---------------- 12. VIDRIERA: elegir los 4 productos que van con el tema ---------------- */
+  function vidriera(job) {
+    const th = U.pick(GS.THEMES), good = U.shuffle(GS.CATALOG.filter(p => p.cat === th.cat)).slice(0, 4), bad = U.shuffle(GS.CATALOG.filter(p => p.cat !== th.cat)).slice(0, 4), all = U.shuffle(good.concat(bad));
+    root().innerHTML = head(job, 'Vidriera') + '<div class="bubble" id="mgBubble">Tema de la vidriera: <b>' + esc(th.t) + '</b>. Elegí los 4 productos que mejor van.</div>' +
+      '<div class="opts four">' + all.map((p, i) => '<button class="opt" data-i="' + i + '"><kbd>' + (i + 1) + '</kbd>' + pic(p) + '<span class="n">' + esc(p.name) + '</span></button>').join('') + '</div>' +
+      '<div class="rule">Elegidos: <span id="mgN">0</span> de 4 · tocá de nuevo para sacar uno</div>';
+    const btns = [...root().querySelectorAll('.opt')], me = cur;
+    function toggle(b) {
+      if (!cur || cur.done) return;
+      const on = btns.filter(x => x.classList.contains('sel'));
+      if (!b.classList.contains('sel') && on.length >= 4) return;
+      b.classList.toggle('sel'); GS.Audio.play('bill');
+      const sel = btns.filter(x => x.classList.contains('sel')); document.getElementById('mgN').textContent = sel.length;
+      if (sel.length === 4) {
+        const n = sel.filter(x => good.indexOf(all[x.dataset.i]) >= 0).length;
+        btns.forEach(x => x.classList.add(good.indexOf(all[x.dataset.i]) >= 0 ? 'good' : 'dim'));
+        setTimeout(() => { if (cur !== me) return; GS.Audio.play(n >= 3 ? 'ok' : 'click'); finish(true, n === 4 ? '¡Vidriera perfecta!' : n >= 2 ? 'Vidriera aceptable' : 'Vidriera... original', n + ' de 4 productos van con "' + th.t + '".', { quality: n / 4 }); }, 700);
+      }
+    }
+    btns.forEach(b => b.addEventListener('click', () => toggle(b)));
+    cur.keys = e => { const n = parseInt(e.key, 10); if (n >= 1 && n <= btns.length) toggle(btns[n - 1]); };
+  }
+
   // Ayuda común: lista de opciones con una correcta; las equivocadas se apagan
   function listOptions(isOk, onOk, onBad) {
     const btns = [...root().querySelectorAll('.opt')];
@@ -2007,7 +2049,7 @@ GS.Minigames = (function () {
     cur.keys = e => { const n = parseInt(e.key, 10); if (n >= 1 && n <= btns.length) choose(btns[n - 1]); };
   }
 
-  const GAMES = { mostrador, caja, pc, service, ml, whatsapp, repo, stock, proveedor, devol, cierre };
+  const GAMES = { mostrador, caja, pc, service, ml, whatsapp, repo, stock, proveedor, devol, cierre, vidriera };
   return {
     // type: 'mostrador' | 'caja'; opts.variant para caja: 'cobro' | 'vuelto' | 'comprobante'
     open(type, cust, cb, opts) {
@@ -2273,7 +2315,7 @@ GS.Game = (function () {
       onEnd(ok, info) {
         if (job.type !== 'caja') W.focus(null);
         if (job.type === 'mostrador') {
-          addScore(100, ref.pat); addRep(0.02); sayAt(ref.person, '¡Eso! Voy a la caja.', 1900); ref.st = 'toCaja'; ref.slotM = -1; ref.pat = Math.max(ref.pat, 0.8);
+          addScore(100, ref.pat); addRep(0.02); { const v = GS.Store.get('vid') || 0, saw = Math.random() < v * 0.7; if (saw) addRep(0.02); sayAt(ref.person, saw ? U.pick(LN.sawWindow) : '¡Eso! Voy a la caja.', saw ? 3000 : 1900); } ref.st = 'toCaja'; ref.slotM = -1; ref.pat = Math.max(ref.pat, 0.8);
           ref.slotC = Math.max(0, freeSlot('slotC', L.colaCaja.length));
           ref.person.walk([[0.1, -2.1], L.colaCaja[ref.slotC]], () => { ref.st = 'waitC'; ref.person.face(Math.PI / 2); });
         } else if (job.type === 'caja') {
@@ -2290,7 +2332,7 @@ GS.Game = (function () {
           sayAt(ref.person, ref.arche.bye, 3600); day.beat = 1.5;
           const d = day; setTimeout(() => { if (day === d && !MG.isOpen()) W.focus(null); }, 2300);
           leave(ref, !!info.total);
-        } else { day.tasksDone++; addScore(130, ref.pat); addRep(job.type === 'whatsapp' ? 0.05 : 0.03); removeTask(ref); }
+        } else { day.tasksDone++; addScore(130, ref.pat); addRep(job.type === 'whatsapp' ? 0.05 : 0.03); if (job.type === 'vidriera') { GS.Store.set('vid', info.quality || 0); addRep((info.quality - 0.5) * 0.12); } removeTask(ref); }
       }
     };
     const seen = GS.Store.get('seen') || {};
@@ -2539,14 +2581,14 @@ GS.Game = (function () {
   function closeShop() { $('shop').hidden = true; W.setUpgrades(upNow()); state = 'menu'; $('start').hidden = false; refreshStart(); W.showAll(); A.play('click'); }
   function avatarSvg(a) {
     const hex = n => '#' + n.toString(16).padStart(6, '0'), h = hex(a.hair), sk = hex(a.skin), st = a.hairStyle || 'corto';
-    const top = '<path d="M23 42 A27 27 0 0 1 77 42 Q70 29 50 31 Q33 29 23 42z" fill="' + h + '"/>';   // pelo arriba, con flequillo suave
+    const top = '<path d="M22.600 46 A27.400 27.400 0 0 1 77.400 46 L73.500 46 Q71 33 50 33.500 Q29 33 26.500 46z" fill="' + h + '"/>';   // casquete concéntrico con la cabeza, con patillas
     let v = '<svg viewBox="0 0 100 124" width="120" height="149"><path d="M33 122 L43 66 H57 L67 122z" fill="#e10600"/><path d="M43 66 H57 L50 76z" fill="#fff"/>';
-    if (st === 'largo') v += '<rect x="19" y="18" width="62" height="72" rx="28" fill="' + h + '"/>';
+    if (st === 'largo') v += '<path d="M19.500 44 A30.500 30.500 0 0 1 80.500 44 V82 Q80.500 92 71 92 H29 Q19.500 92 19.500 82z" fill="' + h + '"/>';
     v += '<circle cx="50" cy="44" r="26" fill="' + sk + '"/><circle cx="33" cy="52" r="5" fill="#ff6b6b" opacity=".22"/><circle cx="67" cy="52" r="5" fill="#ff6b6b" opacity=".22"/>';
     if (st === 'corto' || st === 'rodete') v += top;
-    if (st === 'largo') v += top + '<path d="M23 42 Q20 62 24 80 Q30 62 28 40z M77 42 Q80 62 76 80 Q70 62 72 40z" fill="' + h + '"/>';
+    if (st === 'largo') v += top;
     if (st === 'rodete') v += '<circle cx="50" cy="13" r="10" fill="' + h + '"/>';
-    if (st === 'rulos') { v += top; for (let i = 0; i < 9; i++) { const an = Math.PI * (1.02 + i * 0.12); v += '<circle cx="' + (50 + Math.cos(an) * 27).toFixed(1) + '" cy="' + (42 + Math.sin(an) * 27).toFixed(1) + '" r="9.500" fill="' + h + '"/>'; } v += '<circle cx="40" cy="24" r="8" fill="' + h + '"/><circle cx="60" cy="24" r="8" fill="' + h + '"/><circle cx="50" cy="20" r="8" fill="' + h + '"/>'; }
+    if (st === 'rulos') { v += top; for (let i = 0; i < 9; i++) { const an = Math.PI * (1.02 + i * 0.12); v += '<circle cx="' + (50 + Math.cos(an) * 26).toFixed(1) + '" cy="' + (44 + Math.sin(an) * 26).toFixed(1) + '" r="9.500" fill="' + h + '"/>'; } v += '<circle cx="40" cy="24" r="8" fill="' + h + '"/><circle cx="60" cy="24" r="8" fill="' + h + '"/><circle cx="50" cy="20" r="8" fill="' + h + '"/>'; }
     if (st === 'mohicano') v += '<path d="M43 30 L45 6 L50 14 L55 4 L57 30 Q50 26 43 30z" fill="' + h + '"/>';
     if (a.beard) v += '<path d="M24.500 48 A26.500 26.500 0 0 0 75.500 48 Q70 57 60 54 Q50 49 40 54 Q30 57 24.500 48z" fill="' + h + '"/>';
     v += '<ellipse cx="40" cy="43" rx="3.400" ry="4.200" fill="#16161c"/><ellipse cx="60" cy="43" rx="3.400" ry="4.200" fill="#16161c"/><circle cx="41.200" cy="41.500" r="1.100" fill="#fff"/><circle cx="61.200" cy="41.500" r="1.100" fill="#fff"/>';
