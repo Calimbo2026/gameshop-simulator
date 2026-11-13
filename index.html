@@ -1906,8 +1906,8 @@ GS.World = (function () {
       const col = arr => { const q = at(arr); return new T.Color(q[0]).lerp(new T.Color(q[1]), q[2]); }, num = arr => { const q = at(arr); return q[0] + (q[1] - q[0]) * q[2]; };
       const wet = rain ? 0.68 : 1, n = U.clamp((f - 0.7) / 0.25, 0, 1);
       sky.side.color.copy(col([0x868d98, 0x9c9ca0, 0xb0977c, 0x86687a, 0x3d4058])).multiplyScalar(wet); sky.joint.color.copy(sky.side.color).multiplyScalar(0.82);
-      sky.hemi.color.copy(col([0xeaf2ff, 0xffffff, 0xfff0dc, 0xffe6da, 0xe4e8ff])); sky.hemi.intensity = num([0.64, 0.68, 0.66, 0.63, 0.6]) * (rain ? 0.94 : 1);
-      sky.sun.color.copy(col([0xfff4e0, 0xffffff, 0xffc98a, 0xff9a6a, 0x8090ff])); sky.sun.intensity = num([0.3, 0.38, 0.36, 0.26, 0.12]) * (rain ? 0.6 : 1); sky.sun.position.x = 9 - f * 11;
+      sky.hemi.color.copy(col([0xeaf2ff, 0xffffff, 0xfff0dc, 0xfff4ea, 0xfff6ec])); sky.hemi.intensity = num([0.66, 0.68, 0.67, 0.67, 0.68]);
+      sky.sun.color.copy(col([0xfff4e0, 0xffffff, 0xffdcb0, 0xffe2c0, 0xfff1dc])); sky.sun.intensity = num([0.32, 0.38, 0.36, 0.34, 0.34]) * (rain ? 0.85 : 1);   // adentro siempre a pleno: de noche lo que cambia es la vereda sky.sun.position.x = 9 - f * 11;
       sky.spill.opacity = n * 0.34 + (rain ? 0.08 : 0); sky.halo.opacity = n * 0.42; sky.bulb.color.set(0x55555c).lerp(new T.Color(0xfff2c0), n);
     },
     boss: () => boss,
