@@ -1,0 +1,331 @@
+GAMESHOP SIMULATOR - FRASES PARA REVISAR
+Corregí, tachá o agregá lo que quieras y devolvémelo (o decímelo por chat con el número).
+
+########## EL DUEÑO ##########
+
+== Dueño: frases en los respiros (cada una lleva un dato comercial) ==
+1. ¡Qué bien GameShop, que ofrece 10% OFF en efectivo y transferencia! Increíble.
+2. Gracias a las 3 cuotas sin interés, nadie tiene que saber cuánto cuesta realmente.
+3. Antes de las 14 hs el envío sale en el día. Yo ya lo dije, ustedes hagan lo suyo.
+4. Todo original, todo con garantía. Y si no anda, tenemos service técnico. Qué suerte.
+5. Hacemos envíos a todo el país. Qué grande es el país, ¿no? Bueno, ahí llegamos.
+6. También se puede retirar en el local. Vengan, que acá hay aire acondicionado.
+7. Aceptamos Mercado Pago. Aceptamos casi todo, menos excusas.
+8. Service técnico de notebooks y PC. Si prende fuego, también lo miramos.
+9. Ya contestamos 400 mensajes hoy. Qué bueno sería que alguien entrara por la puerta.
+10. Le ponemos más RAM a tu notebook. A vos no, lamentablemente.
+11. Recuerden: todo lo que vendemos es original y con garantía. Sí, también la tercera vez que lo preguntan.
+12. Abrimos de 10 a 19. A las 19:01 ya no me pregunten nada.
+13. Productos nuevos, originales y con garantía. Lo digo yo, que soy el Dueño.
+
+== Dueño: opinión al cierre, jornada muy buena ==
+1. Excelente jornada. Casi tan buena como nuestro 10% OFF en efectivo y transferencia.
+2. Así se trabaja. Como nuestros envíos antes de las 14: en el día y sin vueltas.
+3. Impecable. Te pagaría en 3 cuotas sin interés, pero ya cobrás por mes.
+
+== Dueño: opinión al cierre, jornada normal ==
+1. Bien. Normal. Como un martes. Igual acá todo es original y con garantía, eh.
+2. Aceptable. Mañana más sonrisa, que la sonrisa también viene con garantía.
+3. Ni fu ni fa. Recordá ofrecer las 3 cuotas sin interés, que venden solas.
+
+== Dueño: opinión al cierre, jornada floja ==
+1. Se fueron clientes sin comprar. Por suerte hacemos envíos a todo el país y los alcanzamos.
+2. Jornada complicada. Tranquilo: si algo se rompe, tenemos service técnico.
+3. Un día difícil. Mañana abrimos igual. Con 10% OFF en efectivo. Y con vos, espero.
+
+== Dueño: inducción (explica cada estación la primera vez) ==
+1. Mostrador: El cliente pide como puede. Vos elegís el producto correcto. Ojo: siempre hay uno parecido para confundirte.
+2. Caja: Al cobrar: 10% OFF en efectivo o transferencia, y 3 cuotas sin interés con tarjeta. Si te muestran un comprobante, compará cada dato antes de aprobar. Si es trucho, no se lleva nada.
+3. WhatsApp: Contestá con el dato correcto y buena onda. Cada respuesta cuida nuestra reputación.
+4. Cierre de caja: Antes de irnos a las 19, sumá los cobros en efectivo y fijate si coincide con lo que hay en el cajón.
+5. Reposición: Cada caja va a su sector. Tocá en el local el sector que corresponde.
+6. Control de stock: Contá lo que hay de verdad en la góndola. El sistema a veces sueña.
+7. Mercado Libre: Caja del tamaño justo, cinta de punta a punta y la etiqueta correcta. Lo que se compra antes de las 14 sale en el día.
+8. Recepción de proveedor: Compará el remito con lo que bajó de la carreta. Si falta algo, no firmes.
+9. Armado de PC: Elegí cada pieza y tocá dónde va en la placa. Si una viene al revés, tocala de nuevo para girarla.
+10. Service técnico: En el service: diagnosticá con criterio, limpiá con paciencia y encajá la memoria justo en la ranura.
+11. Devoluciones: Para una devolución mirá las tres reglas: ticket, plazo y estado. Si cumple, se acepta con una sonrisa.
+
+== Dueño: anuncios de clima y fechas ==
+1. 🌧️ Día de lluvia: Llueve. Va a venir menos gente al local, pero van a salir más pedidos de Mercado Libre.
+2. 🏷️ Black Friday: Hoy es Black Friday. Viene más gente y salen muchos pedidos. Tranquilos, que se puede.
+3. 🎄 Semana de Navidad: Semana de Navidad. Todos compran regalos a último momento. Paciencia y buena cara.
+
+########## CLIENTES ##########
+
+== Clientes: personajes (nombre, apodo, frase al irse contento, frase al irse sin comprar) ==
+1. Don Rubén (El nostálgico) | Contento: Qué lindo que todavía atienda una persona. | Sin comprar: Antes esto se arreglaba hablando. Chau.
+2. Marta (La tecnología es extraña) | Contento: Gracias, querido. No entendí nada, pero gracias. | Sin comprar: Yo de esto no entiendo. Vuelvo con mi nieto.
+3. Fede (Lo vio más barato) | Contento: Igual en Mercado Libre estaba más barato, eh. | Sin comprar: Listo, lo compro en Mercado Libre.
+4. El Tano (Por ser cliente) | Contento: ¿Y por ser cliente no me regalás un cablecito? | Sin comprar: Así tratan a un cliente de toda la vida.
+5. Sergio (Padre que no sabe qué compra) | Contento: Si no es este, vuelvo. Seguro vuelvo. | Sin comprar: Mejor le pregunto de nuevo al nene.
+6. Luli (¿Es original?) | Contento: Pero es original-original, ¿no? | Sin comprar: Tanta demora... me voy a preguntar a otro lado.
+7. Kevin (Gamer experto) | Contento: Técnicamente no se dice así, pero bueno. | Sin comprar: En el tiempo que esperé, ya lo speedruneé en otro lado.
+8. Nico (El apurado) | Contento: ¡Gracias! Dejé el auto en doble fila. | Sin comprar: Me llevó la grúa. Seguro me llevó la grúa.
+9. Sofi (Streamer en potencia) | Contento: Es para mi canal. Ya tengo 14 seguidores. | Sin comprar: Esto lo cuento en un vivo. A mis 14 seguidores.
+
+== Clientes: cuando elegís mal el producto ==
+1. Eso no. Pero gracias por participar.
+2. No, eso es otra cosa. Creo. Vos sos el que sabe.
+3. Mmm, no. Mi sobrino dijo otra cosa.
+4. ¿Seguro que trabajás acá?
+5. Casi. Bah, no. Ni cerca.
+6. Eso lo tengo. Bueno, no sé si lo tengo.
+
+== Clientes: cuando cobrás mal ==
+1. Mirá que yo sumo con los dedos y me dio distinto.
+2. Esa cuenta no me cierra, jefe.
+3. A mí me da otra cosa. Y eso que soy de Sociales.
+4. ¿Lo hacemos con la calculadora mejor?
+
+== Clientes: vuelto de menos ==
+1. Me falta plata, eh. No soy de quejarme, pero me falta.
+2. Faltan billetes. Los conté dos veces.
+
+== Clientes: vuelto de más ==
+1. Me diste de más. No iba a decir nada. Bueno, sí.
+2. Sobra plata. Qué generoso el local.
+
+== Clientes: cómo dicen que pagan ==
+1. Pago en efectivo.
+2. En efectivo, billete sobre billete.
+3. Efectivo. ¿Tengo descuento, no?
+4. Te transfiero ahora.
+5. Por transferencia. ¿Hay descuento?
+6. En 3 cuotas, ¿puede ser?
+7. Con tarjeta, en 3 cuotitas.
+8. Con débito, en un pago.
+9. Con Mercado Pago, un pago.
+
+== Clientes: se van renegando cuando les rechazás un comprobante trucho ==
+1. ¡Qué desconfiados! Me voy a otro lado.
+2. Bueno, bueno... era una pruebita. Chau.
+3. ¡Encima que les iba a comprar!
+4. Seguro es un error del banco. Me voy ofendido.
+
+== Clientes: excusas para devolver un producto ==
+1. Lo usé un año, pero no me terminó de convencer.
+2. Me lo regalaron y ya tengo dos.
+3. No era lo que mi hijo quería. Nunca es.
+4. Lo abrí, lo miré y me arrepentí.
+5. Se rompió solo. Yo estaba al lado, pero no hice nada.
+6. Lo compré ayer y hoy salió uno nuevo.
+
+== Clientes: mensajes de WhatsApp (mensaje -> respuesta correcta | respuestas incorrectas) ==
+1. ola precio? -> ¡Hola! ¿De qué producto te paso el precio? | Sí. / Precio tiene, sí.
+2. hacen envios?? -> Sí, a todo el país. Comprando antes de las 14 sale en el día. | Depende de las ganas. / Solo a los vecinos.
+3. tienen cuotas -> Sí: 3 cuotas sin interés con tarjeta. | Sí: 48 cuotas con mucho interés. / Cuotas no, pero fiamos.
+4. es original??? xq en otro lado esta mas barato -> Sí, todo nuevo, original y con garantía. | ¿Y vos quién sos para preguntar? / Comprá en el otro lado entonces.
+5. si pago en efectivo me hacen precio -> Sí: 10% OFF en efectivo o transferencia. | Sí, te cobramos el doble. / El efectivo ya no se usa.
+6. arreglan notebooks? -> Sí, tenemos service técnico de notebooks y PC. | Las miramos fijo hasta que andan. / No, solo las desarmamos.
+7. 🎤 Audio (4:12) -> ¿Me lo resumís por escrito? Así te ayudo más rápido 🙂 | Lo escuché entero. Saludos a tu primo. / No.
+8. puedo pasar a retirar hoy -> Sí, podés retirar en el local. | Hoy no, estamos jugando. / Retirar sí, pagar también.
+9. aceptan mercadopago -> Sí, aceptamos Mercado Pago. | Solo trueque. / Aceptamos, pero con desconfianza.
+10. hola -> ¡Hola! ¿En qué te puedo ayudar? | Chau. / hola (visto)
+11. me podes mandar foto de TODO lo q tienen -> ¿Qué estás buscando? Te paso justo lo que necesitás. | Dale, dame 3 semanas. / Te mando foto mía mejor.
+
+== Clientes: respuestas cuando contestás mal un WhatsApp ==
+1. ???
+2. Visto ✓✓
+3. jajaj no entendi
+4. ok... (está escribiendo una reseña)
+
+== Clientes: pedidos en el mostrador (por producto) ==
+
+[PlayStation 5 Slim]
+  1. La Play esa, la blanca finita, la que sale en la tele.
+  2. La consola de Sony. La última. La que mi hijo pide desde marzo.
+  3. La consola blanca alta, la que parece un módem del futuro.
+
+[Nintendo Switch 2]
+  1. La Nintendo nueva. La que viene después de la uno.
+  2. La consolita que se enchufa a la tele y también te la llevás al baño.
+  3. La Nintendo de los dos colorcitos a los costados.
+
+[Meta Quest 3S]
+  1. Los anteojos esos para estar adentro del jueguito.
+  2. El casco ese de realidad... ¿virtual? ¿aumentada? El casco.
+  3. Eso que te ponés en la cabeza y le pegás al aire.
+
+[Steam Deck]
+  1. Una compu de mano. Tipo consola, pero que es una PC. ¿Existe?
+  2. La Play de mano no: la compu de mano. La de Steam.
+  3. Esa consola portátil negra y ancha, para jugar juegos de PC.
+
+[Xbox Series X]
+  1. La caja negra esa de Microsoft. La heladerita.
+  2. La consola del Game Pass. La grandota.
+  3. La consola negra cuadrada, la que parece un parlante.
+
+[Joystick DualSense rosa]
+  1. Un joystick de Play, pero que no sea aburrido. Rosa, ponele.
+  2. El control de la Play nueva, de color.
+  3. Un mando para la PS5, pero que combine con la pieza de la nena.
+
+[Juego físico]
+  1. Un juego en caja, de los de antes. Que se pueda prestar.
+  2. Un jueguito de regalo, con cajita y todo.
+  3. Un juego para la consola, de los que vienen con disco o cartucho.
+
+[AirPods]
+  1. Los auriculares de la manzanita. Los que se pierden de a uno.
+  2. Auriculares sin cable. Los blanquitos que parecen hisopos.
+  3. Los auriculares chiquitos que vienen en una cajita blanca.
+
+[HomePod Mini]
+  1. El parlantito redondo ese al que le hablás y te ignora.
+  2. El parlante inteligente chiquito, la bolita esa.
+  3. Una bolita que pone música cuando se lo pedís de buena manera.
+
+[Magic Mouse]
+  1. El mouse de la manzanita. El que se carga panza arriba.
+  2. Un mouse blanco, liso, sin botones a la vista.
+  3. El mouse finito de la manzanita, para mi Mac.
+
+[iPad]
+  1. Una tablet para el nene. Bah, para mí.
+  2. Una pantalla grande para ver series en la cama. Sin teclado.
+  3. La tablet de la manzanita, la finita.
+
+[Apple Watch]
+  1. El reloj ese que te reta si no caminás.
+  2. Un reloj inteligente. Más inteligente que yo, si puede ser.
+  3. Un reloj que mide los pasos, el sueño y la culpa.
+
+[Placa de video]
+  1. Algo para que el jueguito ande fluido. Mi hijo dice "la placa".
+  2. Una RTX. No sé qué es, pero mi hijo dijo "RTX" y se emocionó.
+  3. La placa con los tres ventiladores. La que calienta la pieza.
+
+[Notebook gamer]
+  1. Una notebook con lucecitas. Para "trabajar".
+  2. Una compu portátil que aguante el jueguito de los tiros.
+  3. Una notebook gamer. Que sea rápida y que brille.
+
+[Gabinete con vidrio]
+  1. Una caja para la PC, con vidrio. Para ver cómo junta pelusa.
+  2. Un gabinete lindo, que se vean las lucecitas de adentro.
+  3. La torre de la compu, pero vacía. Lo de adentro ya lo tengo.
+
+[Router wifi]
+  1. El aparato del wifi. El mío anda, pero quiero uno que ande.
+  2. Algo para que el wifi llegue al fondo. Al fondo-fondo.
+  3. El aparatito de las antenitas, para internet.
+
+[Cartucho de tinta negra]
+  1. Tinta. Para la impresora. No sé cuál. La negra.
+  2. Un cartucho negro. La impresora dice que está vacío. Miente, pero bueno.
+  3. Tinta negra para imprimir un trabajo práctico para hoy.
+
+[Pendrive 128 GB]
+  1. Un cosito para pasar fotos. Con muchos gigas. Muchos.
+  2. Un pendrive. Grande de capacidad, chiquito de tamaño.
+  3. Una memoria de esas que se enchufan al costado de la compu.
+
+[Cable USB-C]
+  1. Un cable. El finito. El que va ahí, viste.
+  2. El cable para cargar el celu. El nuevo, el ovalado.
+  3. Un cable tipo C. Se me pelaron los tres que tenía.
+
+[Auriculares gamer HyperX]
+  1. Auriculares con micrófono. Para que mi hijo grite con calidad.
+  2. Unos auriculares de esos grandotes, con lucecitas.
+  3. Unos auriculares para jugar, con el microfonito que baja.
+
+[Mouse gamer Logitech]
+  1. Un mouse con muchos botones. No sé para qué, pero muchos.
+  2. Un mouse que no sea de oficina. Que tenga onda.
+  3. Un mouse gamer, de los livianitos con luces.
+
+[Stream Deck]
+  1. La botonera esa con pantallitas. La de los streamers.
+  2. Esos botoncitos con dibujitos para cambiar de escena en el vivo.
+  3. El tablerito de botones para streamear.
+
+[Micrófono]
+  1. Un micrófono. Arranco un podcast. Este año sí.
+  2. Un micrófono para dar clases online. Y cantar, a veces.
+  3. Un micrófono de mesa, de los que usan los youtubers.
+
+[Silla gamer Raptor]
+  1. Una silla de auto de carrera, pero para estar sentado quieto.
+  2. Una silla para la compu. Me duele la espalda y el alma.
+  3. El sillón ese de streamer, con almohadita para el cuello.
+
+[Teclado mecánico]
+  1. Un teclado de los que hacen ruido. Clac, clac. De esos.
+  2. El teclado con luces que usan los pibes.
+  3. Un teclado mecánico, de teclas altas.
+
+[Webcam Logitech]
+  1. Una camarita para las reuniones. Que me favorezca.
+  2. Una cámara para la compu. La de la notebook me hace cara de susto.
+  3. Una camarita para dar clases por videollamada.
+
+[Parlante bluetooth JBL]
+  1. Un parlante para la pileta. Que suene fuerte y aguante.
+  2. Un parlante portátil, de los que se mojan y no pasa nada.
+  3. Un parlantito bluetooth para el asado.
+
+[Volante con pedales]
+  1. Un volante para jugar a los autitos. Con pedales y todo.
+  2. El volante para la Play, con la palanquita.
+  3. Algo para manejar en el jueguito de carreras, como en un auto.
+
+[Mousepad XL]
+  1. La alfombrita del mouse, pero de las gigantes.
+  2. Un pad grande, que entren el teclado y el mouse.
+  3. Algo para apoyar el mouse, que el vidrio de la mesa lo vuelve loco.
+
+[Joystick de Xbox]
+  1. Un control para la Xbox. El otro se rompió "solo".
+  2. Un joystick de Xbox, que también sirva para la PC.
+  3. El mando negro, el de los botones de colores.
+
+[Muñeco coleccionable]
+  1. Un muñequito de esos cabezones, para regalar.
+  2. Una figurita coleccionable, de las de cabeza grande.
+  3. Un muñeco para el escritorio. Es para mí, no para un nene.
+
+[Monitor gamer 27"]
+  1. Una pantalla para la compu. Grande. Que se vea rápido.
+  2. Un monitor gamer, de esos de muchos hercios.
+  3. Un monitor de 27. Pulgadas, no años.
+
+[Impresora Epson]
+  1. Una impresora que imprima. La mía solo pide tinta.
+  2. Una impresora para el nene, que tiene que imprimir todo.
+  3. Una impresora con escáner. Para escanear el DNI una vez por año.
+
+[Disco externo 1 TB]
+  1. Un disco para guardar las fotos, de los que van afuera de la compu.
+  2. Un disco externo, para hacer backup antes de que sea tarde.
+  3. Un disco de un tera, de los portátiles.
+
+[Cargador de notebook]
+  1. El cargador de la notebook. Al otro se lo comió el perro.
+  2. Un cargador para la notebook, el mío hace chispitas.
+  3. El transformador de la compu portátil. El cuadradito con cable.
+
+[Memoria RAM 16 GB]
+  1. Memoria para la compu. De la que la hace más rápida, no de la otra.
+  2. Dieciséis gigas de RAM. Me dijeron que con eso vuela.
+  3. Una plaquita de memoria, de las verdes y largas.
+
+########## OTRAS ##########
+
+== Frase humana al final de la jornada ==
+1. Hoy atendiste a {n} personas. Ninguna te miró a los ojos. Excepto una.
+2. Alguien te dijo "gracias" sin que se lo pidieras. Anotalo.
+3. Hoy nadie te mandó un audio de 4 minutos. En persona duran menos.
+4. Una señora te contó de su nieto. No compró nada. Fue lo mejor del día.
+
+== Service: síntomas y diagnóstico correcto ==
+1. La notebook no prende. "No hice nada, se rompió sola." -> El cargador está desenchufado | Hay que tirar la notebook / Un virus de los fuertes
+2. La PC hace ruido de turbina de avión. -> El cooler está tapado de pelusa | Le falta nafta / Está contenta
+3. "Internet anda lento." Tiene 47 pestañas abiertas. -> Cerrar pestañas y reiniciar | Cambiar el monitor / Comprar otro internet
+4. La pantalla se ve toda negra. El brillo está en cero. -> Subir el brillo | Cambiar la pantalla / Formatear todo
+5. La PC se apaga sola cuando juega. -> Levanta temperatura: limpieza y pasta térmica | Juega demasiado bien / Es el horóscopo
+6. La notebook anda lentísima. Tiene 4 GB de RAM. -> Ampliarle la memoria RAM | Hablarle con cariño / Pegarle un sticker gamer
+7. El joystick se mueve solo para un costado. -> El stick tiene drift: se repara | Está poseído / Hay que jugar inclinado
+8. "Se me llenó el disco." Tiene 9.000 fotos del mismo asado. -> Liberar espacio o sumar un disco | Comer menos asado / Cambiar el teclado

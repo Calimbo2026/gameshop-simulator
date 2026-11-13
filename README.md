@@ -2,7 +2,7 @@
 
 Juego web (un solo HTML) que simula una jornada de trabajo en GameShop. Pieza de marca para `juego.gameshop.com.ar`.
 
-## Estado: Etapa 3 de 5 (parte A en revisión)
+## Estado: Etapa 3 de 5 (completa, en revisión)
 
 | # | Etapa | Qué incluye | Estado |
 |---|-------|-------------|--------|
@@ -50,3 +50,9 @@ Sin datos sensibles del negocio, sin personas reales, precios y stock ficticios.
 **Parte B (pendiente):** avatar del protagonista personalizable al comienzo, rangos, plata ganada y mejoras del local (lugares fijos, zoom al objeto, carrusel de modelos con precio), cartel del frente en 3 niveles (más gente con mejor cartel), local que arranca más vacío, clima y fechas (lluvia, Navidad, Black Friday), reputación influyendo en cuánta gente viene, cordura e interrupciones suaves.
 
 **Regla de contenido:** el Dueño nunca da a entender que los productos no son originales.
+
+**Parte B (hecha):** monedas por jornada, tienda de mejoras con lugares fijos, zoom y vista previa (`GS.UPGRADES`), meta de ahorro visible en el inicio y en el cierre, cartel en 3 niveles, local que arranca vacío, avatar del protagonista, rangos, clima y fechas (`GS.CONDITIONS`), reputación que trae o aleja clientes. El Dueño sale solo unos pasos del depósito.
+
+**Idea rectora:** para que repetir no canse tiene que haber un porqué: ahorrar para una mejora visible. La próxima mejora y cuánto falta se muestran siempre.
+
+**Pasa a etapas siguientes:** cordura e interrupciones suaves, más lugares de mejora (vidriera, luces, segunda caja), lluvia visible, mejores avatares.

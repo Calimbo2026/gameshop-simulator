@@ -264,3 +264,23 @@ body.calm * { animation: none !important; transition: none !important; }
 .mg-face.boss { background: #111; border: 2px solid var(--warn); }
 .chip.rep { border-color: var(--warn); }
 .seg { flex-wrap: wrap; justify-content: flex-end; }
+
+/* monedas, meta y tienda de mejoras */
+.rank { text-align: center; font-size: 14px; color: var(--warn); font-weight: 700; margin: -6px 0 0; }
+.goal { background: rgba(20,20,22,.92); border: 2px solid var(--warn); border-radius: 14px; padding: 9px 12px; } .goal b { display: block; font-size: 15px; } .goal span { font-size: 13px; color: #d6d6dd; }
+.goal .pb { height: 9px; border-radius: 5px; background: #2b2b30; overflow: hidden; margin-top: 6px; } .goal .pb i { display: block; height: 100%; background: linear-gradient(90deg, var(--warn), #ffe27a); }
+#shop { position: fixed; inset: 0; z-index: 25; pointer-events: none; display: flex; flex-direction: column; justify-content: space-between; }
+.shop-top { pointer-events: auto; margin: calc(8px + var(--sat)) 10px 0; background: rgba(0,0,0,.86); border: 1px solid var(--line); border-radius: 14px; padding: 8px 10px; display: flex; align-items: center; gap: 10px; }
+.shop-top b { flex: 1; font-family: var(--display); font-size: 20px; text-transform: uppercase; } .shop-top span { font-weight: 800; color: var(--warn); font-size: 17px; } .shop-top .btn { width: auto; padding: 9px 16px; }
+.shop-panel { pointer-events: auto; background: var(--panel); border-top: 3px solid var(--warn); border-radius: 20px 20px 0 0; padding: 10px 0 calc(12px + var(--sab)); display: flex; flex-direction: column; gap: 8px; }
+.shop-slots { display: flex; gap: 6px; overflow-x: auto; padding: 0 12px; touch-action: pan-x; scrollbar-width: none; } .shop-slots::-webkit-scrollbar { display: none; }
+.slotb { flex: none; width: 82px; background: #202025; border: 2px solid #34343b; border-radius: 12px; padding: 6px 4px; font-size: 22px; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.slotb small { font-size: 11px; line-height: 1.1; color: #d0d0d8; text-align: center; } .slotb.on { border-color: var(--warn); background: #2c2713; } .slotb.full { opacity: .55; } .slotb.full::after { content: "✔"; font-size: 12px; color: var(--ok); }
+.shop-cards { display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 0 12px; touch-action: pan-x; scrollbar-width: none; } .shop-cards::-webkit-scrollbar { display: none; }
+.card { flex: none; width: 86%; scroll-snap-align: center; background: #1b1b1f; border: 2px solid #34343b; border-radius: 14px; padding: 11px 13px; display: flex; flex-direction: column; gap: 5px; } .card:only-child { width: 100%; }
+.card b { font-size: 17px; } .card span { font-size: 14px; color: #d6d6dd; line-height: 1.3; } .card em { font-style: normal; font-weight: 800; color: var(--warn); font-size: 18px; align-self: center; flex: none !important; }
+.card .row { align-items: center; margin-top: 3px; } .card .btn { padding: 10px; font-size: 17px; } .card .btn[disabled] { background: #33333a; box-shadow: none; color: #8c8c96; } .card.has { border-color: var(--ok); } .card.has em { color: var(--ok); }
+/* avatar */
+.sw { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; } .sw button { width: 34px; height: 34px; border-radius: 50%; border: 3px solid #34343b; } .sw button.on { border-color: #fff; box-shadow: 0 0 0 2px var(--red); }
+.avprev { position: relative; width: 84px; height: 96px; margin: 0 auto; } .avprev i { position: absolute; left: 50%; transform: translateX(-50%); }
+#avF { top: 8px; width: 60px; height: 56px; border-radius: 50%; } #avH { top: 0; width: 64px; height: 34px; border-radius: 34px 34px 8px 8px; z-index: 1; } #avB { top: 58px; width: 46px; height: 38px; border-radius: 12px 12px 6px 6px; background: var(--red); }

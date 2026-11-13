@@ -43,10 +43,13 @@
       <img class="logo" id="logoImg" alt="GameShop">
       <div class="sub">SIMULATOR</div>
       <p class="tag">Entrá. Elegí. Sobreviví al turno.</p>
+      <p class="rank" id="rankT"></p>
     </div>
     <div style="display:flex;flex-direction:column;gap:12px">
       <button class="btn" id="btnPlay"><span id="playT">Jugar la jornada 1</span><small id="playS">De 10 a 19 · en tandas, con respiros</small></button>
-      <button class="btn alt" id="btnRelax">Turno tranquilo<small>Nadie pierde la paciencia · para aprender</small></button>
+      <div id="goalStart"></div>
+      <button class="btn alt" id="btnShop">🛠 Mejorar el local<small>Gastá tus monedas en cartel, góndolas, arcade y más</small></button>
+      <button class="btn ghost" id="btnRelax" style="font-size:17px">Turno tranquilo · sin apuro</button>
       <button class="btn ghost" id="btnArcade" style="font-size:18px">🕹️ Arcade · estaciones sueltas</button>
       <div class="row">
         <button class="btn ghost" id="btnHow">Cómo se juega</button>
@@ -58,6 +61,12 @@
     </div>
   </div>
 </section>
+
+<!-- Tienda de mejoras -->
+<div id="shop" hidden>
+  <div class="shop-top"><b>Mejoras del local</b><span id="shopCoins">🪙 0</span><button class="btn ghost" id="shopDone">Listo</button></div>
+  <div class="shop-panel"><div class="shop-slots" id="shopSlots"></div><div class="shop-cards" id="shopCards"></div><div class="rule" id="shopHint"></div></div>
+</div>
 
 <!-- Cierre de caja -->
 <section class="screen" id="end" hidden><div class="col" id="endCol"></div></section>

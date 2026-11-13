@@ -10,7 +10,7 @@ GS.World = (function () {
   const people = [];
   const walls = {};            // grupos de pared alta: N (fondo), S (frente), E (derecha), O (izquierda)
   const animated = [];         // cosas que se animan (pantallas, cartel)
-  let tapHandler = null;
+  let tapHandler = null, yo = null;
 
   /* ---------- Cámara tipo diorama ---------- */
   const cam = { tx: 0, tz: -0.4, dist: 100, gx: 0, gz: -0.4, gdist: 100, fit: 100, saved: null };
@@ -241,45 +241,51 @@ GS.World = (function () {
     box(g, 0.08, 0.06, 0.4, 0x222222, -0.32, 0.66, -0.02); box(g, 0.08, 0.06, 0.4, 0x222222, 0.32, 0.66, -0.02);
     return g;
   }
+  /* Mejoras del local: cada mueble comprable vive en su propio grupo, que se muestra según el nivel comprado */
+  const ups = {};
+  function upGroup(root, id, lvl) { const g = new T.Group(); root.add(g); (ups[id] = ups[id] || {})[lvl] = g; return g; }
+  function applyUpgrades(state) {
+    for (const id in ups) for (const lvl in ups[id]) ups[id][lvl].visible = id === 'cartel' ? (state[id] || 0) === Number(lvl) : (state[id] || 0) >= Number(lvl);
+  }
   function buildCenter(root) {
-    const b = Batch(root);
-    // isla blanca con blisters de colores
-    const i = L.isla;
-    box(root, i.w, i.h, i.d, 0xffffff, i.x, 0, i.z);
-    box(root, i.w - 0.2, i.h - 0.3, 0.03, 0xe2e2e2, i.x, 0.2, i.z + i.d / 2 + 0.01);
-    for (let r = 0; r < 2; r++) for (let k = 0; k < 6; k++) b.add(0.2, 0.26, 0.05, pc(), i.x - 0.65 + k * 0.26, 0.3 + r * 0.36, i.z + i.d / 2 + 0.05);
-    idsOf('apple').forEach((id, k) => sprite(root, id, i.x - 0.68 + k * 0.34, i.h, i.z, 0.5));
-    sign(root, 'APPLE', 1.3, 0.24, i.x, 0.14, i.z + i.d / 2 + 0.06);
-    // mesa de madera del medio, con notebooks y periféricos arriba y gabinetes abajo
-    const t = L.mesa, wood = 0xd9b77e;
-    box(root, t.w, 0.09, t.d, wood, t.x, t.h - 0.09, t.z);
-    box(root, t.w - 0.1, t.h - 0.09, 0.1, wood, t.x, 0, t.z - t.d / 2 + 0.05); box(root, t.w - 0.1, t.h - 0.09, 0.1, wood, t.x, 0, t.z + t.d / 2 - 0.05);
-    box(root, 0.08, t.h - 0.09, t.d, 0xc9a56b, t.x - t.w / 2 + 0.3, 0, t.z);
-    [[-1.1, 0x111111], [-0.2, 0xf4f4f4], [0.7, 0x111111]].forEach(a => box(root, 0.5, 0.62, 0.62, a[1], t.x + 0.35, 0, t.z + a[0]));
-    notebook(root, t.x - 0.2, t.h, t.z - 1.3); notebook(root, t.x + 0.25, t.h, t.z - 0.5);
-    ['gpu', 'ram', 'disco', 'router', 'impresora', 'monitor', 'gabinete'].forEach((id, k) => sprite(root, id, t.x + (k % 2 ? 0.3 : -0.25), t.h, t.z - 0.2 + k * 0.3, 0.56));
-    sign(root, 'PC Y ACCESORIOS', 2.8, 0.34, t.x + t.w / 2 + 0.02, 0.42, t.z, Math.PI / 2);
-    // escritorio gamer con monitor, teclado blanco y silla gris
-    const e = L.escritorio;
-    box(root, e.w, 0.06, e.d, 0x151515, e.x, e.h - 0.06, e.z);
-    box(root, 0.08, e.h - 0.06, e.d - 0.1, 0x151515, e.x - e.w / 2 + 0.08, 0, e.z); box(root, 0.08, e.h - 0.06, e.d - 0.1, 0x151515, e.x + e.w / 2 - 0.08, 0, e.z);
-    const mon = monitor(root, e.x + 0.1, e.h, e.z, -Math.PI / 2 - 0.2); mon.scale.set(1.5, 1.5, 1.5);
-    const screen = plane(mon, 0.56, 0.34, new T.MeshBasicMaterial({ color: 0x7be07b }), 0, 0.38, 0.025);
-    animated.push({ type: 'screen', mesh: screen });
-    box(root, 0.16, 0.03, 0.44, 0xf5f5f5, e.x - 0.35, e.h, e.z);
-    box(root, 0.36, 0.01, 0.9, 0x19c37d, e.x - 0.35, e.h - 0.005, e.z);
-    gamingChair(root, e.x - 1.15, e.z, Math.PI / 2, 0x8a8f98, 0x60656e);
-    // sillas gamer contra la pared izquierda
-    gamingChair(root, -4.9, 2.2, Math.PI / 2, 0x151515, 0xe10600);
-    gamingChair(root, -4.9, 3.6, Math.PI / 2 + 0.3, 0x151515, 0x2d6cdf);
-    // góndola baja de auriculares del lado derecho
-    const gd = L.gondola;
-    box(root, gd.w, gd.h, gd.d, 0xffffff, gd.x, 0, gd.z);
-    for (let lvl = 0; lvl < 2; lvl++) for (let z = gd.z - gd.d / 2 + 0.25; z < gd.z + gd.d / 2 - 0.2; z += 0.36)
-      b.add(0.08, 0.3, 0.28, U.pick([0x16b8b0, 0xffffff, 0x1a1a1a, 0xe10600, 0x7b4fd1]), gd.x - gd.w / 2 - 0.05, 0.2 + lvl * 0.45, z);
-    { const ids = idsOf('perifericos'); let k = 0; for (let z = gd.z - gd.d / 2 + 0.3; z < gd.z + gd.d / 2 - 0.1; z += 0.5) sprite(root, ids[k++ % ids.length], gd.x, gd.h, z, 0.6); }
-    sign(root, 'PERIFÉRICOS GAMER', 3.4, 0.36, gd.x + gd.w / 2 + 0.02, 0.6, gd.z, Math.PI / 2);
-    b.build();
+    { // isla Apple
+      const g = upGroup(root, 'isla', 1), b = Batch(g), i = L.isla;
+      box(g, i.w, i.h, i.d, 0xffffff, i.x, 0, i.z); box(g, i.w - 0.2, i.h - 0.3, 0.03, 0xe2e2e2, i.x, 0.2, i.z + i.d / 2 + 0.01);
+      for (let r = 0; r < 2; r++) for (let k = 0; k < 6; k++) b.add(0.2, 0.26, 0.05, pc(), i.x - 0.65 + k * 0.26, 0.3 + r * 0.36, i.z + i.d / 2 + 0.05);
+      idsOf('apple').forEach((id, k) => sprite(g, id, i.x - 0.68 + k * 0.34, i.h, i.z, 0.5));
+      sign(g, 'APPLE', 1.3, 0.24, i.x, 0.14, i.z + i.d / 2 + 0.06); b.build();
+    }
+    { // mesa de madera con PC y accesorios
+      const g = upGroup(root, 'mesa', 1), t = L.mesa, wood = 0xd9b77e;
+      box(g, t.w, 0.09, t.d, wood, t.x, t.h - 0.09, t.z);
+      box(g, t.w - 0.1, t.h - 0.09, 0.1, wood, t.x, 0, t.z - t.d / 2 + 0.05); box(g, t.w - 0.1, t.h - 0.09, 0.1, wood, t.x, 0, t.z + t.d / 2 - 0.05);
+      box(g, 0.08, t.h - 0.09, t.d, 0xc9a56b, t.x - t.w / 2 + 0.3, 0, t.z);
+      [[-1.1, 0x111111], [-0.2, 0xf4f4f4], [0.7, 0x111111]].forEach(a => box(g, 0.5, 0.62, 0.62, a[1], t.x + 0.35, 0, t.z + a[0]));
+      notebook(g, t.x - 0.2, t.h, t.z - 1.3); notebook(g, t.x + 0.25, t.h, t.z - 0.5);
+      ['gpu', 'ram', 'disco', 'router', 'impresora', 'monitor', 'gabinete'].forEach((id, k) => sprite(g, id, t.x + (k % 2 ? 0.3 : -0.25), t.h, t.z - 0.2 + k * 0.3, 0.56));
+      sign(g, 'PC Y ACCESORIOS', 2.8, 0.34, t.x + t.w / 2 + 0.02, 0.42, t.z, Math.PI / 2);
+    }
+    { // escritorio gamer con monitor, teclado blanco y silla gris
+      const g = upGroup(root, 'escritorio', 1), e = L.escritorio;
+      box(g, e.w, 0.06, e.d, 0x151515, e.x, e.h - 0.06, e.z);
+      box(g, 0.08, e.h - 0.06, e.d - 0.1, 0x151515, e.x - e.w / 2 + 0.08, 0, e.z); box(g, 0.08, e.h - 0.06, e.d - 0.1, 0x151515, e.x + e.w / 2 - 0.08, 0, e.z);
+      const mon = monitor(g, e.x + 0.1, e.h, e.z, -Math.PI / 2 - 0.2); mon.scale.set(1.5, 1.5, 1.5);
+      const screen = plane(mon, 0.56, 0.34, new T.MeshBasicMaterial({ color: 0x7be07b }), 0, 0.38, 0.025); animated.push({ type: 'screen', mesh: screen });
+      box(g, 0.16, 0.03, 0.44, 0xf5f5f5, e.x - 0.35, e.h, e.z); box(g, 0.36, 0.01, 0.9, 0x19c37d, e.x - 0.35, e.h - 0.005, e.z);
+      gamingChair(g, e.x - 1.15, e.z, Math.PI / 2, 0x8a8f98, 0x60656e);
+    }
+    { // sillas gamer contra la pared izquierda
+      const g = upGroup(root, 'sillas', 1);
+      gamingChair(g, -4.9, 2.2, Math.PI / 2, 0x151515, 0xe10600); gamingChair(g, -4.9, 3.6, Math.PI / 2 + 0.3, 0x151515, 0x2d6cdf);
+    }
+    { // góndola de periféricos del lado derecho
+      const g = upGroup(root, 'gondola', 1), b = Batch(g), gd = L.gondola;
+      box(g, gd.w, gd.h, gd.d, 0xffffff, gd.x, 0, gd.z);
+      for (let lvl = 0; lvl < 2; lvl++) for (let z = gd.z - gd.d / 2 + 0.25; z < gd.z + gd.d / 2 - 0.2; z += 0.36)
+        b.add(0.08, 0.3, 0.28, U.pick([0x16b8b0, 0xffffff, 0x1a1a1a, 0xe10600, 0x7b4fd1]), gd.x - gd.w / 2 - 0.05, 0.2 + lvl * 0.45, z);
+      const ids = idsOf('perifericos'); let k = 0; for (let z = gd.z - gd.d / 2 + 0.3; z < gd.z + gd.d / 2 - 0.1; z += 0.5) sprite(g, ids[k++ % ids.length], gd.x, gd.h, z, 0.6);
+      sign(g, 'PERIFÉRICOS GAMER', 3.4, 0.36, gd.x + gd.w / 2 + 0.02, 0.6, gd.z, Math.PI / 2); b.build();
+    }
   }
   // Puestos de trabajo de la Etapa 2: service técnico, empaque de Mercado Libre y cajas para reponer
   function buildWorkStations(root) {
@@ -333,7 +339,7 @@ GS.World = (function () {
     });
     gamingChair(root, 4.9, zB - 1.0, -0.5, 0xffffff, 0xff8fc0).position.y = 0.5;
     // arcade genérico en el medio del pasillo
-    const a = L.arcade, g = new T.Group(); g.position.set(a.x, 0, a.z); root.add(g);
+    const a = L.arcade, g = new T.Group(); g.position.set(a.x, 0, a.z); root.add(g); (ups.arcade = {})[1] = g;
     box(g, 0.75, 1.9, 0.7, 0x101014, 0, 0, 0);
     box(g, 0.77, 0.9, 0.04, 0x1d3fb3, 0, 0.05, 0.36);
     box(g, 0.6, 0.45, 0.04, 0x0a0a0a, 0, 1.1, 0.36); const as = box(g, 0.5, 0.36, 0.02, 0x7be07b, 0, 1.14, 0.385, { emissive: 0x2a8a3a });
@@ -344,28 +350,38 @@ GS.World = (function () {
     b.build();
   }
 
-  // Cartel pantalla LED del frente (alterna los textos reales del local)
+  // Cartel del frente en tres niveles: pintado (inicial), luminoso y pantalla LED
   function buildSign(root) {
-    const s = L.salon, z = L.galeria.zMax + 0.15;
+    const s = L.salon, z = L.galeria.zMax + 0.15, W2 = s.xMax - s.xMin;
     box(root, 0.3, 4.3, 0.3, 0x0c0c0c, s.xMin - 0.1, 0, z); box(root, 0.3, 4.3, 0.3, 0x0c0c0c, s.xMax + 0.1, 0, z);
-    box(root, s.xMax - s.xMin + 0.5, 1.5, 0.3, 0x0c0c0c, 0, 2.8, z);
-    const texs = L.cartel.textos.map((txt, i) => logoTex(1024, 128, (g, w, h, img) => {
-      g.fillStyle = '#050505'; g.fillRect(0, 0, w, h);
-      if (i === 0) { const ih = h * 0.62, iw = ih * img.width / img.height; g.drawImage(img, (w - iw) / 2, 4, iw, ih); }
-      g.fillStyle = '#fff'; g.textAlign = 'center'; g.textBaseline = 'middle';
-      g.font = i === 0 ? '900 30px Impact, "Arial Black", sans-serif' : '900 70px Impact, "Arial Black", sans-serif';
-      g.fillText(txt, w / 2, i === 0 ? h - 22 : h / 2 + 4, w * 0.92);
-      g.fillStyle = 'rgba(0,0,0,0.22)'; for (let y = 0; y < h; y += 4) g.fillRect(0, y, w, 1); // efecto LED
-    }));
-    const m = new T.MeshBasicMaterial({ map: texs[0] });
-    plane(root, s.xMax - s.xMin + 0.3, 1.4, m, 0, 3.5, z + 0.16);
-    plane(root, s.xMax - s.xMin + 0.3, 1.4, m, 0, 3.5, z - 0.16, Math.PI);
-    box(root, s.xMax - s.xMin + 0.5, 0.06, 0.3, 0x1a1a1a, 0, 4.3, z);
-    animated.push({ type: 'sign', mat: m, texs, t: 0, i: 0 });
-    // cartel de vereda
+    box(root, W2 + 0.5, 0.25, 0.3, 0x0c0c0c, 0, 2.8, z);
+    const logoMat = (bg, h) => new T.MeshBasicMaterial({ map: logoTex(1024, 128, (g, w, hh, img) => { g.fillStyle = bg; g.fillRect(0, 0, w, hh); const ih = hh * h, iw = ih * img.width / img.height; g.drawImage(img, (w - iw) / 2, (hh - ih) / 2, iw, ih); }) });
+    { // nivel 0: chapa pintada, chica y sin luz
+      const g = upGroup(root, 'cartel', 0), m = new T.MeshLambertMaterial({ map: textTex('GameShop', { bg: '#e9e4d8', fg: '#222', w: 512, h: 128 }) });
+      box(g, 5.2, 0.9, 0.12, 0xcfc8b8, 0, 3.05, z); plane(g, 5.0, 0.8, m, 0, 3.5, z + 0.07); plane(g, 5.0, 0.8, m, 0, 3.5, z - 0.07, Math.PI);
+    }
+    { // nivel 1: cartel luminoso con el logo
+      const g = upGroup(root, 'cartel', 1), m = logoMat('#000', 0.9);
+      box(g, 8.6, 1.2, 0.3, 0x0c0c0c, 0, 3.05, z); plane(g, 8.4, 1.05, m, 0, 3.65, z + 0.16); plane(g, 8.4, 1.05, m, 0, 3.65, z - 0.16, Math.PI);
+      box(g, 8.8, 0.06, 0.34, 0xff3b30, 0, 4.25, z, { emissive: 0xaa1100 });
+    }
+    { // nivel 2: pantalla LED que alterna mensajes
+      const g = upGroup(root, 'cartel', 2);
+      box(g, W2 + 0.5, 1.5, 0.3, 0x0c0c0c, 0, 2.8, z);
+      const texs = L.cartel.textos.map((txt, i) => logoTex(1024, 128, (c, w, h, img) => {
+        c.fillStyle = '#050505'; c.fillRect(0, 0, w, h);
+        if (i === 0) { const ih = h * 0.62, iw = ih * img.width / img.height; c.drawImage(img, (w - iw) / 2, 4, iw, ih); }
+        c.fillStyle = '#fff'; c.textAlign = 'center'; c.textBaseline = 'middle';
+        c.font = i === 0 ? '900 30px Impact, "Arial Black", sans-serif' : '900 70px Impact, "Arial Black", sans-serif';
+        c.fillText(txt, w / 2, i === 0 ? h - 22 : h / 2 + 4, w * 0.92);
+        c.fillStyle = 'rgba(0,0,0,0.22)'; for (let y = 0; y < h; y += 4) c.fillRect(0, y, w, 1);
+      }));
+      const m = new T.MeshBasicMaterial({ map: texs[0] });
+      plane(g, W2 + 0.3, 1.4, m, 0, 3.5, z + 0.16); plane(g, W2 + 0.3, 1.4, m, 0, 3.5, z - 0.16, Math.PI);
+      box(g, W2 + 0.5, 0.06, 0.3, 0x1a1a1a, 0, 4.3, z); animated.push({ type: 'sign', mat: m, texs, t: 0, i: 0 });
+    }
     const sw = new T.Group(); sw.position.set(-4.2, 0, z + 1.6); sw.rotation.y = 0.5; root.add(sw);
-    box(sw, 1.0, 0.75, 0.05, 0x0c0c0c, 0, 0.2, 0);
-    plane(sw, 0.94, 0.3, new T.MeshBasicMaterial({ map: logoTex(512, 128, (g, w, h, img) => { g.fillStyle = '#000'; g.fillRect(0, 0, w, h); const ih = h * 0.95, iw = ih * img.width / img.height; g.drawImage(img, (w - iw) / 2, (h - ih) / 2, iw, ih); }) }), 0, 0.62, 0.03);
+    box(sw, 1.0, 0.75, 0.05, 0x0c0c0c, 0, 0.2, 0); plane(sw, 0.94, 0.3, logoMat('#000', 0.95), 0, 0.62, 0.03);
   }
 
   /* ---------- Personajes low-poly (cabezones) ---------- */
@@ -400,6 +416,7 @@ GS.World = (function () {
       face(ry) { g.rotation.y = ry; },
       walk(points, cb) { p.path = points.slice(); p.onArrive = cb || null; p.moving = true; },
       bag(v) { bag.visible = v; },
+      look(sk, hr) { head.material = mat(sk); hair.material = mat(hr); },
       cargo(v) { if (cargo) cargo.visible = v; },
       remove() { scene.remove(g); const i = people.indexOf(p); if (i >= 0) people.splice(i, 1); }
     };
@@ -496,7 +513,7 @@ GS.World = (function () {
     buildCounter(root); buildCenter(root); buildWorkStations(root); buildGallery(root); buildSign(root);
 
     // empleados (inventados): vos en el mostrador y Brian, pegado al celular, en la caja
-    const yo = makePerson({ shirt: 0xe10600, hair: 0x2b2b3a, skin: SKINS[1] }); yo.setPos(L.mostrador.x, L.mostrador.z - 0.9);
+    yo = makePerson({ shirt: 0xe10600, hair: 0x2b2b3a, skin: SKINS[1] }); yo.setPos(L.mostrador.x, L.mostrador.z - 0.9);
     const brian = makePerson({ shirt: 0xe10600, hair: 0x2d6cdf, skin: SKINS[0], phone: true }); brian.setPos(L.caja.x + 1.0, L.caja.z + 0.2); brian.face(-Math.PI / 2);
 
     setupInput(); resize(true); updateWalls(); ok = true; return true;
@@ -529,6 +546,13 @@ GS.World = (function () {
     setQuality(q) { quality = q; if (ok) resize(); },
     setReduceMotion(v) { reduceMotion = v; },
     makePerson,
+    setUpgrades: applyUpgrades,
+    setPlayerLook(a) { if (yo && a) yo.look(a.skin, a.hair); },
+    // Zoom a un punto del local (para la tienda de mejoras)
+    focusAt(x, z, factor, biasY) {
+      const d = cam.fit * (factor || 0.45), by = (biasY || 0) * 2 * d * Math.tan(GS.CONFIG.camera.fov * DEG / 2) / Math.sin(tilt);
+      cam.saved = null; cam.gdist = d; cam.gx = x + Math.sin(rot) * by; cam.gz = z + Math.cos(rot) * by;
+    },
     // Pila de cajas que deja el repartidor
     dropBoxes(x, z) {
       const g = new T.Group(); g.position.set(x, 0, z); scene.add(g);
