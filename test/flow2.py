@@ -1,6 +1,6 @@
 import sys, asyncio
 from playwright.async_api import async_playwright
-SOLVE = r"""(()=>{const M=GS.Minigames; if(!M.isOpen()||M.isResolving()) return 'idle';
+SOLVE = r"""(()=>{const M=GS.Minigames; if(document.querySelector('#mgOk')){document.querySelector('#mgOk').click(); return 'intro';} if(!M.isOpen()||M.isResolving()) return 'idle';
  const q=s=>document.querySelector('#mg '+s), qa=s=>[...document.querySelectorAll('#mg '+s)];
  if(q('.part')){const b=q('.part:not(.used)'); if(!b) return 'pcwait'; if(!b.classList.contains('sel')) b.click(); if(b.classList.contains('flip')) b.click(); q('.pslot[data-id="'+b.dataset.id+'"]').click(); return 'pc';}
  if(q('.dust')){const d=qa('.dust:not(.gone)'); d.slice(0,3).forEach(e=>{e.classList.contains('gone')||document.getElementById('mgFan').dispatchEvent(new KeyboardEvent('x'))}); document.dispatchEvent(new KeyboardEvent('keydown',{key:' '})); return 'pelusa';}
@@ -26,7 +26,7 @@ async def main():
         await pg.goto('file:///home/claude/gss/dist/index.html'); await pg.wait_for_timeout(1200)
         await pg.screenshot(path='shots/2_start.png')
         await pg.click('#btnArcade'); await pg.wait_for_timeout(300); await pg.screenshot(path='shots/2_arcade.png'); await pg.click('[data-close]')
-        shots={'mostrador':1,'stock':1,'proveedor':1,'devol':1,'cierre':1,'repo':1}
+        shots={'mostrador':1}
         for st,n in shots.items():
             await pg.evaluate(f"GS.Game.startArcade('{st}')")
             taken=0; seen=set()
@@ -40,16 +40,17 @@ async def main():
             print(st, await pg.evaluate("GS.Game.state()"), await pg.evaluate("GS.Game.day().score"))
         await pg.screenshot(path='shots/2_arcend.png')
         await pg.click('#endHome'); await pg.wait_for_timeout(300)
-        await pg.click('#btnPlay'); await pg.wait_for_timeout(400); await pg.click('[data-close]')
+        await pg.evaluate("GS.Store.set('testDay',6)"); await pg.click('#btnPlay'); await pg.wait_for_timeout(400)
         got=False
         for i in range(2500):
             await pg.wait_for_timeout(150)
             if await pg.evaluate("GS.Game.state()")=='end': break
             n = await pg.evaluate("GS.Minigames.isOpen()?-1:GS.Game.pendingJobs().length")
+            if await pg.evaluate("!!document.querySelector('#mgOk')") and not globals().get('S4'): globals()['S4']=1; await pg.screenshot(path='shots/2_intro.png')
             if n>=2 and not got: got=True; await pg.screenshot(path='shots/2_day.png')
             if await pg.evaluate("document.querySelectorAll('.say').length>0 && !GS.Minigames.isOpen()") and not globals().get('S1'): globals()['S1']=1; await pg.screenshot(path='shots/2_say.png')
             if await pg.evaluate("GS.Game.day().extras.length>0 && GS.Game.day().tasks.some(t=>t.boxes)") and not globals().get('S3'): globals()['S3']=1; await pg.screenshot(path='shots/2_cart.png')
-            if await pg.evaluate("GS.Game.day().stage==='rest' && GS.Game.day().wave>=0 && document.querySelector('.toast.dueno')!=null") and not globals().get('S2'): globals()['S2']=1; await pg.screenshot(path='shots/2_rest.png')
+            if await pg.evaluate("document.querySelector('.say.boss')!=null") and not globals().get('S2'): globals()['S2']=1; await pg.screenshot(path='shots/2_rest.png')
             if n>0 and i%12==0: await pg.evaluate("GS.Game.openJob(GS.Game.pendingJobs()[0])")
             await pg.evaluate(SOLVE)
         if not got: await pg.screenshot(path='shots/2_day.png')

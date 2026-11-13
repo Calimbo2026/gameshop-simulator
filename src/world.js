@@ -105,6 +105,24 @@ GS.World = (function () {
     m.position.set(x, y, z); if (ry) m.rotation.y = ry; if (rx) m.rotation.x = rx; parent.add(m); return m;
   }
 
+  // Productos del salón: los mismos dibujos del catálogo, parados sobre los muebles y mirando a la cámara
+  const iconCache = {};
+  function iconTex(id) {
+    if (iconCache[id]) return iconCache[id];
+    const c = document.createElement('canvas'); c.width = c.height = 128; const t = new T.CanvasTexture(c), img = new Image();
+    img.onload = () => { c.getContext('2d').drawImage(img, 0, 0, 128, 128); t.needsUpdate = true; };
+    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(GS.ICONS[id].replace('<svg ', '<svg width="128" height="128" '));
+    return (iconCache[id] = t);
+  }
+  const gSprite = new T.PlaneGeometry(1, 1);
+  function sprite(parent, id, x, y, z, size) {
+    const m = new T.Mesh(gSprite, new T.MeshBasicMaterial({ map: iconTex(id), transparent: true, alphaTest: 0.35, side: T.DoubleSide }));
+    m.scale.set(size, size, 1); m.rotation.order = 'YXZ'; m.rotation.y = rot; m.rotation.x = -0.62; m.position.set(x, y + size * 0.42, z); parent.add(m); return m;
+  }
+  const idsOf = cat => GS.CATALOG.filter(p => p.cat === cat).map(p => p.id);
+  function sign(parent, text, w, h, x, y, z, ry) {
+    return plane(parent, w, h, new T.MeshBasicMaterial({ map: textTex(text, { bg: '#e10600', fg: '#fff', w: 512, h: Math.round(512 * h / w) }) }), x, y, z, ry || 0);
+  }
   const PRODUCT_COLORS = [0xffffff, 0xf2f2f2, 0x1a1a1a, 0xe10600, 0x16b8b0, 0x2d6cdf, 0x3bb54a, 0xf2f2f2, 0x222222, 0xff5fa2, 0xf5c518];
   const pc = () => U.pick(PRODUCT_COLORS);
 
@@ -157,13 +175,10 @@ GS.World = (function () {
     for (let i = 0; i < 3; i++) {
       const y = 1.25 + i * 0.6;
       box(g, 7.2, 0.04, 0.42, glow, -2.0, y, z + 0.26);
-      let x = -5.4;
-      while (x < 1.4) {
-        const w = U.rnd(0.3, 0.62), h = U.rnd(0.24, 0.46);
-        if (Math.random() > 0.1) b.add(w, h, 0.26, pc(), x + w / 2, y + 0.04, z + 0.26);
-        x += w + 0.07;
-      }
+      const ids = idsOf('consolas'); let k = i * 3;
+      for (let x = -5.3; x < 1.5; x += 0.62) sprite(g, ids[k++ % ids.length], x, y + 0.04, z + 0.34, 0.56);
     }
+    sign(g, 'CONSOLAS Y JUEGOS', 4.2, 0.36, -2.0, 3.0, z + 0.03);
     // mueble bajo blanco
     box(g, 7.2, 0.7, 0.5, 0xffffff, -2.0, 0, z + 0.3);
     // TV
@@ -233,7 +248,8 @@ GS.World = (function () {
     box(root, i.w, i.h, i.d, 0xffffff, i.x, 0, i.z);
     box(root, i.w - 0.2, i.h - 0.3, 0.03, 0xe2e2e2, i.x, 0.2, i.z + i.d / 2 + 0.01);
     for (let r = 0; r < 2; r++) for (let k = 0; k < 6; k++) b.add(0.2, 0.26, 0.05, pc(), i.x - 0.65 + k * 0.26, 0.3 + r * 0.36, i.z + i.d / 2 + 0.05);
-    for (let k = 0; k < 5; k++) b.add(0.24, U.rnd(0.2, 0.38), 0.24, pc(), i.x - 0.6 + k * 0.3, i.h, i.z);
+    idsOf('apple').forEach((id, k) => sprite(root, id, i.x - 0.68 + k * 0.34, i.h, i.z, 0.5));
+    sign(root, 'APPLE', 1.3, 0.24, i.x, 0.14, i.z + i.d / 2 + 0.06);
     // mesa de madera del medio, con notebooks y periféricos arriba y gabinetes abajo
     const t = L.mesa, wood = 0xd9b77e;
     box(root, t.w, 0.09, t.d, wood, t.x, t.h - 0.09, t.z);
@@ -241,7 +257,8 @@ GS.World = (function () {
     box(root, 0.08, t.h - 0.09, t.d, 0xc9a56b, t.x - t.w / 2 + 0.3, 0, t.z);
     [[-1.1, 0x111111], [-0.2, 0xf4f4f4], [0.7, 0x111111]].forEach(a => box(root, 0.5, 0.62, 0.62, a[1], t.x + 0.35, 0, t.z + a[0]));
     notebook(root, t.x - 0.2, t.h, t.z - 1.3); notebook(root, t.x + 0.25, t.h, t.z - 0.5);
-    for (let k = 0; k < 6; k++) b.add(U.rnd(0.25, 0.4), U.rnd(0.14, 0.3), U.rnd(0.25, 0.4), U.pick([0xe10600, 0x1a1a1a, 0xffffff, 0x2d6cdf]), t.x + U.rnd(-0.4, 0.4), t.h, t.z + 0.1 + k * 0.28);
+    ['gpu', 'ram', 'disco', 'router', 'impresora', 'monitor', 'gabinete'].forEach((id, k) => sprite(root, id, t.x + (k % 2 ? 0.3 : -0.25), t.h, t.z - 0.2 + k * 0.3, 0.56));
+    sign(root, 'PC Y ACCESORIOS', 2.8, 0.34, t.x + t.w / 2 + 0.02, 0.42, t.z, Math.PI / 2);
     // escritorio gamer con monitor, teclado blanco y silla gris
     const e = L.escritorio;
     box(root, e.w, 0.06, e.d, 0x151515, e.x, e.h - 0.06, e.z);
@@ -260,7 +277,8 @@ GS.World = (function () {
     box(root, gd.w, gd.h, gd.d, 0xffffff, gd.x, 0, gd.z);
     for (let lvl = 0; lvl < 2; lvl++) for (let z = gd.z - gd.d / 2 + 0.25; z < gd.z + gd.d / 2 - 0.2; z += 0.36)
       b.add(0.08, 0.3, 0.28, U.pick([0x16b8b0, 0xffffff, 0x1a1a1a, 0xe10600, 0x7b4fd1]), gd.x - gd.w / 2 - 0.05, 0.2 + lvl * 0.45, z);
-    for (let z = gd.z - gd.d / 2 + 0.3; z < gd.z + gd.d / 2 - 0.2; z += 0.5) b.add(0.34, U.rnd(0.24, 0.4), 0.34, pc(), gd.x, gd.h, z);
+    { const ids = idsOf('perifericos'); let k = 0; for (let z = gd.z - gd.d / 2 + 0.3; z < gd.z + gd.d / 2 - 0.1; z += 0.5) sprite(root, ids[k++ % ids.length], gd.x, gd.h, z, 0.6); }
+    sign(root, 'PERIFÉRICOS GAMER', 3.4, 0.36, gd.x + gd.w / 2 + 0.02, 0.6, gd.z, Math.PI / 2);
     b.build();
   }
   // Puestos de trabajo de la Etapa 2: service técnico, empaque de Mercado Libre y cajas para reponer
@@ -374,6 +392,7 @@ GS.World = (function () {
       cargo = new T.Group(); g.add(cargo);
       box(cargo, 0.5, 0.36, 0.5, 0xc49a6c, 0, 0.22, 0.9); box(cargo, 0.44, 0.3, 0.44, 0xb98d5e, 0.02, 0.58, 0.9); box(cargo, 0.3, 0.22, 0.3, 0xc49a6c, -0.04, 0.88, 0.9);
     }
+    const base = o.scale || 1; g.scale.setScalar(base); g.userData.base = base;
     scene.add(g);
     const p = {
       group: g, path: [], speed: o.speed || 2.9, t: Math.random() * 6, onArrive: null, moving: false,
@@ -401,7 +420,7 @@ GS.World = (function () {
           g.position.y = reduceMotion ? 0 : Math.abs(Math.sin(p.t * 11)) * 0.07;
         }
       } else if (!reduceMotion) {
-        g.scale.y = 1 + Math.sin(p.t * 2.2) * 0.015;   // respiración
+        g.scale.y = (g.userData.base || 1) * (1 + Math.sin(p.t * 2.2) * 0.015);   // respiración
       }
     }
   }

@@ -50,13 +50,39 @@ GS.Game = (function () {
     return Object.assign({
       relaxed: false, arcade: null, t: 0, dur: C.day.seconds, score: 0, combo: 0, bestCombo: 0, sales: 0, served: 0, lost: 0, cajaErr: 0, otherErr: 0,
       tasksDone: 0, tasksLate: 0, customers: [], tasks: [], spawned: 0, tasksSpawned: 0,
-      extras: [], plan: planDay(), wave: -1, stage: 'rest', rest: 0.6, queue: [], says: [], beat: 0, duenoBag: U.shuffle(LN.dueno),
+      extras: [], n: 1, unlocked: unlockedFor(1), plan: planDay(1), rep0: repNow(), dueno: null, wave: -1, stage: 'rest', rest: 0.6, queue: [], says: [], beat: 0, duenoBag: U.shuffle(LN.dueno),
       cajaCount: 0, closing: false, jobSig: '', reqBag: U.shuffle(GS.REQUESTS), archBag: U.shuffle(GS.CUSTOMERS), taskBag: []
     }, extra || {});
   }
   // Arma la jornada: cuántos clientes y tareas trae cada tanda. Va de menos a más.
   // (Etapa 3: acá entran el cartel del frente, el clima y las fechas especiales.)
-  function planDay() { return C.day.waves.map(w => ({ c: w.c, t: w.t })).concat([{ c: 0, t: 1, final: true }]); }   // la última tanda es el cierre de caja
+  // Jornada N de la carrera: de menos a más. Cada jornada suma clientes y, según GS.UNLOCKS, estaciones nuevas.
+  // (Parte B de la Etapa 3: acá entran el cartel del frente, el clima y las fechas especiales.)
+  function dayNumber() { return GS.Store.get('testDay') || (GS.Store.get('days') || 0) + 1; }
+  function unlockedFor(n) { return GS.UNLOCKS.slice(0, n).reduce((a, b) => a.concat(b), []); }
+  function planDay(n) {
+    const un = unlockedFor(n), pool = TASK_STATIONS.filter(s => un.indexOf(s.id) >= 0);
+    const cust = Math.min(3 + n, 9), tasks = pool.length ? Math.min(n - 1, 5) : 0, nw = cust <= 5 ? 3 : 4;
+    const plan = Array.from({ length: nw }, () => ({ c: 0, t: 0 }));
+    for (let i = 0; i < cust; i++) plan[nw - 1 - (i % nw)].c++;          // las últimas tandas son las más cargadas
+    for (let i = 0; i < tasks; i++) plan[nw - 1 - (i % (nw - 1))].t++;   // la primera tanda nunca trae tareas
+    if (un.indexOf('cierre') >= 0) plan.push({ c: 0, t: 1, final: true });
+    return plan;
+  }
+  function addRep(d) { GS.Store.set('rep', U.clamp((GS.Store.get('rep') == null ? 3 : GS.Store.get('rep')) + d, 0, 5)); }
+  const repNow = () => (GS.Store.get('rep') == null ? 3 : GS.Store.get('rep'));
+  const repTxt = v => v.toFixed(1).replace('.', ',');
+  // El Dueño sale del depósito, camina hasta el salón, dice lo suyo y se vuelve
+  function duenoSpeak(text) {
+    const d = day; if (!d || d.arcade || state !== 'day') return;
+    if (d.dueno) { sayAt(d.dueno, text, 5600, 'boss'); return; }
+    const p = W.makePerson({ shirt: 0x111111, hair: 0x9a9aa3, skin: 0xe0ac7e, scale: 1.18, speed: 3.4 }); d.dueno = p; d.extras.push(p);
+    p.setPos(3.4, -6.3);
+    p.walk([[3.4, -0.9], [1.2, -0.3]], () => {
+      p.face(0.5); A.play('speaker'); sayAt(p, text, 5600, 'boss');
+      setTimeout(() => { if (day !== d) return; p.walk([[3.4, -0.9], [3.4, -6.3]], () => { p.remove(); d.dueno = null; }); }, 5900);
+    });
+  }
   function planTotals(plan) { return plan.reduce((a, w) => ({ c: a.c + w.c, t: a.t + w.t }), { c: 0, t: 0 }); }
   function startWave() {
     day.wave++; day.stage = 'work'; day.queue = [];
@@ -72,12 +98,12 @@ GS.Game = (function () {
     setTimeout(() => {                       // en el respiro habla el Dueño, sin nada tapando el local
       if (day !== d || state !== 'day' || d.stage !== 'rest') return;
       if (!d.duenoBag.length) d.duenoBag = U.shuffle(LN.dueno);
-      A.play('speaker'); toast('<b>📢 El Dueño, por el altavoz</b>' + d.duenoBag.pop(), 'dueno', 5200);
+      duenoSpeak(d.duenoBag.pop());
     }, 1100);
   }
   // Globito de diálogo sobre la cabeza de un personaje (el remate se ve en el salón, no en un cartel)
-  function sayAt(person, text, ms) {
-    const el = document.createElement('div'); el.className = 'say'; el.textContent = text; $('labels').appendChild(el);
+  function sayAt(person, text, ms, cls) {
+    const el = document.createElement('div'); el.className = 'say ' + (cls || ''); el.textContent = text; $('labels').appendChild(el);
     day.says.push({ el, person, left: (ms || 3200) / 1000 });
   }
   function enterPlay() {
@@ -86,11 +112,15 @@ GS.Game = (function () {
   }
   function startDay(relaxed) {
     A.unlock(); A.play('click'); clearDay();
-    day = newDay({ relaxed }); state = 'day'; enterPlay(); $('jobs').hidden = false;
+    const n = dayNumber(), un = unlockedFor(n), fresh = n <= GS.UNLOCKS.length ? GS.UNLOCKS[n - 1] : [];
+    day = newDay({ relaxed, n, unlocked: un, plan: planDay(n), rest: 7.5 }); state = 'day'; enterPlay(); $('jobs').hidden = false;
+    const d = day, msg = n === 1 ? 'Bienvenido a GameShop. Abrimos de 10 a 19. Hoy arrancás tranqui: mostrador y caja. Yo te voy explicando.'
+      : fresh.length ? 'Jornada ' + n + '. Hoy sumamos: ' + fresh.map(id => ST(id).name).join(' y ') + '. Cuando aparezcan, te explico.' : 'Jornada ' + n + '. ' + U.pick(LN.dueno);
+    setTimeout(() => { if (day === d) duenoSpeak(msg); }, 500);
     $('clockS').textContent = relaxed ? 'Turno tranquilo' : 'Abrimos';
     updateHud();
     GS.track('inicio_partida', { modo: relaxed ? 'tranquilo' : 'normal' });
-    if (!GS.Store.get('tutorial2')) { GS.Store.set('tutorial2', true); showHow(true); }
+    
   }
   function clearDay() {
     if (day) { day.customers.forEach(c => { if (c.person) c.person.remove(); c.label.remove(); }); day.tasks.forEach(t => { t.label.remove(); if (t.boxes) t.boxes.remove(); }); day.says.forEach(x => x.el.remove()); day.extras.forEach(x => x.remove()); }
@@ -114,9 +144,10 @@ GS.Game = (function () {
     setTimeout(() => A.play('bell'), 900);
   }
   function spawnTask(forced) {
-    if (!day.taskBag.length) day.taskBag = U.shuffle(TASK_STATIONS);
+    const pool = TASK_STATIONS.filter(x => day.unlocked.indexOf(x.id) >= 0); if (!pool.length && !forced) return;
+    if (!day.taskBag.length) day.taskBag = U.shuffle(pool);
     let st = forced || day.taskBag.pop();
-    if (!forced && day.tasks.some(t => t.station === st)) { const alt = TASK_STATIONS.filter(s => !day.tasks.some(t => t.station === s)); if (!alt.length) return; st = U.pick(alt); }
+    if (!forced && day.tasks.some(t => t.station === st)) { const alt = pool.filter(s => !day.tasks.some(t => t.station === s)); if (!alt.length) return; st = U.pick(alt); }
     const task = { id: ++uid, station: st, arche: { face: st.icon, name: st.task.name, tag: st.task.tag }, pat: 1, st: 'wait', label: makeLabel(st.icon) };
     day.tasks.push(task); day.tasksSpawned++; A.play('speaker');
     if (st.id === 'proveedor') {                    // llega el repartidor con la carreta y deja las cajas
@@ -177,29 +208,40 @@ GS.Game = (function () {
     ref.st = isCust ? (job.type === 'mostrador' ? 'inM' : 'inC') : 'in'; ref.pat = Math.max(ref.pat, 0.55);
     focusFor(job.type);
     const cb = {
-      onMistake(kind) { breakCombo(); if (kind === 'caja') day.cajaErr++; else day.otherErr++; if (!day.relaxed) ref.pat = Math.max(0.05, ref.pat - C.day.mistakeCost); },
+      onMistake(kind) { breakCombo(); addRep(-0.02); if (kind === 'caja') day.cajaErr++; else day.otherErr++; if (!day.relaxed) ref.pat = Math.max(0.05, ref.pat - C.day.mistakeCost); },
       onEnd(ok, info) {
         if (job.type !== 'caja') W.focus(null);
         if (job.type === 'mostrador') {
-          addScore(100, ref.pat); sayAt(ref.person, '¡Eso! Voy a la caja.', 1900); ref.st = 'toCaja'; ref.slotM = -1; ref.pat = Math.max(ref.pat, 0.8);
+          addScore(100, ref.pat); addRep(0.02); sayAt(ref.person, '¡Eso! Voy a la caja.', 1900); ref.st = 'toCaja'; ref.slotM = -1; ref.pat = Math.max(ref.pat, 0.8);
           ref.slotC = Math.max(0, freeSlot('slotC', L.colaCaja.length));
           ref.person.walk([[0.1, -2.1], L.colaCaja[ref.slotC]], () => { ref.st = 'waitC'; ref.person.face(Math.PI / 2); });
         } else if (job.type === 'caja') {
           day.served++;
           if (info.total) day.sales += info.total;
-          if (info.cajaError) day.score = Math.max(0, day.score - 100);
-          if (ok) addScore(150, ref.pat);
+          if (info.cajaError) { day.score = Math.max(0, day.score - 100); addRep(-0.25); }
+          if (ok) { addScore(150, ref.pat); addRep(info.caught ? 0.05 : 0.04); }
+          if (info.caught) {                 // comprobante trucho bien rechazado: se va renegando y sin el producto
+            day.caught = (day.caught || 0) + 1; sayAt(ref.person, U.pick(LN.caught), 3600); day.beat = 1.5;
+            const d0 = day; setTimeout(() => { if (day === d0 && !MG.isOpen()) W.focus(null); }, 2300);
+            leave(ref, false); return;
+          }
           // remate en el salón: la cámara se queda un momento y el cliente dice su frase al irse
           sayAt(ref.person, ref.arche.bye, 3600); day.beat = 1.5;
           const d = day; setTimeout(() => { if (day === d && !MG.isOpen()) W.focus(null); }, 2300);
           leave(ref, !!info.total);
-        } else { day.tasksDone++; addScore(130, ref.pat); removeTask(ref); }
+        } else { day.tasksDone++; addScore(130, ref.pat); addRep(job.type === 'whatsapp' ? 0.05 : 0.03); removeTask(ref); }
       }
     };
+    const seen = GS.Store.get('seen') || {};
+    if (!seen[job.type] && GS.EXPLAIN[job.type] && !GS.DEBUG_NOINTRO) {
+      MG.intro(ST(job.type), GS.EXPLAIN[job.type], () => { seen[job.type] = 1; GS.Store.set('seen', seen); start(); });
+    } else start();
+    function start() {
     let variant = null;
     if (job.type === 'caja') { variant = GS.DEBUG_VARIANT ? GS.DEBUG_VARIANT : day.cajaCount === 0 ? 'cobro' : U.pick(['comprobante', 'comprobante', 'cobro', 'vuelto']); day.cajaCount++; }
     if (job.type === 'service' && GS.DEBUG_VARIANT) variant = GS.DEBUG_VARIANT;
     MG.open(job.type, ref, cb, { variant });
+    }
   }
 
   function updateDay(dt) {
@@ -223,7 +265,7 @@ GS.Game = (function () {
         else if ((cu.st === 'inM' || cu.st === 'inC') && !MG.isResolving()) cu.pat -= dt / cfg.patienceGame;
         if (cu.pat <= 0 && (cu.st === 'waitM' || cu.st === 'waitC' || cu.st === 'inM' || cu.st === 'inC')) {
           if (cu.st === 'inM' || cu.st === 'inC') { if (MG.isResolving()) { cu.pat = 0.01; continue; } MG.close(); W.focus(null); }
-          day.lost++; breakCombo(); A.play('lost');
+          day.lost++; breakCombo(); addRep(-0.15); A.play('lost');
           sayAt(cu.person, cu.arche.lost, 3600); toast('<b>' + cu.arche.name + ' se fue sin comprar</b>', '', 2200);
           leave(cu, false);
         }
@@ -233,7 +275,7 @@ GS.Game = (function () {
         else if (!MG.isResolving()) t.pat -= dt / (cfg.patienceGame * 1.3);
         if (t.pat <= 0) {
           if (t.st === 'in') { if (MG.isResolving()) { t.pat = 0.01; continue; } MG.close(); W.focus(null); }
-          day.tasksLate++; breakCombo(); A.play('lost');
+          day.tasksLate++; breakCombo(); addRep(-0.08); A.play('lost');
           toast('<b>' + t.station.icon + ' ' + t.station.name + '</b>' + t.station.task.late, '', 3200); removeTask(t);
         }
       }
@@ -249,14 +291,14 @@ GS.Game = (function () {
       $('clockT').textContent = 'Ronda ' + Math.max(1, Math.min(day.round, C.day.arcadeRounds)) + '/' + C.day.arcadeRounds; $('clockS').textContent = 'Arcade · ' + ST(day.arcade).name;
       $('clockB').style.width = (Math.max(0, day.round - 1) / C.day.arcadeRounds * 100) + '%';
     } else {
-      const tot = planTotals(day.plan), all = tot.c + tot.t, doneN = day.served + day.lost + day.tasksDone + day.tasksLate;
-      { const fin = day.wave >= 0 && day.plan[day.wave].final; $('clockT').textContent = fin ? 'Cierre' : 'Tanda ' + Math.max(1, day.wave + 1) + '/' + (day.plan.length - 1); } $('clockB').style.width = (Math.min(1, doneN / all) * 100).toFixed(1) + '%';
-      $('clockS').textContent = day.closing ? 'Cerrando el local' : day.stage === 'rest' && day.wave >= 0 ? 'Respiro ☕' : 'Clientes ' + (day.served + day.lost) + '/' + tot.c;
+      const tot = planTotals(day.plan), all = tot.c + tot.t, doneN = day.served + day.lost + day.tasksDone + day.tasksLate, f = Math.min(1, doneN / all);
+      const fin = day.wave >= 0 && day.plan[day.wave].final, nw = day.plan.filter(w => !w.final).length, m = Math.round((600 + f * 540) / 10) * 10;
+      $('clockT').textContent = '🕙 ' + String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0'); $('clockB').style.width = (f * 100).toFixed(1) + '%';
+      $('clockS').textContent = day.closing ? 'Cerramos: son las 19' : fin ? 'Cierre de caja' : day.stage === 'rest' && day.wave >= 0 ? 'Respiro ☕' : 'Tanda ' + Math.max(1, day.wave + 1) + '/' + nw;
     }
     $('scoreV').textContent = day.score.toLocaleString('es-AR');
-    $('chipSales').hidden = !!day.arcade; $('chipServed').hidden = !!day.arcade;
+    $('chipSales').hidden = !!day.arcade; $('chipRep').hidden = !!day.arcade; $('chipRep').textContent = '⭐ ' + repTxt(repNow());
     $('chipSales').textContent = '💰 ' + U.money(day.sales);
-    { const n = day.served + day.tasksDone; $('chipServed').textContent = '✅ ' + n + (n === 1 ? ' hecho' : ' hechos'); }
     $('chipCombo').hidden = day.combo < 2; $('chipCombo').textContent = '🔥 racha x' + day.combo;
   }
   // Tarjetas de pendientes (abajo): hasta 4, primero lo más urgente
@@ -286,7 +328,7 @@ GS.Game = (function () {
     for (const sy of day.says.slice()) {
       sy.left -= dt || 0;
       if (sy.left <= 0) { sy.el.remove(); day.says.splice(day.says.indexOf(sy), 1); continue; }
-      const g = sy.person.group.position, p = W.project(g.x, 2.25, g.z); sy.el.style.left = p.x.toFixed(1) + 'px'; sy.el.style.top = p.y.toFixed(1) + 'px';
+      const g = sy.person.group.position, p = W.project(g.x, sy.el.classList.contains('boss') ? 2.7 : 2.25, g.z); sy.el.style.left = p.x.toFixed(1) + 'px'; sy.el.style.top = p.y.toFixed(1) + 'px';
     }
     for (const cu of day.customers) {
       const show = cu.st === 'waitM' || cu.st === 'waitC' || cu.st === 'toCaja';
@@ -373,23 +415,32 @@ GS.Game = (function () {
     const human = U.pick(LN.human).replace('{n}', d.served);
     const entry = { score: d.score, served: done, sales: d.sales, mode: d.relaxed ? 'Tranquilo' : 'Normal', date: new Date().toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit' }) };
     const pos = d.score > 0 ? GS.Store.addScore(entry) : -1;
+    if (!GS.Store.get('testDay')) GS.Store.set('days', Math.max(GS.Store.get('days') || 0, d.n));
+    const rv = repNow(), rd = rv - d.rep0; refreshStart();
     GS.track('fin_jornada', { puntaje: d.score, atendidos: d.served, tareas: d.tasksDone, perdidos: missed, estrellas: stars, modo: entry.mode });
     $('endCol').innerHTML =
-      '<div><div class="ticket"><h3>CIERRE DE CAJA</h3><div class="c">GameShop Simulator · ' + (d.relaxed ? 'turno tranquilo' : 'jornada normal') + '</div>' +
+      '<div><div class="ticket"><h3>CIERRE DE CAJA</h3><div class="c">GameShop Simulator · jornada ' + d.n + (d.relaxed ? ' · turno tranquilo' : '') + '</div>' +
       '<p><span>Clientes atendidos</span><b>' + d.served + '</b></p><p><span>Tareas del local hechas</span><b>' + d.tasksDone + '</b></p>' +
       '<p><span>Se fueron sin comprar</span><b>' + d.lost + '</b></p><p><span>Tareas que se pasaron</span><b>' + d.tasksLate + '</b></p>' +
       '<p><span>Errores (con chiste)</span><b>' + errs + '</b></p>' +
-      '<p><span>Mejor racha</span><b>x' + d.bestCombo + '</b></p><p><span>Ventas (ficticias)</span><b>' + U.money(d.sales) + '</b></p><hr>' +
+      (d.caught ? '<p><span>Comprobantes truchos frenados</span><b>' + d.caught + '</b></p>' : '') +
+      '<p><span>Mejor racha</span><b>x' + d.bestCombo + '</b></p><p><span>Ventas (ficticias)</span><b>' + U.money(d.sales) + '</b></p>' +
+      '<p><span>Reputación del local</span><b>⭐ ' + repTxt(rv) + ' (' + (rd >= 0 ? '+' : '−') + repTxt(Math.abs(rd)) + ')</b></p><hr>' +
       '<p class="tot"><span>PUNTAJE</span><b>' + d.score.toLocaleString('es-AR') + '</b></p><div class="stars">' + '★'.repeat(stars) + '<span style="opacity:.25">' + '★'.repeat(3 - stars) + '</span></div></div></div>' +
       '<div style="display:flex;flex-direction:column;gap:12px;margin-top:8px">' +
       (pos === 0 ? '<div class="newrec">🏆 ¡Nuevo récord personal!</div>' : '') +
       '<div class="quote"><b>El Dueño opina</b>' + comment + '</div><p class="humanline">' + human + '</p>' +
-      '<button class="btn" id="endAgain">Otra jornada</button><div class="row"><button class="btn ghost" id="endHome">Inicio</button><button class="btn ghost" id="endRecs">Récords</button></div>' +
+      '<button class="btn" id="endAgain">Siguiente jornada</button><div class="row"><button class="btn ghost" id="endHome">Inicio</button><button class="btn ghost" id="endRecs">Récords</button></div>' +
       '<button class="phases" id="phasesEnd"></button></div>';
     $('phasesEnd').innerHTML = phasesCompact(); $('phasesEnd').addEventListener('click', showPhases);
     $('endAgain').addEventListener('click', () => startDay(d.relaxed));
     $('endHome').addEventListener('click', goHome); $('endRecs').addEventListener('click', showRecords);
     $('end').hidden = false; $('end').scrollTop = 0;
+  }
+  function refreshStart() {
+    const n = dayNumber(), fresh = n <= GS.UNLOCKS.length ? GS.UNLOCKS[n - 1] : [];
+    $('playT').textContent = 'Jugar la jornada ' + n;
+    $('playS').textContent = n === 1 ? 'Inducción: mostrador y caja · de 10 a 19' : fresh.length ? 'Se suma: ' + fresh.map(id => ST(id).name).join(' y ') : 'De 10 a 19 · reputación ⭐ ' + repTxt(repNow());
   }
   function goHome() {
     A.play('click'); clearDay();
@@ -421,6 +472,7 @@ GS.Game = (function () {
       '<div class="setting"><span>Sonido</span>' + seg('mute', [['0', 'Con sonido'], ['1', 'Silencio']], A.isMuted() ? '1' : '0') + '</div>' +
       '<div class="setting"><span>Calidad gráfica</span>' + seg('quality', [['auto', 'Auto'], ['alta', 'Alta'], ['media', 'Media'], ['baja', 'Baja']], q) + '</div>' +
       '<div class="setting"><span>Reducir movimiento</span>' + seg('calm', [['0', 'No'], ['1', 'Sí']], calm ? '1' : '0') + '</div>' +
+      '<div class="setting"><span>Jornada (modo prueba)</span>' + seg('testDay', [['0', 'Auto'], ['1', '1'], ['2', '2'], ['3', '3'], ['4', '4'], ['5', '5'], ['6', '6'], ['8', '8']], String(GS.Store.get('testDay') || 0)) + '</div>' +
       '<div class="setting"><span>Borrar récords y progreso</span><button class="btn ghost" id="optReset" style="width:auto">Reiniciar</button></div>' +
       '<button class="btn" data-close>Listo</button>', () => { if (fromPause) showPause(); });
     $('sheet').querySelectorAll('.seg').forEach(s => s.addEventListener('click', e => {
@@ -430,8 +482,9 @@ GS.Game = (function () {
       if (name === 'mute') { A.unlock(); A.setMuted(v === '1'); syncMute(); A.play('click'); }
       if (name === 'quality') { GS.Store.set('quality', v); W.setQuality(v === 'auto' ? autoQuality() : v); }
       if (name === 'calm') { setCalm(v === '1'); GS.Store.set('calm', calm); }
+      if (name === 'testDay') { GS.Store.set('testDay', Number(v)); refreshStart(); }
     }));
-    $('optReset').addEventListener('click', e => { GS.Store.reset(); e.target.textContent = 'Borrado ✔'; });
+    $('optReset').addEventListener('click', e => { GS.Store.reset(); refreshStart(); e.target.textContent = 'Borrado ✔'; });
   }
   function showPause() {
     if (state !== 'day') return; paused = true;
@@ -460,7 +513,7 @@ GS.Game = (function () {
   }
 
   function boot() {
-    $('logoImg').src = GS.LOGO;
+    $('logoImg').src = GS.LOGO; refreshStart();
     $('phasesStart').innerHTML = phasesCompact();
     $('chipPhase').textContent = '🚧 Etapa ' + C.phase + ' de ' + GS.PHASES.length;
     const q = GS.Store.get('quality') || 'auto';

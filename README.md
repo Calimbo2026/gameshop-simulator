@@ -2,7 +2,7 @@
 
 Juego web (un solo HTML) que simula una jornada de trabajo en GameShop. Pieza de marca para `juego.gameshop.com.ar`.
 
-## Estado: Etapa 2 de 5 (completa, en revisión)
+## Estado: Etapa 3 de 5 (parte A en revisión)
 
 | # | Etapa | Qué incluye | Estado |
 |---|-------|-------------|--------|
@@ -42,3 +42,11 @@ Sin datos sensibles del negocio, sin personas reales, precios y stock ficticios.
   - Cuando entra mercadería, llega un hombre con una carreta y deja las cajas (versión básica hecha en la Etapa 2; mejorar en la Etapa 4).
   - Avatares de vendedores y clientes mejores (Etapa 4).
   - Avatar del personaje principal personalizable al comienzo (Etapa 3, al iniciar la Carrera).
+
+## Etapa 3
+
+**Parte A (hecha):** progresión por jornadas (`GS.UNLOCKS`: cada jornada suma clientes y estaciones), inducción (el Dueño explica cada estación la primera vez, `GS.EXPLAIN`), el Dueño entra al salón a hablar, reputación del local (sube y baja con atención, cobros y WhatsApp), horario de 10 a 19, 3 o más pedidos por producto, producto "parecido" siempre entre las opciones (`GS.SIMILAR`), comprobante trucho rechazado = cliente se va renegando y sin producto, sectores del salón con los productos dibujados y carteles.
+
+**Parte B (pendiente):** avatar del protagonista personalizable al comienzo, rangos, plata ganada y mejoras del local (lugares fijos, zoom al objeto, carrusel de modelos con precio), cartel del frente en 3 niveles (más gente con mejor cartel), local que arranca más vacío, clima y fechas (lluvia, Navidad, Black Friday), reputación influyendo en cuánta gente viene, cordura e interrupciones suaves.
+
+**Regla de contenido:** el Dueño nunca da a entender que los productos no son originales.

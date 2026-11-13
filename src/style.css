@@ -258,3 +258,9 @@ body.calm * { animation: none !important; transition: none !important; }
 .shelfv { background: #fdfdf8; border-radius: 12px; border-bottom: 8px solid #c9ccd1; padding: 10px 8px 4px; display: flex; flex-wrap: wrap; gap: 4px 6px; justify-content: center; min-height: 64px; }
 .opts.three.low .opt { min-height: 54px; justify-content: center; } .opt .n.big { font-family: var(--display); font-size: 30px; font-weight: 700; }
 .expect.one { grid-template-columns: 1fr 1fr; } div.rowb { cursor: default; min-height: 40px; padding: 7px 12px; }
+
+/* el Dueño en el salón y la inducción */
+.say.boss { background: #111; color: #fff; border: 2px solid var(--warn); max-width: 250px; font-size: 14.5px; } .say.boss::before { content: "EL DUEÑO"; display: block; font-size: 11px; letter-spacing: .8px; color: var(--warn); font-weight: 800; }
+.mg-face.boss { background: #111; border: 2px solid var(--warn); }
+.chip.rep { border-color: var(--warn); }
+.seg { flex-wrap: wrap; justify-content: flex-end; }

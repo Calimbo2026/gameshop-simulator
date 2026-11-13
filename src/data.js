@@ -7,9 +7,9 @@
 const GS = {};
 
 GS.CONFIG = {
-  version: '0.5.0',
-  phase: 2,
-  phaseNote: 'Completa: las 11 estaciones. En revisión',                       // fase actual del proyecto (1 a 5)
+  version: '0.6.0',
+  phase: 3,
+  phaseNote: 'Parte A: inducción, progresión por jornadas y reputación',                       // fase actual del proyecto (1 a 5)
   links: { tienda: '', instagram: '' },   // se conectan más adelante
   promoMode: null,                // 'hotsale' | 'cyber' | null (Fase 3)
   camera: { tilt: 55, rot: 38, fov: 22 },
@@ -28,7 +28,7 @@ GS.CONFIG = {
     // La jornada es por cantidad, en tandas: c = clientes, t = tareas del local. Entre tandas hay un respiro.
     // En la Etapa 3 esto lo va a armar la Carrera según el cartel del frente, el clima y la fecha (lluvia, Navidad, Black Friday).
     waves: [{ c: 1, t: 0 }, { c: 2, t: 1 }, { c: 2, t: 1 }, { c: 3, t: 2 }],
-    restSeconds: 8,               // respiro entre tandas: habla el Dueño y se ve el local
+    restSeconds: 9,               // respiro entre tandas: habla el Dueño y se ve el local
     customerGap: 7, taskGap: 9    // segundos entre llegadas dentro de una tanda
   }
 };
@@ -137,8 +137,85 @@ GS.REQUESTS = [
   { t: 'Una impresora que imprima. La mía solo pide tinta.', p: 'impresora' },
   { t: 'Un disco para guardar las fotos, de los que van afuera de la compu.', p: 'disco' },
   { t: 'El cargador de la notebook. Al otro se lo comió el perro.', p: 'cargador' },
-  { t: 'Memoria para la compu. De la que la hace más rápida, no de la otra.', p: 'ram' }
+  { t: 'Memoria para la compu. De la que la hace más rápida, no de la otra.', p: 'ram' },
+  { t: 'La consola blanca alta, la que parece un módem del futuro.', p: 'ps5' },
+  { t: 'La Nintendo de los dos colorcitos a los costados.', p: 'switch2' },
+  { t: 'Eso que te ponés en la cabeza y le pegás al aire.', p: 'quest' },
+  { t: 'La consola negra cuadrada, la que parece un parlante.', p: 'xbox' },
+  { t: 'Los auriculares chiquitos que vienen en una cajita blanca.', p: 'airpods' },
+  { t: 'La tablet de la manzanita, la finita.', p: 'ipad' },
+  { t: 'Un reloj que mide los pasos, el sueño y la culpa.', p: 'watch' },
+  { t: 'La placa con los tres ventiladores. La que calienta la pieza.', p: 'gpu' },
+  { t: 'Una notebook gamer. Que sea rápida y que brille.', p: 'notebook' },
+  { t: 'El aparatito de las antenitas, para internet.', p: 'router' },
+  { t: 'Una memoria de esas que se enchufan al costado de la compu.', p: 'pendrive' },
+  { t: 'Un cable tipo C. Se me pelaron los tres que tenía.', p: 'cable' },
+  { t: 'Unos auriculares para jugar, con el microfonito que baja.', p: 'auris' },
+  { t: 'Un mouse gamer, de los livianitos con luces.', p: 'mouse' },
+  { t: 'El sillón ese de streamer, con almohadita para el cuello.', p: 'silla' },
+  { t: 'Un micrófono de mesa, de los que usan los youtubers.', p: 'mic' },
+  { t: 'Un teclado mecánico, de teclas altas.', p: 'teclado' },
+  { t: 'La Play de mano no: la compu de mano. La de Steam.', p: 'deck' },
+  { t: 'Esa consola portátil negra y ancha, para jugar juegos de PC.', p: 'deck' },
+  { t: 'El control de la Play nueva, de color.', p: 'dualsense' },
+  { t: 'Un mando para la PS5, pero que combine con la pieza de la nena.', p: 'dualsense' },
+  { t: 'Un jueguito de regalo, con cajita y todo.', p: 'juego' },
+  { t: 'Un juego para la consola, de los que vienen con disco o cartucho.', p: 'juego' },
+  { t: 'El parlante inteligente chiquito, la bolita esa.', p: 'homepod' },
+  { t: 'Una bolita que pone música cuando se lo pedís de buena manera.', p: 'homepod' },
+  { t: 'Un mouse blanco, liso, sin botones a la vista.', p: 'magic' },
+  { t: 'El mouse finito de la manzanita, para mi Mac.', p: 'magic' },
+  { t: 'Un gabinete lindo, que se vean las lucecitas de adentro.', p: 'gabinete' },
+  { t: 'La torre de la compu, pero vacía. Lo de adentro ya lo tengo.', p: 'gabinete' },
+  { t: 'Un cartucho negro. La impresora dice que está vacío. Miente, pero bueno.', p: 'tinta' },
+  { t: 'Tinta negra para imprimir un trabajo práctico para hoy.', p: 'tinta' },
+  { t: 'Esos botoncitos con dibujitos para cambiar de escena en el vivo.', p: 'streamdeck' },
+  { t: 'El tablerito de botones para streamear.', p: 'streamdeck' },
+  { t: 'Una cámara para la compu. La de la notebook me hace cara de susto.', p: 'webcam' },
+  { t: 'Una camarita para dar clases por videollamada.', p: 'webcam' },
+  { t: 'Un parlante portátil, de los que se mojan y no pasa nada.', p: 'parlante' },
+  { t: 'Un parlantito bluetooth para el asado.', p: 'parlante' },
+  { t: 'El volante para la Play, con la palanquita.', p: 'volante' },
+  { t: 'Algo para manejar en el jueguito de carreras, como en un auto.', p: 'volante' },
+  { t: 'Un pad grande, que entren el teclado y el mouse.', p: 'mousepad' },
+  { t: 'Algo para apoyar el mouse, que el vidrio de la mesa lo vuelve loco.', p: 'mousepad' },
+  { t: 'Un joystick de Xbox, que también sirva para la PC.', p: 'joyxbox' },
+  { t: 'El mando negro, el de los botones de colores.', p: 'joyxbox' },
+  { t: 'Una figurita coleccionable, de las de cabeza grande.', p: 'muneco' },
+  { t: 'Un muñeco para el escritorio. Es para mí, no para un nene.', p: 'muneco' },
+  { t: 'Un monitor gamer, de esos de muchos hercios.', p: 'monitor' },
+  { t: 'Un monitor de 27. Pulgadas, no años.', p: 'monitor' },
+  { t: 'Una impresora para el nene, que tiene que imprimir todo.', p: 'impresora' },
+  { t: 'Una impresora con escáner. Para escanear el DNI una vez por año.', p: 'impresora' },
+  { t: 'Un disco externo, para hacer backup antes de que sea tarde.', p: 'disco' },
+  { t: 'Un disco de un tera, de los portátiles.', p: 'disco' },
+  { t: 'Un cargador para la notebook, el mío hace chispitas.', p: 'cargador' },
+  { t: 'El transformador de la compu portátil. El cuadradito con cable.', p: 'cargador' },
+  { t: 'Dieciséis gigas de RAM. Me dijeron que con eso vuela.', p: 'ram' },
+  { t: 'Una plaquita de memoria, de las verdes y largas.', p: 'ram' }
 ];
+
+/* Producto "parecido" a cada uno: siempre aparece entre las opciones del mostrador para confundir */
+GS.SIMILAR = { ps5: 'xbox', xbox: 'ps5', switch2: 'deck', deck: 'switch2', quest: 'auris', dualsense: 'joyxbox', joyxbox: 'dualsense', juego: 'muneco', muneco: 'juego',
+  airpods: 'auris', auris: 'airpods', homepod: 'parlante', parlante: 'homepod', magic: 'mouse', mouse: 'magic', ipad: 'notebook', watch: 'airpods', gpu: 'ram', ram: 'gpu',
+  notebook: 'monitor', monitor: 'ipad', gabinete: 'xbox', router: 'disco', tinta: 'impresora', impresora: 'tinta', pendrive: 'disco', disco: 'pendrive', cable: 'cargador', cargador: 'cable',
+  streamdeck: 'teclado', teclado: 'streamdeck', mic: 'webcam', webcam: 'mic', silla: 'volante', volante: 'joyxbox', mousepad: 'teclado' };
+
+/* Progresión: qué estaciones se suman en cada jornada (de menos a más) y cómo las explica el Dueño */
+GS.UNLOCKS = [['mostrador', 'caja'], ['whatsapp', 'cierre'], ['repo', 'stock'], ['ml', 'proveedor'], ['pc', 'service'], ['devol']];
+GS.EXPLAIN = {
+  mostrador: 'El cliente pide como puede. Vos elegís el producto correcto. Ojo: siempre hay uno parecido para confundirte.',
+  caja: 'Al cobrar: 10% OFF en efectivo o transferencia, y 3 cuotas sin interés con tarjeta. Si te muestran un comprobante, compará cada dato antes de aprobar. Si es trucho, no se lleva nada.',
+  whatsapp: 'Contestá con el dato correcto y buena onda. Cada respuesta cuida nuestra reputación.',
+  cierre: 'Antes de irnos a las 19, sumá los cobros en efectivo y fijate si coincide con lo que hay en el cajón.',
+  repo: 'Cada caja va a su sector. Tocá en el local el sector que corresponde.',
+  stock: 'Contá lo que hay de verdad en la góndola. El sistema a veces sueña.',
+  ml: 'Caja del tamaño justo, cinta de punta a punta y la etiqueta correcta. Lo que se compra antes de las 14 sale en el día.',
+  proveedor: 'Compará el remito con lo que bajó de la carreta. Si falta algo, no firmes.',
+  pc: 'Elegí cada pieza y tocá dónde va en la placa. Si una viene al revés, tocala de nuevo para girarla.',
+  service: 'En el service: diagnosticá con criterio, limpiá con paciencia y encajá la memoria justo en la ranura.',
+  devol: 'Para una devolución mirá las tres reglas: ticket, plazo y estado. Si cumple, se acepta con una sonrisa.'
+};
 
 /* Clientes: arquetipos inventados (ninguno es una persona real) */
 GS.CUSTOMERS = [
@@ -153,7 +230,7 @@ GS.CUSTOMERS = [
   { id: 'sergio',name: 'Sergio',     face: '👨', shirt: 0x4a6fb5, hair: 0x4a3a2a, tag: 'Padre que no sabe qué compra',
     bye: 'Si no es este, vuelvo. Seguro vuelvo.', lost: 'Mejor le pregunto de nuevo al nene.' },
   { id: 'luli',  name: 'Luli',       face: '🤨', shirt: 0xe07a5f, hair: 0x7a3b1e, tag: '¿Es original?',
-    bye: 'Pero es original-original, ¿no?', lost: 'Tanta demora... seguro no era original.' },
+    bye: 'Pero es original-original, ¿no?', lost: 'Tanta demora... me voy a preguntar a otro lado.' },
   { id: 'kevin', name: 'Kevin',      face: '🤓', shirt: 0x7b4fd1, hair: 0x15151f, tag: 'Gamer experto',
     bye: 'Técnicamente no se dice así, pero bueno.', lost: 'En el tiempo que esperé, ya lo speedruneé en otro lado.' },
   { id: 'nico',  name: 'Nico',       face: '🏃', shirt: 0x21a0a0, hair: 0x5a4632, tag: 'El apurado',
@@ -179,6 +256,7 @@ GS.LINES = {
   ],
   changeShort: ['Me falta plata, eh. No soy de quejarme, pero me falta.', 'Faltan billetes. Los conté dos veces.'],
   changeOver:  ['Me diste de más. No iba a decir nada. Bueno, sí.', 'Sobra plata. Qué generoso el local.'],
+  caught: ['¡Qué desconfiados! Me voy a otro lado.', 'Bueno, bueno... era una pruebita. Chau.', '¡Encima que les iba a comprar!', 'Seguro es un error del banco. Me voy ofendido.'],
   rowFine: ['Ese dato está bien. El problema es otro.', 'Eso está perfecto. Mirá los demás.'],
   rowFineAll: ['Ese dato está bien. Compará tranquilo con lo de arriba.', 'Eso coincide. ¿Hay algo que no?'],
   receiptFake: ['Uy, me confundí de captura. Ahí te mando la buena.', 'Ah, esa era del mes pasado. Perdón, perdón.'],
@@ -200,7 +278,8 @@ GS.LINES = {
     'Service técnico de notebooks y PC. Si prende fuego, también lo miramos.',
     'Ya contestamos 400 mensajes hoy. Qué bueno sería que alguien entrara por la puerta.',
     'Le ponemos más RAM a tu notebook. A vos no, lamentablemente.',
-    'Recuerden: el cliente siempre tiene razón. Excepto cuando pregunta si es original.',
+    'Recuerden: todo lo que vendemos es original y con garantía. Sí, también la tercera vez que lo preguntan.',
+    'Abrimos de 10 a 19. A las 19:01 ya no me pregunten nada.',
     'Productos nuevos, originales y con garantía. Lo digo yo, que soy el Dueño.'
   ],
   duenoEndGood: [
@@ -311,7 +390,7 @@ GS.CHATS = [
   { m: 'ola precio?', ok: '¡Hola! ¿De qué producto te paso el precio?', bad: ['Sí.', 'Precio tiene, sí.'] },
   { m: 'hacen envios??', ok: 'Sí, a todo el país. Comprando antes de las 14 sale en el día.', bad: ['Depende de las ganas.', 'Solo a los vecinos.'] },
   { m: 'tienen cuotas', ok: 'Sí: 3 cuotas sin interés con tarjeta.', bad: ['Sí: 48 cuotas con mucho interés.', 'Cuotas no, pero fiamos.'] },
-  { m: 'es original??? xq en otro lado esta mas barato', ok: 'Sí, todo nuevo, original y con garantía.', bad: ['Original-original no sabría decirte.', 'Comprá en el otro lado entonces.'] },
+  { m: 'es original??? xq en otro lado esta mas barato', ok: 'Sí, todo nuevo, original y con garantía.', bad: ['¿Y vos quién sos para preguntar?', 'Comprá en el otro lado entonces.'] },
   { m: 'si pago en efectivo me hacen precio', ok: 'Sí: 10% OFF en efectivo o transferencia.', bad: ['Sí, te cobramos el doble.', 'El efectivo ya no se usa.'] },
   { m: 'arreglan notebooks?', ok: 'Sí, tenemos service técnico de notebooks y PC.', bad: ['Las miramos fijo hasta que andan.', 'No, solo las desarmamos.'] },
   { m: '🎤 Audio (4:12)', ok: '¿Me lo resumís por escrito? Así te ayudo más rápido 🙂', bad: ['Lo escuché entero. Saludos a tu primo.', 'No.'] },
@@ -321,7 +400,7 @@ GS.CHATS = [
   { m: 'me podes mandar foto de TODO lo q tienen', ok: '¿Qué estás buscando? Te paso justo lo que necesitás.', bad: ['Dale, dame 3 semanas.', 'Te mando foto mía mejor.'] }
 ];
 GS.SHELVES = [
-  { cat: 'consolas', name: 'Consolas y juegos', icon: '🎮', pos: [-2.0, -6.2] }, { cat: 'apple', name: 'Apple', icon: '🍏', pos: [-4.2, 1.6] },
+  { cat: 'consolas', name: 'Consolas y juegos', icon: '🎮', pos: [-2.0, -6.2] }, { cat: 'apple', name: 'Apple', icon: '🍏', pos: [-3.7, 1.0] },
   { cat: 'pc', name: 'PC y accesorios', icon: '💻', pos: [1.6, 0.2] }, { cat: 'perifericos', name: 'Periféricos gamer', icon: '🎧', pos: [5.6, 5.0] }
 ];
 GS.BOX_SIZE = { chica: ['cable', 'pendrive', 'tinta', 'airpods', 'juego', 'magic', 'watch', 'mouse', 'dualsense', 'homepod', 'webcam', 'joyxbox', 'muneco', 'disco', 'cargador', 'ram'],

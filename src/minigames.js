@@ -43,9 +43,10 @@ GS.Minigames = (function () {
   /* ---------------- 1. MOSTRADOR: interpretar el pedido ---------------- */
   function mostrador(cust) {
     const prod = cust.product;
-    const same = U.shuffle(GS.CATALOG.filter(p => p.cat === prod.cat && p.id !== prod.id)).slice(0, 2);
-    const others = U.shuffle(GS.CATALOG.filter(p => p.id !== prod.id && same.indexOf(p) < 0)).slice(0, 3 - same.length);
-    const options = U.shuffle([prod].concat(same, others));
+    // Siempre aparece el producto "parecido" al pedido, más otros dos
+    const twin = GS.CATALOG.find(p => p.id === GS.SIMILAR[prod.id]) || U.pick(GS.CATALOG.filter(p => p.cat === prod.cat && p.id !== prod.id));
+    const others = U.shuffle(GS.CATALOG.filter(p => p.id !== prod.id && p !== twin)).slice(0, 2);
+    const options = U.shuffle([prod, twin].concat(others));
     root().innerHTML = head(cust, 'Mostrador') +
       '<div class="bubble" id="mgBubble">' + esc(cust.request) + '</div>' +
       '<div class="opts">' + options.map((p, i) => '<button class="opt" data-id="' + p.id + '"><kbd>' + (i + 1) + '</kbd>' + pic(p) + '<span class="n">' + esc(p.name) + '</span></button>').join('') + '</div>' +
@@ -135,7 +136,7 @@ GS.Minigames = (function () {
     const f = { para: 'GameShop', monto: U.money(T), fecha: 'Hoy, ' + hh + ':' + mm, estado: 'Aprobada ✔' }; let flag = null;
     if (fake) {
       flag = U.pick(['para', 'monto', 'fecha', 'estado']);
-      if (flag === 'para') f.para = U.pick(['GameChop', 'GameShopp Ofertas', 'Game Shop Trucho']);
+      if (flag === 'para') f.para = U.pick(['GameChop', 'GameShopp Ofertas', 'GeimShop SRL']);
       if (flag === 'monto') f.monto = U.money(U.pick([Math.round(T / 10), T - 10000, Math.round(T * 0.5)]));
       if (flag === 'fecha') f.fecha = U.pick(['Ayer, ' + hh + ':' + mm, 'Hace 3 meses', 'Mañana, ' + hh + ':' + mm]);
       if (flag === 'estado') f.estado = U.pick(['Programada', 'Pendiente', 'Rechazada ✖']);
@@ -151,7 +152,7 @@ GS.Minigames = (function () {
     const mark = () => { if (flag) root().querySelector('.rowb[data-k="' + flag + '"]').classList.add('flag'); };
     function tapRow(b) {
       if (!cur || cur.done || b.classList.contains('fine')) return;
-      if (fake && b.dataset.k === flag) { mark(); GS.Audio.play('ok'); finish(true, '¡Bien visto!', U.pick(LN.receiptFake) + ' Cobraste ' + U.money(T), { total: T }); }
+      if (fake && b.dataset.k === flag) { mark(); GS.Audio.play('ok'); finish(true, '¡Bien visto!', 'El comprobante estaba mal. Se va sin el producto.', { total: 0, caught: true }); }
       else { b.classList.add('fine'); mistake('caja', U.pick(fake ? LN.rowFine : LN.rowFineAll)); }
     }
     function approve() {
@@ -412,6 +413,16 @@ GS.Minigames = (function () {
       GAMES[type](cust, opts && opts.variant);
     },
     close,
+    // Tarjeta de inducción: el Dueño explica una estación la primera vez
+    intro(station, text, onOk) {
+      close(); cur = { type: 'intro', cb: {}, keys: null, done: true, timer: null };
+      root().hidden = false;
+      root().innerHTML = '<div class="mg-head"><div class="mg-face boss">🕴️</div><div class="mg-who"><b>El Dueño te explica</b><span>' + esc(station.icon + ' ' + station.name) + '</span></div><div class="mg-station">Inducción</div></div>' +
+        '<div class="bubble">' + esc(text) + '</div><button class="btn" id="mgOk">Entendido</button>';
+      const go = () => { document.removeEventListener('keydown', key); onOk(); };
+      const key = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } };
+      document.getElementById('mgOk').addEventListener('click', go); document.addEventListener('keydown', key);
+    },
     isOpen: () => !!cur,
     isResolving: () => !!(cur && cur.done),
     customer: () => (cur ? cur.cust : null),
