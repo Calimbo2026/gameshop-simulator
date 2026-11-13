@@ -30,14 +30,15 @@ async def main():
         await pg.goto('file://'+ROOT+'/dist/index.html'); await pg.wait_for_timeout(1000)
         await pg.evaluate("GS.Store.set('avatar',{skin:GS.SKINS[1],hair:0,hairStyle:'corto'}); GS.Store.set('days',%s-1); GS.Store.set('quality','baja'); GS.Store.set('testCond','ninguna'); GS.Store.set('up',{mesa:1,isla:1,gondola:1,caja2:1,cafetera:1})" % n)
         await pg.reload(); await pg.wait_for_timeout(1000)
-        await pg.evaluate("GS.DEBUG_INTR=1"); await pg.click('#btnPlay'); log={}
+        await pg.evaluate("GS.DEBUG_INTR=1"); await pg.click('#btnPlay'); log={}; mx=0; seen=set()
         for i in range(3400):
             await pg.wait_for_timeout(110)
             st = await pg.evaluate("GS.Game.state()")
             if st=='end': break
             r = await pg.evaluate("(()=>{const i=document.querySelector('[data-intr=\"1\"]'); if(i&&!GS.Minigames.isOpen()){i.click();return 'intr';} if(!GS.Minigames.isOpen()){const j=document.querySelector('.job[data-i]'); if(j){j.click();return 'job';}} return null;})()")
             r = r or await pg.evaluate(SOLVE); log[r]=log.get(r,0)+1
+            nb = await pg.evaluate("document.querySelectorAll('.say:not(.zz)').length"); mx = max(mx, nb); seen.update(await pg.evaluate("[...document.querySelectorAll('.say.boss')].map(e=>e.textContent)"))
         d = await pg.evaluate("(()=>{const d=GS.Game.day();return {st:GS.Game.state(),score:d.score,served:d.served,lost:d.lost,tasks:d.tasksDone,late:d.tasksLate,cord:Math.round(d.cord),intrOk:d.intrOk,mate:d.mate}})()")
         await pg.screenshot(path=ROOT+'/shots/8_end.png', full_page=True)
-        print(d, {k:v for k,v in log.items() if k not in ('idle',None)}, errs or 'ok'); await b.close()
+        print('globos a la vez (max):', mx); print('Dueño:', list(seen)); print(d, {k:v for k,v in log.items() if k not in ('idle',None)}, errs or 'ok'); await b.close()
 asyncio.run(main())

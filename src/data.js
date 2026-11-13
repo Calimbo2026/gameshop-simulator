@@ -7,9 +7,9 @@
 const GS = {};
 
 GS.CONFIG = {
-  version: '0.10.0',
+  version: '0.11.0',
   phase: 5,
-  phaseNote: 'En curso: taller, compañeros, clientes que miran, analítica y pulido general',                       // fase actual del proyecto (1 a 5)
+  phaseNote: 'Últimos ajustes: caminata automática, globitos de a uno, vereda según la hora y compras por la página',                       // fase actual del proyecto (1 a 5)
   links: { tienda: 'https://www.gameshop.com.ar', instagram: '' },   // botones del inicio y del cierre (vacío = no se muestra)
   // Analítica: pegá acá el ID de medición de Google Analytics 4 (G-XXXXXXXXXX) y el juego empieza a contar jugadores. Vacío = no se envía nada.
   analytics: { ga4: '' },
@@ -229,8 +229,8 @@ GS.UPGRADES = [
 GS.RANKS = [[1, 'Vendedor nuevo'], [3, 'Vendedor'], [5, 'Vendedor senior'], [8, 'Encargado'], [11, 'Mano derecha del Dueño']];
 /* Condiciones del día: cambian cuánta gente viene y cuántos pedidos salen */
 GS.CONDITIONS = {
-  lluvia: { name: '🌧️ Día de lluvia', say: 'Llueve. Va a venir menos gente al local, pero van a salir más pedidos de Mercado Libre.', cust: -2, ml: 2 },
-  blackfriday: { name: '🏷️ Black Friday', say: 'Hoy es Black Friday. Viene más gente y salen muchos pedidos. Tranquilos, que se puede.', cust: 2, ml: 2 },
+  lluvia: { name: '🌧️ Día de lluvia', say: 'Llueve. Va a venir menos gente al local, pero van a entrar más compras por la página.', cust: -2, ml: 2 },
+  blackfriday: { name: '🏷️ Black Friday', say: 'Hoy es Black Friday. Viene más gente y entran muchas compras por la página. Tranquilos, que se puede.', cust: 2, ml: 2 },
   navidad: { name: '🎄 Semana de Navidad', say: 'Semana de Navidad. Todos compran regalos a último momento. Paciencia y buena cara.', cust: 2, ml: 1 }
 };
 GS.HAIRSTYLES = [['corto', 'Corto'], ['largo', 'Largo'], ['rodete', 'Rodete'], ['rulos', 'Rulos'], ['mohicano', 'Mohicano'], ['pelado', 'Pelado']];
@@ -247,7 +247,7 @@ GS.EXPLAIN = {
   cierre: 'Antes de irnos a las 19, sumá los cobros en efectivo y fijate si coincide con lo que hay en el cajón.',
   repo: 'En el depósito, cada caja va a su estantería. Tocá la estantería que corresponde.',
   stock: 'Contá lo que hay de verdad en la góndola. El sistema a veces sueña.',
-  ml: 'Caja del tamaño justo, cinta de punta a punta y la etiqueta correcta. Lo que se compra antes de las 14 sale en el día.',
+  ml: 'Son las compras que entran por www.gameshop.com.ar. Caja del tamaño justo, cinta de punta a punta y la etiqueta correcta. Lo que se compra antes de las 14 sale en el día.',
   proveedor: 'Compará el remito con lo que bajó de la carreta. Si falta algo, no firmes.',
   pc: 'En el taller: elegí cada pieza y tocá dónde va en la placa. Si una viene al revés, tocala de nuevo para girarla.',
   service: 'En el taller: diagnosticá con criterio, limpiá con paciencia y encajá la memoria justo en la ranura.',
@@ -261,7 +261,7 @@ GS.CUSTOMERS = [
   { id: 'marta', name: 'Marta',      face: '👵', shirt: 0xb86fa8, hair: 0xc9c9d6, tag: 'La tecnología es extraña',
     bye: 'Gracias, querido. No entendí nada, pero gracias.', lost: 'Yo de esto no entiendo. Vuelvo con mi nieto.' },
   { id: 'fede',  name: 'Fede',       face: '🧔', shirt: 0x3d7a4a, hair: 0x3a2a1a, tag: 'Lo vio más barato',
-    bye: 'Igual en Mercado Libre estaba más barato, eh.', lost: 'Listo, lo compro en Mercado Libre.' },
+    bye: 'Igual después lo miro tranquilo en la página, eh.', lost: 'Listo, lo compro por la página desde casa.' },
   { id: 'tano',  name: 'El Tano',    face: '😎', shirt: 0xd9a514, hair: 0x1e1e1e, tag: 'Por ser cliente',
     bye: '¿Y por ser cliente no me regalás un cablecito?', lost: 'Así tratan a un cliente de toda la vida.' },
   { id: 'sergio',name: 'Sergio',     face: '👨', shirt: 0x4a6fb5, hair: 0x4a3a2a, tag: 'Padre que no sabe qué compra',
@@ -354,8 +354,39 @@ GS.LINES = {
     'Le ponemos más RAM a tu notebook. A vos no, lamentablemente.',
     'Recuerden: todo lo que vendemos es original y con garantía.',
     'Abrimos de 10 a 19. A las 19:01 ya no me pregunten nada.',
-    'Productos nuevos, originales y con garantía. Lo digo yo, que soy el Dueño.'
+    'Productos nuevos, originales y con garantía. Lo digo yo, que soy el Dueño.',
+    'Todo lo que ves acá también está en www.gameshop.com.ar. Y ahí no hay que hacer cola.',
+    'Si alguien pregunta por stock, que mire la página: está al día. Casi siempre.',
+    'Comprás por la página y lo retirás acá. Dos pasos, cero vueltas.',
+    'Vendemos consolas, juegos, notebooks y accesorios. Lo único que no vendemos es humo.',
+    'Factura A, factura B, la que necesites. Menos la factura de panadería: esa traela vos.',
+    'Con garantía oficial y servicio técnico propio. Dormí tranquilo, como Brian.'
   ],
+  /* El Dueño comenta lo que está pasando. Cada grupo se usa cuando se da esa situación; no repite hasta agotar las frases. */
+  duenoCtx: {
+    perdido: ['Se nos fue un cliente. Tranquilo: mañana vuelve, que acá hay 10% OFF en efectivo.', 'Uno se fue sin comprar. Capaz lo compra por la página: www.gameshop.com.ar atiende hasta en pijama.', 'Se fue apurado. La próxima le ofrecemos las 3 cuotas sin interés antes de que llegue a la puerta.'],
+    trucho: ['Bien ahí con ese comprobante. Acá las transferencias se miran dato por dato.', 'Ese comprobante tenía más errores que mi primer currículum. Bien rechazado.', 'Ojo de halcón en la caja. El 10% OFF es para transferencias de verdad.'],
+    perfecto: ['Ni un error en toda la tanda. Así da gusto abrir de 10 a 19.', 'Tanda impecable. Los clientes se van contentos y con garantía, como corresponde.', 'Eso fue una tanda limpia. Casi tan prolija como nuestros envíos a todo el país.', 'Todo bien atendido. Si seguís así, te hago un cuadrito para la oficina.'],
+    errores: ['Hubo algún tropiezo. No pasa nada: respirá, que nadie nace sabiendo cobrar.', 'Se complicó un poco. Despacito y con buena letra, que el cliente espera.', 'Tranquilo con los errores. Acá lo único que no falla es la garantía.'],
+    racha: ['¡Qué racha! Si seguís así te vas a quedar sin clientes para atender.', 'Vas en racha. Yo sabía que el mate de Brian tenía algo.', 'Racha larga. Anotalo, que eso en la tarjeta para compartir queda lindo.'],
+    cansado: ['Te veo con la cordura justa. Aprovechá el respiro, que para eso está.', 'Pará un segundo y respirá. El local no se va a ningún lado.', 'Cuando se junta mucho, de a uno. Primero el que más esperó.'],
+    lluvia: ['Con esta lluvia la gente compra desde el sillón. Por eso existe www.gameshop.com.ar.', 'Llueve y entran compras por la página. El paraguas lo pone el correo.', 'Día de lluvia: pocos en el local, muchos en la web. Hacemos envíos a todo el país, llueva o no.'],
+    blackfriday: ['Black Friday: hoy no se camina, se trota. Pero con una sonrisa.', 'Hoy vuela todo. Lo que se compra antes de las 14 sale en el día, así que a embalar.', 'Black Friday y encima 3 cuotas sin interés. No sé cómo hacemos.'],
+    navidad: ['Navidad: todos compran a último momento y todos lo quieren para regalo.', 'Si preguntan si llega para Nochebuena: antes de las 14 sale en el día.', 'Semana de Navidad. Papá Noel compra acá, pero no lo andes diciendo.'],
+    siesta: ['¿Alguien vio a {quien}? Hace rato que "fue a buscar una caja" al depósito.', 'Escucho ronquidos en el depósito. Debe ser el aire acondicionado.', 'Si {quien} está contando stock con los ojos cerrados, que por lo menos cuente bien.'],
+    mirones: ['Hoy entran muchos a mirar. Mirar es gratis; llevárselo tiene 10% OFF en efectivo.', 'Los que miran hoy, compran mañana. O por la página a las tres de la mañana.', 'Dejalos mirar tranquilos. El local vende solo, vos sonreí.'],
+    mediodia: ['Ya casi son las 14. Lo que se compre por la página antes de esa hora sale hoy.', 'Mediodía. El que quiera almorzar, que almuerce rápido, que a las 14 pasa el correo.'],
+    tarde: ['Falta poco para las 19. A las 19:01 no me pregunten nada.', 'Última parte del día. Después contamos la caja y a casa.', 'Ya baja el sol en la vereda. Un rato más y cerramos.'],
+    web: ['Otra compra por la página despachada. www.gameshop.com.ar no duerme nunca.', 'Bien embalado. Ese paquete llega mejor peinado que yo.', 'Así salen las compras de la página: caja justa, cinta derecha y etiqueta correcta.'],
+    proveedor: ['Llegó mercadería. Lo que entra hoy, mañana ya está en la vidriera.', 'Remito controlado. Acá no se firma nada sin contar.'],
+    taller: ['Otro equipo que sale andando del taller. Servicio técnico de notebooks y PC, cada día mejor.', 'El taller está a pleno. Si no anda, lo arreglamos; y si anda, lo mejoramos.'],
+    mejora: ['¿Viste cómo quedó el local con lo nuevo? Cada moneda bien puesta.', 'El local está cada día más lindo. Seguí juntando monedas, que hay más para mejorar.'],
+    repAlta: ['Los clientes hablan bien de nosotros. Seguí así, que la reputación no se compra.', 'Cinco estrellas no llegan solas. Bueno, casi cinco.'],
+    repBaja: ['La reputación está flojita. Una sonrisa, el dato correcto y se levanta sola.', 'Vamos a remontar esas estrellas. De a un cliente bien atendido por vez.'],
+    interrupcion: ['Vi cómo resolviste eso. Con calma y sin dejar de atender: perfecto.', 'Entre el teléfono y el vecino, acá nunca falta entretenimiento.'],
+    vidriera: ['La vidriera quedó para foto. Ya hay gente frenando a mirar.', 'Una vidriera bien armada vende más que yo hablando.'],
+    cajaDos: ['Qué bien anda la segunda caja. Brian cobrando: quién lo hubiera dicho.', 'Con dos cajas no se junta cola. Fue una buena inversión.']
+  },
   duenoEndGood: [
     'Excelente jornada. Casi tan buena como nuestro 10% OFF en efectivo y transferencia.',
     'Así se trabaja. Como nuestros envíos antes de las 14, en el día y sin vueltas.',
@@ -441,15 +472,15 @@ GS.STATIONS = [
     task: { name: 'PC para armar', tag: 'La quiere "con lucecitas"', late: 'El cliente de la PC se cansó de esperar. Se la arma el cuñado.' } },
   { id: 'service', n: 4, name: 'Taller', icon: '🔧', pos: [8.3, 5.0],
     task: { name: 'Equipo para reparar', tag: '"No hice nada, se rompió solo"', late: 'El equipo sigue esperando en el taller. Igual que su dueño.' } },
-  { id: 'ml', n: 5, name: 'Mercado Libre', icon: '📦', pos: [5.1, -2.3],
-    task: { name: 'Pedido para despachar', tag: 'Sale antes de las 14', late: 'Se pasó el corte de las 14. El pedido sale mañana.' } },
+  { id: 'ml', n: 5, name: 'Compras por la página', short: 'Compra web', icon: '🛒', pos: [5.1, -2.3],
+    task: { name: 'Compra por la página', tag: 'www.gameshop.com.ar · sale antes de las 14', late: 'Se pasó el corte de las 14. El pedido sale mañana.' } },
   { id: 'whatsapp', n: 6, name: 'WhatsApp', icon: '💬', pos: [-3.4, -4.2],
     task: { name: 'WhatsApp sin responder', tag: 'escribiendo...', late: 'Lo dejaste en visto. Te va a escribir de nuevo, pero con mayúsculas.' } },
   { id: 'repo', n: 7, name: 'Reposición', icon: '🧺', pos: [8.7, -4.3],
     task: { name: 'Cajas para reponer', tag: 'Llegó mercadería', late: 'Las cajas siguen en el pasillo. Ya son parte del mobiliario.' } },
   { id: 'stock', n: 8, name: 'Control de stock', icon: '🔍', pos: [-5.0, -3.2],
     task: { name: 'Contar una góndola', tag: 'El sistema dice una cosa...', late: 'Nadie contó la góndola. El sistema sigue soñando.' } },
-  { id: 'proveedor', n: 9, name: 'Recepción de proveedor', icon: '🚚', pos: [5.0, -4.6],
+  { id: 'proveedor', n: 9, name: 'Recepción de proveedor', short: 'Proveedor', icon: '🚚', pos: [5.0, -4.6],
     task: { name: 'Llegó mercadería', tag: 'Firmame acá, jefe', late: 'El del reparto se cansó de esperar la firma y se fue.' } },
   { id: 'devol', n: 10, name: 'Devoluciones', icon: '↩️', pos: [0.2, -4.0],
     task: { name: 'Quieren devolver algo', tag: '"Lo usé poquito"', late: 'El de la devolución se fue. Vuelve mañana, con refuerzos.' } },

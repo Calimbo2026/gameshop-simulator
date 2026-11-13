@@ -10,7 +10,7 @@ async def main():
         pg = await ctx.new_page(); n=sys.argv[1]
         pg.on('console', lambda m: errs.append(m.type+': '+m.text) if m.type=='error' else None)
         pg.on('pageerror', lambda e: errs.append('PAGEERROR: '+str(e)))
-        await pg.goto('file:///home/claude/gss/dist/index.html'); await pg.wait_for_timeout(1200)
+        await pg.goto('file:///home/claude/gameshop-simulator/dist/index.html'); await pg.wait_for_timeout(1200)
         await pg.screenshot(path=f'shots/{n}_start.png')
         await pg.click('#phasesStart'); await pg.wait_for_timeout(300); await pg.screenshot(path=f'shots/{n}_phases.png'); await pg.click('[data-close]')
         await pg.click('#btnRelax'); await pg.wait_for_timeout(400); await pg.click('[data-close]')

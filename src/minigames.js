@@ -251,20 +251,20 @@ GS.Minigames = (function () {
     cur.keys = e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); snap(); } };
   }
 
-  /* ---------------- 5. MERCADO LIBRE: caja del tamaño justo, cinta y etiqueta correcta ---------------- */
+  /* ---------------- 5. COMPRAS POR LA PÁGINA: caja del tamaño justo, cinta y etiqueta correcta ---------------- */
   function ml(job) {
     const prod = U.pick(GS.CATALOG), size = Object.keys(GS.BOX_SIZE).find(k => GS.BOX_SIZE[k].indexOf(prod.id) >= 0) || 'mediana';
     const num = Math.floor(U.rnd(1000, 9999)), cities = U.shuffle(GS.CITIES), city = cities[0], buyers = U.shuffle(GS.BUYERS), buyer = buyers[0], me = cur;
     const order = '<div class="order"><b>Pedido #' + num + '</b><span>' + ico(prod) + esc(prod.name) + ' · mide unos ' + GS.BOXES[size].cm + ' cm</span><span>Para: ' + buyer + ' · ' + esc(city) + '</span></div>';
     const steps = n => '<div class="steps">' + ['Caja', 'Cinta', 'Etiqueta'].map((t, i) => '<span class="' + (i < n ? 'done' : i === n ? 'now' : '') + '">' + (i + 1) + '. ' + t + '</span>').join('') + '</div>';
     function stepBox() {
-      root().innerHTML = head(job, 'Mercado Libre') + steps(0) + order + '<div class="info" id="mgBubble"><b>¿En qué caja entra justo?</b></div>' +
+      root().innerHTML = head(job, 'Compra por la página') + steps(0) + order + '<div class="info" id="mgBubble"><b>¿En qué caja entra justo?</b></div>' +
         '<div class="opts three">' + ['chica', 'mediana', 'grande'].map((b, i) => '<button class="opt" data-ok="' + (b === size ? 1 : 0) + '"><kbd>' + (i + 1) + '</kbd><span class="i" style="font-size:' + [30, 42, 56][i] + 'px">📦</span><span class="n">Caja ' + b + '<br><small>hasta ' + GS.BOXES[b].max + ' cm</small></span></button>').join('') + '</div>';
       listOptions(b => b.dataset.ok === '1', () => { GS.Audio.play('bill'); stepTape(); }, () => mistake('ml', U.pick(LN.wrongBox)));
     }
     function stepTape() {
       let prog = 0, down = false;
-      root().innerHTML = head(job, 'Mercado Libre') + steps(1) + order + '<div class="info" id="mgBubble"><b>Cerrala con cinta: deslizá el dedo de punta a punta</b></div>' +
+      root().innerHTML = head(job, 'Compra por la página') + steps(1) + order + '<div class="info" id="mgBubble"><b>Cerrala con cinta: deslizá el dedo de punta a punta</b></div>' +
         '<div class="tapebox" id="mgTape"><i class="seam"></i><i class="tape" id="mgTp"></i><span class="roll" id="mgRoll">🟤</span></div>';
       const box = document.getElementById('mgTape'), tp = document.getElementById('mgTp'), roll = document.getElementById('mgRoll');
       function set(p) {
@@ -279,7 +279,7 @@ GS.Minigames = (function () {
     }
     function stepLabel() {
       const labels = U.shuffle([{ n: num, c: city, b: buyer, ok: 1 }, { n: num + U.pick([-10, 10, 100, 1]), c: city, b: buyer, ok: 0 }, U.pick([{ n: num, c: cities[1], b: buyer, ok: 0 }, { n: num, c: city, b: buyers[1], ok: 0 }])]);
-      root().innerHTML = head(job, 'Mercado Libre') + steps(2) + order + '<div class="info" id="mgBubble"><b>¿Cuál es la etiqueta de este pedido?</b></div>' +
+      root().innerHTML = head(job, 'Compra por la página') + steps(2) + order + '<div class="info" id="mgBubble"><b>¿Cuál es la etiqueta de este pedido?</b></div>' +
         '<div class="opts one">' + labels.map((l, i) => '<button class="opt tagl" data-ok="' + l.ok + '"><kbd>' + (i + 1) + '</kbd><span class="bars"></span><span class="n">#' + l.n + '<small>' + l.b + ' · ' + esc(l.c) + '</small></span></button>').join('') + '</div>';
       listOptions(b => b.dataset.ok === '1', () => { GS.Audio.play('ok'); finish(true, '¡Despachado!', 'Sale hoy, antes de las 14.', {}); }, () => mistake('ml', U.pick(LN.wrongLabel)));
     }

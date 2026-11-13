@@ -7,7 +7,7 @@ async def main():
         pg = await ctx.new_page(); errs=[]
         pg.on('pageerror', lambda e: errs.append(str(e)))
         pg.on('console', lambda m: errs.append(m.text) if m.type=='error' else None)
-        await pg.goto('file:///home/claude/gss/dist/index.html'); await pg.wait_for_timeout(1000)
+        await pg.goto('file:///home/claude/gameshop-simulator/dist/index.html'); await pg.wait_for_timeout(1000)
         await pg.evaluate("GS.Store.set('up',{cartel:2,sillas:1,mesa:1,isla:1,gondola:1,arcade:1,escritorio:1}); GS.Store.set('testDay',6); GS.Store.set('testCond','lluvia'); GS.Store.set('seen',{mostrador:1,caja:1,pc:1})")
         await pg.click('#btnPlay'); await pg.wait_for_timeout(500); await pg.screenshot(path='shots/v_avatar0.png')
         await pg.click('#avStyle button[data-v="rulos"]'); await pg.click('#avAcc button[data-v="glasses"]'); await pg.click('#avAcc button[data-v="beard"]'); await pg.wait_for_timeout(200)

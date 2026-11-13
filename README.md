@@ -96,3 +96,13 @@ Sin datos sensibles del negocio, sin personas reales, precios y stock ficticios.
 **Otros:** calidad gráfica que baja sola si el equipo no da; opción de texto grande; foco visible para teclado; botón a la tienda (`GS.CONFIG.links.tienda`); ícono de pestaña y datos para compartir el link. Al lanzar: `GS.CONFIG.launched = true` oculta el cartel de "en construcción", y hay que quitar `noindex` de `src/index.template.html`.
 
 **Pruebas:** `python3 test/v9.py` (capturas del local nuevo) y `python3 test/v8.py 5` (juega sola una jornada).
+
+### Últimos ajustes de la Etapa 5
+
+- **Caminata automática** (`NAV` y `yoGo` en `src/game.js`): al tocar un pedido, el personaje camina solo hasta ese lugar por pasillos y puertas. No cuesta tiempo de juego: el minijuego se abre igual.
+- **Globitos de a uno** (`sayAt` / `pumpSays`): todo lo que se dice entra en una fila y se muestra de a un globito, con duración según el largo del texto. El Dueño tiene prioridad; los comentarios de ambiente se descartan si la fila está cargada.
+- **El Dueño comenta lo que pasa** (`duenoLine`, frases en `GS.LINES.duenoCtx`): cliente perdido, comprobante trucho, tanda perfecta, racha, lluvia, fechas, siesta de un compañero, compras por la página, hora del día, etc. No repite frases recientes ni el mismo tema dos veces en una jornada.
+- **Compañeros sin superponerse:** nunca hacen la misma actividad a la vez y no usan los lugares donde se para el jugador.
+- **Vereda según la hora** (`setSky` y `World.setDayTime`): mañana, mediodía, tarde dorada y anochecer con faroles y la luz del local sobre la vereda. Con lluvia, todo más gris.
+- **Compras por la página:** la estación que era de Mercado Libre ahora representa las compras de www.gameshop.com.ar.
+- **Carteles de mesas** (`rail` en `src/world.js`): misma altura, mismo tamaño y del lado que mira a la cámara.

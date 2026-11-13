@@ -324,3 +324,6 @@ a.btn { text-decoration: none; text-align: center; } .cardimg { width: 100%; max
 }
 :focus-visible { outline: 3px solid var(--cyan); outline-offset: 2px; }
 body.big #mg, body.big #jobs, body.big .sheet, body.big #toasts, body.big .fin-card { zoom: 1.14; } body.big .say { font-size: 16.5px; max-width: 250px; }
+
+.say.zz { background: rgba(255,255,255,.92); padding: 3px 8px; font-size: 15px; box-shadow: none; border-radius: 12px; }
+body { transition: background 1.2s linear; }

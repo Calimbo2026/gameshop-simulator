@@ -10,6 +10,7 @@ GS.World = (function () {
   const people = [];
   const walls = {};            // grupos de pared alta: N (fondo), S (frente), E (derecha), O (izquierda)
   const animated = [];         // cosas que se animan (pantallas, cartel)
+  const sky = {};
   let tapHandler = null, yo = null, boss = null, brian = null, lucho = null;
   const BOSS_HOME = [9.3, 0.7];
 
@@ -147,8 +148,16 @@ GS.World = (function () {
     plane(root, fw, fd, new T.MeshLambertMaterial({ map: tile }), 0, 0, (s.zMin + zMax) / 2, 0, -Math.PI / 2);
     // base de maqueta + vereda
     box(root, fw + 1.2, 0.5, fd + 4.2, 0x18181b, 0, -0.52, (s.zMin + zMax) / 2 + 1.5);
-    box(root, fw + 1.2, 0.04, 2.9, 0x8d8d92, 0, -0.03, zMax + 1.5);
-    for (let i = -3; i <= 3; i++) box(root, 0.04, 0.045, 2.9, 0x77777c, i * 1.9, -0.03, zMax + 1.5);
+    sky.side = new T.MeshLambertMaterial({ color: 0x8d8d92 }); sky.joint = new T.MeshLambertMaterial({ color: 0x77777c });
+    box(root, fw + 1.2, 0.04, 2.9, sky.side, 0, -0.03, zMax + 1.5);
+    for (let i = -3; i <= 3; i++) box(root, 0.04, 0.045, 2.9, sky.joint, i * 1.9, -0.03, zMax + 1.5);
+    box(root, fw + 1.2, 0.06, 0.1, 0xd9d9de, 0, -0.03, zMax + 2.98); box(root, fw + 1.2, 0.03, 0.56, 0x26262c, 0, -0.06, zMax + 3.3);          // cordón y un pedacito de calle
+    // luz del local que sale a la vereda y dos faroles en las esquinas: se prenden cuando cae la tarde
+    sky.spill = new T.MeshBasicMaterial({ color: 0xffe2a0, transparent: true, opacity: 0, depthWrite: false }); plane(root, fw - 0.6, 1.5, sky.spill, 0, 0.022, zMax + 0.85, 0, -Math.PI / 2);
+    sky.bulb = new T.MeshBasicMaterial({ color: 0x55555c }); sky.halo = new T.MeshBasicMaterial({ color: 0xffd98a, transparent: true, opacity: 0, depthWrite: false });
+    [-1, 1].forEach(sd => { const x = sd * (fw / 2 + 0.25), z = zMax + 2.65;
+      box(root, 0.09, 3.1, 0.09, 0x1c1c20, x, 0, z); box(root, 0.7, 0.07, 0.07, 0x1c1c20, x - sd * 0.3, 3.1, z); box(root, 0.34, 0.1, 0.2, sky.bulb, x - sd * 0.6, 3.0, z);
+      const h = new T.Mesh(new T.CircleGeometry(1.7, 24), sky.halo); h.rotation.x = -Math.PI / 2; h.position.set(x - sd * 0.9, 0.024, z - 0.5); root.add(h); });
   }
 
   // Pared con estantes llenos de productos, a lo largo de z (para izquierda y derecha)
@@ -310,12 +319,21 @@ GS.World = (function () {
     plant(root, 10.9, 3.15, 1.3);
     sideDoor(root, -0.3, 'OFICINA');
   }
+  // Cartel de sector para las mesas: una franja negra a lo largo del mueble y, centrada, la chapa roja con el nombre.
+  // Todas a la misma altura y con el mismo tamaño de letra, del lado que mira a la cámara.
+  function rail(g, text, x, z, len, side) {
+    const mt = new T.MeshBasicMaterial({ map: textTex(text, { bg: '#e10600', fg: '#fff', w: 578, h: 136, font: '900 66px Impact, "Arial Black", sans-serif' }) });
+    const k = new T.Group(); k.position.set(x, 0, z); if (side === 'x') k.rotation.y = Math.PI / 2; g.add(k);          // en el grupo, "z" es hacia afuera del mueble
+    box(k, len, 0.42, 0.05, 0x0c0c0c, 0, 0.44, 0.03);
+    const pl = plane(k, 1.7, 0.4, mt, 0, 0.73, 0.21); pl.rotation.x = -0.9;                                             // chapa inclinada hacia arriba, como un atril: se lee desde la cámara
+    box(k, 1.74, 0.03, 0.34, 0x0c0c0c, 0, 0.56, 0.2);
+  }
   function buildCenter(root) {
     { // isla Apple
       const g = upGroup(root, 'isla', 1), b = Batch(g), i = L.isla;
       box(g, i.w, i.h, i.d, 0xffffff, i.x, 0, i.z); box(g, i.w - 0.2, i.h - 0.3, 0.03, 0xe2e2e2, i.x, 0.2, i.z + i.d / 2 + 0.01);
       idsOf('apple').forEach((id, k) => sprite(g, id, i.x - 0.66 + k * 0.33, i.h, i.z + 0.1, 0.4));
-      sign(g, 'APPLE', 1.3, 0.24, i.x, 0.14, i.z + i.d / 2 + 0.06); b.build();
+      rail(g, 'APPLE', i.x, i.z + i.d / 2, i.w, 'z'); b.build();
     }
     { // mesa de madera con PC y accesorios
       const g = upGroup(root, 'mesa', 1), t = L.mesa, wood = 0xd9b77e;
@@ -325,7 +343,7 @@ GS.World = (function () {
       [[-1.1, 0x111111], [-0.2, 0xf4f4f4], [0.7, 0x111111]].forEach(a => box(g, 0.5, 0.62, 0.62, a[1], t.x + 0.35, 0, t.z + a[0]));
       notebook(g, t.x, t.h, t.z - 1.35); notebook(g, t.x, t.h, t.z - 0.75);
       ['gpu', 'monitor', 'ram', 'gabinete', 'disco', 'impresora', 'router', 'cargador'].forEach((id, k) => sprite(g, id, t.x + (k % 2 ? 0.32 : -0.32), t.h, t.z - 0.1 + Math.floor(k / 2) * 0.48, 0.5));
-      sign(g, 'PC Y ACCESORIOS', 2.8, 0.34, t.x + t.w / 2 + 0.02, 0.42, t.z, Math.PI / 2);
+      rail(g, 'PC Y ACCESORIOS', t.x + t.w / 2, t.z, t.d, 'x');
     }
     { // escritorio gamer con monitor, teclado blanco y silla gris
       const g = upGroup(root, 'escritorio', 1), e = L.escritorio;
@@ -345,7 +363,7 @@ GS.World = (function () {
       const g = upGroup(root, 'gondola', 1), b = Batch(g), gd = L.gondola;
       box(g, gd.w, gd.h, gd.d, 0xffffff, gd.x, 0, gd.z);
       const ids = idsOf('perifericos'); let k = 0; for (let z = gd.z - gd.d / 2 + 0.3; z < gd.z + gd.d / 2 - 0.1; z += 0.5) sprite(g, ids[k++ % ids.length], gd.x, gd.h, z, 0.6);
-      sign(g, 'PERIFÉRICOS GAMER', 3.4, 0.36, gd.x + gd.w / 2 + 0.02, 0.6, gd.z, Math.PI / 2); b.build();
+      rail(g, 'PERIFÉRICOS GAMER', gd.x + gd.w / 2, gd.z, gd.d, 'x'); b.build();
     }
   }
   // Puestos de trabajo de la Etapa 2: service técnico, empaque de Mercado Libre y cajas para reponer
@@ -630,8 +648,8 @@ GS.World = (function () {
     reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     scene = new T.Scene();
     camera = new T.PerspectiveCamera(GS.CONFIG.camera.fov, 1, 1, 1000);
-    scene.add(new T.HemisphereLight(0xffffff, 0x8f8a86, 0.66));
-    const sun = new T.DirectionalLight(0xffffff, 0.36); sun.position.set(9, 12, 5); scene.add(sun);
+    sky.hemi = new T.HemisphereLight(0xffffff, 0x8f8a86, 0.66); scene.add(sky.hemi);
+    const sun = sky.sun = new T.DirectionalLight(0xffffff, 0.36); sun.position.set(9, 12, 5); scene.add(sun);
 
     const root = new T.Group(); scene.add(root);
     buildFloor(root); buildBackWall(root);
@@ -643,7 +661,7 @@ GS.World = (function () {
     buildCounter(root); buildCenter(root); buildWorkStations(root); buildDepot(root); sideDoor(root, L.depoDoor.z, 'DEPÓSITO'); buildOffice(root); buildTaller(root); sideDoor(root, L.tallerDoor.z, 'TALLER'); buildGallery(root); buildSign(root); buildExtras(root);
 
     // empleados (inventados): vos en el mostrador y Brian, pegado al celular, en la caja
-    yo = makePerson({ shirt: 0xe10600, hair: 0x2b2b3a, skin: SKINS[1], speed: 5.5 }); yo.setPos(L.yoMostrador[0], L.yoMostrador[1]);
+    yo = makePerson({ shirt: 0xe10600, hair: 0x2b2b3a, skin: SKINS[1], speed: 7.5 }); yo.setPos(L.yoMostrador[0], L.yoMostrador[1]);
     // compañeros (inventados): andan por el local haciendo sus cosas. Lucho, de mohicano y anteojos, y Brian, pegado al celular.
     lucho = makePerson({ shirt: 0xe10600, hair: 0xff5fa2, hairStyle: 'mohicano', skin: GS.SKINS[3], glasses: true, speed: 2.6 }); lucho.setPos(4.0, 0.8);
     brian = makePerson({ shirt: 0xe10600, hair: 0x2d6cdf, skin: SKINS[0], phone: true, speed: 2.3 }); brian.setPos(4.5, -1.2); brian.face(-0.6);
@@ -682,6 +700,17 @@ GS.World = (function () {
     setUpgrades: applyUpgrades,
     setPlayerLook(a) { if (yo && a) yo.look(a); },
     // El Dueño: un solo personaje que vive en su oficina
+    // Hora del día (0 = 10 hs, 1 = 19 hs): cambia la luz, el color de la vereda y prende los faroles al anochecer
+    setDayTime(f, rain) {
+      if (!sky.hemi) return;
+      const K = [0, 0.35, 0.62, 0.85, 1], at = arr => { for (let i = 1; i < K.length; i++) if (f <= K[i]) return [arr[i - 1], arr[i], (f - K[i - 1]) / (K[i] - K[i - 1])]; return [arr[4], arr[4], 0]; };
+      const col = arr => { const q = at(arr); return new T.Color(q[0]).lerp(new T.Color(q[1]), q[2]); }, num = arr => { const q = at(arr); return q[0] + (q[1] - q[0]) * q[2]; };
+      const wet = rain ? 0.68 : 1, n = U.clamp((f - 0.7) / 0.25, 0, 1);
+      sky.side.color.copy(col([0x868d98, 0x9c9ca0, 0xb0977c, 0x86687a, 0x3d4058])).multiplyScalar(wet); sky.joint.color.copy(sky.side.color).multiplyScalar(0.82);
+      sky.hemi.color.copy(col([0xeaf2ff, 0xffffff, 0xfff0dc, 0xffe6da, 0xe4e8ff])); sky.hemi.intensity = num([0.64, 0.68, 0.66, 0.63, 0.6]) * (rain ? 0.94 : 1);
+      sky.sun.color.copy(col([0xfff4e0, 0xffffff, 0xffc98a, 0xff9a6a, 0x8090ff])); sky.sun.intensity = num([0.3, 0.38, 0.36, 0.26, 0.12]) * (rain ? 0.6 : 1); sky.sun.position.x = 9 - f * 11;
+      sky.spill.opacity = n * 0.34 + (rain ? 0.08 : 0); sky.halo.opacity = n * 0.42; sky.bulb.color.set(0x55555c).lerp(new T.Color(0xfff2c0), n);
+    },
     boss: () => boss,
     staff: () => [lucho, brian],
     player: () => yo,

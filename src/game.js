@@ -52,7 +52,7 @@ GS.Game = (function () {
     return Object.assign({
       relaxed: false, arcade: null, t: 0, dur: C.day.seconds, score: 0, combo: 0, bestCombo: 0, sales: 0, served: 0, lost: 0, cajaErr: 0, otherErr: 0,
       tasksDone: 0, tasksLate: 0, customers: [], tasks: [], spawned: 0, tasksSpawned: 0,
-      extras: [], n: 1, unlocked: unlockedFor(1), plan: planDay(1), rep0: repNow(), dueno: null, wave: -1, stage: 'rest', rest: 0.6, queue: [], says: [], beat: 0, duenoBag: U.shuffle(LN.dueno),
+      extras: [], n: 1, unlocked: unlockedFor(1), plan: planDay(1), rep0: repNow(), dueno: null, wave: -1, stage: 'rest', rest: 0.6, queue: [], says: [], sayQ: [], sayGap: 0, beat: 0, wv: { done: {} }, ev: {},
       cajaCount: 0, closing: false, jobSig: '', cord: CD.start, mate: false, lookers: [], lookT: 4, spots: {}, helper: null, intr: null, intrN: 0, intrOk: 0, intrBag: [], reqBag: U.shuffle(GS.REQUESTS), archBag: U.shuffle(GS.CUSTOMERS), taskBag: []
     }, extra || {});
   }
@@ -90,13 +90,30 @@ GS.Game = (function () {
   // El Dueño sale del depósito, camina hasta el salón, dice lo suyo y se vuelve
   function duenoSpeak(text) {
     const d = day; if (!d || d.arcade || state !== 'day') return;
-    const p = W.boss();
-    if (d.dueno) { sayAt(p, text, 5600, 'boss'); return; }
+    const p = W.boss(), back = () => { if (day !== d || d.sayQ.some(q => q.cls === 'boss')) return; p.walk([[7.3, -0.3], W.BOSS_HOME], () => { p.face(0); d.dueno = null; }); };
+    if (d.dueno) { sayAt(p, text, 0, 'boss', false, false, back); return; }
     d.dueno = p;
-    p.walk([[7.3, -0.3], [5.0, -0.3]], () => {
-      p.face(-0.5); A.play('speaker'); sayAt(p, text, 5600, 'boss');
-      setTimeout(() => { if (day !== d) return; p.walk([[7.3, -0.3], W.BOSS_HOME], () => { p.face(0); d.dueno = null; }); }, 5900);
-    });
+    p.walk([[7.3, -0.3], [5.0, -0.3]], () => { p.face(-0.5); sayAt(p, text, 0, 'boss', false, false, back); });
+  }
+  // Qué dice el Dueño: mira lo que pasó en la tanda y en el día, y elige una frase que venga al caso y que no haya dicho hace poco
+  function duenoLine() {
+    const d = day, w = d.wv, nw = d.plan.length, ks = [];
+    if (w.lost) ks.push('perdido'); if (w.caught) ks.push('trucho'); if (w.mistakes >= 2) ks.push('errores');
+    if (d.cord < 45) ks.push('cansado'); if (d.combo >= 5) ks.push('racha');
+    if (w.done.ml) ks.push('web'); if (w.done.proveedor) ks.push('proveedor'); if (w.done.service || w.done.pc) ks.push('taller'); if (w.done.vidriera) ks.push('vidriera');
+    if (w.helped) ks.push('cajaDos'); if (w.intrOk) ks.push('interrupcion');
+    const sl = STAFF.findIndex(st => st.act === 'siesta'); if (sl >= 0) ks.push('siesta');
+    if (w.served >= 2 && !w.mistakes && !w.lost) ks.push('perfecto');
+    if (d.cond) ks.push(d.cond); if (w.lookers >= 2) ks.push('mirones');
+    if (GS.Store.get('newUp')) { ks.push('mejora'); GS.Store.set('newUp', false); }
+    if (d.wave >= 1 && d.wave === nw - 2 - (d.plan[nw - 1].final ? 1 : 0)) ks.push('tarde'); else if (d.wave === 0 && nw >= 4) ks.push('mediodia');
+    if (repNow() >= 4.5) ks.push('repAlta'); else if (repNow() < 2.5) ks.push('repBaja');
+    const used = GS.Store.get('duenoSeen') || [], fresh = arr => arr.filter(x => used.indexOf(x) < 0);
+    let line = null;
+    for (const k of U.shuffle(ks.slice(0, 4)).concat(ks.slice(4))) { const f = d.ev[k] ? [] : fresh(LN.duenoCtx[k] || []); if (f.length && Math.random() < 0.8) { line = U.pick(f); d.ev[k] = 1; break; } }   // cada tema, una sola vez por jornada
+    if (!line) { const f = fresh(LN.dueno); line = U.pick(f.length ? f : LN.dueno); }
+    used.push(line); GS.Store.set('duenoSeen', used.slice(-45));
+    return line.replace('{quien}', sl === 0 ? 'Lucho' : 'Brian');
   }
   /* ---------------- Cordura: nunca hay Game Over, solo un mate a tiempo ---------------- */
   function addCord(v) { if (day && !day.arcade) day.cord = U.clamp(day.cord + v, 0, 100); }
@@ -120,12 +137,12 @@ GS.Game = (function () {
   }
   function answerIntr(ok) {
     const x = day && day.intr; if (!x || paused) return; day.intr = null; day.jobSig = '';
-    if (ok) { addCord(CD.intrOk * (x.it.mate ? 2 : 1)); day.score += 40; day.intrOk++; A.play(x.it.mate ? 'mate' : 'ok'); toast('<b>' + x.it.ic + ' Bien resuelto · sube la cordura</b>' + x.it.r, '', 3200); }
+    if (ok) { addCord(CD.intrOk * (x.it.mate ? 2 : 1)); day.score += 40; day.intrOk++; day.wv.intrOk = 1; A.play(x.it.mate ? 'mate' : 'ok'); toast('<b>' + x.it.ic + ' Bien resuelto · sube la cordura</b>' + x.it.r, '', 3200); }
     else { addCord(-CD.intrBad); A.play('error'); toast('<b>' + x.it.ic + ' Ups</b>' + x.it.rb, '', 3200); }
   }
   function planTotals(plan) { return plan.reduce((a, w) => ({ c: a.c + w.c, t: a.t + w.t + (w.ml || 0) }), { c: 0, t: 0 }); }
   function startWave() {
-    day.wave++; day.stage = 'work'; day.queue = [];
+    day.wave++; day.stage = 'work'; day.queue = []; day.wv = { done: {} };
     const w = day.plan[day.wave];
     for (let i = 0; i < w.c; i++) day.queue.push({ kind: 'c', t: 0.3 + i * C.day.customerGap });
     for (let i = 0; i < w.t; i++) day.queue.push({ kind: w.final ? 'f' : 't', t: (w.final ? 0.6 : 5) + i * C.day.taskGap });
@@ -140,15 +157,29 @@ GS.Game = (function () {
     const d = day;
     setTimeout(() => {                       // en el respiro habla el Dueño, sin nada tapando el local
       if (day !== d || state !== 'day' || d.stage !== 'rest') return;
-      if (!d.duenoBag.length) d.duenoBag = U.shuffle(LN.dueno);
-      duenoSpeak(d.duenoBag.pop());
+      duenoSpeak(duenoLine());
     }, 1100);
   }
-  // Globito de diálogo sobre la cabeza de un personaje (el remate se ve en el salón, no en un cartel)
-  function sayAt(person, text, ms, cls, quiet) {
-    if (!quiet) A.babble(text, cls === 'boss' ? 150 : person.voice || 330);
-    const el = document.createElement('div'); el.className = 'say ' + (cls || ''); el.textContent = text; $('labels').appendChild(el);
-    day.says.push({ el, person, left: (ms || 3200) / 1000 });
+  // Globitos de diálogo: de a uno por vez, para poder leerlos todos. Los demás esperan su turno en una fila.
+  // amb = comentario de ambiente (compañeros, gente que mira): si la fila está cargada o pasó el momento, se descarta.
+  function sayAt(person, text, ms, cls, quiet, amb, onDone) {
+    if (!day) return;
+    if (cls === 'zz') { const el = document.createElement('div'); el.className = 'say zz'; el.textContent = text; $('labels').appendChild(el); day.says.push({ el, person, left: (ms || 3000) / 1000, zz: true }); return; }
+    const q = day.sayQ; if (amb && q.length >= 2) return;
+    const it = { person, text, cls: cls || '', quiet, amb, onDone, age: 0, dur: U.clamp(1.5 + text.length * 0.055, 2.4, 6.5) };
+    if (cls === 'boss') { let i = 0; while (i < q.length && q[i].cls === 'boss') i++; q.splice(i, 0, it); } else q.push(it);
+  }
+  function pumpSays(dt) {
+    const d = day; for (const q of d.sayQ) q.age += dt;
+    if (d.says.some(s => !s.zz) || (d.sayGap -= dt) > 0) return;
+    while (d.sayQ.length) {
+      const it = d.sayQ.shift();
+      if (!it.person.group.parent || (it.cls !== 'boss' && it.age > (it.amb ? 4.5 : 9))) { if (it.onDone) it.onDone(); continue; }   // ya se fue o quedó viejo
+      if (it.cls === 'boss') A.play('speaker');
+      if (!it.quiet) A.babble(it.text, it.cls === 'boss' ? 150 : it.person.voice || 330);
+      const el = document.createElement('div'); el.className = 'say ' + it.cls; el.textContent = it.text; $('labels').appendChild(el);
+      d.says.push({ el, person: it.person, left: it.dur, onDone: it.onDone }); d.sayGap = 0.35; return;
+    }
   }
   function enterPlay() {
     $('start').hidden = true; $('end').hidden = true; $('hud').hidden = false; $('modal').hidden = true; $('toasts').innerHTML = '';
@@ -163,9 +194,9 @@ GS.Game = (function () {
     const cond = conditionFor(n);
     day = newDay({ relaxed, n, cond, unlocked: un, plan: planDay(n, cond), rest: 7.5 }); state = 'day'; enterPlay(); $('jobs').hidden = false;
     A.setMood(cond === 'lluvia' ? 'rain' : cond ? 'party' : 'day');
-    const d = day, msg = n === 1 ? 'Bienvenido a GameShop. Abrimos de 10 a 19. Hoy: mostrador y caja. Con las monedas que ganes vamos a ir mejorando el local.'
+    const d = day, msg = n === 1 ? 'Bienvenido a GameShop. Abrimos de 10 a 19. Hoy: mostrador y caja. Vos tocá el pedido, que tu personaje va solo.'
       : cond ? GS.CONDITIONS[cond].name.slice(3) + '. ' + GS.CONDITIONS[cond].say
-      : fresh.length ? 'Jornada ' + n + '. Hoy sumamos: ' + fresh.map(id => ST(id).name).join(' y ') + '. Cuando aparezcan, te explico.' : 'Jornada ' + n + '. ' + U.pick(LN.dueno);
+      : fresh.length ? 'Jornada ' + n + '. Hoy sumamos: ' + fresh.map(id => ST(id).name).join(' y ') + '. Cuando aparezcan, te explico.' : 'Jornada ' + n + '. ' + duenoLine();
     setTimeout(() => { if (day === d) duenoSpeak(msg); }, 500);
     $('rain').hidden = cond !== 'lluvia'; $('chipCond').hidden = !cond; if (cond) { $('chipCond').textContent = GS.CONDITIONS[cond].name; toast('<b>Hoy</b>' + GS.CONDITIONS[cond].name, 'dueno', 3800); }
     $('clockS').textContent = relaxed ? 'Turno tranquilo' : 'Abrimos';
@@ -176,7 +207,7 @@ GS.Game = (function () {
   function clearDay() {
     if (day) { day.customers.forEach(c => { if (c.person) c.person.remove(); c.label.remove(); }); day.tasks.forEach(t => { t.label.remove(); if (t.boxes) t.boxes.remove(); }); day.says.forEach(x => x.el.remove()); day.extras.forEach(x => x.remove()); }
     MG.close(); W.focus(null); W.bossHome();
-    { const yo = W.player(); if (yo) { yo.stop(); yo.setPos(L.yoMostrador[0], L.yoMostrador[1]); yo.face(0); } const b = STAFF[1]; if (b && b.busy) { b.busy = false; b.q = [['go', [[4.0, -5.0], [4.6, -4.4], [4.5, -1.2], b.hub]]]; } }
+    { const yo = W.player(); if (yo) { yo.stop(); yo.setPos(L.yoMostrador[0], L.yoMostrador[1]); yo.face(0); yoAt = 'most'; yoRoute = []; } const b = STAFF[1]; if (b && b.busy) { b.busy = false; b.q = [['go', [[4.0, -5.0], [4.6, -4.4], [4.5, -1.2], b.hub]]]; } }
   }
   function makeLabel(icon) {
     const label = document.createElement('div'); label.className = 'plabel'; label.innerHTML = '<span class="ic">' + icon + '</span><span class="b"><i></i></span>'; label.hidden = true;
@@ -213,7 +244,7 @@ GS.Game = (function () {
     const sp = freeSpot(); if (!sp) return; day.spots[sp.i] = 1;
     const p = W.makePerson({ shirt: U.pick([0x6b7a8f, 0x3d7a4a, 0xd9a514, 0x4a6fb5, 0xb86fa8, 0x21a0a0, 0x7b4fd1, 0xe07a5f]), hair: U.pick(GS.HAIRS), hairStyle: U.pick(GS.HAIRSTYLES)[0], glasses: Math.random() < 0.3, beard: Math.random() < 0.2, lips: Math.random() < 0.4, speed: U.rnd(2.2, 2.9) });
     p.voice = U.rnd(230, 480); p.setPos(L.puerta.x + U.rnd(-0.4, 0.4), L.galeria.zMax + 2.4); day.extras.push(p);
-    const lk = { p, sp, st: 'in', wait: 0, hops: 0 }; day.lookers.push(lk);
+    const lk = { p, sp, st: 'in', wait: 0, hops: 0 }; day.lookers.push(lk); day.wv.lookers = (day.wv.lookers || 0) + 1;
     p.walk(sp.via.concat([sp.p]), () => { lk.st = 'look'; lk.wait = U.rnd(3, 5.5); p.face(sp.f); });
   }
   function lookerOut(lk) {
@@ -226,7 +257,7 @@ GS.Game = (function () {
       if (lk.st !== 'look' || (lk.wait -= dt) > 0) continue;
       const r = Math.random(), nx = lk.hops < 1 && r > 0.72 ? freeSpot() : null;
       if (nx) { delete day.spots[lk.sp.i]; day.spots[nx.i] = 1; const back = lk.sp.via.slice().reverse(); lk.sp = nx; lk.hops++; lk.st = 'in'; lk.p.walk(back.concat(nx.via, [nx.p]), () => { lk.st = 'look'; lk.wait = U.rnd(2.5, 4.5); lk.p.face(nx.f); }); continue; }
-      if (r < 0.5) sayAt(lk.p, U.pick(LN.browse), 3200);
+      if (r < 0.5) sayAt(lk.p, U.pick(LN.browse), 0, '', false, true);
       lookerOut(lk);
     }
     for (const cu of day.customers) if (cu.st === 'browse' && (cu.wait -= dt) <= 0) { delete day.spots[cu.spot.i]; toCounter(cu, cu.spot.via.slice().reverse()); }
@@ -235,25 +266,27 @@ GS.Game = (function () {
   const STAFF = [], MOHAWK = [0xff5fa2, 0x2d6cdf, 0x3bb54a, 0xd9a514, 0xff2a2a, 0x7b4fd1, 0x57e6ff];
   function luchoLook(n) { const l = W.staff()[0]; if (l) l.look({ skin: GS.SKINS[3], hair: MOHAWK[n % MOHAWK.length], hairStyle: 'mohicano', glasses: true }); }   // el mohicano cambia de color cada jornada
   const canTalk = () => state === 'day' && day && !day.arcade && !day.closing;
-  function staffSay(st, key, prob) { if (canTalk() && Math.random() < (prob || 0.4)) sayAt(st.p, U.pick(LN.staff[key]), 2900, '', true); }
+  function staffSay(st, key, prob) { if (canTalk() && Math.random() < (prob || 0.4)) sayAt(st.p, U.pick(LN.staff[key]), 0, '', false, true); }
   function staffInit() {
     const ps = W.staff();
     STAFF.push({ p: ps[0], hub: [4.0, 0.9], q: [['wait', 2]], w: { repo: 4, taller: 2, mate: 1, vidriera: 1, siesta: 1 } }, { p: ps[1], hub: [3.6, 1.7], q: [['wait', 6]], w: { celu: 3, siesta: 2, repo: 2, mate: 1, vidriera: 1 } });
   }
   function staffPlan(st) {
     const P = st.p, out = [[4.5, -1.2]], dd = [[4.6, -4.4], [6.0, -4.4], [7.4, -4.4]], rev = a => a.slice().reverse(), go = pts => ['go', pts];
-    let r = Math.random() * Object.values(st.w).reduce((a, b) => a + b, 0), k = 'celu'; for (const key in st.w) { if ((r -= st.w[key]) <= 0) { k = key; break; } }
+    const other = STAFF.find(o => o !== st), w = Object.assign({}, st.w); if (other && other.act && other.act !== 'celu') delete w[other.act];     // nunca los dos en lo mismo
+    let r = Math.random() * Object.values(w).reduce((a, b) => a + b, 0), k = 'celu'; for (const key in w) { if ((r -= w[key]) <= 0) { k = key; break; } }
+    st.act = k;
     const round = (to, f, wait, key) => [go(to), ['face', f], ['fn', () => staffSay(st, key)], ['wait', wait], go(rev(to).slice(1).concat([st.hub]))];
     if (k === 'repo') {                       // busca una caja en el depósito y la repone en algún sector
       const tg = U.pick([{ to: [[-0.6, -1.6], [-4.3, -1.6]], back: [[-0.6, -1.6], [4.5, -1.2]], f: -1.57 }, { to: [[4.0, 0.9], [4.4, 2.0]], back: [[4.0, 0.9]], f: 1.57 }, { to: [[4.0, 0.9], [4.0, 5.5], [-0.3, 5.5], [-0.3, 8.0]], back: [[-0.3, 5.5], [4.0, 5.5], [4.0, 0.9]], f: 1.57 }]);
-      st.q = [go(out.concat(dd, [[8.3, -4.6]])), ['face', 3.14], ['wait', 2.2], ['fn', () => P.carry(true)], go(rev(dd).concat(out, tg.to)), ['face', tg.f], ['fn', () => staffSay(st, 'repo')], ['wait', 2.6], ['fn', () => P.carry(false)], go(tg.back.concat([st.hub]))];
+      st.q = [go(out.concat(dd, [[9.0, -5.1]])), ['face', 3.14], ['wait', 2.2], ['fn', () => P.carry(true)], go(rev(dd).concat(out, tg.to)), ['face', tg.f], ['fn', () => staffSay(st, 'repo')], ['wait', 2.6], ['fn', () => P.carry(false)], go(tg.back.concat([st.hub]))];
     } else if (k === 'siesta') {              // una siestita en el fondo del depósito
-      st.q = [go(out.concat(dd, [[10.3, -4.4]])), ['fn', () => { P.lie(true); if (canTalk()) sayAt(P, '💤', 6500, '', true); }], ['wait', 7], ['fn', () => { P.lie(false); staffSay(st, 'siesta', 0.6); }], ['wait', 1.3], go(rev(dd).concat(out, [st.hub]))];
-    } else if (k === 'taller') st.q = round([[4.0, 0.9], [4.0, 5.5], [6.0, 5.5], [7.4, 5.7]], 0.9, 3.5, 'taller');
+      st.q = [go(out.concat(dd, [[10.3, -4.4]])), ['fn', () => { P.lie(true); if (canTalk()) sayAt(P, '💤', 6500, 'zz'); }], ['wait', 7], ['fn', () => { P.lie(false); staffSay(st, 'siesta', 0.6); }], ['wait', 1.3], go(rev(dd).concat(out, [st.hub]))];
+    } else if (k === 'taller') st.q = round([[4.0, 0.9], [4.0, 5.5], [6.0, 5.5], [7.3, 5.9], [7.6, 7.0]], 0.9, 3.5, 'taller');
     else if (k === 'mate') st.q = round(out.concat([[4.6, -4.4], [4.0, -5.3], [0.9, -5.8]]), 3.14, 3, 'mate');
-    else if (k === 'vidriera') st.q = round([[4.0, 0.9], [4.0, 5.5], [-0.3, 5.5], [-0.3, 8.2]], 1.57, 3.5, 'vidriera');
+    else if (k === 'vidriera') st.q = round([[4.0, 0.9], [4.0, 5.5], [-0.3, 5.5], [-1.2, 9.6]], -1.57, 3.5, 'vidriera');
     else st.q = [go([[st.hub[0] + U.rnd(-0.3, 0.5), st.hub[1] + U.rnd(-0.5, 0.5)]]), ['face', U.rnd(-0.6, 0.6)], ['wait', 5], ['fn', () => staffSay(st, 'celu', 0.25)]];
-    st.q.push(['wait', U.rnd(2, 6)]);
+    st.q.push(['fn', () => { st.act = null; }], ['wait', U.rnd(2, 6)]);
   }
   function updateStaff(dt) {
     for (const st of STAFF) {
@@ -271,14 +304,14 @@ GS.Game = (function () {
       if (!upNow().caja2 || !b || b.busy) return;
       const wc = day.customers.filter(c => c.st === 'waitC'); if (wc.length < 2) return;
       const cu = wc.sort((a, c) => c.slotC - a.slotC)[0], g = b.p.group.position, pre = g.x > 6.2 && g.z < -1.2 ? [[7.4, -4.4], [6.0, -4.4]] : g.x > 6.2 ? [[6.0, 5.5], [4.0, 5.5], [4.5, -1.2]] : g.z > 5.8 ? [[-0.3, 5.5], [4.0, 5.5], [4.5, -1.2]] : g.z < -4.6 ? [] : [[4.5, -1.2]];
-      cu.st = 'helped'; cu.slotC = -1; cu.label.hidden = true; b.busy = true; b.moving = false; b.q = []; b.p.lie(false); b.p.carry(false);
+      cu.st = 'helped'; cu.slotC = -1; cu.label.hidden = true; b.busy = true; b.moving = false; b.q = []; b.act = null; b.p.lie(false); b.p.carry(false);
       const hp = day.helper = { cu, t: -1 }, d = day;
       cu.person.walk([[3.1, -2.9]], () => cu.person.face(Math.PI));
       b.p.walk(pre.concat(g.z < -4.6 ? [] : [[4.6, -4.4], [4.0, -5.0]], [L.brianCaja]), () => { if (day !== d) return; b.p.face(0); hp.t = 2.6; sayAt(b.p, U.pick(LN.staff.caja2), 2400); });
       return;
     }
     if (h.t < 0 || (h.t -= dt) > 0) return;
-    const cu = h.cu; day.helper = null; day.served++; day.sales += cu.product.price; day.score += 90; addRep(0.03); A.play('cash');
+    const cu = h.cu; day.helper = null; day.wv.helped = 1; day.served++; day.sales += cu.product.price; day.score += 90; addRep(0.03); A.play('cash');
     sayAt(cu.person, cu.arche.bye, 3200); leave(cu, true); toast('<b>🧾 Segunda caja</b>Brian le cobró a ' + cu.arche.name + '.', '', 2400);
     b.busy = false; b.q = [['go', [[4.0, -5.0], [4.6, -4.4], [4.5, -1.2], b.hub]], ['wait', 3]];
   }
@@ -316,7 +349,7 @@ GS.Game = (function () {
 
   function addScore(base, pat) {
     const mult = (1 + Math.min(day.combo, 8) * 0.25) * (!day.arcade && day.cord >= CD.focus ? 1.1 : 1), pts = Math.round((base + Math.max(0, pat) * 100) * mult);
-    addCord(day.combo >= 2 ? 1.5 + CD.streak : 1.5);
+    addCord(day.combo >= 2 ? 0.6 + CD.streak : 0.6);
     day.score += pts; day.combo++; day.bestCombo = Math.max(day.bestCombo, day.combo);
     toast('+' + pts + (day.combo > 1 ? ' · racha x' + day.combo : ''), 'pts', 1100);
     if (day.combo > 1) A.play('combo', day.combo);
@@ -330,8 +363,28 @@ GS.Game = (function () {
       if (c.st === 'waitM') jobs.push({ key: 'c' + c.id, type: 'mostrador', ref: c, pat: c.pat, icon: '🛎', title: 'Mostrador', sub: 'Atender a ' + c.arche.name });
       else if (c.st === 'waitC') jobs.push({ key: 'c' + c.id + 'k', type: 'caja', ref: c, pat: c.pat, icon: '💵', title: 'Caja', sub: 'Cobrar a ' + c.arche.name });
     }
-    for (const t of day.tasks) if (t.st === 'wait') jobs.push({ key: 't' + t.id, type: t.station.id, ref: t, pat: t.pat, icon: t.station.icon, title: t.station.name, sub: t.station.task.name });
+    for (const t of day.tasks) if (t.st === 'wait') jobs.push({ key: 't' + t.id, type: t.station.id, ref: t, pat: t.pat, icon: t.station.icon, title: t.station.short || t.station.name, sub: t.station.task.name });
     return jobs.sort((a, b) => a.pat - b.pat);
+  }
+  /* ---------------- Tu personaje camina solo hasta cada tarea, por los pasillos y las puertas ----------------
+     NAV es un arbolito de puntos de paso: [x, z, punto anterior, hacia dónde mira al llegar]. Para ir de un lugar a otro
+     sube hasta el punto en común y baja. Si lo mandás a otro lado mientras camina, sigue desde el punto al que iba. */
+  const NAV = { O: [4.5, -1.2, null], A: [4.6, -4.4, 'O'], X: [4.0, -4.9, 'A'], caja: [L.yoCaja[0], L.yoCaja[1], 'X', 0], most: [L.yoMostrador[0], L.yoMostrador[1], 'caja', 0], wa: [-3.8, -4.9, 'most', 0],
+    prov: [4.3, -5.5, 'X', 1.2], ml: [4.5, -2.3, 'O', 1.57], DD: [6.0, -4.4, 'A'], D1: [7.4, -4.4, 'DD'], repo: [8.3, -4.4, 'D1', 3.14],
+    H: [4.0, 0.9, 'O'], T1: [4.0, 5.5, 'H'], TD: [6.0, 5.5, 'T1'], T2: [7.3, 5.9, 'TD'], service: [8.7, 5.65, 'T2', 3.14], pc: [10.1, 6.15, 'T2', 0], G: [-0.3, 5.5, 'T1'], vid: [0.6, 7.3, 'G', 1.57] };
+  const NODE_OF = { mostrador: 'most', devol: 'most', whatsapp: 'wa', stock: 'wa', caja: 'caja', cierre: 'caja', ml: 'ml', proveedor: 'prov', repo: 'repo', service: 'service', pc: 'pc', vidriera: 'vid' };
+  let yoAt = 'most', yoRoute = [];
+  const navChain = n => { const c = []; while (n) { c.push(n); n = NAV[n][2]; } return c; };
+  function yoGo(target) {
+    const yo = W.player(); if (!yo || !NAV[target]) return;
+    const moving = yoRoute.length > 0, from = moving ? yoRoute[0] : yoAt, a = navChain(from), b = navChain(target); let lca = null;
+    while (a.length && b.length && a[a.length - 1] === b[b.length - 1]) { lca = a.pop(); b.pop(); }
+    yoRoute = a.concat([lca], b.reverse()); if (yoRoute[0] !== from) yoRoute.unshift(from);
+    if (!moving) { yoRoute.shift(); if (yoRoute.length) yoStep(); else if (NAV[target][3] != null) yo.face(NAV[target][3]); }
+  }
+  function yoStep() {
+    const yo = W.player(), n = yoRoute[0];
+    yo.walk([[NAV[n][0], NAV[n][1]]], () => { yoAt = n; yoRoute.shift(); if (yoRoute.length) yoStep(); else if (NAV[n][3] != null) yo.face(NAV[n][3]); });
   }
   function focusFor(type) {
     const land = window.innerWidth > window.innerHeight && window.innerHeight <= 560;
@@ -349,9 +402,9 @@ GS.Game = (function () {
     const ref = job.ref, isCust = job.type === 'mostrador' || job.type === 'caja';
     ref.st = isCust ? (job.type === 'mostrador' ? 'inM' : 'inC') : 'in'; ref.pat = Math.max(ref.pat, 0.55);
     focusFor(job.type);
-    { const at = job.type === 'caja' || job.type === 'cierre' ? L.yoCaja : ['mostrador', 'whatsapp', 'devol', 'stock'].indexOf(job.type) >= 0 ? L.yoMostrador : null, yo = W.player(); if (at && yo) yo.walk([at], () => yo.face(0)); }
+    yoGo(NODE_OF[job.type]);
     const cb = {
-      onMistake(kind) { breakCombo(); addRep(-0.02); addCord(-CD.mistake); if (kind === 'caja') day.cajaErr++; else day.otherErr++; if (!day.relaxed) ref.pat = Math.max(0.05, ref.pat - C.day.mistakeCost); },
+      onMistake(kind) { day.wv.mistakes = (day.wv.mistakes || 0) + 1; breakCombo(); addRep(-0.02); addCord(-CD.mistake); if (kind === 'caja') day.cajaErr++; else day.otherErr++; if (!day.relaxed) ref.pat = Math.max(0.05, ref.pat - C.day.mistakeCost); },
       onEnd(ok, info) {
         if (job.type !== 'caja') W.focus(null);
         if (job.type === 'mostrador') {
@@ -359,12 +412,12 @@ GS.Game = (function () {
           ref.slotC = Math.max(0, freeSlot('slotC', L.colaCaja.length));
           ref.person.walk([[Math.min(ref.person.group.position.x + 0.8, 1.6), -2.1], L.colaCaja[ref.slotC]], () => { ref.st = 'waitC'; ref.person.face(Math.PI); });
         } else if (job.type === 'caja') {
-          day.served++;
+          day.served++; day.wv.served = (day.wv.served || 0) + 1;
           if (info.total) day.sales += info.total;
           if (info.cajaError) { day.score = Math.max(0, day.score - 100); addRep(-0.25); }
           if (ok) { addScore(150, ref.pat); addRep(info.caught ? 0.05 : 0.04); }
           if (info.caught) {                 // comprobante trucho bien rechazado: se va renegando y sin el producto
-            day.caught = (day.caught || 0) + 1; sayAt(ref.person, U.pick(LN.caught), 3600); day.beat = 1.5;
+            day.caught = (day.caught || 0) + 1; day.wv.caught = 1; sayAt(ref.person, U.pick(LN.caught), 3600); day.beat = 1.5;
             const d0 = day; setTimeout(() => { if (day === d0 && !MG.isOpen()) W.focus(null); }, 2300);
             leave(ref, false); return;
           }
@@ -372,7 +425,7 @@ GS.Game = (function () {
           sayAt(ref.person, ref.arche.bye, 3600); day.beat = 1.5;
           const d = day; setTimeout(() => { if (day === d && !MG.isOpen()) W.focus(null); }, 2300);
           leave(ref, !!info.total);
-        } else { day.tasksDone++; addScore(130, ref.pat); addRep(job.type === 'whatsapp' ? 0.05 : 0.03); if (job.type === 'vidriera') { GS.Store.set('vid', info.quality || 0); addRep((info.quality - 0.5) * 0.12); } removeTask(ref); }
+        } else { day.tasksDone++; day.wv.done[job.type] = 1; addScore(130, ref.pat); addRep(job.type === 'whatsapp' ? 0.05 : 0.03); if (job.type === 'vidriera') { GS.Store.set('vid', info.quality || 0); addRep((info.quality - 0.5) * 0.12); } removeTask(ref); }
       }
     };
     const seen = GS.Store.get('seen') || {};
@@ -415,7 +468,7 @@ GS.Game = (function () {
         else if ((cu.st === 'inM' || cu.st === 'inC') && !MG.isResolving()) cu.pat -= dt / cfg.patienceGame;
         if (cu.pat <= 0 && (cu.st === 'waitM' || cu.st === 'waitC' || cu.st === 'inM' || cu.st === 'inC')) {
           if (cu.st === 'inM' || cu.st === 'inC') { if (MG.isResolving()) { cu.pat = 0.01; continue; } MG.close(); W.focus(null); }
-          day.lost++; breakCombo(); addRep(-0.15); addCord(-CD.lost); A.play('lost');
+          day.lost++; day.wv.lost = 1; breakCombo(); addRep(-0.15); addCord(-CD.lost); A.play('lost');
           sayAt(cu.person, cu.arche.lost, 3600); toast('<b>' + cu.arche.name + ' se fue sin comprar</b>', '', 2200);
           leave(cu, false);
         }
@@ -443,6 +496,7 @@ GS.Game = (function () {
     } else {
       const tot = planTotals(day.plan), all = tot.c + tot.t, doneN = day.served + day.lost + day.tasksDone + day.tasksLate, f = Math.min(1, doneN / all);
       const fin = day.wave >= 0 && day.plan[day.wave].final, nw = day.plan.filter(w => !w.final).length, m = Math.round((600 + f * 540) / 10) * 10;
+      setSky((m - 600) / 540, day.cond === 'lluvia');
       $('clockT').textContent = '🕙 ' + String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0'); $('clockB').style.width = (f * 100).toFixed(1) + '%';
       $('clockS').textContent = day.closing ? 'Cerramos: son las 19' : fin ? 'Cierre de caja' : day.stage === 'rest' && day.wave >= 0 ? 'Respiro ☕' : 'Tanda ' + Math.max(1, day.wave + 1) + '/' + nw;
     }
@@ -478,9 +532,10 @@ GS.Game = (function () {
     const i = label.lastChild.firstChild; i.style.width = Math.max(0, pat * 100) + '%'; i.style.background = barColor(pat);
   }
   function updateLabels(dt) {
+    pumpSays(dt || 0);
     for (const sy of day.says.slice()) {
       sy.left -= dt || 0;
-      if (sy.left <= 0) { sy.el.remove(); day.says.splice(day.says.indexOf(sy), 1); continue; }
+      if (sy.left <= 0 || !sy.person.group.parent) { sy.el.remove(); day.says.splice(day.says.indexOf(sy), 1); if (sy.onDone) sy.onDone(); continue; }
       const g = sy.person.group.position, p = W.project(g.x, sy.el.classList.contains('boss') ? 2.7 : 2.25, g.z); { const hw = sy.el.offsetWidth / 2 + 8; sy.el.style.left = U.clamp(p.x, hw, window.innerWidth - hw).toFixed(1) + 'px'; } sy.el.style.top = Math.max(sy.el.offsetHeight + 120, p.y).toFixed(1) + 'px';
     }
     for (const cu of day.customers) {
@@ -494,7 +549,7 @@ GS.Game = (function () {
   /* ---------------- Arcade: una estación suelta, 5 rondas seguidas ---------------- */
   function startArcade(id) {
     A.unlock(); A.play('click'); clearDay();
-    day = newDay({ arcade: id, round: 0, job: null, wait: 0.5 }); state = 'day'; enterPlay(); $('jobs').hidden = true; A.setMood('day');
+    day = newDay({ arcade: id, round: 0, job: null, wait: 0.5 }); state = 'day'; enterPlay(); $('jobs').hidden = true; A.setMood('day'); setSky(0.3, false);
     updateHud(); GS.track('inicio_minijuego', { estacion: id, modo: 'arcade' });
   }
   function arcadeJob(id) {
@@ -513,7 +568,7 @@ GS.Game = (function () {
       day.wait -= dt;
       if (day.wait <= 0) {
         if (day.round >= C.day.arcadeRounds) { day.closing = true; setTimeout(endArcade, 300); return; }
-        day.round++; const job = day.job = arcadeJob(id); focusFor(id);
+        day.round++; const job = day.job = arcadeJob(id); focusFor(id); yoGo(NODE_OF[id]);
         let variant = null;
         if (id === 'caja') variant = ['cobro', 'vuelto', 'comprobante', 'cobro', 'vuelto'][day.round - 1];
         if (id === 'service') variant = ['diag', 'pelusa', 'ram', 'diag', 'ram'][day.round - 1];
@@ -637,7 +692,7 @@ GS.Game = (function () {
   }
   function buy(i) {
     const u = upNow(), g = GS.UPGRADES[shopSel], lv = g.levels[i]; if ((u[g.id] || 0) !== i || coinsNow() < lv.price) return;
-    u[g.id] = i + 1; GS.Store.set('up', u); GS.Store.set('coins', coinsNow() - lv.price); A.play('cash'); toast('<b>¡Mejora comprada!</b>' + lv.n, '', 2600); renderShop();
+    u[g.id] = i + 1; GS.Store.set('up', u); GS.Store.set('newUp', true); GS.Store.set('coins', coinsNow() - lv.price); A.play('cash'); toast('<b>¡Mejora comprada!</b>' + lv.n, '', 2600); renderShop();
   }
   function closeShop() { $('shop').hidden = true; W.setUpgrades(upNow()); state = 'menu'; $('start').hidden = false; refreshStart(); W.showAll(); A.play('click'); }
   function avatarSvg(a) {
@@ -679,7 +734,7 @@ GS.Game = (function () {
     $('playS').textContent = n === 1 ? 'Inducción: mostrador y caja · de 10 a 19' : fresh.length ? 'Se suma: ' + fresh.map(id => ST(id).name).join(' y ') : 'De 10 a 19 · reputación ⭐ ' + repTxt(repNow());
   }
   function goHome() {
-    A.play('click'); A.setMood('menu'); clearDay(); $('rain').hidden = true; $('final').hidden = true;
+    A.play('click'); A.setMood('menu'); clearDay(); $('rain').hidden = true; $('final').hidden = true; setSky(0.3, false);
     day = null; state = 'menu'; paused = false;
     $('end').hidden = true; $('hud').hidden = true; $('jobs').hidden = true; $('start').hidden = false; $('toasts').innerHTML = ''; W.showAll();
   }
@@ -688,7 +743,7 @@ GS.Game = (function () {
   let lastCard = null;
   function startFinal() {
     A.unlock(); clearDay(); ['rain', 'end', 'start', 'hud', 'jobs', 'modal', 'finCard'].forEach(id => { $(id).hidden = true; }); $('toasts').innerHTML = '';
-    $('final').hidden = false; $('final').classList.remove('party'); $('finSkip').hidden = false;
+    $('final').hidden = false; $('final').classList.remove('party'); $('finSkip').hidden = false; setSky(0.97, false);
     if (!$('confetti').children.length) $('confetti').innerHTML = Array.from({ length: 36 }, (_, i) => '<i style="left:' + (i * 2.8 + Math.random() * 2).toFixed(1) + '%;background:' + ['#ff0000', '#fff', '#f5c518', '#57e6ff'][i % 4] + ';animation-duration:' + (2.6 + Math.random() * 2.4).toFixed(2) + 's;animation-delay:-' + (Math.random() * 4).toFixed(2) + 's"></i>').join('');
     day = newDay({ fin: { i: -1, t: 3.2, crowd: [], done: false } }); state = 'final'; paused = false; W.setUpgrades(upNow()); A.setMood('final'); A.play('fanfare');
     W.focusAt(0.6, -1.4, 0.66, -0.08);
@@ -707,20 +762,20 @@ GS.Game = (function () {
   }
   function updateFinal(dt) {
     const f = day.fin;
+    if (f.done && (f.t -= dt) <= 0) { f.t = 3.4; sayAt(U.pick(f.crowd), U.pick(GS.FINAL.crowd), 0, '', true, true); }
     if (!f.done && (f.t -= dt) <= 0) {
       f.i++;
       if (f.i < f.lines.length) {
-        A.play('speaker'); sayAt(W.boss(), f.lines[f.i], 5400, 'boss'); f.t = 5.9;
+        sayAt(W.boss(), f.lines[f.i], 0, 'boss'); f.t = 8.2;
         if (f.i >= 2) $('final').classList.add('party');
-        if (f.i >= 1) { const d = day; setTimeout(() => { if (day !== d) return; U.shuffle(f.crowd).slice(0, 3).forEach((p, j) => sayAt(p, U.pick(GS.FINAL.crowd), 2000, '', j > 0)); }, 3300); }
+        if (f.i >= 1) { const d = day; setTimeout(() => { if (day !== d) return; sayAt(U.pick(f.crowd), U.pick(GS.FINAL.crowd), 0, '', false, true); }, 600); }
       } else finishFinal();
     }
     updateLabels(dt);
   }
   function finishFinal() {
     const f = day && day.fin; if (!f || f.done) return; f.done = true; GS.Store.set('finalSeen', true);
-    day.says.forEach(x => x.el.remove()); day.says = []; $('final').classList.add('party'); $('finSkip').hidden = true; A.play('fanfare');
-    f.crowd.forEach((p, j) => { if (j % 2 === 0) sayAt(p, U.pick(GS.FINAL.crowd), 60000, '', true); });
+    day.says.forEach(x => x.el.remove()); day.says = []; day.sayQ = []; f.t = 0.5; $('final').classList.add('party'); $('finSkip').hidden = true; A.play('fanfare');
     $('finCard').innerHTML = '<h2>Fin de la <span>temporada</span></h2><p>Llegaste a <b>' + rankOf(C.finalDay + 1) + '</b>. El local sigue abierto: podés seguir jugando jornadas, comprar las mejoras que falten y batir tus récords.</p>' +
       '<button class="btn" id="finShare">📸 Tarjeta para compartir</button><button class="btn ghost" id="finGo">Seguir jugando</button><small>Un juego de GameShop · Gracias por jugar</small>';
     $('finCard').hidden = false;
@@ -784,6 +839,7 @@ GS.Game = (function () {
       '<li><i>👆</i><span>Tocá un pendiente para resolverlo: son minijuegos de unos segundos.</span></li>' +
       '<li><i>💵</i><span>Al cobrar acordate: 10% OFF en efectivo o transferencia, 3 cuotas sin interés con tarjeta.</span></li>' +
       '<li><i>🔥</i><span>Encadená aciertos para armar <b>racha</b>. Si te equivocás no perdés nada: solo hay un chiste.</span></li>' +
+      '<li><i>🚶</i><span>No hace falta caminar: <b>tocá el pedido</b> y tu personaje va solo hasta ahí.</span></li>' +
       '<li><i>🧠</i><span>Tu <b>cordura</b> sube en los respiros y baja si se junta mucho. A veces hay <b>interrupciones</b>: se contestan con un toque, y si no, se resuelven solas.</span></li>' +
       '<li><i>🔎</i><span>Arrastrá para mover el local y pellizcá (o usá la rueda) para acercar.</span></li></ul>' +
       '<button class="btn" data-close>¡A laburar!</button>', () => { if (fromDay) paused = false; });
@@ -845,7 +901,16 @@ GS.Game = (function () {
   }
 
   /* ---------------- Bucle principal ---------------- */
-  let fpsT = 0, fpsN = 0, autoQ = 'media';
+  let fpsT = 0, fpsN = 0, autoQ = 'media', skyKey = '';
+  // La vereda y el fondo acompañan la hora del juego: mañana fresca, mediodía claro, tarde dorada y anochecer con el farol prendido
+  function setSky(f, rain) {
+    f = U.clamp(f, 0, 1); const key = Math.round(f * 60) + (rain ? 'r' : ''); if (key === skyKey) return; skyKey = key;
+    const stops = [[0, [34, 62, 92]], [0.35, [46, 86, 128]], [0.62, [118, 70, 34]], [0.85, [92, 40, 52]], [1, [22, 18, 52]]]; let c = stops[0][1];
+    for (let i = 1; i < stops.length; i++) if (f <= stops[i][0]) { const a = stops[i - 1], b = stops[i], k = (f - a[0]) / (b[0] - a[0]); c = a[1].map((v, j) => Math.round(v + (b[1][j] - v) * k)); break; }
+    if (rain) c = c.map(v => Math.round(v * 0.45 + 30));
+    document.body.style.background = 'radial-gradient(120% 90% at 50% 35%, rgb(' + c.join(',') + ') 0%, rgb(' + c.map(v => Math.round(v * 0.35)).join(',') + ') 50%, #000 100%)';
+    W.setDayTime(f, rain);
+  }
   function frame(t) {
     requestAnimationFrame(frame);
     if (document.hidden) { lastT = t; return; }             // pestaña oculta: no se dibuja ni corre el reloj
@@ -874,7 +939,7 @@ GS.Game = (function () {
       modal('<h2>Ups</h2><p>Este navegador no pudo iniciar los gráficos 3D. Probá actualizarlo o abrir el juego en otro navegador.</p>');
       return;
     }
-    staffInit(); luchoLook(dayNumber()); document.body.classList.toggle('big', !!GS.Store.get('big')); if (C.launched) { $('phasesStart').hidden = true; $('chipPhase').hidden = true; document.querySelector('.fine').firstChild.textContent = 'Precios y stock ficticios.'; }
+    staffInit(); luchoLook(dayNumber()); setSky(0.3, false); document.body.classList.toggle('big', !!GS.Store.get('big')); if (C.launched) { $('phasesStart').hidden = true; $('chipPhase').hidden = true; document.querySelector('.fine').firstChild.textContent = 'Precios y stock ficticios.'; }
     GS.track.init(); GS.track('abrir_juego', { jornada: dayNumber() }); window.addEventListener('error', e => GS.track('error_js', { msg: String(e.message).slice(0, 80) }));
     if (C.links.tienda) { $('btnStore').hidden = false; $('btnStore').href = C.links.tienda; $('btnStore').addEventListener('click', () => GS.track('click_tienda', { desde: 'inicio' })); }
     setCalm(!!GS.Store.get('calm')); syncMute(); W.showAll(); W.setUpgrades(upNow()); W.setPlayerLook(GS.Store.get('avatar'));

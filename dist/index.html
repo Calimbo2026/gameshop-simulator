@@ -340,6 +340,9 @@ a.btn { text-decoration: none; text-align: center; } .cardimg { width: 100%; max
 :focus-visible { outline: 3px solid var(--cyan); outline-offset: 2px; }
 body.big #mg, body.big #jobs, body.big .sheet, body.big #toasts, body.big .fin-card { zoom: 1.14; } body.big .say { font-size: 16.5px; max-width: 250px; }
 
+.say.zz { background: rgba(255,255,255,.92); padding: 3px 8px; font-size: 15px; box-shadow: none; border-radius: 12px; }
+body { transition: background 1.2s linear; }
+
 </style>
 </head>
 <body>
@@ -433,9 +436,9 @@ const GS = {};
 GS.LOGO = "data:image/png;base64,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";
 
 GS.CONFIG = {
-  version: '0.10.0',
+  version: '0.11.0',
   phase: 5,
-  phaseNote: 'En curso: taller, compañeros, clientes que miran, analítica y pulido general',                       // fase actual del proyecto (1 a 5)
+  phaseNote: 'Últimos ajustes: caminata automática, globitos de a uno, vereda según la hora y compras por la página',                       // fase actual del proyecto (1 a 5)
   links: { tienda: 'https://www.gameshop.com.ar', instagram: '' },   // botones del inicio y del cierre (vacío = no se muestra)
   // Analítica: pegá acá el ID de medición de Google Analytics 4 (G-XXXXXXXXXX) y el juego empieza a contar jugadores. Vacío = no se envía nada.
   analytics: { ga4: '' },
@@ -655,8 +658,8 @@ GS.UPGRADES = [
 GS.RANKS = [[1, 'Vendedor nuevo'], [3, 'Vendedor'], [5, 'Vendedor senior'], [8, 'Encargado'], [11, 'Mano derecha del Dueño']];
 /* Condiciones del día: cambian cuánta gente viene y cuántos pedidos salen */
 GS.CONDITIONS = {
-  lluvia: { name: '🌧️ Día de lluvia', say: 'Llueve. Va a venir menos gente al local, pero van a salir más pedidos de Mercado Libre.', cust: -2, ml: 2 },
-  blackfriday: { name: '🏷️ Black Friday', say: 'Hoy es Black Friday. Viene más gente y salen muchos pedidos. Tranquilos, que se puede.', cust: 2, ml: 2 },
+  lluvia: { name: '🌧️ Día de lluvia', say: 'Llueve. Va a venir menos gente al local, pero van a entrar más compras por la página.', cust: -2, ml: 2 },
+  blackfriday: { name: '🏷️ Black Friday', say: 'Hoy es Black Friday. Viene más gente y entran muchas compras por la página. Tranquilos, que se puede.', cust: 2, ml: 2 },
   navidad: { name: '🎄 Semana de Navidad', say: 'Semana de Navidad. Todos compran regalos a último momento. Paciencia y buena cara.', cust: 2, ml: 1 }
 };
 GS.HAIRSTYLES = [['corto', 'Corto'], ['largo', 'Largo'], ['rodete', 'Rodete'], ['rulos', 'Rulos'], ['mohicano', 'Mohicano'], ['pelado', 'Pelado']];
@@ -673,7 +676,7 @@ GS.EXPLAIN = {
   cierre: 'Antes de irnos a las 19, sumá los cobros en efectivo y fijate si coincide con lo que hay en el cajón.',
   repo: 'En el depósito, cada caja va a su estantería. Tocá la estantería que corresponde.',
   stock: 'Contá lo que hay de verdad en la góndola. El sistema a veces sueña.',
-  ml: 'Caja del tamaño justo, cinta de punta a punta y la etiqueta correcta. Lo que se compra antes de las 14 sale en el día.',
+  ml: 'Son las compras que entran por www.gameshop.com.ar. Caja del tamaño justo, cinta de punta a punta y la etiqueta correcta. Lo que se compra antes de las 14 sale en el día.',
   proveedor: 'Compará el remito con lo que bajó de la carreta. Si falta algo, no firmes.',
   pc: 'En el taller: elegí cada pieza y tocá dónde va en la placa. Si una viene al revés, tocala de nuevo para girarla.',
   service: 'En el taller: diagnosticá con criterio, limpiá con paciencia y encajá la memoria justo en la ranura.',
@@ -687,7 +690,7 @@ GS.CUSTOMERS = [
   { id: 'marta', name: 'Marta',      face: '👵', shirt: 0xb86fa8, hair: 0xc9c9d6, tag: 'La tecnología es extraña',
     bye: 'Gracias, querido. No entendí nada, pero gracias.', lost: 'Yo de esto no entiendo. Vuelvo con mi nieto.' },
   { id: 'fede',  name: 'Fede',       face: '🧔', shirt: 0x3d7a4a, hair: 0x3a2a1a, tag: 'Lo vio más barato',
-    bye: 'Igual en Mercado Libre estaba más barato, eh.', lost: 'Listo, lo compro en Mercado Libre.' },
+    bye: 'Igual después lo miro tranquilo en la página, eh.', lost: 'Listo, lo compro por la página desde casa.' },
   { id: 'tano',  name: 'El Tano',    face: '😎', shirt: 0xd9a514, hair: 0x1e1e1e, tag: 'Por ser cliente',
     bye: '¿Y por ser cliente no me regalás un cablecito?', lost: 'Así tratan a un cliente de toda la vida.' },
   { id: 'sergio',name: 'Sergio',     face: '👨', shirt: 0x4a6fb5, hair: 0x4a3a2a, tag: 'Padre que no sabe qué compra',
@@ -780,8 +783,39 @@ GS.LINES = {
     'Le ponemos más RAM a tu notebook. A vos no, lamentablemente.',
     'Recuerden: todo lo que vendemos es original y con garantía.',
     'Abrimos de 10 a 19. A las 19:01 ya no me pregunten nada.',
-    'Productos nuevos, originales y con garantía. Lo digo yo, que soy el Dueño.'
+    'Productos nuevos, originales y con garantía. Lo digo yo, que soy el Dueño.',
+    'Todo lo que ves acá también está en www.gameshop.com.ar. Y ahí no hay que hacer cola.',
+    'Si alguien pregunta por stock, que mire la página: está al día. Casi siempre.',
+    'Comprás por la página y lo retirás acá. Dos pasos, cero vueltas.',
+    'Vendemos consolas, juegos, notebooks y accesorios. Lo único que no vendemos es humo.',
+    'Factura A, factura B, la que necesites. Menos la factura de panadería: esa traela vos.',
+    'Con garantía oficial y servicio técnico propio. Dormí tranquilo, como Brian.'
   ],
+  /* El Dueño comenta lo que está pasando. Cada grupo se usa cuando se da esa situación; no repite hasta agotar las frases. */
+  duenoCtx: {
+    perdido: ['Se nos fue un cliente. Tranquilo: mañana vuelve, que acá hay 10% OFF en efectivo.', 'Uno se fue sin comprar. Capaz lo compra por la página: www.gameshop.com.ar atiende hasta en pijama.', 'Se fue apurado. La próxima le ofrecemos las 3 cuotas sin interés antes de que llegue a la puerta.'],
+    trucho: ['Bien ahí con ese comprobante. Acá las transferencias se miran dato por dato.', 'Ese comprobante tenía más errores que mi primer currículum. Bien rechazado.', 'Ojo de halcón en la caja. El 10% OFF es para transferencias de verdad.'],
+    perfecto: ['Ni un error en toda la tanda. Así da gusto abrir de 10 a 19.', 'Tanda impecable. Los clientes se van contentos y con garantía, como corresponde.', 'Eso fue una tanda limpia. Casi tan prolija como nuestros envíos a todo el país.', 'Todo bien atendido. Si seguís así, te hago un cuadrito para la oficina.'],
+    errores: ['Hubo algún tropiezo. No pasa nada: respirá, que nadie nace sabiendo cobrar.', 'Se complicó un poco. Despacito y con buena letra, que el cliente espera.', 'Tranquilo con los errores. Acá lo único que no falla es la garantía.'],
+    racha: ['¡Qué racha! Si seguís así te vas a quedar sin clientes para atender.', 'Vas en racha. Yo sabía que el mate de Brian tenía algo.', 'Racha larga. Anotalo, que eso en la tarjeta para compartir queda lindo.'],
+    cansado: ['Te veo con la cordura justa. Aprovechá el respiro, que para eso está.', 'Pará un segundo y respirá. El local no se va a ningún lado.', 'Cuando se junta mucho, de a uno. Primero el que más esperó.'],
+    lluvia: ['Con esta lluvia la gente compra desde el sillón. Por eso existe www.gameshop.com.ar.', 'Llueve y entran compras por la página. El paraguas lo pone el correo.', 'Día de lluvia: pocos en el local, muchos en la web. Hacemos envíos a todo el país, llueva o no.'],
+    blackfriday: ['Black Friday: hoy no se camina, se trota. Pero con una sonrisa.', 'Hoy vuela todo. Lo que se compra antes de las 14 sale en el día, así que a embalar.', 'Black Friday y encima 3 cuotas sin interés. No sé cómo hacemos.'],
+    navidad: ['Navidad: todos compran a último momento y todos lo quieren para regalo.', 'Si preguntan si llega para Nochebuena: antes de las 14 sale en el día.', 'Semana de Navidad. Papá Noel compra acá, pero no lo andes diciendo.'],
+    siesta: ['¿Alguien vio a {quien}? Hace rato que "fue a buscar una caja" al depósito.', 'Escucho ronquidos en el depósito. Debe ser el aire acondicionado.', 'Si {quien} está contando stock con los ojos cerrados, que por lo menos cuente bien.'],
+    mirones: ['Hoy entran muchos a mirar. Mirar es gratis; llevárselo tiene 10% OFF en efectivo.', 'Los que miran hoy, compran mañana. O por la página a las tres de la mañana.', 'Dejalos mirar tranquilos. El local vende solo, vos sonreí.'],
+    mediodia: ['Ya casi son las 14. Lo que se compre por la página antes de esa hora sale hoy.', 'Mediodía. El que quiera almorzar, que almuerce rápido, que a las 14 pasa el correo.'],
+    tarde: ['Falta poco para las 19. A las 19:01 no me pregunten nada.', 'Última parte del día. Después contamos la caja y a casa.', 'Ya baja el sol en la vereda. Un rato más y cerramos.'],
+    web: ['Otra compra por la página despachada. www.gameshop.com.ar no duerme nunca.', 'Bien embalado. Ese paquete llega mejor peinado que yo.', 'Así salen las compras de la página: caja justa, cinta derecha y etiqueta correcta.'],
+    proveedor: ['Llegó mercadería. Lo que entra hoy, mañana ya está en la vidriera.', 'Remito controlado. Acá no se firma nada sin contar.'],
+    taller: ['Otro equipo que sale andando del taller. Servicio técnico de notebooks y PC, cada día mejor.', 'El taller está a pleno. Si no anda, lo arreglamos; y si anda, lo mejoramos.'],
+    mejora: ['¿Viste cómo quedó el local con lo nuevo? Cada moneda bien puesta.', 'El local está cada día más lindo. Seguí juntando monedas, que hay más para mejorar.'],
+    repAlta: ['Los clientes hablan bien de nosotros. Seguí así, que la reputación no se compra.', 'Cinco estrellas no llegan solas. Bueno, casi cinco.'],
+    repBaja: ['La reputación está flojita. Una sonrisa, el dato correcto y se levanta sola.', 'Vamos a remontar esas estrellas. De a un cliente bien atendido por vez.'],
+    interrupcion: ['Vi cómo resolviste eso. Con calma y sin dejar de atender: perfecto.', 'Entre el teléfono y el vecino, acá nunca falta entretenimiento.'],
+    vidriera: ['La vidriera quedó para foto. Ya hay gente frenando a mirar.', 'Una vidriera bien armada vende más que yo hablando.'],
+    cajaDos: ['Qué bien anda la segunda caja. Brian cobrando: quién lo hubiera dicho.', 'Con dos cajas no se junta cola. Fue una buena inversión.']
+  },
   duenoEndGood: [
     'Excelente jornada. Casi tan buena como nuestro 10% OFF en efectivo y transferencia.',
     'Así se trabaja. Como nuestros envíos antes de las 14, en el día y sin vueltas.',
@@ -867,15 +901,15 @@ GS.STATIONS = [
     task: { name: 'PC para armar', tag: 'La quiere "con lucecitas"', late: 'El cliente de la PC se cansó de esperar. Se la arma el cuñado.' } },
   { id: 'service', n: 4, name: 'Taller', icon: '🔧', pos: [8.3, 5.0],
     task: { name: 'Equipo para reparar', tag: '"No hice nada, se rompió solo"', late: 'El equipo sigue esperando en el taller. Igual que su dueño.' } },
-  { id: 'ml', n: 5, name: 'Mercado Libre', icon: '📦', pos: [5.1, -2.3],
-    task: { name: 'Pedido para despachar', tag: 'Sale antes de las 14', late: 'Se pasó el corte de las 14. El pedido sale mañana.' } },
+  { id: 'ml', n: 5, name: 'Compras por la página', short: 'Compra web', icon: '🛒', pos: [5.1, -2.3],
+    task: { name: 'Compra por la página', tag: 'www.gameshop.com.ar · sale antes de las 14', late: 'Se pasó el corte de las 14. El pedido sale mañana.' } },
   { id: 'whatsapp', n: 6, name: 'WhatsApp', icon: '💬', pos: [-3.4, -4.2],
     task: { name: 'WhatsApp sin responder', tag: 'escribiendo...', late: 'Lo dejaste en visto. Te va a escribir de nuevo, pero con mayúsculas.' } },
   { id: 'repo', n: 7, name: 'Reposición', icon: '🧺', pos: [8.7, -4.3],
     task: { name: 'Cajas para reponer', tag: 'Llegó mercadería', late: 'Las cajas siguen en el pasillo. Ya son parte del mobiliario.' } },
   { id: 'stock', n: 8, name: 'Control de stock', icon: '🔍', pos: [-5.0, -3.2],
     task: { name: 'Contar una góndola', tag: 'El sistema dice una cosa...', late: 'Nadie contó la góndola. El sistema sigue soñando.' } },
-  { id: 'proveedor', n: 9, name: 'Recepción de proveedor', icon: '🚚', pos: [5.0, -4.6],
+  { id: 'proveedor', n: 9, name: 'Recepción de proveedor', short: 'Proveedor', icon: '🚚', pos: [5.0, -4.6],
     task: { name: 'Llegó mercadería', tag: 'Firmame acá, jefe', late: 'El del reparto se cansó de esperar la firma y se fue.' } },
   { id: 'devol', n: 10, name: 'Devoluciones', icon: '↩️', pos: [0.2, -4.0],
     task: { name: 'Quieren devolver algo', tag: '"Lo usé poquito"', late: 'El de la devolución se fue. Vuelve mañana, con refuerzos.' } },
@@ -1175,6 +1209,7 @@ GS.World = (function () {
   const people = [];
   const walls = {};            // grupos de pared alta: N (fondo), S (frente), E (derecha), O (izquierda)
   const animated = [];         // cosas que se animan (pantallas, cartel)
+  const sky = {};
   let tapHandler = null, yo = null, boss = null, brian = null, lucho = null;
   const BOSS_HOME = [9.3, 0.7];
 
@@ -1312,8 +1347,16 @@ GS.World = (function () {
     plane(root, fw, fd, new T.MeshLambertMaterial({ map: tile }), 0, 0, (s.zMin + zMax) / 2, 0, -Math.PI / 2);
     // base de maqueta + vereda
     box(root, fw + 1.2, 0.5, fd + 4.2, 0x18181b, 0, -0.52, (s.zMin + zMax) / 2 + 1.5);
-    box(root, fw + 1.2, 0.04, 2.9, 0x8d8d92, 0, -0.03, zMax + 1.5);
-    for (let i = -3; i <= 3; i++) box(root, 0.04, 0.045, 2.9, 0x77777c, i * 1.9, -0.03, zMax + 1.5);
+    sky.side = new T.MeshLambertMaterial({ color: 0x8d8d92 }); sky.joint = new T.MeshLambertMaterial({ color: 0x77777c });
+    box(root, fw + 1.2, 0.04, 2.9, sky.side, 0, -0.03, zMax + 1.5);
+    for (let i = -3; i <= 3; i++) box(root, 0.04, 0.045, 2.9, sky.joint, i * 1.9, -0.03, zMax + 1.5);
+    box(root, fw + 1.2, 0.06, 0.1, 0xd9d9de, 0, -0.03, zMax + 2.98); box(root, fw + 1.2, 0.03, 0.56, 0x26262c, 0, -0.06, zMax + 3.3);          // cordón y un pedacito de calle
+    // luz del local que sale a la vereda y dos faroles en las esquinas: se prenden cuando cae la tarde
+    sky.spill = new T.MeshBasicMaterial({ color: 0xffe2a0, transparent: true, opacity: 0, depthWrite: false }); plane(root, fw - 0.6, 1.5, sky.spill, 0, 0.022, zMax + 0.85, 0, -Math.PI / 2);
+    sky.bulb = new T.MeshBasicMaterial({ color: 0x55555c }); sky.halo = new T.MeshBasicMaterial({ color: 0xffd98a, transparent: true, opacity: 0, depthWrite: false });
+    [-1, 1].forEach(sd => { const x = sd * (fw / 2 + 0.25), z = zMax + 2.65;
+      box(root, 0.09, 3.1, 0.09, 0x1c1c20, x, 0, z); box(root, 0.7, 0.07, 0.07, 0x1c1c20, x - sd * 0.3, 3.1, z); box(root, 0.34, 0.1, 0.2, sky.bulb, x - sd * 0.6, 3.0, z);
+      const h = new T.Mesh(new T.CircleGeometry(1.7, 24), sky.halo); h.rotation.x = -Math.PI / 2; h.position.set(x - sd * 0.9, 0.024, z - 0.5); root.add(h); });
   }
 
   // Pared con estantes llenos de productos, a lo largo de z (para izquierda y derecha)
@@ -1475,12 +1518,21 @@ GS.World = (function () {
     plant(root, 10.9, 3.15, 1.3);
     sideDoor(root, -0.3, 'OFICINA');
   }
+  // Cartel de sector para las mesas: una franja negra a lo largo del mueble y, centrada, la chapa roja con el nombre.
+  // Todas a la misma altura y con el mismo tamaño de letra, del lado que mira a la cámara.
+  function rail(g, text, x, z, len, side) {
+    const mt = new T.MeshBasicMaterial({ map: textTex(text, { bg: '#e10600', fg: '#fff', w: 578, h: 136, font: '900 66px Impact, "Arial Black", sans-serif' }) });
+    const k = new T.Group(); k.position.set(x, 0, z); if (side === 'x') k.rotation.y = Math.PI / 2; g.add(k);          // en el grupo, "z" es hacia afuera del mueble
+    box(k, len, 0.42, 0.05, 0x0c0c0c, 0, 0.44, 0.03);
+    const pl = plane(k, 1.7, 0.4, mt, 0, 0.73, 0.21); pl.rotation.x = -0.9;                                             // chapa inclinada hacia arriba, como un atril: se lee desde la cámara
+    box(k, 1.74, 0.03, 0.34, 0x0c0c0c, 0, 0.56, 0.2);
+  }
   function buildCenter(root) {
     { // isla Apple
       const g = upGroup(root, 'isla', 1), b = Batch(g), i = L.isla;
       box(g, i.w, i.h, i.d, 0xffffff, i.x, 0, i.z); box(g, i.w - 0.2, i.h - 0.3, 0.03, 0xe2e2e2, i.x, 0.2, i.z + i.d / 2 + 0.01);
       idsOf('apple').forEach((id, k) => sprite(g, id, i.x - 0.66 + k * 0.33, i.h, i.z + 0.1, 0.4));
-      sign(g, 'APPLE', 1.3, 0.24, i.x, 0.14, i.z + i.d / 2 + 0.06); b.build();
+      rail(g, 'APPLE', i.x, i.z + i.d / 2, i.w, 'z'); b.build();
     }
     { // mesa de madera con PC y accesorios
       const g = upGroup(root, 'mesa', 1), t = L.mesa, wood = 0xd9b77e;
@@ -1490,7 +1542,7 @@ GS.World = (function () {
       [[-1.1, 0x111111], [-0.2, 0xf4f4f4], [0.7, 0x111111]].forEach(a => box(g, 0.5, 0.62, 0.62, a[1], t.x + 0.35, 0, t.z + a[0]));
       notebook(g, t.x, t.h, t.z - 1.35); notebook(g, t.x, t.h, t.z - 0.75);
       ['gpu', 'monitor', 'ram', 'gabinete', 'disco', 'impresora', 'router', 'cargador'].forEach((id, k) => sprite(g, id, t.x + (k % 2 ? 0.32 : -0.32), t.h, t.z - 0.1 + Math.floor(k / 2) * 0.48, 0.5));
-      sign(g, 'PC Y ACCESORIOS', 2.8, 0.34, t.x + t.w / 2 + 0.02, 0.42, t.z, Math.PI / 2);
+      rail(g, 'PC Y ACCESORIOS', t.x + t.w / 2, t.z, t.d, 'x');
     }
     { // escritorio gamer con monitor, teclado blanco y silla gris
       const g = upGroup(root, 'escritorio', 1), e = L.escritorio;
@@ -1510,7 +1562,7 @@ GS.World = (function () {
       const g = upGroup(root, 'gondola', 1), b = Batch(g), gd = L.gondola;
       box(g, gd.w, gd.h, gd.d, 0xffffff, gd.x, 0, gd.z);
       const ids = idsOf('perifericos'); let k = 0; for (let z = gd.z - gd.d / 2 + 0.3; z < gd.z + gd.d / 2 - 0.1; z += 0.5) sprite(g, ids[k++ % ids.length], gd.x, gd.h, z, 0.6);
-      sign(g, 'PERIFÉRICOS GAMER', 3.4, 0.36, gd.x + gd.w / 2 + 0.02, 0.6, gd.z, Math.PI / 2); b.build();
+      rail(g, 'PERIFÉRICOS GAMER', gd.x + gd.w / 2, gd.z, gd.d, 'x'); b.build();
     }
   }
   // Puestos de trabajo de la Etapa 2: service técnico, empaque de Mercado Libre y cajas para reponer
@@ -1795,8 +1847,8 @@ GS.World = (function () {
     reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     scene = new T.Scene();
     camera = new T.PerspectiveCamera(GS.CONFIG.camera.fov, 1, 1, 1000);
-    scene.add(new T.HemisphereLight(0xffffff, 0x8f8a86, 0.66));
-    const sun = new T.DirectionalLight(0xffffff, 0.36); sun.position.set(9, 12, 5); scene.add(sun);
+    sky.hemi = new T.HemisphereLight(0xffffff, 0x8f8a86, 0.66); scene.add(sky.hemi);
+    const sun = sky.sun = new T.DirectionalLight(0xffffff, 0.36); sun.position.set(9, 12, 5); scene.add(sun);
 
     const root = new T.Group(); scene.add(root);
     buildFloor(root); buildBackWall(root);
@@ -1808,7 +1860,7 @@ GS.World = (function () {
     buildCounter(root); buildCenter(root); buildWorkStations(root); buildDepot(root); sideDoor(root, L.depoDoor.z, 'DEPÓSITO'); buildOffice(root); buildTaller(root); sideDoor(root, L.tallerDoor.z, 'TALLER'); buildGallery(root); buildSign(root); buildExtras(root);
 
     // empleados (inventados): vos en el mostrador y Brian, pegado al celular, en la caja
-    yo = makePerson({ shirt: 0xe10600, hair: 0x2b2b3a, skin: SKINS[1], speed: 5.5 }); yo.setPos(L.yoMostrador[0], L.yoMostrador[1]);
+    yo = makePerson({ shirt: 0xe10600, hair: 0x2b2b3a, skin: SKINS[1], speed: 7.5 }); yo.setPos(L.yoMostrador[0], L.yoMostrador[1]);
     // compañeros (inventados): andan por el local haciendo sus cosas. Lucho, de mohicano y anteojos, y Brian, pegado al celular.
     lucho = makePerson({ shirt: 0xe10600, hair: 0xff5fa2, hairStyle: 'mohicano', skin: GS.SKINS[3], glasses: true, speed: 2.6 }); lucho.setPos(4.0, 0.8);
     brian = makePerson({ shirt: 0xe10600, hair: 0x2d6cdf, skin: SKINS[0], phone: true, speed: 2.3 }); brian.setPos(4.5, -1.2); brian.face(-0.6);
@@ -1847,6 +1899,17 @@ GS.World = (function () {
     setUpgrades: applyUpgrades,
     setPlayerLook(a) { if (yo && a) yo.look(a); },
     // El Dueño: un solo personaje que vive en su oficina
+    // Hora del día (0 = 10 hs, 1 = 19 hs): cambia la luz, el color de la vereda y prende los faroles al anochecer
+    setDayTime(f, rain) {
+      if (!sky.hemi) return;
+      const K = [0, 0.35, 0.62, 0.85, 1], at = arr => { for (let i = 1; i < K.length; i++) if (f <= K[i]) return [arr[i - 1], arr[i], (f - K[i - 1]) / (K[i] - K[i - 1])]; return [arr[4], arr[4], 0]; };
+      const col = arr => { const q = at(arr); return new T.Color(q[0]).lerp(new T.Color(q[1]), q[2]); }, num = arr => { const q = at(arr); return q[0] + (q[1] - q[0]) * q[2]; };
+      const wet = rain ? 0.68 : 1, n = U.clamp((f - 0.7) / 0.25, 0, 1);
+      sky.side.color.copy(col([0x868d98, 0x9c9ca0, 0xb0977c, 0x86687a, 0x3d4058])).multiplyScalar(wet); sky.joint.color.copy(sky.side.color).multiplyScalar(0.82);
+      sky.hemi.color.copy(col([0xeaf2ff, 0xffffff, 0xfff0dc, 0xffe6da, 0xe4e8ff])); sky.hemi.intensity = num([0.64, 0.68, 0.66, 0.63, 0.6]) * (rain ? 0.94 : 1);
+      sky.sun.color.copy(col([0xfff4e0, 0xffffff, 0xffc98a, 0xff9a6a, 0x8090ff])); sky.sun.intensity = num([0.3, 0.38, 0.36, 0.26, 0.12]) * (rain ? 0.6 : 1); sky.sun.position.x = 9 - f * 11;
+      sky.spill.opacity = n * 0.34 + (rain ? 0.08 : 0); sky.halo.opacity = n * 0.42; sky.bulb.color.set(0x55555c).lerp(new T.Color(0xfff2c0), n);
+    },
     boss: () => boss,
     staff: () => [lucho, brian],
     player: () => yo,
@@ -2142,20 +2205,20 @@ GS.Minigames = (function () {
     cur.keys = e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); snap(); } };
   }
 
-  /* ---------------- 5. MERCADO LIBRE: caja del tamaño justo, cinta y etiqueta correcta ---------------- */
+  /* ---------------- 5. COMPRAS POR LA PÁGINA: caja del tamaño justo, cinta y etiqueta correcta ---------------- */
   function ml(job) {
     const prod = U.pick(GS.CATALOG), size = Object.keys(GS.BOX_SIZE).find(k => GS.BOX_SIZE[k].indexOf(prod.id) >= 0) || 'mediana';
     const num = Math.floor(U.rnd(1000, 9999)), cities = U.shuffle(GS.CITIES), city = cities[0], buyers = U.shuffle(GS.BUYERS), buyer = buyers[0], me = cur;
     const order = '<div class="order"><b>Pedido #' + num + '</b><span>' + ico(prod) + esc(prod.name) + ' · mide unos ' + GS.BOXES[size].cm + ' cm</span><span>Para: ' + buyer + ' · ' + esc(city) + '</span></div>';
     const steps = n => '<div class="steps">' + ['Caja', 'Cinta', 'Etiqueta'].map((t, i) => '<span class="' + (i < n ? 'done' : i === n ? 'now' : '') + '">' + (i + 1) + '. ' + t + '</span>').join('') + '</div>';
     function stepBox() {
-      root().innerHTML = head(job, 'Mercado Libre') + steps(0) + order + '<div class="info" id="mgBubble"><b>¿En qué caja entra justo?</b></div>' +
+      root().innerHTML = head(job, 'Compra por la página') + steps(0) + order + '<div class="info" id="mgBubble"><b>¿En qué caja entra justo?</b></div>' +
         '<div class="opts three">' + ['chica', 'mediana', 'grande'].map((b, i) => '<button class="opt" data-ok="' + (b === size ? 1 : 0) + '"><kbd>' + (i + 1) + '</kbd><span class="i" style="font-size:' + [30, 42, 56][i] + 'px">📦</span><span class="n">Caja ' + b + '<br><small>hasta ' + GS.BOXES[b].max + ' cm</small></span></button>').join('') + '</div>';
       listOptions(b => b.dataset.ok === '1', () => { GS.Audio.play('bill'); stepTape(); }, () => mistake('ml', U.pick(LN.wrongBox)));
     }
     function stepTape() {
       let prog = 0, down = false;
-      root().innerHTML = head(job, 'Mercado Libre') + steps(1) + order + '<div class="info" id="mgBubble"><b>Cerrala con cinta: deslizá el dedo de punta a punta</b></div>' +
+      root().innerHTML = head(job, 'Compra por la página') + steps(1) + order + '<div class="info" id="mgBubble"><b>Cerrala con cinta: deslizá el dedo de punta a punta</b></div>' +
         '<div class="tapebox" id="mgTape"><i class="seam"></i><i class="tape" id="mgTp"></i><span class="roll" id="mgRoll">🟤</span></div>';
       const box = document.getElementById('mgTape'), tp = document.getElementById('mgTp'), roll = document.getElementById('mgRoll');
       function set(p) {
@@ -2170,7 +2233,7 @@ GS.Minigames = (function () {
     }
     function stepLabel() {
       const labels = U.shuffle([{ n: num, c: city, b: buyer, ok: 1 }, { n: num + U.pick([-10, 10, 100, 1]), c: city, b: buyer, ok: 0 }, U.pick([{ n: num, c: cities[1], b: buyer, ok: 0 }, { n: num, c: city, b: buyers[1], ok: 0 }])]);
-      root().innerHTML = head(job, 'Mercado Libre') + steps(2) + order + '<div class="info" id="mgBubble"><b>¿Cuál es la etiqueta de este pedido?</b></div>' +
+      root().innerHTML = head(job, 'Compra por la página') + steps(2) + order + '<div class="info" id="mgBubble"><b>¿Cuál es la etiqueta de este pedido?</b></div>' +
         '<div class="opts one">' + labels.map((l, i) => '<button class="opt tagl" data-ok="' + l.ok + '"><kbd>' + (i + 1) + '</kbd><span class="bars"></span><span class="n">#' + l.n + '<small>' + l.b + ' · ' + esc(l.c) + '</small></span></button>').join('') + '</div>';
       listOptions(b => b.dataset.ok === '1', () => { GS.Audio.play('ok'); finish(true, '¡Despachado!', 'Sale hoy, antes de las 14.', {}); }, () => mistake('ml', U.pick(LN.wrongLabel)));
     }
@@ -2402,7 +2465,7 @@ GS.Game = (function () {
     return Object.assign({
       relaxed: false, arcade: null, t: 0, dur: C.day.seconds, score: 0, combo: 0, bestCombo: 0, sales: 0, served: 0, lost: 0, cajaErr: 0, otherErr: 0,
       tasksDone: 0, tasksLate: 0, customers: [], tasks: [], spawned: 0, tasksSpawned: 0,
-      extras: [], n: 1, unlocked: unlockedFor(1), plan: planDay(1), rep0: repNow(), dueno: null, wave: -1, stage: 'rest', rest: 0.6, queue: [], says: [], beat: 0, duenoBag: U.shuffle(LN.dueno),
+      extras: [], n: 1, unlocked: unlockedFor(1), plan: planDay(1), rep0: repNow(), dueno: null, wave: -1, stage: 'rest', rest: 0.6, queue: [], says: [], sayQ: [], sayGap: 0, beat: 0, wv: { done: {} }, ev: {},
       cajaCount: 0, closing: false, jobSig: '', cord: CD.start, mate: false, lookers: [], lookT: 4, spots: {}, helper: null, intr: null, intrN: 0, intrOk: 0, intrBag: [], reqBag: U.shuffle(GS.REQUESTS), archBag: U.shuffle(GS.CUSTOMERS), taskBag: []
     }, extra || {});
   }
@@ -2440,13 +2503,30 @@ GS.Game = (function () {
   // El Dueño sale del depósito, camina hasta el salón, dice lo suyo y se vuelve
   function duenoSpeak(text) {
     const d = day; if (!d || d.arcade || state !== 'day') return;
-    const p = W.boss();
-    if (d.dueno) { sayAt(p, text, 5600, 'boss'); return; }
+    const p = W.boss(), back = () => { if (day !== d || d.sayQ.some(q => q.cls === 'boss')) return; p.walk([[7.3, -0.3], W.BOSS_HOME], () => { p.face(0); d.dueno = null; }); };
+    if (d.dueno) { sayAt(p, text, 0, 'boss', false, false, back); return; }
     d.dueno = p;
-    p.walk([[7.3, -0.3], [5.0, -0.3]], () => {
-      p.face(-0.5); A.play('speaker'); sayAt(p, text, 5600, 'boss');
-      setTimeout(() => { if (day !== d) return; p.walk([[7.3, -0.3], W.BOSS_HOME], () => { p.face(0); d.dueno = null; }); }, 5900);
-    });
+    p.walk([[7.3, -0.3], [5.0, -0.3]], () => { p.face(-0.5); sayAt(p, text, 0, 'boss', false, false, back); });
+  }
+  // Qué dice el Dueño: mira lo que pasó en la tanda y en el día, y elige una frase que venga al caso y que no haya dicho hace poco
+  function duenoLine() {
+    const d = day, w = d.wv, nw = d.plan.length, ks = [];
+    if (w.lost) ks.push('perdido'); if (w.caught) ks.push('trucho'); if (w.mistakes >= 2) ks.push('errores');
+    if (d.cord < 45) ks.push('cansado'); if (d.combo >= 5) ks.push('racha');
+    if (w.done.ml) ks.push('web'); if (w.done.proveedor) ks.push('proveedor'); if (w.done.service || w.done.pc) ks.push('taller'); if (w.done.vidriera) ks.push('vidriera');
+    if (w.helped) ks.push('cajaDos'); if (w.intrOk) ks.push('interrupcion');
+    const sl = STAFF.findIndex(st => st.act === 'siesta'); if (sl >= 0) ks.push('siesta');
+    if (w.served >= 2 && !w.mistakes && !w.lost) ks.push('perfecto');
+    if (d.cond) ks.push(d.cond); if (w.lookers >= 2) ks.push('mirones');
+    if (GS.Store.get('newUp')) { ks.push('mejora'); GS.Store.set('newUp', false); }
+    if (d.wave >= 1 && d.wave === nw - 2 - (d.plan[nw - 1].final ? 1 : 0)) ks.push('tarde'); else if (d.wave === 0 && nw >= 4) ks.push('mediodia');
+    if (repNow() >= 4.5) ks.push('repAlta'); else if (repNow() < 2.5) ks.push('repBaja');
+    const used = GS.Store.get('duenoSeen') || [], fresh = arr => arr.filter(x => used.indexOf(x) < 0);
+    let line = null;
+    for (const k of U.shuffle(ks.slice(0, 4)).concat(ks.slice(4))) { const f = d.ev[k] ? [] : fresh(LN.duenoCtx[k] || []); if (f.length && Math.random() < 0.8) { line = U.pick(f); d.ev[k] = 1; break; } }   // cada tema, una sola vez por jornada
+    if (!line) { const f = fresh(LN.dueno); line = U.pick(f.length ? f : LN.dueno); }
+    used.push(line); GS.Store.set('duenoSeen', used.slice(-45));
+    return line.replace('{quien}', sl === 0 ? 'Lucho' : 'Brian');
   }
   /* ---------------- Cordura: nunca hay Game Over, solo un mate a tiempo ---------------- */
   function addCord(v) { if (day && !day.arcade) day.cord = U.clamp(day.cord + v, 0, 100); }
@@ -2470,12 +2550,12 @@ GS.Game = (function () {
   }
   function answerIntr(ok) {
     const x = day && day.intr; if (!x || paused) return; day.intr = null; day.jobSig = '';
-    if (ok) { addCord(CD.intrOk * (x.it.mate ? 2 : 1)); day.score += 40; day.intrOk++; A.play(x.it.mate ? 'mate' : 'ok'); toast('<b>' + x.it.ic + ' Bien resuelto · sube la cordura</b>' + x.it.r, '', 3200); }
+    if (ok) { addCord(CD.intrOk * (x.it.mate ? 2 : 1)); day.score += 40; day.intrOk++; day.wv.intrOk = 1; A.play(x.it.mate ? 'mate' : 'ok'); toast('<b>' + x.it.ic + ' Bien resuelto · sube la cordura</b>' + x.it.r, '', 3200); }
     else { addCord(-CD.intrBad); A.play('error'); toast('<b>' + x.it.ic + ' Ups</b>' + x.it.rb, '', 3200); }
   }
   function planTotals(plan) { return plan.reduce((a, w) => ({ c: a.c + w.c, t: a.t + w.t + (w.ml || 0) }), { c: 0, t: 0 }); }
   function startWave() {
-    day.wave++; day.stage = 'work'; day.queue = [];
+    day.wave++; day.stage = 'work'; day.queue = []; day.wv = { done: {} };
     const w = day.plan[day.wave];
     for (let i = 0; i < w.c; i++) day.queue.push({ kind: 'c', t: 0.3 + i * C.day.customerGap });
     for (let i = 0; i < w.t; i++) day.queue.push({ kind: w.final ? 'f' : 't', t: (w.final ? 0.6 : 5) + i * C.day.taskGap });
@@ -2490,15 +2570,29 @@ GS.Game = (function () {
     const d = day;
     setTimeout(() => {                       // en el respiro habla el Dueño, sin nada tapando el local
       if (day !== d || state !== 'day' || d.stage !== 'rest') return;
-      if (!d.duenoBag.length) d.duenoBag = U.shuffle(LN.dueno);
-      duenoSpeak(d.duenoBag.pop());
+      duenoSpeak(duenoLine());
     }, 1100);
   }
-  // Globito de diálogo sobre la cabeza de un personaje (el remate se ve en el salón, no en un cartel)
-  function sayAt(person, text, ms, cls, quiet) {
-    if (!quiet) A.babble(text, cls === 'boss' ? 150 : person.voice || 330);
-    const el = document.createElement('div'); el.className = 'say ' + (cls || ''); el.textContent = text; $('labels').appendChild(el);
-    day.says.push({ el, person, left: (ms || 3200) / 1000 });
+  // Globitos de diálogo: de a uno por vez, para poder leerlos todos. Los demás esperan su turno en una fila.
+  // amb = comentario de ambiente (compañeros, gente que mira): si la fila está cargada o pasó el momento, se descarta.
+  function sayAt(person, text, ms, cls, quiet, amb, onDone) {
+    if (!day) return;
+    if (cls === 'zz') { const el = document.createElement('div'); el.className = 'say zz'; el.textContent = text; $('labels').appendChild(el); day.says.push({ el, person, left: (ms || 3000) / 1000, zz: true }); return; }
+    const q = day.sayQ; if (amb && q.length >= 2) return;
+    const it = { person, text, cls: cls || '', quiet, amb, onDone, age: 0, dur: U.clamp(1.5 + text.length * 0.055, 2.4, 6.5) };
+    if (cls === 'boss') { let i = 0; while (i < q.length && q[i].cls === 'boss') i++; q.splice(i, 0, it); } else q.push(it);
+  }
+  function pumpSays(dt) {
+    const d = day; for (const q of d.sayQ) q.age += dt;
+    if (d.says.some(s => !s.zz) || (d.sayGap -= dt) > 0) return;
+    while (d.sayQ.length) {
+      const it = d.sayQ.shift();
+      if (!it.person.group.parent || (it.cls !== 'boss' && it.age > (it.amb ? 4.5 : 9))) { if (it.onDone) it.onDone(); continue; }   // ya se fue o quedó viejo
+      if (it.cls === 'boss') A.play('speaker');
+      if (!it.quiet) A.babble(it.text, it.cls === 'boss' ? 150 : it.person.voice || 330);
+      const el = document.createElement('div'); el.className = 'say ' + it.cls; el.textContent = it.text; $('labels').appendChild(el);
+      d.says.push({ el, person: it.person, left: it.dur, onDone: it.onDone }); d.sayGap = 0.35; return;
+    }
   }
   function enterPlay() {
     $('start').hidden = true; $('end').hidden = true; $('hud').hidden = false; $('modal').hidden = true; $('toasts').innerHTML = '';
@@ -2513,9 +2607,9 @@ GS.Game = (function () {
     const cond = conditionFor(n);
     day = newDay({ relaxed, n, cond, unlocked: un, plan: planDay(n, cond), rest: 7.5 }); state = 'day'; enterPlay(); $('jobs').hidden = false;
     A.setMood(cond === 'lluvia' ? 'rain' : cond ? 'party' : 'day');
-    const d = day, msg = n === 1 ? 'Bienvenido a GameShop. Abrimos de 10 a 19. Hoy: mostrador y caja. Con las monedas que ganes vamos a ir mejorando el local.'
+    const d = day, msg = n === 1 ? 'Bienvenido a GameShop. Abrimos de 10 a 19. Hoy: mostrador y caja. Vos tocá el pedido, que tu personaje va solo.'
       : cond ? GS.CONDITIONS[cond].name.slice(3) + '. ' + GS.CONDITIONS[cond].say
-      : fresh.length ? 'Jornada ' + n + '. Hoy sumamos: ' + fresh.map(id => ST(id).name).join(' y ') + '. Cuando aparezcan, te explico.' : 'Jornada ' + n + '. ' + U.pick(LN.dueno);
+      : fresh.length ? 'Jornada ' + n + '. Hoy sumamos: ' + fresh.map(id => ST(id).name).join(' y ') + '. Cuando aparezcan, te explico.' : 'Jornada ' + n + '. ' + duenoLine();
     setTimeout(() => { if (day === d) duenoSpeak(msg); }, 500);
     $('rain').hidden = cond !== 'lluvia'; $('chipCond').hidden = !cond; if (cond) { $('chipCond').textContent = GS.CONDITIONS[cond].name; toast('<b>Hoy</b>' + GS.CONDITIONS[cond].name, 'dueno', 3800); }
     $('clockS').textContent = relaxed ? 'Turno tranquilo' : 'Abrimos';
@@ -2526,7 +2620,7 @@ GS.Game = (function () {
   function clearDay() {
     if (day) { day.customers.forEach(c => { if (c.person) c.person.remove(); c.label.remove(); }); day.tasks.forEach(t => { t.label.remove(); if (t.boxes) t.boxes.remove(); }); day.says.forEach(x => x.el.remove()); day.extras.forEach(x => x.remove()); }
     MG.close(); W.focus(null); W.bossHome();
-    { const yo = W.player(); if (yo) { yo.stop(); yo.setPos(L.yoMostrador[0], L.yoMostrador[1]); yo.face(0); } const b = STAFF[1]; if (b && b.busy) { b.busy = false; b.q = [['go', [[4.0, -5.0], [4.6, -4.4], [4.5, -1.2], b.hub]]]; } }
+    { const yo = W.player(); if (yo) { yo.stop(); yo.setPos(L.yoMostrador[0], L.yoMostrador[1]); yo.face(0); yoAt = 'most'; yoRoute = []; } const b = STAFF[1]; if (b && b.busy) { b.busy = false; b.q = [['go', [[4.0, -5.0], [4.6, -4.4], [4.5, -1.2], b.hub]]]; } }
   }
   function makeLabel(icon) {
     const label = document.createElement('div'); label.className = 'plabel'; label.innerHTML = '<span class="ic">' + icon + '</span><span class="b"><i></i></span>'; label.hidden = true;
@@ -2563,7 +2657,7 @@ GS.Game = (function () {
     const sp = freeSpot(); if (!sp) return; day.spots[sp.i] = 1;
     const p = W.makePerson({ shirt: U.pick([0x6b7a8f, 0x3d7a4a, 0xd9a514, 0x4a6fb5, 0xb86fa8, 0x21a0a0, 0x7b4fd1, 0xe07a5f]), hair: U.pick(GS.HAIRS), hairStyle: U.pick(GS.HAIRSTYLES)[0], glasses: Math.random() < 0.3, beard: Math.random() < 0.2, lips: Math.random() < 0.4, speed: U.rnd(2.2, 2.9) });
     p.voice = U.rnd(230, 480); p.setPos(L.puerta.x + U.rnd(-0.4, 0.4), L.galeria.zMax + 2.4); day.extras.push(p);
-    const lk = { p, sp, st: 'in', wait: 0, hops: 0 }; day.lookers.push(lk);
+    const lk = { p, sp, st: 'in', wait: 0, hops: 0 }; day.lookers.push(lk); day.wv.lookers = (day.wv.lookers || 0) + 1;
     p.walk(sp.via.concat([sp.p]), () => { lk.st = 'look'; lk.wait = U.rnd(3, 5.5); p.face(sp.f); });
   }
   function lookerOut(lk) {
@@ -2576,7 +2670,7 @@ GS.Game = (function () {
       if (lk.st !== 'look' || (lk.wait -= dt) > 0) continue;
       const r = Math.random(), nx = lk.hops < 1 && r > 0.72 ? freeSpot() : null;
       if (nx) { delete day.spots[lk.sp.i]; day.spots[nx.i] = 1; const back = lk.sp.via.slice().reverse(); lk.sp = nx; lk.hops++; lk.st = 'in'; lk.p.walk(back.concat(nx.via, [nx.p]), () => { lk.st = 'look'; lk.wait = U.rnd(2.5, 4.5); lk.p.face(nx.f); }); continue; }
-      if (r < 0.5) sayAt(lk.p, U.pick(LN.browse), 3200);
+      if (r < 0.5) sayAt(lk.p, U.pick(LN.browse), 0, '', false, true);
       lookerOut(lk);
     }
     for (const cu of day.customers) if (cu.st === 'browse' && (cu.wait -= dt) <= 0) { delete day.spots[cu.spot.i]; toCounter(cu, cu.spot.via.slice().reverse()); }
@@ -2585,25 +2679,27 @@ GS.Game = (function () {
   const STAFF = [], MOHAWK = [0xff5fa2, 0x2d6cdf, 0x3bb54a, 0xd9a514, 0xff2a2a, 0x7b4fd1, 0x57e6ff];
   function luchoLook(n) { const l = W.staff()[0]; if (l) l.look({ skin: GS.SKINS[3], hair: MOHAWK[n % MOHAWK.length], hairStyle: 'mohicano', glasses: true }); }   // el mohicano cambia de color cada jornada
   const canTalk = () => state === 'day' && day && !day.arcade && !day.closing;
-  function staffSay(st, key, prob) { if (canTalk() && Math.random() < (prob || 0.4)) sayAt(st.p, U.pick(LN.staff[key]), 2900, '', true); }
+  function staffSay(st, key, prob) { if (canTalk() && Math.random() < (prob || 0.4)) sayAt(st.p, U.pick(LN.staff[key]), 0, '', false, true); }
   function staffInit() {
     const ps = W.staff();
     STAFF.push({ p: ps[0], hub: [4.0, 0.9], q: [['wait', 2]], w: { repo: 4, taller: 2, mate: 1, vidriera: 1, siesta: 1 } }, { p: ps[1], hub: [3.6, 1.7], q: [['wait', 6]], w: { celu: 3, siesta: 2, repo: 2, mate: 1, vidriera: 1 } });
   }
   function staffPlan(st) {
     const P = st.p, out = [[4.5, -1.2]], dd = [[4.6, -4.4], [6.0, -4.4], [7.4, -4.4]], rev = a => a.slice().reverse(), go = pts => ['go', pts];
-    let r = Math.random() * Object.values(st.w).reduce((a, b) => a + b, 0), k = 'celu'; for (const key in st.w) { if ((r -= st.w[key]) <= 0) { k = key; break; } }
+    const other = STAFF.find(o => o !== st), w = Object.assign({}, st.w); if (other && other.act && other.act !== 'celu') delete w[other.act];     // nunca los dos en lo mismo
+    let r = Math.random() * Object.values(w).reduce((a, b) => a + b, 0), k = 'celu'; for (const key in w) { if ((r -= w[key]) <= 0) { k = key; break; } }
+    st.act = k;
     const round = (to, f, wait, key) => [go(to), ['face', f], ['fn', () => staffSay(st, key)], ['wait', wait], go(rev(to).slice(1).concat([st.hub]))];
     if (k === 'repo') {                       // busca una caja en el depósito y la repone en algún sector
       const tg = U.pick([{ to: [[-0.6, -1.6], [-4.3, -1.6]], back: [[-0.6, -1.6], [4.5, -1.2]], f: -1.57 }, { to: [[4.0, 0.9], [4.4, 2.0]], back: [[4.0, 0.9]], f: 1.57 }, { to: [[4.0, 0.9], [4.0, 5.5], [-0.3, 5.5], [-0.3, 8.0]], back: [[-0.3, 5.5], [4.0, 5.5], [4.0, 0.9]], f: 1.57 }]);
-      st.q = [go(out.concat(dd, [[8.3, -4.6]])), ['face', 3.14], ['wait', 2.2], ['fn', () => P.carry(true)], go(rev(dd).concat(out, tg.to)), ['face', tg.f], ['fn', () => staffSay(st, 'repo')], ['wait', 2.6], ['fn', () => P.carry(false)], go(tg.back.concat([st.hub]))];
+      st.q = [go(out.concat(dd, [[9.0, -5.1]])), ['face', 3.14], ['wait', 2.2], ['fn', () => P.carry(true)], go(rev(dd).concat(out, tg.to)), ['face', tg.f], ['fn', () => staffSay(st, 'repo')], ['wait', 2.6], ['fn', () => P.carry(false)], go(tg.back.concat([st.hub]))];
     } else if (k === 'siesta') {              // una siestita en el fondo del depósito
-      st.q = [go(out.concat(dd, [[10.3, -4.4]])), ['fn', () => { P.lie(true); if (canTalk()) sayAt(P, '💤', 6500, '', true); }], ['wait', 7], ['fn', () => { P.lie(false); staffSay(st, 'siesta', 0.6); }], ['wait', 1.3], go(rev(dd).concat(out, [st.hub]))];
-    } else if (k === 'taller') st.q = round([[4.0, 0.9], [4.0, 5.5], [6.0, 5.5], [7.4, 5.7]], 0.9, 3.5, 'taller');
+      st.q = [go(out.concat(dd, [[10.3, -4.4]])), ['fn', () => { P.lie(true); if (canTalk()) sayAt(P, '💤', 6500, 'zz'); }], ['wait', 7], ['fn', () => { P.lie(false); staffSay(st, 'siesta', 0.6); }], ['wait', 1.3], go(rev(dd).concat(out, [st.hub]))];
+    } else if (k === 'taller') st.q = round([[4.0, 0.9], [4.0, 5.5], [6.0, 5.5], [7.3, 5.9], [7.6, 7.0]], 0.9, 3.5, 'taller');
     else if (k === 'mate') st.q = round(out.concat([[4.6, -4.4], [4.0, -5.3], [0.9, -5.8]]), 3.14, 3, 'mate');
-    else if (k === 'vidriera') st.q = round([[4.0, 0.9], [4.0, 5.5], [-0.3, 5.5], [-0.3, 8.2]], 1.57, 3.5, 'vidriera');
+    else if (k === 'vidriera') st.q = round([[4.0, 0.9], [4.0, 5.5], [-0.3, 5.5], [-1.2, 9.6]], -1.57, 3.5, 'vidriera');
     else st.q = [go([[st.hub[0] + U.rnd(-0.3, 0.5), st.hub[1] + U.rnd(-0.5, 0.5)]]), ['face', U.rnd(-0.6, 0.6)], ['wait', 5], ['fn', () => staffSay(st, 'celu', 0.25)]];
-    st.q.push(['wait', U.rnd(2, 6)]);
+    st.q.push(['fn', () => { st.act = null; }], ['wait', U.rnd(2, 6)]);
   }
   function updateStaff(dt) {
     for (const st of STAFF) {
@@ -2621,14 +2717,14 @@ GS.Game = (function () {
       if (!upNow().caja2 || !b || b.busy) return;
       const wc = day.customers.filter(c => c.st === 'waitC'); if (wc.length < 2) return;
       const cu = wc.sort((a, c) => c.slotC - a.slotC)[0], g = b.p.group.position, pre = g.x > 6.2 && g.z < -1.2 ? [[7.4, -4.4], [6.0, -4.4]] : g.x > 6.2 ? [[6.0, 5.5], [4.0, 5.5], [4.5, -1.2]] : g.z > 5.8 ? [[-0.3, 5.5], [4.0, 5.5], [4.5, -1.2]] : g.z < -4.6 ? [] : [[4.5, -1.2]];
-      cu.st = 'helped'; cu.slotC = -1; cu.label.hidden = true; b.busy = true; b.moving = false; b.q = []; b.p.lie(false); b.p.carry(false);
+      cu.st = 'helped'; cu.slotC = -1; cu.label.hidden = true; b.busy = true; b.moving = false; b.q = []; b.act = null; b.p.lie(false); b.p.carry(false);
       const hp = day.helper = { cu, t: -1 }, d = day;
       cu.person.walk([[3.1, -2.9]], () => cu.person.face(Math.PI));
       b.p.walk(pre.concat(g.z < -4.6 ? [] : [[4.6, -4.4], [4.0, -5.0]], [L.brianCaja]), () => { if (day !== d) return; b.p.face(0); hp.t = 2.6; sayAt(b.p, U.pick(LN.staff.caja2), 2400); });
       return;
     }
     if (h.t < 0 || (h.t -= dt) > 0) return;
-    const cu = h.cu; day.helper = null; day.served++; day.sales += cu.product.price; day.score += 90; addRep(0.03); A.play('cash');
+    const cu = h.cu; day.helper = null; day.wv.helped = 1; day.served++; day.sales += cu.product.price; day.score += 90; addRep(0.03); A.play('cash');
     sayAt(cu.person, cu.arche.bye, 3200); leave(cu, true); toast('<b>🧾 Segunda caja</b>Brian le cobró a ' + cu.arche.name + '.', '', 2400);
     b.busy = false; b.q = [['go', [[4.0, -5.0], [4.6, -4.4], [4.5, -1.2], b.hub]], ['wait', 3]];
   }
@@ -2666,7 +2762,7 @@ GS.Game = (function () {
 
   function addScore(base, pat) {
     const mult = (1 + Math.min(day.combo, 8) * 0.25) * (!day.arcade && day.cord >= CD.focus ? 1.1 : 1), pts = Math.round((base + Math.max(0, pat) * 100) * mult);
-    addCord(day.combo >= 2 ? 1.5 + CD.streak : 1.5);
+    addCord(day.combo >= 2 ? 0.6 + CD.streak : 0.6);
     day.score += pts; day.combo++; day.bestCombo = Math.max(day.bestCombo, day.combo);
     toast('+' + pts + (day.combo > 1 ? ' · racha x' + day.combo : ''), 'pts', 1100);
     if (day.combo > 1) A.play('combo', day.combo);
@@ -2680,8 +2776,28 @@ GS.Game = (function () {
       if (c.st === 'waitM') jobs.push({ key: 'c' + c.id, type: 'mostrador', ref: c, pat: c.pat, icon: '🛎', title: 'Mostrador', sub: 'Atender a ' + c.arche.name });
       else if (c.st === 'waitC') jobs.push({ key: 'c' + c.id + 'k', type: 'caja', ref: c, pat: c.pat, icon: '💵', title: 'Caja', sub: 'Cobrar a ' + c.arche.name });
     }
-    for (const t of day.tasks) if (t.st === 'wait') jobs.push({ key: 't' + t.id, type: t.station.id, ref: t, pat: t.pat, icon: t.station.icon, title: t.station.name, sub: t.station.task.name });
+    for (const t of day.tasks) if (t.st === 'wait') jobs.push({ key: 't' + t.id, type: t.station.id, ref: t, pat: t.pat, icon: t.station.icon, title: t.station.short || t.station.name, sub: t.station.task.name });
     return jobs.sort((a, b) => a.pat - b.pat);
+  }
+  /* ---------------- Tu personaje camina solo hasta cada tarea, por los pasillos y las puertas ----------------
+     NAV es un arbolito de puntos de paso: [x, z, punto anterior, hacia dónde mira al llegar]. Para ir de un lugar a otro
+     sube hasta el punto en común y baja. Si lo mandás a otro lado mientras camina, sigue desde el punto al que iba. */
+  const NAV = { O: [4.5, -1.2, null], A: [4.6, -4.4, 'O'], X: [4.0, -4.9, 'A'], caja: [L.yoCaja[0], L.yoCaja[1], 'X', 0], most: [L.yoMostrador[0], L.yoMostrador[1], 'caja', 0], wa: [-3.8, -4.9, 'most', 0],
+    prov: [4.3, -5.5, 'X', 1.2], ml: [4.5, -2.3, 'O', 1.57], DD: [6.0, -4.4, 'A'], D1: [7.4, -4.4, 'DD'], repo: [8.3, -4.4, 'D1', 3.14],
+    H: [4.0, 0.9, 'O'], T1: [4.0, 5.5, 'H'], TD: [6.0, 5.5, 'T1'], T2: [7.3, 5.9, 'TD'], service: [8.7, 5.65, 'T2', 3.14], pc: [10.1, 6.15, 'T2', 0], G: [-0.3, 5.5, 'T1'], vid: [0.6, 7.3, 'G', 1.57] };
+  const NODE_OF = { mostrador: 'most', devol: 'most', whatsapp: 'wa', stock: 'wa', caja: 'caja', cierre: 'caja', ml: 'ml', proveedor: 'prov', repo: 'repo', service: 'service', pc: 'pc', vidriera: 'vid' };
+  let yoAt = 'most', yoRoute = [];
+  const navChain = n => { const c = []; while (n) { c.push(n); n = NAV[n][2]; } return c; };
+  function yoGo(target) {
+    const yo = W.player(); if (!yo || !NAV[target]) return;
+    const moving = yoRoute.length > 0, from = moving ? yoRoute[0] : yoAt, a = navChain(from), b = navChain(target); let lca = null;
+    while (a.length && b.length && a[a.length - 1] === b[b.length - 1]) { lca = a.pop(); b.pop(); }
+    yoRoute = a.concat([lca], b.reverse()); if (yoRoute[0] !== from) yoRoute.unshift(from);
+    if (!moving) { yoRoute.shift(); if (yoRoute.length) yoStep(); else if (NAV[target][3] != null) yo.face(NAV[target][3]); }
+  }
+  function yoStep() {
+    const yo = W.player(), n = yoRoute[0];
+    yo.walk([[NAV[n][0], NAV[n][1]]], () => { yoAt = n; yoRoute.shift(); if (yoRoute.length) yoStep(); else if (NAV[n][3] != null) yo.face(NAV[n][3]); });
   }
   function focusFor(type) {
     const land = window.innerWidth > window.innerHeight && window.innerHeight <= 560;
@@ -2699,9 +2815,9 @@ GS.Game = (function () {
     const ref = job.ref, isCust = job.type === 'mostrador' || job.type === 'caja';
     ref.st = isCust ? (job.type === 'mostrador' ? 'inM' : 'inC') : 'in'; ref.pat = Math.max(ref.pat, 0.55);
     focusFor(job.type);
-    { const at = job.type === 'caja' || job.type === 'cierre' ? L.yoCaja : ['mostrador', 'whatsapp', 'devol', 'stock'].indexOf(job.type) >= 0 ? L.yoMostrador : null, yo = W.player(); if (at && yo) yo.walk([at], () => yo.face(0)); }
+    yoGo(NODE_OF[job.type]);
     const cb = {
-      onMistake(kind) { breakCombo(); addRep(-0.02); addCord(-CD.mistake); if (kind === 'caja') day.cajaErr++; else day.otherErr++; if (!day.relaxed) ref.pat = Math.max(0.05, ref.pat - C.day.mistakeCost); },
+      onMistake(kind) { day.wv.mistakes = (day.wv.mistakes || 0) + 1; breakCombo(); addRep(-0.02); addCord(-CD.mistake); if (kind === 'caja') day.cajaErr++; else day.otherErr++; if (!day.relaxed) ref.pat = Math.max(0.05, ref.pat - C.day.mistakeCost); },
       onEnd(ok, info) {
         if (job.type !== 'caja') W.focus(null);
         if (job.type === 'mostrador') {
@@ -2709,12 +2825,12 @@ GS.Game = (function () {
           ref.slotC = Math.max(0, freeSlot('slotC', L.colaCaja.length));
           ref.person.walk([[Math.min(ref.person.group.position.x + 0.8, 1.6), -2.1], L.colaCaja[ref.slotC]], () => { ref.st = 'waitC'; ref.person.face(Math.PI); });
         } else if (job.type === 'caja') {
-          day.served++;
+          day.served++; day.wv.served = (day.wv.served || 0) + 1;
           if (info.total) day.sales += info.total;
           if (info.cajaError) { day.score = Math.max(0, day.score - 100); addRep(-0.25); }
           if (ok) { addScore(150, ref.pat); addRep(info.caught ? 0.05 : 0.04); }
           if (info.caught) {                 // comprobante trucho bien rechazado: se va renegando y sin el producto
-            day.caught = (day.caught || 0) + 1; sayAt(ref.person, U.pick(LN.caught), 3600); day.beat = 1.5;
+            day.caught = (day.caught || 0) + 1; day.wv.caught = 1; sayAt(ref.person, U.pick(LN.caught), 3600); day.beat = 1.5;
             const d0 = day; setTimeout(() => { if (day === d0 && !MG.isOpen()) W.focus(null); }, 2300);
             leave(ref, false); return;
           }
@@ -2722,7 +2838,7 @@ GS.Game = (function () {
           sayAt(ref.person, ref.arche.bye, 3600); day.beat = 1.5;
           const d = day; setTimeout(() => { if (day === d && !MG.isOpen()) W.focus(null); }, 2300);
           leave(ref, !!info.total);
-        } else { day.tasksDone++; addScore(130, ref.pat); addRep(job.type === 'whatsapp' ? 0.05 : 0.03); if (job.type === 'vidriera') { GS.Store.set('vid', info.quality || 0); addRep((info.quality - 0.5) * 0.12); } removeTask(ref); }
+        } else { day.tasksDone++; day.wv.done[job.type] = 1; addScore(130, ref.pat); addRep(job.type === 'whatsapp' ? 0.05 : 0.03); if (job.type === 'vidriera') { GS.Store.set('vid', info.quality || 0); addRep((info.quality - 0.5) * 0.12); } removeTask(ref); }
       }
     };
     const seen = GS.Store.get('seen') || {};
@@ -2765,7 +2881,7 @@ GS.Game = (function () {
         else if ((cu.st === 'inM' || cu.st === 'inC') && !MG.isResolving()) cu.pat -= dt / cfg.patienceGame;
         if (cu.pat <= 0 && (cu.st === 'waitM' || cu.st === 'waitC' || cu.st === 'inM' || cu.st === 'inC')) {
           if (cu.st === 'inM' || cu.st === 'inC') { if (MG.isResolving()) { cu.pat = 0.01; continue; } MG.close(); W.focus(null); }
-          day.lost++; breakCombo(); addRep(-0.15); addCord(-CD.lost); A.play('lost');
+          day.lost++; day.wv.lost = 1; breakCombo(); addRep(-0.15); addCord(-CD.lost); A.play('lost');
           sayAt(cu.person, cu.arche.lost, 3600); toast('<b>' + cu.arche.name + ' se fue sin comprar</b>', '', 2200);
           leave(cu, false);
         }
@@ -2793,6 +2909,7 @@ GS.Game = (function () {
     } else {
       const tot = planTotals(day.plan), all = tot.c + tot.t, doneN = day.served + day.lost + day.tasksDone + day.tasksLate, f = Math.min(1, doneN / all);
       const fin = day.wave >= 0 && day.plan[day.wave].final, nw = day.plan.filter(w => !w.final).length, m = Math.round((600 + f * 540) / 10) * 10;
+      setSky((m - 600) / 540, day.cond === 'lluvia');
       $('clockT').textContent = '🕙 ' + String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0'); $('clockB').style.width = (f * 100).toFixed(1) + '%';
       $('clockS').textContent = day.closing ? 'Cerramos: son las 19' : fin ? 'Cierre de caja' : day.stage === 'rest' && day.wave >= 0 ? 'Respiro ☕' : 'Tanda ' + Math.max(1, day.wave + 1) + '/' + nw;
     }
@@ -2828,9 +2945,10 @@ GS.Game = (function () {
     const i = label.lastChild.firstChild; i.style.width = Math.max(0, pat * 100) + '%'; i.style.background = barColor(pat);
   }
   function updateLabels(dt) {
+    pumpSays(dt || 0);
     for (const sy of day.says.slice()) {
       sy.left -= dt || 0;
-      if (sy.left <= 0) { sy.el.remove(); day.says.splice(day.says.indexOf(sy), 1); continue; }
+      if (sy.left <= 0 || !sy.person.group.parent) { sy.el.remove(); day.says.splice(day.says.indexOf(sy), 1); if (sy.onDone) sy.onDone(); continue; }
       const g = sy.person.group.position, p = W.project(g.x, sy.el.classList.contains('boss') ? 2.7 : 2.25, g.z); { const hw = sy.el.offsetWidth / 2 + 8; sy.el.style.left = U.clamp(p.x, hw, window.innerWidth - hw).toFixed(1) + 'px'; } sy.el.style.top = Math.max(sy.el.offsetHeight + 120, p.y).toFixed(1) + 'px';
     }
     for (const cu of day.customers) {
@@ -2844,7 +2962,7 @@ GS.Game = (function () {
   /* ---------------- Arcade: una estación suelta, 5 rondas seguidas ---------------- */
   function startArcade(id) {
     A.unlock(); A.play('click'); clearDay();
-    day = newDay({ arcade: id, round: 0, job: null, wait: 0.5 }); state = 'day'; enterPlay(); $('jobs').hidden = true; A.setMood('day');
+    day = newDay({ arcade: id, round: 0, job: null, wait: 0.5 }); state = 'day'; enterPlay(); $('jobs').hidden = true; A.setMood('day'); setSky(0.3, false);
     updateHud(); GS.track('inicio_minijuego', { estacion: id, modo: 'arcade' });
   }
   function arcadeJob(id) {
@@ -2863,7 +2981,7 @@ GS.Game = (function () {
       day.wait -= dt;
       if (day.wait <= 0) {
         if (day.round >= C.day.arcadeRounds) { day.closing = true; setTimeout(endArcade, 300); return; }
-        day.round++; const job = day.job = arcadeJob(id); focusFor(id);
+        day.round++; const job = day.job = arcadeJob(id); focusFor(id); yoGo(NODE_OF[id]);
         let variant = null;
         if (id === 'caja') variant = ['cobro', 'vuelto', 'comprobante', 'cobro', 'vuelto'][day.round - 1];
         if (id === 'service') variant = ['diag', 'pelusa', 'ram', 'diag', 'ram'][day.round - 1];
@@ -2987,7 +3105,7 @@ GS.Game = (function () {
   }
   function buy(i) {
     const u = upNow(), g = GS.UPGRADES[shopSel], lv = g.levels[i]; if ((u[g.id] || 0) !== i || coinsNow() < lv.price) return;
-    u[g.id] = i + 1; GS.Store.set('up', u); GS.Store.set('coins', coinsNow() - lv.price); A.play('cash'); toast('<b>¡Mejora comprada!</b>' + lv.n, '', 2600); renderShop();
+    u[g.id] = i + 1; GS.Store.set('up', u); GS.Store.set('newUp', true); GS.Store.set('coins', coinsNow() - lv.price); A.play('cash'); toast('<b>¡Mejora comprada!</b>' + lv.n, '', 2600); renderShop();
   }
   function closeShop() { $('shop').hidden = true; W.setUpgrades(upNow()); state = 'menu'; $('start').hidden = false; refreshStart(); W.showAll(); A.play('click'); }
   function avatarSvg(a) {
@@ -3029,7 +3147,7 @@ GS.Game = (function () {
     $('playS').textContent = n === 1 ? 'Inducción: mostrador y caja · de 10 a 19' : fresh.length ? 'Se suma: ' + fresh.map(id => ST(id).name).join(' y ') : 'De 10 a 19 · reputación ⭐ ' + repTxt(repNow());
   }
   function goHome() {
-    A.play('click'); A.setMood('menu'); clearDay(); $('rain').hidden = true; $('final').hidden = true;
+    A.play('click'); A.setMood('menu'); clearDay(); $('rain').hidden = true; $('final').hidden = true; setSky(0.3, false);
     day = null; state = 'menu'; paused = false;
     $('end').hidden = true; $('hud').hidden = true; $('jobs').hidden = true; $('start').hidden = false; $('toasts').innerHTML = ''; W.showAll();
   }
@@ -3038,7 +3156,7 @@ GS.Game = (function () {
   let lastCard = null;
   function startFinal() {
     A.unlock(); clearDay(); ['rain', 'end', 'start', 'hud', 'jobs', 'modal', 'finCard'].forEach(id => { $(id).hidden = true; }); $('toasts').innerHTML = '';
-    $('final').hidden = false; $('final').classList.remove('party'); $('finSkip').hidden = false;
+    $('final').hidden = false; $('final').classList.remove('party'); $('finSkip').hidden = false; setSky(0.97, false);
     if (!$('confetti').children.length) $('confetti').innerHTML = Array.from({ length: 36 }, (_, i) => '<i style="left:' + (i * 2.8 + Math.random() * 2).toFixed(1) + '%;background:' + ['#ff0000', '#fff', '#f5c518', '#57e6ff'][i % 4] + ';animation-duration:' + (2.6 + Math.random() * 2.4).toFixed(2) + 's;animation-delay:-' + (Math.random() * 4).toFixed(2) + 's"></i>').join('');
     day = newDay({ fin: { i: -1, t: 3.2, crowd: [], done: false } }); state = 'final'; paused = false; W.setUpgrades(upNow()); A.setMood('final'); A.play('fanfare');
     W.focusAt(0.6, -1.4, 0.66, -0.08);
@@ -3057,20 +3175,20 @@ GS.Game = (function () {
   }
   function updateFinal(dt) {
     const f = day.fin;
+    if (f.done && (f.t -= dt) <= 0) { f.t = 3.4; sayAt(U.pick(f.crowd), U.pick(GS.FINAL.crowd), 0, '', true, true); }
     if (!f.done && (f.t -= dt) <= 0) {
       f.i++;
       if (f.i < f.lines.length) {
-        A.play('speaker'); sayAt(W.boss(), f.lines[f.i], 5400, 'boss'); f.t = 5.9;
+        sayAt(W.boss(), f.lines[f.i], 0, 'boss'); f.t = 8.2;
         if (f.i >= 2) $('final').classList.add('party');
-        if (f.i >= 1) { const d = day; setTimeout(() => { if (day !== d) return; U.shuffle(f.crowd).slice(0, 3).forEach((p, j) => sayAt(p, U.pick(GS.FINAL.crowd), 2000, '', j > 0)); }, 3300); }
+        if (f.i >= 1) { const d = day; setTimeout(() => { if (day !== d) return; sayAt(U.pick(f.crowd), U.pick(GS.FINAL.crowd), 0, '', false, true); }, 600); }
       } else finishFinal();
     }
     updateLabels(dt);
   }
   function finishFinal() {
     const f = day && day.fin; if (!f || f.done) return; f.done = true; GS.Store.set('finalSeen', true);
-    day.says.forEach(x => x.el.remove()); day.says = []; $('final').classList.add('party'); $('finSkip').hidden = true; A.play('fanfare');
-    f.crowd.forEach((p, j) => { if (j % 2 === 0) sayAt(p, U.pick(GS.FINAL.crowd), 60000, '', true); });
+    day.says.forEach(x => x.el.remove()); day.says = []; day.sayQ = []; f.t = 0.5; $('final').classList.add('party'); $('finSkip').hidden = true; A.play('fanfare');
     $('finCard').innerHTML = '<h2>Fin de la <span>temporada</span></h2><p>Llegaste a <b>' + rankOf(C.finalDay + 1) + '</b>. El local sigue abierto: podés seguir jugando jornadas, comprar las mejoras que falten y batir tus récords.</p>' +
       '<button class="btn" id="finShare">📸 Tarjeta para compartir</button><button class="btn ghost" id="finGo">Seguir jugando</button><small>Un juego de GameShop · Gracias por jugar</small>';
     $('finCard').hidden = false;
@@ -3134,6 +3252,7 @@ GS.Game = (function () {
       '<li><i>👆</i><span>Tocá un pendiente para resolverlo: son minijuegos de unos segundos.</span></li>' +
       '<li><i>💵</i><span>Al cobrar acordate: 10% OFF en efectivo o transferencia, 3 cuotas sin interés con tarjeta.</span></li>' +
       '<li><i>🔥</i><span>Encadená aciertos para armar <b>racha</b>. Si te equivocás no perdés nada: solo hay un chiste.</span></li>' +
+      '<li><i>🚶</i><span>No hace falta caminar: <b>tocá el pedido</b> y tu personaje va solo hasta ahí.</span></li>' +
       '<li><i>🧠</i><span>Tu <b>cordura</b> sube en los respiros y baja si se junta mucho. A veces hay <b>interrupciones</b>: se contestan con un toque, y si no, se resuelven solas.</span></li>' +
       '<li><i>🔎</i><span>Arrastrá para mover el local y pellizcá (o usá la rueda) para acercar.</span></li></ul>' +
       '<button class="btn" data-close>¡A laburar!</button>', () => { if (fromDay) paused = false; });
@@ -3195,7 +3314,16 @@ GS.Game = (function () {
   }
 
   /* ---------------- Bucle principal ---------------- */
-  let fpsT = 0, fpsN = 0, autoQ = 'media';
+  let fpsT = 0, fpsN = 0, autoQ = 'media', skyKey = '';
+  // La vereda y el fondo acompañan la hora del juego: mañana fresca, mediodía claro, tarde dorada y anochecer con el farol prendido
+  function setSky(f, rain) {
+    f = U.clamp(f, 0, 1); const key = Math.round(f * 60) + (rain ? 'r' : ''); if (key === skyKey) return; skyKey = key;
+    const stops = [[0, [34, 62, 92]], [0.35, [46, 86, 128]], [0.62, [118, 70, 34]], [0.85, [92, 40, 52]], [1, [22, 18, 52]]]; let c = stops[0][1];
+    for (let i = 1; i < stops.length; i++) if (f <= stops[i][0]) { const a = stops[i - 1], b = stops[i], k = (f - a[0]) / (b[0] - a[0]); c = a[1].map((v, j) => Math.round(v + (b[1][j] - v) * k)); break; }
+    if (rain) c = c.map(v => Math.round(v * 0.45 + 30));
+    document.body.style.background = 'radial-gradient(120% 90% at 50% 35%, rgb(' + c.join(',') + ') 0%, rgb(' + c.map(v => Math.round(v * 0.35)).join(',') + ') 50%, #000 100%)';
+    W.setDayTime(f, rain);
+  }
   function frame(t) {
     requestAnimationFrame(frame);
     if (document.hidden) { lastT = t; return; }             // pestaña oculta: no se dibuja ni corre el reloj
@@ -3224,7 +3352,7 @@ GS.Game = (function () {
       modal('<h2>Ups</h2><p>Este navegador no pudo iniciar los gráficos 3D. Probá actualizarlo o abrir el juego en otro navegador.</p>');
       return;
     }
-    staffInit(); luchoLook(dayNumber()); document.body.classList.toggle('big', !!GS.Store.get('big')); if (C.launched) { $('phasesStart').hidden = true; $('chipPhase').hidden = true; document.querySelector('.fine').firstChild.textContent = 'Precios y stock ficticios.'; }
+    staffInit(); luchoLook(dayNumber()); setSky(0.3, false); document.body.classList.toggle('big', !!GS.Store.get('big')); if (C.launched) { $('phasesStart').hidden = true; $('chipPhase').hidden = true; document.querySelector('.fine').firstChild.textContent = 'Precios y stock ficticios.'; }
     GS.track.init(); GS.track('abrir_juego', { jornada: dayNumber() }); window.addEventListener('error', e => GS.track('error_js', { msg: String(e.message).slice(0, 80) }));
     if (C.links.tienda) { $('btnStore').hidden = false; $('btnStore').href = C.links.tienda; $('btnStore').addEventListener('click', () => GS.track('click_tienda', { desde: 'inicio' })); }
     setCalm(!!GS.Store.get('calm')); syncMute(); W.showAll(); W.setUpgrades(upNow()); W.setPlayerLook(GS.Store.get('avatar'));

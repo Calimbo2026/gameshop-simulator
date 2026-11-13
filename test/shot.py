@@ -9,7 +9,7 @@ async def main():
             pg = await ctx.new_page()
             pg.on('console', lambda m: errs.append(name+' '+m.type+': '+m.text) if m.type in('error','warning') else None)
             pg.on('pageerror', lambda e: errs.append(name+' PAGEERROR: '+str(e)))
-            await pg.goto('file:///home/claude/gss/dist/index.html')
+            await pg.goto('file:///home/claude/gameshop-simulator/dist/index.html')
             await pg.wait_for_timeout(1500)
             await pg.screenshot(path=f'shots/{name}_1start.png')
             await pg.evaluate("localStorage.setItem('gameshop_simulator_v1', JSON.stringify({best:[],tutorial:true,mute:false,quality:'auto'}))")

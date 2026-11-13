@@ -6,7 +6,7 @@ async def main():
         ctx = await b.new_context(viewport={'width':1000,'height':760}, device_scale_factor=1)
         pg = await ctx.new_page(); errs=[]
         pg.on('pageerror', lambda e: errs.append(str(e)))
-        await pg.goto('file:///home/claude/gss/dist/index.html'); await pg.wait_for_timeout(1000)
+        await pg.goto('file:///home/claude/gameshop-simulator/dist/index.html'); await pg.wait_for_timeout(1000)
         await pg.evaluate("GS.Store.set('up',{cartel:2,sillas:1,mesa:1,isla:1,gondola:1,arcade:1,escritorio:1}); GS.Store.set('testDay',6); GS.Store.set('testCond','ninguna'); GS.Store.set('seen',{mostrador:1,caja:1})")
         await pg.click('#btnPlay'); await pg.wait_for_timeout(400)
         combos=[('corto',['beard','glasses']),('largo',['lashes','lips']),('rulos',['glasses']),('rodete',['lashes']),('mohicano',['beard']),('pelado',['beard','lashes'])]
