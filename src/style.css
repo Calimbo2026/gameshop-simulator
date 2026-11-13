@@ -313,3 +313,14 @@ body.calm .confetti { display: none; }
 a.btn { text-decoration: none; text-align: center; } .cardimg { width: 100%; max-height: 52vh; object-fit: contain; border-radius: 12px; background: #000; }
 .btn.gold { background: var(--warn); color: #000; box-shadow: 0 5px 0 #a8860c; }
 @media (orientation: landscape) and (max-height: 560px) { #final { align-items: flex-end; } .fin-card { max-width: 360px; padding: 10px 12px; gap: 6px; } .fin-card h2 { font-size: 22px; } .cardimg { max-height: 44vh; } }
+
+/* ---------- Etapa 5: pulido ---------- */
+.shop-nav { display: flex; align-items: center; gap: 4px; padding: 0 6px; } .shop-nav .shop-slots { flex: 1; padding: 0 2px; min-width: 0; } .shop-nav .icon-btn { flex: none; width: 34px; height: 60px; font-size: 26px; background: #202025; border-radius: 10px; }
+@media (min-width: 900px) and (min-height: 561px) {
+  .shop-panel { width: 760px; max-width: calc(100% - 24px); margin: 0 auto 12px; border: 3px solid var(--warn); border-radius: 20px; padding: 12px 6px; }
+  .shop-top { width: 760px; max-width: calc(100% - 24px); margin-left: auto; margin-right: auto; }
+  .shop-nav .shop-slots { flex-wrap: wrap; overflow: visible; justify-content: center; } .slotb { width: 100px; cursor: pointer; } .slotb:hover { border-color: #6a6a74; }
+  .shop-cards { overflow: visible; scroll-snap-type: none; } .shop-cards .card { flex: 1 1 0; width: auto; }
+}
+:focus-visible { outline: 3px solid var(--cyan); outline-offset: 2px; }
+body.big #mg, body.big #jobs, body.big .sheet, body.big #toasts, body.big .fin-card { zoom: 1.14; } body.big .say { font-size: 16.5px; max-width: 250px; }

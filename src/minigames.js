@@ -206,13 +206,13 @@ GS.Minigames = (function () {
     if (variant === 'pelusa') return servicePelusa(job);
     if (variant === 'ram') return serviceRam(job);
     const d = U.pick(GS.DIAGNOSTICS), options = U.shuffle([d.ok].concat(d.bad));
-    root().innerHTML = head(job, 'Service · Diagnóstico') + '<div class="bubble" id="mgBubble">' + esc(d.s) + '</div><div class="info"><b>¿Qué le pasa?</b></div>' +
+    root().innerHTML = head(job, 'Taller · Diagnóstico') + '<div class="bubble" id="mgBubble">' + esc(d.s) + '</div><div class="info"><b>¿Qué le pasa?</b></div>' +
       '<div class="opts one txt">' + options.map((o, i) => '<button class="opt" data-ok="' + (o === d.ok ? 1 : 0) + '"><kbd>' + (i + 1) + '</kbd><span class="n">' + esc(o) + '</span></button>').join('') + '</div>';
     listOptions(b => b.dataset.ok === '1', () => finish(true, '¡Diagnosticado!', d.ok, {}), () => mistake('service', U.pick(LN.wrongDiag)));
   }
   function servicePelusa(job) {
     const N = 14; let left = N; const me = cur;
-    root().innerHTML = head(job, 'Service · Limpieza') + '<div class="bubble" id="mgBubble">Hace ruido de avión. Adentro hay algo... peludo.</div>' +
+    root().innerHTML = head(job, 'Taller · Limpieza') + '<div class="bubble" id="mgBubble">Hace ruido de avión. Adentro hay algo... peludo.</div>' +
       '<div class="fan" id="mgFan"><div class="fan-blades"><i></i><i></i><i></i><i></i></div><div class="fan-hub"></div>' +
       Array.from({ length: N }, () => { const z = Math.floor(U.rnd(34, 62)); return '<i class="dust" style="left:' + U.rnd(4, 82).toFixed(0) + '%;top:' + U.rnd(4, 66).toFixed(0) + '%;width:' + z + 'px;height:' + Math.floor(z * 0.8) + 'px;--r:' + Math.floor(U.rnd(-40, 40)) + 'deg"></i>'; }).join('') + '</div>' +
       '<div class="rule">Pasá el dedo por la pelusa hasta que el cooler quede limpio · <span id="mgLeft">' + N + '</span> restantes</div>';
@@ -229,7 +229,7 @@ GS.Minigames = (function () {
   }
   function serviceRam(job) {
     const slot = U.rnd(12, 58), sw = 30, me = cur; let pos = 0, dir = 1, last = 0;   // la RAM mide 30% del ancho; hay que soltarla justo sobre la ranura
-    root().innerHTML = head(job, 'Service · Memoria RAM') + '<div class="bubble" id="mgBubble">Le agregamos memoria. Tiene que caer justo en la ranura.</div>' +
+    root().innerHTML = head(job, 'Taller · Memoria RAM') + '<div class="bubble" id="mgBubble">Le agregamos memoria. Tiene que caer justo en la ranura.</div>' +
       '<div class="ramrig" id="mgRig"><div class="ramstick" id="mgMark">' + GS.PC_PARTS[1].svg + '</div><div class="ramslot" style="left:' + slot + '%;width:' + sw + '%"><i></i></div></div>' +
       '<button class="btn" id="mgSnap">¡Soltar!</button><div class="rule">Tocá cuando la memoria esté justo arriba de la ranura</div>';
     const mark = document.getElementById('mgMark'), rig = document.getElementById('mgRig');

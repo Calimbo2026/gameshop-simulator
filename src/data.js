@@ -7,10 +7,13 @@
 const GS = {};
 
 GS.CONFIG = {
-  version: '0.9.0',
-  phase: 4,
-  phaseNote: 'Completa y en revisión: oficina, música, cordura, interrupciones, final y tarjeta',                       // fase actual del proyecto (1 a 5)
-  links: { tienda: '', instagram: '' },   // se conectan más adelante
+  version: '0.10.0',
+  phase: 5,
+  phaseNote: 'En curso: taller, compañeros, clientes que miran, analítica y pulido general',                       // fase actual del proyecto (1 a 5)
+  links: { tienda: 'https://www.gameshop.com.ar', instagram: '' },   // botones del inicio y del cierre (vacío = no se muestra)
+  // Analítica: pegá acá el ID de medición de Google Analytics 4 (G-XXXXXXXXXX) y el juego empieza a contar jugadores. Vacío = no se envía nada.
+  analytics: { ga4: '' },
+  launched: false,                // true = se oculta el cartel de "en construcción" y los buscadores pueden indexar el juego
   shareUrl: '',                   // dirección que se imprime en la tarjeta para compartir (vacío = la dirección desde donde se juega)
   finalDay: 10,                   // jornada que cierra la temporada y dispara la escena final
   promoMode: null,                // 'hotsale' | 'cyber' | null (Fase 3)
@@ -41,9 +44,9 @@ GS.CONFIG = {
 /* Las 5 etapas del proyecto: se muestran siempre mientras esté en construcción */
 GS.PHASES = [
   { n: 1, name: 'Base jugable',   desc: 'Inicio, salón 3D, Mostrador y Caja, una jornada completa.' },
-  { n: 2, name: 'Minijuegos',     desc: 'Las 11 estaciones, modo Arcade, interrupciones, cordura y combos.' },
-  { n: 3, name: 'Carrera',        desc: 'Rangos, jornadas-examen, eventos del año, el Dueño y los personajes.' },
-  { n: 4, name: 'Mundo completo', desc: 'Exterior, depósito, oficina, música, final y tarjeta para compartir.' },
+  { n: 2, name: 'Minijuegos',     desc: 'Las 12 estaciones, modo Arcade y combos.' },
+  { n: 3, name: 'Carrera',        desc: 'Rangos, jornadas que crecen, clima y fechas, el Dueño y las mejoras del local.' },
+  { n: 4, name: 'Mundo completo', desc: 'Depósito, oficina, música, cordura, interrupciones, final y tarjeta para compartir.' },
   { n: 5, name: 'Pulido',         desc: 'Rendimiento, balance, bugs, accesibilidad, analítica y lanzamiento.' }
 ];
 
@@ -218,10 +221,10 @@ GS.UPGRADES = [
   { id: 'arcade', name: 'Arcade en la entrada', icon: '🕹️', pos: [0.7, 8.3], levels: [{ n: 'Arcade en la galería', d: 'Llama la atención desde la vereda: +1 cliente por jornada.', price: 700 }] },
   { id: 'escritorio', name: 'Escritorio gamer', icon: '🖥️', pos: [2.0, 4.6], levels: [{ n: 'Escritorio gamer para probar', d: 'Los clientes se entretienen: +15% de paciencia.', price: 900 }] },
   { id: 'plantas', name: 'Plantas y alfombra', icon: '🪴', pos: [-3.4, 5.0], levels: [{ n: 'Plantas y alfombra de entrada', d: 'El local respira: la cordura baja más despacio.', price: 450 }] },
-  { id: 'cafetera', name: 'Cafetera', icon: '☕', pos: [0.9, -5.6], zoom: 0.3, levels: [{ n: 'Cafetera detrás del mostrador', d: 'Respiros que rinden: recuperás cordura más rápido.', price: 550 }] },
+  { id: 'cafetera', name: 'Cafetera', icon: '☕', pos: [0.3, -5.6], zoom: 0.3, levels: [{ n: 'Cafetera detrás del mostrador', d: 'Respiros que rinden: recuperás cordura más rápido.', price: 550 }] },
   { id: 'luces', name: 'Luces LED', icon: '💡', pos: [-1.5, -4.6], zoom: 0.5, levels: [{ n: 'Tiras LED en el salón', d: 'Todo se luce más: +10% de monedas por jornada.', price: 650 }] },
   { id: 'vidluz', name: 'Vidriera iluminada', icon: '🪟', pos: [3.6, 8.5], zoom: 0.45, levels: [{ n: 'Luces en la vidriera', d: 'Se ve desde la vereda de enfrente: +1 cliente y más gente que entra por la vidriera.', price: 1000 }] },
-  { id: 'caja2', name: 'Segunda caja', icon: '🧾', pos: [2.0, -2.4], zoom: 0.3, levels: [{ n: 'Segunda caja con Brian', d: 'Brian deja el celular y ayuda: la cola de la caja espera el doble.', price: 1200 }] }
+  { id: 'caja2', name: 'Segunda caja', icon: '🧾', pos: [2.6, -3.6], zoom: 0.3, levels: [{ n: 'Segunda caja con Brian', d: 'Cuando se juntan 2 o más clientes para pagar, Brian viene y le cobra a uno por vos.', price: 1200 }] }
 ];
 GS.RANKS = [[1, 'Vendedor nuevo'], [3, 'Vendedor'], [5, 'Vendedor senior'], [8, 'Encargado'], [11, 'Mano derecha del Dueño']];
 /* Condiciones del día: cambian cuánta gente viene y cuántos pedidos salen */
@@ -246,8 +249,8 @@ GS.EXPLAIN = {
   stock: 'Contá lo que hay de verdad en la góndola. El sistema a veces sueña.',
   ml: 'Caja del tamaño justo, cinta de punta a punta y la etiqueta correcta. Lo que se compra antes de las 14 sale en el día.',
   proveedor: 'Compará el remito con lo que bajó de la carreta. Si falta algo, no firmes.',
-  pc: 'Elegí cada pieza y tocá dónde va en la placa. Si una viene al revés, tocala de nuevo para girarla.',
-  service: 'En el service: diagnosticá con criterio, limpiá con paciencia y encajá la memoria justo en la ranura.',
+  pc: 'En el taller: elegí cada pieza y tocá dónde va en la placa. Si una viene al revés, tocala de nuevo para girarla.',
+  service: 'En el taller: diagnosticá con criterio, limpiá con paciencia y encajá la memoria justo en la ranura.',
   devol: 'Para una devolución mirá las tres reglas: ticket, plazo y estado. Si cumple, se acepta con una sonrisa.'
 };
 
@@ -302,6 +305,31 @@ GS.LINES = {
     '¡Encima que les iba a comprar!',
     'Seguro es un error del banco. Me voy ofendido.'
   ],
+  /* Clientes que entran a mirar: algunos comentan algo y se van */
+  browse: [
+    'Solo estoy mirando, gracias.',
+    'Uh, esto lo quiero. El mes que viene.',
+    'Le saco una foto y le pregunto a mi hijo.',
+    '¿Todo esto es para jugar? Qué bárbaro.',
+    'Vengo a mirar la Play. La miro y me voy.',
+    'Qué lindo local. Vuelvo cuando cobre.',
+    'Yo tenía una de estas, pero con cartuchos.',
+    'Anoto el modelo y vuelvo.',
+    'Con 3 cuotas sin interés capaz me animo.',
+    'En efectivo tiene 10% OFF, ¿no? Lo pienso.',
+    'Mi cumpleaños es en marzo. Aviso nomás.',
+    'Entré por el aire acondicionado, no te voy a mentir.'
+  ],
+  /* Los compañeros, mientras hacen sus cosas por el local */
+  staff: {
+    siesta: ['No estaba durmiendo. Descansaba los ojos.', 'Cinco minutitos nomás.', 'Estaba contando stock. Con los ojos cerrados.'],
+    repo: ['Repongo esto y vuelvo.', 'Otra caja más. Y van...', 'Esto iba acá, ¿no? Sí. Creo.'],
+    taller: ['Llevo este al taller.', 'El de la notebook pregunta si ya está.'],
+    mate: ['Preparo unos mates.', 'Se acabó la yerba. Tragedia.'],
+    vidriera: ['La vidriera quedó pintada.', 'Hay un nene con la nariz pegada al vidrio.'],
+    celu: ['Es un mensaje de trabajo. En serio.', 'Estoy viendo el stock. En el celu.'],
+    caja2: ['Pasá por acá, que te cobro yo.', 'Por esta caja, por favor.']
+  },
   sawWindow: ['Lo vi en la vidriera y entré.', 'Pasaba, lo vi en la vidriera y dije: es hoy.', 'Qué linda la vidriera. Vengo por eso que tienen ahí.'],
   rowFine: ['Ese dato está bien. El problema es otro.', 'Eso está perfecto. Mirá los demás.'],
   rowFineAll: ['Ese dato está bien. Compará tranquilo con lo de arriba.', 'Eso coincide. ¿Hay algo que no?'],
@@ -386,30 +414,33 @@ GS.LINES = {
 GS.LAYOUT = {
   salon:   { xMin: -6, xMax: 6, zMin: -7, zMax: 6, wallH: 3.2 },
   galeria: { zMax: 11, pasillo: 1.6 },                 // vidriera tipo galería
-  mostrador: { x: -1.5, z: -4.0, w: 6.0, d: 0.8, h: 1.05 },
-  caja:      { x: 2.0,  z: -2.9, w: 0.8, d: 3.0, h: 1.05 },
+  mostrador: { x: -1.6, z: -4.0, w: 6.0, d: 0.8, h: 1.05 },   // tramo de atención
+  caja:      { x: 2.4,  z: -4.0, w: 2.0, d: 0.8, h: 1.05 },   // mismo mostrador, todo recto: el tramo que dice CAJA
   isla:      { x: -3.2, z: 0.4,  w: 1.8, d: 0.8, h: 1.05 },
   mesa:      { x: 2.2,  z: 1.5,  w: 1.5, d: 3.6, h: 0.9 },
   escritorio:{ x: 2.2,  z: 4.6,  w: 1.6, d: 0.8, h: 0.78 },
   gondola:   { x: 5.3,  z: 2.7,  w: 0.6, d: 4.8, h: 1.2 },
-  service:   { x: 4.9,  z: -5.9, w: 1.8, d: 0.7, h: 0.95 },
+  service:   { x: 8.3,  z: 4.75, w: 2.2, d: 0.8, h: 0.95 },   // banco del Taller
+  taller:    { x0: 6.5, x1: 11.4, zA: 3.95, zB: 8.4 },
+  depoDoor:  { z: -4.4 }, tallerDoor: { z: 5.5 },
   empaque:   { x: 5.3,  z: -2.3, w: 0.7, d: 1.9, h: 0.9 },
   reposicion:{ x: -4.9, z: 0.3 },
   arcade:    { x: 0.7,  z: 8.3 },
   puerta:    { x: -0.9 },                              // por dónde entran los clientes
   cartel:    { textos: ['ENTRÁ. ELEGÍ. JUGÁ.', 'EL JUEGO EMPIEZA ACÁ.'] },
   colaMostrador: [ [-3.9, -2.9], [-2.7, -2.9], [-1.5, -2.9], [-0.3, -2.9] ],
-  colaCaja:      [ [1.0, -3.4], [1.0, -2.4], [1.0, -1.4], [0.9, -0.4] ]
+  colaCaja:      [ [2.4, -2.9], [3.5, -2.9], [4.4, -2.6], [4.4, -1.6] ],
+  yoMostrador: [-1.6, -4.9], yoCaja: [2.1, -4.9], brianCaja: [3.0, -4.9]
 };
 
 /* Estaciones de trabajo. pos = dónde hace foco la cámara. soon = llega en la próxima entrega. */
 GS.STATIONS = [
   { id: 'mostrador', n: 1, name: 'Mostrador', icon: '🛎', pos: [-1.5, -4.0] },
-  { id: 'caja', n: 2, name: 'Caja', icon: '💵', pos: [2.0, -2.9] },
-  { id: 'pc', n: 3, name: 'Armado de PC', icon: '🖥️', pos: [2.2, 1.5],
+  { id: 'caja', n: 2, name: 'Caja', icon: '💵', pos: [2.4, -4.0] },
+  { id: 'pc', n: 3, name: 'Armado de PC', icon: '🖥️', pos: [10.0, 6.7],
     task: { name: 'PC para armar', tag: 'La quiere "con lucecitas"', late: 'El cliente de la PC se cansó de esperar. Se la arma el cuñado.' } },
-  { id: 'service', n: 4, name: 'Service técnico', icon: '🔧', pos: [4.9, -5.6],
-    task: { name: 'Equipo en service', tag: '"No hice nada, se rompió solo"', late: 'El equipo del service sigue esperando. Igual que su dueño.' } },
+  { id: 'service', n: 4, name: 'Taller', icon: '🔧', pos: [8.3, 5.0],
+    task: { name: 'Equipo para reparar', tag: '"No hice nada, se rompió solo"', late: 'El equipo sigue esperando en el taller. Igual que su dueño.' } },
   { id: 'ml', n: 5, name: 'Mercado Libre', icon: '📦', pos: [5.1, -2.3],
     task: { name: 'Pedido para despachar', tag: 'Sale antes de las 14', late: 'Se pasó el corte de las 14. El pedido sale mañana.' } },
   { id: 'whatsapp', n: 6, name: 'WhatsApp', icon: '💬', pos: [-3.4, -4.2],
@@ -418,11 +449,11 @@ GS.STATIONS = [
     task: { name: 'Cajas para reponer', tag: 'Llegó mercadería', late: 'Las cajas siguen en el pasillo. Ya son parte del mobiliario.' } },
   { id: 'stock', n: 8, name: 'Control de stock', icon: '🔍', pos: [-5.0, -3.2],
     task: { name: 'Contar una góndola', tag: 'El sistema dice una cosa...', late: 'Nadie contó la góndola. El sistema sigue soñando.' } },
-  { id: 'proveedor', n: 9, name: 'Recepción de proveedor', icon: '🚚', pos: [3.6, -5.2],
+  { id: 'proveedor', n: 9, name: 'Recepción de proveedor', icon: '🚚', pos: [5.0, -4.6],
     task: { name: 'Llegó mercadería', tag: 'Firmame acá, jefe', late: 'El del reparto se cansó de esperar la firma y se fue.' } },
   { id: 'devol', n: 10, name: 'Devoluciones', icon: '↩️', pos: [0.2, -4.0],
     task: { name: 'Quieren devolver algo', tag: '"Lo usé poquito"', late: 'El de la devolución se fue. Vuelve mañana, con refuerzos.' } },
-  { id: 'cierre', n: 11, name: 'Cierre de caja', icon: '🧾', pos: [2.0, -3.4], finalOnly: true,
+  { id: 'cierre', n: 11, name: 'Cierre de caja', icon: '🧾', pos: [2.4, -3.8], finalOnly: true,
     task: { name: 'Cerrar la caja', tag: 'Última tarea del día', late: 'La caja quedó sin cerrar. Mañana va a ser un día largo.' } },
   { id: 'vidriera', n: 12, name: 'Vidriera', icon: '🪟', pos: [3.6, 8.5],
     task: { name: 'Armar la vidriera', tag: 'Que se luzca desde la vereda', late: 'La vidriera quedó como estaba. Nadie lo notó. Ese es el problema.' } }
@@ -435,9 +466,9 @@ GS.INTERRUPTS = [
   { ic: '📞', who: 'Suena el teléfono', t: '"Hola, ¿es la pizzería?"', ok: 'No, pero vendemos joysticks', bad: 'Sí, ¿grande de muzza?', r: 'Número equivocado. Igual anotó la dirección del local.', rb: 'Ahora hay que conseguir una grande de muzza.' },
   { ic: '📞', who: 'Suena el teléfono', t: '"¿Hasta qué hora están?"', ok: 'De 10 a 19', bad: 'Hasta que nos cansemos', r: 'Dijo que pasa a las 18:55. Clásico.', rb: 'Abrimos de 10 a 19. Ni un minuto más, ni uno menos.' },
   { ic: '📞', who: 'Suena el teléfono', t: '"¿Hacen envíos a Jujuy?"', ok: 'Sí, a todo el país', bad: 'Solo si no llueve', r: 'A todo el país. Hasta donde llegue el correo.', rb: 'Hacemos envíos a todo el país, llueva o truene.' },
-  { ic: '🧉', who: 'Brian, desde la caja', t: '"¿Va un mate?"', ok: 'Dale, uno y sigo', bad: 'No tengo tiempo ni para respirar', r: 'Un mate a tiempo ordena la cabeza.', rb: 'Brian se lo tomó solo. Vos te lo perdiste.', mate: true },
-  { ic: '📱', who: 'Brian, desde la caja', t: '"Che, ¿cuál era la clave del wifi?"', ok: 'Está pegada en el monitor', bad: 'Preguntale a un cliente', r: 'Estaba pegada en el monitor. Desde marzo.', rb: 'Un cliente le pasó la del bar de enfrente.' },
-  { ic: '🎵', who: 'Brian, desde la caja', t: 'Subió la música al máximo.', ok: 'Bajale un poquito', bad: 'Subile, que se enteren en la esquina', r: 'Volumen de local, no de boliche.', rb: 'Ahora los clientes piden a los gritos.' },
+  { ic: '🧉', who: 'Brian', t: '"¿Va un mate?"', ok: 'Dale, uno y sigo', bad: 'No tengo tiempo ni para respirar', r: 'Un mate a tiempo ordena la cabeza.', rb: 'Brian se lo tomó solo. Vos te lo perdiste.', mate: true },
+  { ic: '📱', who: 'Brian', t: '"Che, ¿cuál era la clave del wifi?"', ok: 'Está pegada en el monitor', bad: 'Preguntale a un cliente', r: 'Estaba pegada en el monitor. Desde marzo.', rb: 'Un cliente le pasó la del bar de enfrente.' },
+  { ic: '🎵', who: 'Brian', t: 'Subió la música al máximo.', ok: 'Bajale un poquito', bad: 'Subile, que se enteren en la esquina', r: 'Volumen de local, no de boliche.', rb: 'Ahora los clientes piden a los gritos.' },
   { ic: '🚪', who: 'El vecino de al lado', t: '"¿Me cambiás mil en monedas?"', ok: 'Ahora no, pasá a la tarde', bad: 'Sí, vaciemos la caja', r: 'Entendió perfecto. Vuelve a la tarde, seguro.', rb: 'El cierre de caja de hoy va a ser una aventura.' },
   { ic: '📦', who: 'Un cartero apurado', t: '"Firmame acá. Es para el local de al lado."', ok: 'Es al lado, la otra puerta', bad: 'Firmo cualquier cosa', r: 'Cada paquete con su dueño.', rb: 'Ahora tenemos un paquete que no es nuestro.' },
   { ic: '🚗', who: 'En la calle', t: 'Suena la alarma de un auto. Hace rato.', ok: 'Respirar hondo y seguir', bad: 'Salir a retar al auto', r: 'Inhalar, exhalar. Ya paró.', rb: 'El auto no te contestó. Era de esperar.' },
@@ -507,9 +538,18 @@ GS.util = {
   clamp: (v, a, b) => Math.max(a, Math.min(b, v))
 };
 
-/* Analítica: ganchos vacíos. Se conectan en la Fase 5. */
+/* Analítica: cada evento del juego pasa por acá. Si hay un ID de Google Analytics 4 en GS.CONFIG.analytics.ga4,
+   se envía (sin datos personales: solo el nombre del evento y números del juego). Si no, queda en memoria. */
 GS.track = function (evento, datos) {
   (GS.track.log = GS.track.log || []).push({ evento, datos, t: Date.now() });
+  if (GS.track.log.length > 200) GS.track.log.shift();
+  try { if (window.gtag) window.gtag('event', evento, datos || {}); } catch (e) {}
+};
+GS.track.init = function () {
+  const id = GS.CONFIG.analytics && GS.CONFIG.analytics.ga4; if (!id || !/^http/.test(location.protocol)) return;
+  window.dataLayer = window.dataLayer || []; window.gtag = function () { window.dataLayer.push(arguments); };
+  window.gtag('js', new Date()); window.gtag('config', id, { anonymize_ip: true, allow_google_signals: false, allow_ad_personalization_signals: false });
+  const sc = document.createElement('script'); sc.async = true; sc.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(id); document.head.appendChild(sc);
 };
 
 /* Guardado local con manejo de error (si no hay almacenamiento, sigue en memoria) */
@@ -525,6 +565,6 @@ GS.Store = (function () {
       data.best.push(entry); data.best.sort((a, b) => b.score - a.score); data.best = data.best.slice(0, 5); save();
       return data.best.indexOf(entry);
     },
-    reset() { data = { best: [], tutorial: false, mute: data.mute, music: data.music, quality: data.quality }; save(); }
+    reset() { data = { best: [], tutorial: false, mute: data.mute, music: data.music, quality: data.quality, big: data.big, uid: data.uid }; save(); }
   };
 })();

@@ -10,7 +10,7 @@ GS.World = (function () {
   const people = [];
   const walls = {};            // grupos de pared alta: N (fondo), S (frente), E (derecha), O (izquierda)
   const animated = [];         // cosas que se animan (pantallas, cartel)
-  let tapHandler = null, yo = null, boss = null, brian = null;
+  let tapHandler = null, yo = null, boss = null, brian = null, lucho = null;
   const BOSS_HOME = [9.3, 0.7];
 
   /* ---------- Cámara tipo diorama ---------- */
@@ -175,42 +175,27 @@ GS.World = (function () {
 
   function buildBackWall(root) {
     const s = L.salon, g = new T.Group(); root.add(g); walls.N = g;
-    const b = Batch(g), z = s.zMin;
-    box(g, s.xMax - s.xMin + 0.4, s.wallH, 0.2, 0xf4f4f2, 0, 0, z - 0.1);
-    // panel ranurado gris
-    box(g, 7.6, 2.3, 0.04, 0xdcdcdc, -2.0, 0.5, z + 0.02);
-    // tres estantes de vidrio con LED celeste (consolas y juegos)
-    const glow = new T.MeshBasicMaterial({ color: 0x57e6ff });
+    const z = s.zMin, W2 = s.xMax - s.xMin;
+    box(g, W2 + 0.4, s.wallH, 0.2, 0xf4f4f2, 0, 0, z - 0.1);
+    box(g, W2 - 0.3, 2.3, 0.04, 0xdcdcdc, 0, 0.5, z + 0.02);                       // panel ranurado gris, de punta a punta
+    // tres estantes de vidrio con LED celeste a todo lo ancho (consolas y juegos, y a la derecha lo demás)
+    const glow = new T.MeshBasicMaterial({ color: 0x57e6ff }), ids = idsOf('consolas');
     for (let i = 0; i < 3; i++) {
-      const y = 1.25 + i * 0.6;
-      box(g, 7.2, 0.04, 0.42, glow, -2.0, y, z + 0.26);
-      const ids = idsOf('consolas'); let k = i * 3;
-      for (let x = -5.25; x < 1.5; x += 0.6) sprite(g, ids[k++ % ids.length], x, y + 0.04, z + 0.3, 0.54);
+      const y = 1.25 + i * 0.6; let k = i * 3;
+      box(g, W2 - 0.6, 0.04, 0.42, glow, 0, y, z + 0.26);
+      for (let x = -5.4; x < 5.6; x += 0.6) { if (i === 2 && x < -4.3) { k++; continue; } sprite(g, x < 2.3 ? ids[k++ % ids.length] : WALL_IDS[(k++ + i * 4) % WALL_IDS.length], x, y + 0.04, z + 0.3, 0.54); }
     }
-    sign(g, 'CONSOLAS Y JUEGOS', 4.2, 0.36, -2.0, 3.0, z + 0.03);
-    // mueble bajo blanco
-    box(g, 7.2, 0.7, 0.5, 0xffffff, -2.0, 0, z + 0.3);
-    // TV
-    box(g, 1.3, 0.75, 0.08, 0x111111, -5.0, 2.35, z + 0.1);
-    const tv = plane(g, 1.2, 0.66, new T.MeshBasicMaterial({ map: textTex('10% OFF EFECTIVO', { bg: '#e10600', fg: '#fff', w: 512, h: 256, font: '900 60px Impact, "Arial Black", sans-serif' }) }), -5.0, 2.72, z + 0.15);
-    // puerta roja al depósito
-    box(g, 0.14, 2.3, 0.14, 0xe10600, 2.75, 0, z + 0.06); box(g, 0.14, 2.3, 0.14, 0xe10600, 4.05, 0, z + 0.06);
-    box(g, 1.44, 0.14, 0.14, 0xe10600, 3.4, 2.3, z + 0.06);
-    box(g, 1.16, 2.3, 0.03, 0x2a1416, 3.4, 0, z + 0.03);
-    plane(g, 1.2, 0.28, new T.MeshBasicMaterial({ map: textTex('DEPÓSITO', { bg: '#111', fg: '#fff', w: 256, h: 64 }) }), 3.4, 2.62, z + 0.03);
-    // estantería a la derecha de la puerta
-    for (let i = 0; i < 4; i++) {
-      const y = 0.5 + i * 0.6; box(g, 1.5, 0.05, 0.4, 0xffffff, 5.1, y, z + 0.22);
-      if (i < 3) [4.75, 5.4].forEach((x, k) => sprite(g, WALL_IDS[(i * 2 + k + 7) % WALL_IDS.length], x, y + 0.05, z + 0.24, 0.48));
-    }
-    b.build();
+    sign(g, 'CONSOLAS Y JUEGOS', 4.2, 0.36, 0, 3.0, z + 0.03);
+    box(g, W2 - 0.6, 0.7, 0.5, 0xffffff, 0, 0, z + 0.3);                           // mueble bajo blanco
+    box(g, 1.3, 0.75, 0.08, 0x111111, -5.0, 2.4, z + 0.3);                          // TV
+    plane(g, 1.2, 0.66, new T.MeshBasicMaterial({ map: textTex('10% OFF EFECTIVO', { bg: '#e10600', fg: '#fff', w: 512, h: 256, font: '900 60px Impact, "Arial Black", sans-serif' }) }), -5.0, 2.775, z + 0.35);
   }
 
   function buildCounter(root) {
-    const m = L.mostrador, c = L.caja;
-    // tramo largo (Mostrador): frente negro con el logo, tapa roja
-    box(root, m.w, m.h, m.d, 0x0c0c0c, m.x, 0, m.z);
-    box(root, m.w + 0.12, 0.08, m.d + 0.12, 0xe10600, m.x, m.h, m.z);
+    const m = L.mostrador, c = L.caja, xa = m.x - m.w / 2, xb = c.x + c.w / 2;
+    // un solo mostrador recto: frente negro con el logo, tapa roja y, a la derecha, el tramo de la CAJA
+    box(root, m.w, m.h, m.d, 0x0c0c0c, m.x, 0, m.z); box(root, c.w, c.h, c.d, 0x0c0c0c, c.x, 0, c.z);
+    box(root, xb - xa + 0.12, 0.08, m.d + 0.12, 0xe10600, (xa + xb) / 2, m.h, m.z);
     const front = logoTex(1024, 180, (g, w, h, img) => {
       g.fillStyle = '#0a0a0a'; g.fillRect(0, 0, w, h);
       g.fillStyle = '#e10600'; g.beginPath(); g.moveTo(40, 0); g.lineTo(90, 0); g.lineTo(60, h); g.lineTo(10, h); g.fill();
@@ -219,17 +204,14 @@ GS.World = (function () {
       const ih = h * 0.9, iw = ih * img.width / img.height; g.drawImage(img, (w - iw) / 2, (h - ih) / 2, iw, ih);
     });
     plane(root, m.w, m.h, new T.MeshBasicMaterial({ map: front }), m.x, m.h / 2, m.z + m.d / 2 + 0.01);
-    // tramo corto (Caja)
-    box(root, c.w, c.h, c.d, 0x0c0c0c, c.x, 0, c.z);
-    box(root, c.w + 0.12, 0.08, c.d + 0.12, 0xe10600, c.x, c.h, c.z);
-    box(root, 0.06, c.h * 0.8, 0.5, 0xe10600, c.x + c.w / 2 + 0.01, 0.1, c.z + 0.6);
-    box(root, 0.06, c.h * 0.8, 0.25, 0xffffff, c.x + c.w / 2 + 0.01, 0.1, c.z + 0.15);
-    // cosas sobre el mostrador: monitores, caja registradora, frasco de caramelos, mate
+    const cajaTex = canvasTex(512, 270, (g, w, h) => { g.fillStyle = '#e10600'; g.fillRect(0, 0, w, h); g.strokeStyle = '#fff'; g.lineWidth = 10; g.strokeRect(18, 18, w - 36, h - 36);
+      g.fillStyle = '#fff'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = '900 150px Impact, "Arial Black", sans-serif'; g.fillText('CAJA', w / 2, h / 2 + 8); });
+    plane(root, c.w, c.h, new T.MeshBasicMaterial({ map: cajaTex }), c.x, c.h / 2, c.z + c.d / 2 + 0.01);
+    // cosas sobre el mostrador: monitores, caja registradora, posnet, frasco de caramelos, mate
     const top = m.h + 0.08;
-    monitor(root, m.x - 1.9, top, m.z - 0.1, 0);
-    monitor(root, m.x + 1.6, top, m.z - 0.1, 0);
-    box(root, 0.5, 0.22, 0.4, 0x222222, c.x, top, c.z - 0.6); box(root, 0.36, 0.2, 0.06, 0x57e6ff, c.x - 0.05, top + 0.22, c.z - 0.6, { emissive: 0x1c8aa0 });
-    box(root, 0.3, 0.06, 0.2, 0xffffff, c.x, top, c.z + 0.5);
+    monitor(root, m.x - 1.9, top, m.z - 0.1, 0); monitor(root, m.x + 1.6, top, m.z - 0.1, 0);
+    box(root, 0.5, 0.22, 0.4, 0x222222, c.x - 0.3, top, c.z - 0.1); box(root, 0.36, 0.2, 0.06, 0x57e6ff, c.x - 0.3, top + 0.22, c.z - 0.15, { emissive: 0x1c8aa0 });
+    box(root, 0.16, 0.06, 0.26, 0xffffff, c.x - 0.75, top, c.z + 0.12);
     const jar = new T.Mesh(new T.SphereGeometry(0.14, 10, 8), mat(0xffd9ec, { transparent: true, opacity: 0.85 })); jar.position.set(m.x + 0.4, top + 0.14, m.z + 0.1); root.add(jar);
     const mate = new T.Mesh(new T.CylinderGeometry(0.07, 0.055, 0.14, 8), mat(0x6b3e1e)); mate.position.set(m.x - 0.6, top + 0.07, m.z + 0.12); root.add(mate);
     box(root, 0.015, 0.14, 0.015, 0xcccccc, m.x - 0.57, top + 0.1, m.z + 0.12);
@@ -255,7 +237,6 @@ GS.World = (function () {
   function upGroup(root, id, lvl) { const g = new T.Group(); root.add(g); (ups[id] = ups[id] || {})[lvl] = g; return g; }
   function applyUpgrades(state) {
     for (const id in ups) for (const lvl in ups[id]) ups[id][lvl].visible = id === 'cartel' ? (state[id] || 0) === Number(lvl) : (state[id] || 0) >= Number(lvl);
-    if (brian) brian.phone(!(state.caja2 > 0));       // con la segunda caja, Brian larga el celular
   }
   const glowMat = c => new T.MeshBasicMaterial({ color: c });
   const gPot = new T.CylinderGeometry(0.17, 0.12, 0.3, 8), gLeaf = new T.SphereGeometry(0.2, 8, 6);
@@ -272,7 +253,7 @@ GS.World = (function () {
     { const g = upGroup(root, 'plantas', 1);
       plant(g, -5.0, 5.4, 1.15); plant(g, -2.7, 5.55, 0.9); plant(g, 5.3, 5.65, 1.05); plant(g, -5.1, -1.6, 0.85);
       box(g, 1.9, 0.02, 1.1, 0xc40000, L.puerta.x, 0.005, 5.2); box(g, 1.6, 0.022, 0.08, 0xffffff, L.puerta.x, 0.006, 4.85); box(g, 1.6, 0.022, 0.08, 0xffffff, L.puerta.x, 0.006, 5.55); }
-    { const g = upGroup(root, 'cafetera', 1), x = 0.9, y = 0.7, z = s.zMin + 0.3;
+    { const g = upGroup(root, 'cafetera', 1), x = 0.3, y = 0.7, z = s.zMin + 0.3;
       box(g, 0.44, 0.46, 0.34, 0x1a1a1e, x, y, z); box(g, 0.46, 0.06, 0.36, 0xe10600, x, y + 0.46, z); box(g, 0.2, 0.12, 0.02, 0xc9ccd1, x, y + 0.28, z + 0.18);
       box(g, 0.3, 0.03, 0.14, 0x3a3a40, x, y, z + 0.22); box(g, 0.04, 0.1, 0.04, 0x8d9199, x, y + 0.18, z + 0.2);
       const cup = new T.Mesh(new T.CylinderGeometry(0.055, 0.045, 0.09, 10), mat(0xffffff)); cup.position.set(x, y + 0.075, z + 0.22); g.add(cup);
@@ -280,9 +261,9 @@ GS.World = (function () {
       [0.36, 0.5].forEach(dx => { const k = new T.Mesh(new T.CylinderGeometry(0.05, 0.04, 0.09, 8), mat(dx > 0.4 ? 0xe10600 : 0xffffff)); k.position.set(x + dx, y + 0.045, z + 0.05); g.add(k); }); }
     { const g = upGroup(root, 'luces', 1), red = glowMat(0xff2a2a), cy = glowMat(0x57e6ff);
       box(g, s.xMax - s.xMin + 0.4, 0.07, 0.09, red, 0, s.wallH, s.zMin - 0.1); box(g, 0.09, 0.07, s.zMax - s.zMin, red, s.xMin - 0.1, s.wallH, (s.zMin + s.zMax) / 2);
-      box(g, m.w, 0.05, 0.05, cy, m.x, 0.02, m.z + m.d / 2 + 0.04); box(g, 0.05, 0.05, c.d, cy, c.x + c.w / 2 + 0.04, 0.02, c.z);
+      const xa = m.x - m.w / 2, xb = c.x + c.w / 2; box(g, xb - xa, 0.05, 0.05, cy, (xa + xb) / 2, 0.02, m.z + m.d / 2 + 0.04);
       const halo = new T.MeshBasicMaterial({ color: 0x57e6ff, transparent: true, opacity: 0.2, depthWrite: false });
-      plane(g, m.w, 0.7, halo, m.x, 0.012, m.z + m.d / 2 + 0.38, 0, -Math.PI / 2); plane(g, 0.7, c.d, halo, c.x + c.w / 2 + 0.38, 0.012, c.z, 0, -Math.PI / 2);
+      plane(g, xb - xa, 0.7, halo, (xa + xb) / 2, 0.012, m.z + m.d / 2 + 0.38, 0, -Math.PI / 2);
     }
     { const g = upGroup(root, 'vidluz', 1), warm = glowMat(0xfff0a8), zA = s.zMax, zB = L.galeria.zMax, p = L.galeria.pasillo, cz = (zA + zB) / 2, d = zB - zA - 0.2;
       const halo = new T.MeshBasicMaterial({ color: 0xfff0a8, transparent: true, opacity: 0.22, depthWrite: false });
@@ -290,9 +271,9 @@ GS.World = (function () {
         box(g, 0.07, 0.07, d, warm, x0 + side * 0.06, 2.36, cz); box(g, w, 0.07, 0.07, warm, cx, 2.36, zB - 0.14);
         box(g, 0.05, 0.05, d - 0.4, warm, x0 + side * 0.52, 0.95, cz); box(g, 0.05, 0.05, d - 0.4, warm, x0 + side * 2.32, 1.4, cz);
         plane(g, w - 0.2, d - 0.3, halo, cx, 0.512, cz, 0, -Math.PI / 2); }); }
-    { const g = upGroup(root, 'caja2', 1), z = c.z + 1.05;
-      box(g, 0.5, 0.22, 0.4, 0x222222, c.x, top, z); box(g, 0.36, 0.2, 0.06, 0x57e6ff, c.x - 0.05, top + 0.22, z, { emissive: 0x1c8aa0 }); box(g, 0.14, 0.05, 0.22, 0x2d6cdf, c.x + 0.05, top, z - 0.42);
-      sign(g, 'CAJA 2', 0.7, 0.2, c.x + c.w / 2 + 0.045, 0.72, z, Math.PI / 2); }
+    { const g = upGroup(root, 'caja2', 1), x = c.x + 0.6;
+      box(g, 0.5, 0.22, 0.4, 0x222222, x, top, c.z - 0.1); box(g, 0.36, 0.2, 0.06, 0x57e6ff, x, top + 0.22, c.z - 0.15, { emissive: 0x1c8aa0 });
+      box(g, 0.5, 0.3, 0.05, 0x111111, x, top, c.z + 0.3); sign(g, 'CAJA 2', 0.46, 0.2, x, top + 0.16, c.z + 0.33); }
   }
   // Oficina del Dueño: al costado derecho, delante del depósito. De acá sale a hablar y acá vuelve.
   function buildOffice(root) {
@@ -317,18 +298,17 @@ GS.World = (function () {
     box(root, 3.3, 0.02, 2.5, 0x8a1010, 9.3, 0.008, 1.25); box(root, 3.0, 0.022, 0.07, 0xe9c46a, 9.3, 0.009, 0.2); box(root, 3.0, 0.022, 0.07, 0xe9c46a, 9.3, 0.009, 2.3);
     box(root, 2.2, 0.09, 0.9, 0x3a2416, 9.3, 0.74, 1.6); box(root, 0.5, 0.74, 0.8, 0x4a2e1c, 8.5, 0, 1.6); box(root, 0.5, 0.74, 0.8, 0x4a2e1c, 10.1, 0, 1.6); box(root, 1.1, 0.5, 0.05, 0x4a2e1c, 9.3, 0.24, 2.0);
     plane(root, 1.0, 0.2, new T.MeshBasicMaterial({ map: textTex('EL DUEÑO', { bg: '#111', fg: '#f5c518', w: 256, h: 52 }) }), 9.3, 0.5, 2.03);
-    const mon = monitor(root, 9.9, 0.83, 1.45, Math.PI - 0.5); mon.scale.setScalar(1.2);
+    const mon = monitor(root, 9.85, 0.83, 1.78, Math.PI); mon.scale.setScalar(1.2);                                                        // la pantalla mira al Dueño
+    plane(mon, 0.56, 0.34, new T.MeshBasicMaterial({ color: 0x56d6ff }), 0, 0.38, 0.025); box(root, 0.5, 0.02, 0.18, 0x1a1a1e, 9.85, 0.83, 1.45);
     box(root, 0.3, 0.03, 0.4, 0xffffff, 8.75, 0.83, 1.6); box(root, 0.28, 0.03, 0.38, 0xf1f1f1, 8.77, 0.86, 1.62);                       // papeles
     box(root, 0.08, 0.2, 0.05, 0x111111, 9.3, 0.83, 1.85); box(root, 0.015, 0.14, 0.015, 0x111111, 9.33, 1.03, 1.85);                       // handy
     const mate = new T.Mesh(new T.CylinderGeometry(0.07, 0.055, 0.14, 8), mat(0x6b3e1e)); mate.position.set(9.05, 0.9, 1.4); root.add(mate); box(root, 0.015, 0.14, 0.015, 0xcccccc, 9.08, 0.93, 1.4);
     gamingChair(root, 9.3, 0.1, 0, 0x111111, gold);
-    // caja fuerte, sillón para visitas y planta
-    box(root, 0.7, 0.8, 0.6, 0x4a4f58, 10.85, 0, -0.45); box(root, 0.6, 0.7, 0.02, 0x3a3f47, 10.85, 0.05, -0.14);
-    const dial = new T.Mesh(new T.CylinderGeometry(0.1, 0.1, 0.04, 14), mat(0xc9ccd1)); dial.rotation.x = Math.PI / 2; dial.position.set(10.78, 0.45, -0.11); root.add(dial); box(root, 0.05, 0.2, 0.04, 0xc9ccd1, 11.02, 0.35, -0.11);
-    box(root, 1.5, 0.34, 0.62, 0xc40000, 7.6, 0.08, 3.0); box(root, 1.5, 0.5, 0.16, 0xa80000, 7.6, 0.42, 2.72); box(root, 0.16, 0.26, 0.62, 0xa80000, 6.93, 0.42, 3.0); box(root, 0.16, 0.26, 0.62, 0xa80000, 8.27, 0.42, 3.0);
+    // sillón para visitas contra la pared del salón, mirando al escritorio, y plantas
+    box(root, 0.62, 0.34, 1.5, 0xc40000, 7.15, 0.08, 2.4); box(root, 0.16, 0.5, 1.5, 0xa80000, 6.86, 0.42, 2.4); box(root, 0.62, 0.26, 0.16, 0xa80000, 7.15, 0.42, 1.73); box(root, 0.62, 0.26, 0.16, 0xa80000, 7.15, 0.42, 3.07);
+    box(root, 0.5, 0.4, 0.5, 0x3a2416, 7.3, 0, 0.9); plant(root, 10.9, -0.4, 1.1);
     plant(root, 10.9, 3.15, 1.3);
-    // marco de la puerta que da al salón
-    box(root, 0.14, 2.2, 0.14, 0xe10600, x0 - 0.4, 0, -0.85); box(root, 0.14, 2.2, 0.14, 0xe10600, x0 - 0.4, 0, 0.25); box(root, 0.14, 0.14, 1.24, 0xe10600, x0 - 0.4, 2.2, -0.3);
+    sideDoor(root, -0.3, 'OFICINA');
   }
   function buildCenter(root) {
     { // isla Apple
@@ -371,10 +351,6 @@ GS.World = (function () {
   // Puestos de trabajo de la Etapa 2: service técnico, empaque de Mercado Libre y cajas para reponer
   function buildWorkStations(root) {
     const b = Batch(root), carton = 0xc49a6c;
-    const sv = L.service;                       // banco de service: tapa verde, notebook abierta y herramientas
-    box(root, sv.w, sv.h, sv.d, 0xffffff, sv.x, 0, sv.z); box(root, sv.w + 0.08, 0.06, sv.d + 0.08, 0x7ed321, sv.x, sv.h, sv.z);
-    notebook(root, sv.x - 0.3, sv.h + 0.06, sv.z);
-    box(root, 0.3, 0.05, 0.1, 0xe10600, sv.x + 0.45, sv.h + 0.06, sv.z + 0.1); box(root, 0.06, 0.04, 0.4, 0xf5c518, sv.x + 0.7, sv.h + 0.06, sv.z);
     const em = L.empaque;                       // mesa de empaque: cajas de cartón y cinta
     box(root, em.w, 0.07, em.d, 0xd9b77e, em.x, em.h - 0.07, em.z);
     box(root, 0.07, em.h - 0.07, 0.07, 0xb48a50, em.x - 0.28, 0, em.z - 0.85); box(root, 0.07, em.h - 0.07, 0.07, 0xb48a50, em.x - 0.28, 0, em.z + 0.85);
@@ -406,6 +382,41 @@ GS.World = (function () {
     box(root, 0.36, 0.03, 0.5, 0x2a2a2e, x, y, z); box(root, 0.24, 0.005, 0.4, 0x1a1a1e, x + 0.03, y + 0.03, z);
     const lid = new T.Group(); lid.position.set(x - 0.18, y + 0.03, z); lid.rotation.z = 0.28; root.add(lid);
     box(lid, 0.03, 0.34, 0.5, 0x2a2a2e, 0, 0, 0); box(lid, 0.012, 0.28, 0.44, 0x56d6ff, 0.02, 0.03, 0, { emissive: 0x2a8aa0 });
+  }
+
+  // Marco de puerta sobre la pared derecha (que está "cortada"): postes rojos, dintel y cartel de los dos lados
+  function sideDoor(root, z, text) {
+    const x = L.salon.xMax + 0.1;
+    box(root, 0.14, 2.2, 0.14, 0xe10600, x, 0, z - 0.55); box(root, 0.14, 2.2, 0.14, 0xe10600, x, 0, z + 0.55); box(root, 0.16, 0.42, 1.24, 0x111111, x, 2.2, z);
+    const mt = new T.MeshBasicMaterial({ map: textTex(text, { bg: '#111', fg: '#fff', w: 256, h: 80 }) });
+    plane(root, 1.1, 0.34, mt, x + 0.085, 2.41, z, Math.PI / 2); plane(root, 1.1, 0.34, mt, x - 0.085, 2.41, z, -Math.PI / 2);
+  }
+  // Taller: al costado derecho, delante de la oficina. Acá se reparan los equipos y se arman las PC.
+  function buildTaller(root) {
+    const t = L.taller, sv = L.service, cx = (t.x0 + t.x1) / 2, cz = (t.zA + t.zB) / 2, w = t.x1 - t.x0, d = t.zB - t.zA, b = Batch(root);
+    const floor = canvasTex(128, 128, g => { g.fillStyle = '#aeb6b3'; g.fillRect(0, 0, 128, 128); g.strokeStyle = '#99a19e'; g.lineWidth = 3; g.strokeRect(0, 0, 128, 128); });
+    floor.wrapS = floor.wrapT = T.RepeatWrapping; floor.repeat.set(5, 5);
+    box(root, w + 0.4, 0.5, d + 0.4, 0x18181b, cx, -0.52, cz); plane(root, w, d, new T.MeshLambertMaterial({ map: floor }), cx, 0.005, cz, 0, -Math.PI / 2);
+    box(root, 0.2, 0.3, d, 0xdedede, t.x1 + 0.1, 0, cz); box(root, w, 0.3, 0.2, 0xdedede, cx, 0, t.zB + 0.1);
+    for (let i = 0; i < 12; i++) box(root, w / 12, 0.012, 0.14, i % 2 ? 0x111111 : 0xf5c518, t.x0 + (i + 0.5) * w / 12, 0.006, t.zB - 0.12);     // franja de seguridad
+    // tablero de herramientas con el cartel
+    box(root, 2.9, 1.55, 0.08, 0xd9c7a3, sv.x, 0, t.zA + 0.06); sign(root, 'TALLER', 1.5, 0.32, sv.x, 1.32, t.zA + 0.11);
+    [[-1.1, 0.75, 0.06, 0.4, 0xe10600], [-0.85, 0.7, 0.06, 0.5, 0xf5c518], [-0.55, 0.78, 0.2, 0.08, 0x8d9199], [0.6, 0.72, 0.06, 0.44, 0x2d6cdf], [0.9, 0.76, 0.26, 0.1, 0x8d9199], [1.15, 0.7, 0.06, 0.36, 0x3bb54a], [0, 0.66, 0.3, 0.3, 0x111111]]
+      .forEach(q => box(root, q[2], q[3], 0.04, q[4], sv.x + q[0], q[1] - q[3] / 2 + 0.1, t.zA + 0.12));
+    // banco de reparaciones: tapa verde, manta azul antiestática, notebook abierta, lámpara y herramientas
+    box(root, sv.w, sv.h, sv.d, 0xffffff, sv.x, 0, sv.z); box(root, sv.w + 0.08, 0.06, sv.d + 0.08, 0x7ed321, sv.x, sv.h, sv.z); box(root, 0.9, 0.012, 0.6, 0x2d6cdf, sv.x - 0.35, sv.h + 0.06, sv.z);
+    notebook(root, sv.x - 0.35, sv.h + 0.075, sv.z);
+    box(root, 0.3, 0.05, 0.1, 0xe10600, sv.x + 0.45, sv.h + 0.06, sv.z + 0.1); box(root, 0.06, 0.04, 0.4, 0xf5c518, sv.x + 0.75, sv.h + 0.06, sv.z); box(root, 0.16, 0.08, 0.26, 0xf5c518, sv.x + 0.3, sv.h + 0.06, sv.z - 0.2);
+    box(root, 0.04, 0.5, 0.04, 0x222222, sv.x + 0.98, sv.h + 0.06, sv.z - 0.28); box(root, 0.26, 0.05, 0.12, 0xfff0a8, sv.x + 0.88, sv.h + 0.56, sv.z - 0.2, { emissive: 0xa08a30 });
+    const stool = new T.Mesh(new T.CylinderGeometry(0.2, 0.2, 0.08, 12), mat(0x222222)); stool.position.set(sv.x - 0.3, 0.55, sv.z + 0.85); root.add(stool); box(root, 0.06, 0.52, 0.06, 0x8d9199, sv.x - 0.3, 0, sv.z + 0.85);
+    // mesa de armado de PC: gabinete abierto con luces y piezas esperando
+    box(root, 1.7, 0.08, 0.9, 0xd9b77e, 10.1, 0.82, 6.9); [[-0.75, -0.35], [0.75, -0.35], [-0.75, 0.35], [0.75, 0.35]].forEach(q => box(root, 0.07, 0.82, 0.07, 0xb48a50, 10.1 + q[0], 0, 6.9 + q[1]));
+    box(root, 0.3, 0.58, 0.56, 0x15151a, 10.5, 0.9, 6.9); box(root, 0.02, 0.44, 0.44, 0x56d6ff, 10.34, 0.97, 6.9, { emissive: 0x2a8aa0 });
+    sprite(root, 'gpu', 9.65, 0.9, 6.75, 0.4); sprite(root, 'ram', 9.65, 0.9, 7.15, 0.34); sign(root, 'ARMADO DE PC', 1.5, 0.22, 10.1, 0.6, 7.36);
+    // estantería con equipos esperando turno
+    [[-0.5, -0.3], [0.5, -0.3], [-0.5, 0.3], [0.5, 0.3]].forEach(q => box(root, 0.06, 1.6, 0.06, 0x3a4a6a, 10.7 + q[0], 0, 4.6 + q[1]));
+    for (let l = 0; l < 3; l++) { box(root, 1.1, 0.05, 0.66, 0x51658f, 10.7, 0.3 + l * 0.55, 4.6); b.add(0.42, 0.06, 0.5, 0x2a2a2e, 10.5, 0.35 + l * 0.55, 4.6); b.add(0.16, 0.012, 0.1, 0xf5c518, 10.5, 0.41 + l * 0.55, 4.72); if (l < 2) b.add(0.26, 0.36, 0.4, l ? 0x15151a : 0xf4f4f4, 10.98, 0.35 + l * 0.55, 4.6); }
+    b.build();
   }
 
   // Vidriera tipo galería: dos cajas de vidrio a los costados de un pasillo, arcade en el medio
@@ -476,8 +487,6 @@ GS.World = (function () {
       plane(g, W2 + 0.3, 1.4, m, 0, 3.5, z + 0.16); plane(g, W2 + 0.3, 1.4, m, 0, 3.5, z - 0.16, Math.PI);
       box(g, W2 + 0.5, 0.06, 0.3, 0x1a1a1a, 0, 4.3, z); animated.push({ type: 'sign', mat: m, texs, t: 0, i: 0 });
     }
-    const sw = new T.Group(); sw.position.set(-4.2, 0, z + 1.6); sw.rotation.y = 0.5; root.add(sw);
-    box(sw, 1.0, 0.75, 0.05, 0x0c0c0c, 0, 0.2, 0); plane(sw, 0.94, 0.3, logoMat('#000', 0.95), 0, 0.62, 0.03);
   }
 
   /* ---------- Personajes low-poly (cabezones) ---------- */
@@ -497,6 +506,7 @@ GS.World = (function () {
     [-0.12, 0.12].forEach(x => { const e = new T.Mesh(gEye, mat(0x111111)); e.position.set(x, 1.14, 0.3); g.add(e); });
     const sh = new T.Mesh(gShadow, shadowMat); sh.rotation.x = -Math.PI / 2; sh.position.y = 0.02; g.add(sh);
     const bag = box(g, 0.26, 0.3, 0.12, 0xe10600, 0.3, 0.3, 0.1); bag.visible = false;
+    const carry = box(g, 0.36, 0.28, 0.3, 0xc49a6c, 0, 0.42, 0.34); carry.visible = false;
     const phone = o.phone ? box(g, 0.1, 0.18, 0.03, 0x111111, 0.12, 0.72, 0.26) : null;
     let cargo = null;
     if (o.cart) {
@@ -534,6 +544,8 @@ GS.World = (function () {
       look(a) { style(a); },
       cargo(v) { if (cargo) cargo.visible = v; },
       phone(v) { if (phone) phone.visible = v; },
+      carry(v) { carry.visible = v; },
+      lie(v) { g.rotation.x = v ? -1.3 : 0; g.position.y = v ? 0.28 : 0; },
       stop() { p.path = []; p.moving = false; p.onArrive = null; g.position.y = 0; },
       remove() { scene.remove(g); const i = people.indexOf(p); if (i >= 0) people.splice(i, 1); }
     };
@@ -602,7 +614,7 @@ GS.World = (function () {
     ray.setFromCamera(v2, camera);
     if (!ray.ray.intersectPlane(planeY, v3)) return;
     const m = L.mostrador, c = L.caja, pad = 0.9;
-    if (Math.abs(v3.x - c.x) < c.w / 2 + pad && Math.abs(v3.z - c.z) < c.d / 2 + pad * 0.6) return tapHandler('caja');
+    if (Math.abs(v3.x - c.x) < c.w / 2 + 0.2 && Math.abs(v3.z - c.z) < c.d / 2 + pad) return tapHandler('caja');
     if (Math.abs(v3.x - m.x) < m.w / 2 + pad * 0.5 && Math.abs(v3.z - m.z) < m.d / 2 + pad && v3.x > -2.6) return tapHandler('mostrador');
     let best = null, bd = 1.7;
     for (const st of GS.STATIONS) { if (st.soon) continue; const d = Math.hypot(v3.x - st.pos[0], v3.z - st.pos[1]); if (d < bd) { bd = d; best = st.id; } }
@@ -626,13 +638,15 @@ GS.World = (function () {
     walls.O = new T.Group(); root.add(walls.O); shelfWall(walls.O, L.salon.xMin, 1, L.salon.zMin + 0.4, L.salon.zMax - 0.3);
     walls.E = new T.Group(); root.add(walls.E); shelfWall(walls.E, L.salon.xMax, -1, L.salon.zMin + 0.4, L.salon.zMax - 0.3);
     // zócalos bajos donde la pared está "cortada"
-    box(root, 0.2, 0.3, -0.85 - L.salon.zMin, 0xdedede, L.salon.xMax + 0.1, 0, (L.salon.zMin - 0.85) / 2);          // hueco: la puerta de la oficina
-    box(root, 0.2, 0.3, L.salon.zMax - 0.25, 0xdedede, L.salon.xMax + 0.1, 0, (L.salon.zMax + 0.25) / 2);
-    buildCounter(root); buildCenter(root); buildWorkStations(root); buildDepot(root); buildOffice(root); buildGallery(root); buildSign(root); buildExtras(root);
+    { const doors = [L.depoDoor.z, -0.3, L.tallerDoor.z]; let z0 = L.salon.zMin;          // zócalo con los huecos de las tres puertas
+      doors.concat([null]).forEach(dz => { const z1 = dz == null ? L.salon.zMax : dz - 0.55; if (z1 - z0 > 0.05) box(root, 0.2, 0.3, z1 - z0, 0xdedede, L.salon.xMax + 0.1, 0, (z0 + z1) / 2); if (dz != null) z0 = dz + 0.55; }); }
+    buildCounter(root); buildCenter(root); buildWorkStations(root); buildDepot(root); sideDoor(root, L.depoDoor.z, 'DEPÓSITO'); buildOffice(root); buildTaller(root); sideDoor(root, L.tallerDoor.z, 'TALLER'); buildGallery(root); buildSign(root); buildExtras(root);
 
     // empleados (inventados): vos en el mostrador y Brian, pegado al celular, en la caja
-    yo = makePerson({ shirt: 0xe10600, hair: 0x2b2b3a, skin: SKINS[1] }); yo.setPos(L.mostrador.x, L.mostrador.z - 0.9);
-    brian = makePerson({ shirt: 0xe10600, hair: 0x2d6cdf, skin: SKINS[0], phone: true }); brian.setPos(L.caja.x + 1.0, L.caja.z + 0.2); brian.face(-Math.PI / 2);
+    yo = makePerson({ shirt: 0xe10600, hair: 0x2b2b3a, skin: SKINS[1], speed: 5.5 }); yo.setPos(L.yoMostrador[0], L.yoMostrador[1]);
+    // compañeros (inventados): andan por el local haciendo sus cosas. Lucho, de mohicano y anteojos, y Brian, pegado al celular.
+    lucho = makePerson({ shirt: 0xe10600, hair: 0xff5fa2, hairStyle: 'mohicano', skin: GS.SKINS[3], glasses: true, speed: 2.6 }); lucho.setPos(4.0, 0.8);
+    brian = makePerson({ shirt: 0xe10600, hair: 0x2d6cdf, skin: SKINS[0], phone: true, speed: 2.3 }); brian.setPos(4.5, -1.2); brian.face(-0.6);
     boss = makePerson({ shirt: 0x111111, hair: 0xb4b4bd, hairStyle: 'mohicano', skin: 0xe0ac7e, scale: 1.18, speed: 3.4 }); boss.setPos(BOSS_HOME[0], BOSS_HOME[1]);
 
     setupInput(); resize(true); updateWalls(); ok = true; return true;
@@ -669,6 +683,8 @@ GS.World = (function () {
     setPlayerLook(a) { if (yo && a) yo.look(a); },
     // El Dueño: un solo personaje que vive en su oficina
     boss: () => boss,
+    staff: () => [lucho, brian],
+    player: () => yo,
     bossHome() { if (boss) { boss.stop(); boss.setPos(BOSS_HOME[0], BOSS_HOME[1]); boss.face(0); } },
     BOSS_HOME,
     // Zoom a un punto del local (para la tienda de mejoras)

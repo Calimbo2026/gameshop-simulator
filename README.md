@@ -2,15 +2,15 @@
 
 Juego web (un solo HTML) que simula una jornada de trabajo en GameShop. Pieza de marca para `juego.gameshop.com.ar`.
 
-## Estado: Etapa 4 de 5 (completa, en revisión)
+## Estado: Etapa 5 de 5 (pulido, en curso)
 
 | # | Etapa | Qué incluye | Estado |
 |---|-------|-------------|--------|
 | 1 | Base jugable | Inicio, salón 3D, Mostrador y Caja, una jornada completa | Lista |
 | 2 | Minijuegos | Las 12 estaciones, modo Arcade y combos | Lista |
 | 3 | Carrera | Rangos, progresión por jornadas, clima y fechas, el Dueño, mejoras del local | Lista |
-| 4 | Mundo completo | Exterior, depósito, oficina, música, cordura, interrupciones, final y tarjeta para compartir | **Completa, en revisión** |
-| 5 | Pulido | Rendimiento, balance, bugs, accesibilidad, analítica y lanzamiento | Pendiente |
+| 4 | Mundo completo | Exterior, depósito, oficina, música, cordura, interrupciones, final y tarjeta para compartir | Lista |
+| 5 | Pulido | Rendimiento, balance, bugs, accesibilidad, analítica y lanzamiento | **En curso** |
 
 La etapa actual se cambia en `src/data.js` (`GS.CONFIG.phase`) y se muestra sola en el juego.
 
@@ -77,3 +77,22 @@ Sin datos sensibles del negocio, sin personas reales, precios y stock ficticios.
 - **Tarjeta para compartir:** imagen de 1080 x 1350 con el personaje, el rango y los números. Se abre desde el cierre de caja y desde el final. En el celular se comparte directo; en la compu se descarga. La dirección impresa sale de `GS.CONFIG.shareUrl` (vacío = la dirección desde donde se juega).
 
 **Pruebas:** `python3 test/v7.py` (capturas de todo lo nuevo) y `python3 test/v8.py` (juega sola una jornada entera).
+
+## Etapa 5 (pulido)
+
+**Local redistribuido:** mostrador todo recto con el tramo que dice CAJA (el personaje del jugador camina hasta ahí para cobrar); estanterías del fondo unificadas de punta a punta; puerta del depósito sobre la pared derecha, donde está el depósito; **Taller** propio (reparaciones y armado de PC) delante de la oficina; oficina sin caja fuerte, con el sillón y el monitor mirando al escritorio; sin el cartel de la vereda.
+
+**Vida en el local:**
+- **Compañeros** (`staffPlan` en `src/game.js`): Lucho (mohicano que cambia de color cada jornada, anteojos) y Brian (celular). Van al depósito, reponen, pasan por el taller, preparan mate, miran la vidriera y cada tanto duermen una siesta en el depósito. Frases en `GS.LINES.staff`.
+- **Gente que mira** (`spawnLooker`): entran, miran un sector y se van callados o comentando algo (`GS.LINES.browse`). Parte de los clientes de la jornada también mira antes de acercarse al mostrador.
+- **Segunda caja:** cuando hay 2 o más clientes esperando para pagar, Brian va a la caja 2 y le cobra a uno.
+
+**Música:** más lenta y suave (acordes largos, melodía con silencios, filtro que le saca el brillo). Opciones: sin música, suave (por defecto) o normal.
+
+**Tienda de mejoras en compu:** todos los lugares a la vista en grilla, flechas ‹ › (también las del teclado) y los modelos lado a lado.
+
+**Analítica (cuánta gente lo jugó):** el juego ya emite eventos (`abrir_juego`, `inicio_partida`, `fin_jornada`, `final_visto`, `compartir`, `click_tienda`). Para empezar a contar hay que crear una propiedad de Google Analytics 4 y pegar su ID de medición (`G-XXXXXXXXXX`) en `GS.CONFIG.analytics.ga4` (`src/data.js`). Sin ID no se envía nada. No se mandan datos personales.
+
+**Otros:** calidad gráfica que baja sola si el equipo no da; opción de texto grande; foco visible para teclado; botón a la tienda (`GS.CONFIG.links.tienda`); ícono de pestaña y datos para compartir el link. Al lanzar: `GS.CONFIG.launched = true` oculta el cartel de "en construcción", y hay que quitar `noindex` de `src/index.template.html`.
+
+**Pruebas:** `python3 test/v9.py` (capturas del local nuevo) y `python3 test/v8.py 5` (juega sola una jornada).

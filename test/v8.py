@@ -28,10 +28,10 @@ async def main():
         pg.on('console', lambda m: errs.append(m.type+': '+m.text) if m.type=='error' else None)
         pg.on('pageerror', lambda e: errs.append('PAGEERROR: '+str(e)))
         await pg.goto('file://'+ROOT+'/dist/index.html'); await pg.wait_for_timeout(1000)
-        await pg.evaluate("GS.Store.set('avatar',{skin:GS.SKINS[1],hair:0,hairStyle:'corto'}); GS.Store.set('days',%s-1); GS.Store.set('quality','baja'); GS.Store.set('testCond','ninguna')" % n)
+        await pg.evaluate("GS.Store.set('avatar',{skin:GS.SKINS[1],hair:0,hairStyle:'corto'}); GS.Store.set('days',%s-1); GS.Store.set('quality','baja'); GS.Store.set('testCond','ninguna'); GS.Store.set('up',{mesa:1,isla:1,gondola:1,caja2:1,cafetera:1})" % n)
         await pg.reload(); await pg.wait_for_timeout(1000)
         await pg.evaluate("GS.DEBUG_INTR=1"); await pg.click('#btnPlay'); log={}
-        for i in range(2600):
+        for i in range(3400):
             await pg.wait_for_timeout(110)
             st = await pg.evaluate("GS.Game.state()")
             if st=='end': break

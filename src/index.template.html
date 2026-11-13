@@ -7,6 +7,11 @@
 <meta name="description" content="GameShop Simulator: sobreviví a una jornada atendiendo el local. Juego gratis, sin registro.">
 <meta name="theme-color" content="#000000">
 <meta name="robots" content="noindex">
+<meta property="og:type" content="website">
+<meta property="og:title" content="GameShop Simulator">
+<meta property="og:description" content="¿Te animás a un turno en GameShop? Atendé el mostrador, cobrá, armá PC y sobreviví a la jornada. Gratis y sin registro.">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23000'/%3E%3Cpath d='M12 20h40a8 8 0 0 1 8 8v8a10 10 0 0 1-18 6l-3-4H25l-3 4a10 10 0 0 1-18-6v-8a8 8 0 0 1 8-8z' fill='%23ff0000'/%3E%3Ccircle cx='44' cy='30' r='4' fill='%23fff'/%3E%3Cpath d='M16 30h10M21 25v10' stroke='%23fff' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
 <style>
 /*__CSS__*/
 </style>
@@ -33,7 +38,7 @@
     <span class="chip combo" id="chipCombo" hidden>🔥 x2</span>
   </div>
 </div>
-<div id="toasts"></div>
+<div id="toasts" aria-live="polite"></div>
 <div id="jobs" hidden></div>
 
 <!-- Panel de minijuego -->
@@ -59,6 +64,7 @@
         <button class="btn ghost" id="btnRecs">Récords</button>
         <button class="btn ghost" id="btnOpts">Opciones</button>
       </div>
+      <a class="btn ghost" id="btnStore" target="_blank" rel="noopener" hidden>🛒 Ir a la tienda de verdad</a>
       <button class="phases" id="phasesStart" aria-label="Etapas del proyecto"></button>
       <p class="fine">Versión en construcción. Precios y stock ficticios.<br>Personajes inventados: cualquier parecido es pura coincidencia.</p>
     </div>
@@ -68,7 +74,7 @@
 <!-- Tienda de mejoras -->
 <div id="shop" hidden>
   <div class="shop-top"><b>Mejoras del local</b><span id="shopCoins">🪙 0</span><button class="btn ghost" id="shopDone">Listo</button></div>
-  <div class="shop-panel"><div class="shop-slots" id="shopSlots"></div><div class="shop-cards" id="shopCards"></div><div class="rule" id="shopHint"></div></div>
+  <div class="shop-panel"><div class="shop-nav"><button class="icon-btn" id="shopPrev" aria-label="Mejora anterior">‹</button><div class="shop-slots" id="shopSlots"></div><button class="icon-btn" id="shopNext" aria-label="Mejora siguiente">›</button></div><div class="shop-cards" id="shopCards"></div><div class="rule" id="shopHint"></div></div>
 </div>
 
 <!-- Escena final -->
@@ -78,7 +84,7 @@
 <section class="screen" id="end" hidden><div class="col" id="endCol"></div></section>
 
 <!-- Modal genérico -->
-<div id="modal" hidden><div class="sheet" id="sheet"></div></div>
+<div id="modal" hidden><div class="sheet" id="sheet" role="dialog" aria-modal="true"></div></div>
 
 <script>
 /*__THREE__*/

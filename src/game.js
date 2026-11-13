@@ -12,6 +12,7 @@ GS.Game = (function () {
 
   /* ---------------- Etapas del proyecto ---------------- */
   function phasesCompact() {
+    if (C.launched) return '';
     const cur = GS.PHASES[C.phase - 1];
     let dots = '';
     GS.PHASES.forEach((p, i) => {
@@ -52,7 +53,7 @@ GS.Game = (function () {
       relaxed: false, arcade: null, t: 0, dur: C.day.seconds, score: 0, combo: 0, bestCombo: 0, sales: 0, served: 0, lost: 0, cajaErr: 0, otherErr: 0,
       tasksDone: 0, tasksLate: 0, customers: [], tasks: [], spawned: 0, tasksSpawned: 0,
       extras: [], n: 1, unlocked: unlockedFor(1), plan: planDay(1), rep0: repNow(), dueno: null, wave: -1, stage: 'rest', rest: 0.6, queue: [], says: [], beat: 0, duenoBag: U.shuffle(LN.dueno),
-      cajaCount: 0, closing: false, jobSig: '', cord: CD.start, mate: false, intr: null, intrN: 0, intrOk: 0, intrBag: [], reqBag: U.shuffle(GS.REQUESTS), archBag: U.shuffle(GS.CUSTOMERS), taskBag: []
+      cajaCount: 0, closing: false, jobSig: '', cord: CD.start, mate: false, lookers: [], lookT: 4, spots: {}, helper: null, intr: null, intrN: 0, intrOk: 0, intrBag: [], reqBag: U.shuffle(GS.REQUESTS), archBag: U.shuffle(GS.CUSTOMERS), taskBag: []
     }, extra || {});
   }
   // Arma la jornada: cuántos clientes y tareas trae cada tanda. Va de menos a más.
@@ -157,7 +158,8 @@ GS.Game = (function () {
     A.unlock();
     if (!GS.Store.get('avatar')) return showAvatar(() => startDay(relaxed));
     A.play('click'); clearDay(); W.setUpgrades(upNow());
-    const n = dayNumber(), un = unlockedFor(n), fresh = n <= GS.UNLOCKS.length ? GS.UNLOCKS[n - 1] : [];
+    const n = dayNumber(); luchoLook(n);
+    const un = unlockedFor(n), fresh = n <= GS.UNLOCKS.length ? GS.UNLOCKS[n - 1] : [];
     const cond = conditionFor(n);
     day = newDay({ relaxed, n, cond, unlocked: un, plan: planDay(n, cond), rest: 7.5 }); state = 'day'; enterPlay(); $('jobs').hidden = false;
     A.setMood(cond === 'lluvia' ? 'rain' : cond ? 'party' : 'day');
@@ -174,6 +176,7 @@ GS.Game = (function () {
   function clearDay() {
     if (day) { day.customers.forEach(c => { if (c.person) c.person.remove(); c.label.remove(); }); day.tasks.forEach(t => { t.label.remove(); if (t.boxes) t.boxes.remove(); }); day.says.forEach(x => x.el.remove()); day.extras.forEach(x => x.remove()); }
     MG.close(); W.focus(null); W.bossHome();
+    { const yo = W.player(); if (yo) { yo.stop(); yo.setPos(L.yoMostrador[0], L.yoMostrador[1]); yo.face(0); } const b = STAFF[1]; if (b && b.busy) { b.busy = false; b.q = [['go', [[4.0, -5.0], [4.6, -4.4], [4.5, -1.2], b.hub]]]; } }
   }
   function makeLabel(icon) {
     const label = document.createElement('div'); label.className = 'plabel'; label.innerHTML = '<span class="ic">' + icon + '</span><span class="b"><i></i></span>'; label.hidden = true;
@@ -191,9 +194,95 @@ GS.Game = (function () {
     person.voice = 230 + (k % 7) * 45;
     const cu = { id: ++uid, arche, request: req.t, product, st: 'entering', pat: 1, person, slotM: slot, slotC: -1, label: makeLabel('❓') };
     day.customers.push(cu); day.spawned++;
-    person.walk([[dx, L.salon.zMax + 0.2], [dx, -1.3], L.colaMostrador[slot]], () => { cu.st = 'waitM'; person.face(Math.PI); });
+    const sp = day.spawned > 1 && Math.random() < 0.45 ? freeSpot() : null;
+    if (sp) { day.spots[sp.i] = 1; cu.spot = sp; person.walk(sp.via.concat([sp.p]), () => { cu.st = 'browse'; cu.wait = U.rnd(2.6, 4.6); person.face(sp.f); }); }   // primero mira un rato y después se acerca
+    else toCounter(cu, [[dx, L.salon.zMax + 0.2]]);
     setTimeout(() => A.play('bell'), 900);
   }
+  function toCounter(cu, pre) { cu.st = 'entering'; cu.person.walk(pre.concat([[L.puerta.x, -1.3], L.colaMostrador[cu.slotM]]), () => { cu.st = 'waitM'; cu.person.face(Math.PI); }); }
+  /* ---------------- Gente que entra a mirar: algunos se van callados, otros comentan algo ---------------- */
+  function freeSpot() {
+    const u = upNow(), dx = L.puerta.x, H = Math.PI / 2, all = [
+      { p: [-4.2, 1.5], f: -H, via: [[dx, 1.5]] }, { p: [-4.2, 4.4], f: -H, via: [[dx, 4.4]] }, { p: [-4.2, -1.3], f: -H, via: [[dx, -1.3]] },
+      u.isla && { p: [-3.2, 1.7], f: Math.PI, via: [[dx, 1.7]] }, u.mesa && { p: [0.7, 1.0], f: H, via: [[dx, 1.0]] }, u.mesa && { p: [0.7, 2.7], f: H, via: [[dx, 2.7]] },
+      u.gondola && { p: [4.3, 2.2], f: H, via: [[dx, 5.5], [4.3, 5.5]] }, u.gondola && { p: [4.3, 4.0], f: H, via: [[dx, 5.5], [4.3, 5.5]] }, u.arcade && { p: [0.7, 9.3], f: Math.PI, via: [[dx, 9.3]] }];
+    const free = []; all.forEach((x, i) => { if (x && !day.spots[i]) { x.i = i; free.push(x); } });
+    return free.length ? U.pick(free) : null;
+  }
+  function spawnLooker() {
+    const sp = freeSpot(); if (!sp) return; day.spots[sp.i] = 1;
+    const p = W.makePerson({ shirt: U.pick([0x6b7a8f, 0x3d7a4a, 0xd9a514, 0x4a6fb5, 0xb86fa8, 0x21a0a0, 0x7b4fd1, 0xe07a5f]), hair: U.pick(GS.HAIRS), hairStyle: U.pick(GS.HAIRSTYLES)[0], glasses: Math.random() < 0.3, beard: Math.random() < 0.2, lips: Math.random() < 0.4, speed: U.rnd(2.2, 2.9) });
+    p.voice = U.rnd(230, 480); p.setPos(L.puerta.x + U.rnd(-0.4, 0.4), L.galeria.zMax + 2.4); day.extras.push(p);
+    const lk = { p, sp, st: 'in', wait: 0, hops: 0 }; day.lookers.push(lk);
+    p.walk(sp.via.concat([sp.p]), () => { lk.st = 'look'; lk.wait = U.rnd(3, 5.5); p.face(sp.f); });
+  }
+  function lookerOut(lk) {
+    lk.st = 'out'; const d = day; delete d.spots[lk.sp.i];
+    lk.p.walk(lk.sp.via.slice().reverse().concat([[L.puerta.x + U.rnd(-2, 2), L.galeria.zMax + 3]]), () => { lk.p.remove(); const i = d.lookers.indexOf(lk); if (i >= 0) d.lookers.splice(i, 1); });
+  }
+  function updateLookers(dt) {
+    if (!day.closing && (day.lookT -= dt) <= 0) { day.lookT = U.rnd(8, 15) * (day.cond === 'lluvia' ? 1.8 : 1); if (day.lookers.length < 2 && day.wave >= 0) spawnLooker(); }
+    for (const lk of day.lookers.slice()) {
+      if (lk.st !== 'look' || (lk.wait -= dt) > 0) continue;
+      const r = Math.random(), nx = lk.hops < 1 && r > 0.72 ? freeSpot() : null;
+      if (nx) { delete day.spots[lk.sp.i]; day.spots[nx.i] = 1; const back = lk.sp.via.slice().reverse(); lk.sp = nx; lk.hops++; lk.st = 'in'; lk.p.walk(back.concat(nx.via, [nx.p]), () => { lk.st = 'look'; lk.wait = U.rnd(2.5, 4.5); lk.p.face(nx.f); }); continue; }
+      if (r < 0.5) sayAt(lk.p, U.pick(LN.browse), 3200);
+      lookerOut(lk);
+    }
+    for (const cu of day.customers) if (cu.st === 'browse' && (cu.wait -= dt) <= 0) { delete day.spots[cu.spot.i]; toCounter(cu, cu.spot.via.slice().reverse()); }
+  }
+  /* ---------------- Compañeros: Lucho y Brian andan por el local haciendo sus cosas ---------------- */
+  const STAFF = [], MOHAWK = [0xff5fa2, 0x2d6cdf, 0x3bb54a, 0xd9a514, 0xff2a2a, 0x7b4fd1, 0x57e6ff];
+  function luchoLook(n) { const l = W.staff()[0]; if (l) l.look({ skin: GS.SKINS[3], hair: MOHAWK[n % MOHAWK.length], hairStyle: 'mohicano', glasses: true }); }   // el mohicano cambia de color cada jornada
+  const canTalk = () => state === 'day' && day && !day.arcade && !day.closing;
+  function staffSay(st, key, prob) { if (canTalk() && Math.random() < (prob || 0.4)) sayAt(st.p, U.pick(LN.staff[key]), 2900, '', true); }
+  function staffInit() {
+    const ps = W.staff();
+    STAFF.push({ p: ps[0], hub: [4.0, 0.9], q: [['wait', 2]], w: { repo: 4, taller: 2, mate: 1, vidriera: 1, siesta: 1 } }, { p: ps[1], hub: [3.6, 1.7], q: [['wait', 6]], w: { celu: 3, siesta: 2, repo: 2, mate: 1, vidriera: 1 } });
+  }
+  function staffPlan(st) {
+    const P = st.p, out = [[4.5, -1.2]], dd = [[4.6, -4.4], [6.0, -4.4], [7.4, -4.4]], rev = a => a.slice().reverse(), go = pts => ['go', pts];
+    let r = Math.random() * Object.values(st.w).reduce((a, b) => a + b, 0), k = 'celu'; for (const key in st.w) { if ((r -= st.w[key]) <= 0) { k = key; break; } }
+    const round = (to, f, wait, key) => [go(to), ['face', f], ['fn', () => staffSay(st, key)], ['wait', wait], go(rev(to).slice(1).concat([st.hub]))];
+    if (k === 'repo') {                       // busca una caja en el depósito y la repone en algún sector
+      const tg = U.pick([{ to: [[-0.6, -1.6], [-4.3, -1.6]], back: [[-0.6, -1.6], [4.5, -1.2]], f: -1.57 }, { to: [[4.0, 0.9], [4.4, 2.0]], back: [[4.0, 0.9]], f: 1.57 }, { to: [[4.0, 0.9], [4.0, 5.5], [-0.3, 5.5], [-0.3, 8.0]], back: [[-0.3, 5.5], [4.0, 5.5], [4.0, 0.9]], f: 1.57 }]);
+      st.q = [go(out.concat(dd, [[8.3, -4.6]])), ['face', 3.14], ['wait', 2.2], ['fn', () => P.carry(true)], go(rev(dd).concat(out, tg.to)), ['face', tg.f], ['fn', () => staffSay(st, 'repo')], ['wait', 2.6], ['fn', () => P.carry(false)], go(tg.back.concat([st.hub]))];
+    } else if (k === 'siesta') {              // una siestita en el fondo del depósito
+      st.q = [go(out.concat(dd, [[10.3, -4.4]])), ['fn', () => { P.lie(true); if (canTalk()) sayAt(P, '💤', 6500, '', true); }], ['wait', 7], ['fn', () => { P.lie(false); staffSay(st, 'siesta', 0.6); }], ['wait', 1.3], go(rev(dd).concat(out, [st.hub]))];
+    } else if (k === 'taller') st.q = round([[4.0, 0.9], [4.0, 5.5], [6.0, 5.5], [7.4, 5.7]], 0.9, 3.5, 'taller');
+    else if (k === 'mate') st.q = round(out.concat([[4.6, -4.4], [4.0, -5.3], [0.9, -5.8]]), 3.14, 3, 'mate');
+    else if (k === 'vidriera') st.q = round([[4.0, 0.9], [4.0, 5.5], [-0.3, 5.5], [-0.3, 8.2]], 1.57, 3.5, 'vidriera');
+    else st.q = [go([[st.hub[0] + U.rnd(-0.3, 0.5), st.hub[1] + U.rnd(-0.5, 0.5)]]), ['face', U.rnd(-0.6, 0.6)], ['wait', 5], ['fn', () => staffSay(st, 'celu', 0.25)]];
+    st.q.push(['wait', U.rnd(2, 6)]);
+  }
+  function updateStaff(dt) {
+    for (const st of STAFF) {
+      if (st.busy || st.moving) continue;
+      const step = st.q[0]; if (!step) { staffPlan(st); continue; }
+      if (step[0] === 'go') { st.q.shift(); st.moving = true; st.p.walk(step[1], () => { st.moving = false; }); }
+      else if (step[0] === 'wait') { if ((step[1] -= dt) <= 0) st.q.shift(); }
+      else { st.q.shift(); if (step[0] === 'face') st.p.face(step[1]); else step[1](); }
+    }
+  }
+  // Segunda caja: si se juntan 2 o más para pagar, Brian viene y le cobra a uno
+  function updateHelper(dt) {
+    const b = STAFF[1], h = day.helper;
+    if (!h) {
+      if (!upNow().caja2 || !b || b.busy) return;
+      const wc = day.customers.filter(c => c.st === 'waitC'); if (wc.length < 2) return;
+      const cu = wc.sort((a, c) => c.slotC - a.slotC)[0], g = b.p.group.position, pre = g.x > 6.2 && g.z < -1.2 ? [[7.4, -4.4], [6.0, -4.4]] : g.x > 6.2 ? [[6.0, 5.5], [4.0, 5.5], [4.5, -1.2]] : g.z > 5.8 ? [[-0.3, 5.5], [4.0, 5.5], [4.5, -1.2]] : g.z < -4.6 ? [] : [[4.5, -1.2]];
+      cu.st = 'helped'; cu.slotC = -1; cu.label.hidden = true; b.busy = true; b.moving = false; b.q = []; b.p.lie(false); b.p.carry(false);
+      const hp = day.helper = { cu, t: -1 }, d = day;
+      cu.person.walk([[3.1, -2.9]], () => cu.person.face(Math.PI));
+      b.p.walk(pre.concat(g.z < -4.6 ? [] : [[4.6, -4.4], [4.0, -5.0]], [L.brianCaja]), () => { if (day !== d) return; b.p.face(0); hp.t = 2.6; sayAt(b.p, U.pick(LN.staff.caja2), 2400); });
+      return;
+    }
+    if (h.t < 0 || (h.t -= dt) > 0) return;
+    const cu = h.cu; day.helper = null; day.served++; day.sales += cu.product.price; day.score += 90; addRep(0.03); A.play('cash');
+    sayAt(cu.person, cu.arche.bye, 3200); leave(cu, true); toast('<b>🧾 Segunda caja</b>Brian le cobró a ' + cu.arche.name + '.', '', 2400);
+    b.busy = false; b.q = [['go', [[4.0, -5.0], [4.6, -4.4], [4.5, -1.2], b.hub]], ['wait', 3]];
+  }
+
   function spawnTask(forced) {
     const pool = TASK_STATIONS.filter(x => day.unlocked.indexOf(x.id) >= 0); if (!pool.length && !forced) return;
     if (!day.taskBag.length) day.taskBag = U.shuffle(pool);
@@ -205,9 +294,9 @@ GS.Game = (function () {
     if (st.id === 'proveedor') {                    // llega el repartidor con la carreta y deja las cajas
       const dx = L.puerta.x, dp = W.makePerson({ shirt: 0x8a6b3f, hair: 0x3a2a1a, hairStyle: 'pelado', beard: true, cart: true, speed: 2.4 }), d = day;
       dp.setPos(dx, L.galeria.zMax + 2.4); d.extras.push(dp);
-      dp.walk([[dx, L.salon.zMax + 0.2], [dx, -0.6], [4.0, -0.6], [4.0, -4.3]], () => {
-        if (day === d && d.tasks.indexOf(task) >= 0) task.boxes = W.dropBoxes(3.5, -5.6);
-        dp.cargo(false); dp.walk([[4.0, -0.6], [dx, -0.6], [dx, L.salon.zMax + 0.2], [dx + 1.5, L.galeria.zMax + 3]], () => dp.remove());
+      dp.walk([[dx, L.salon.zMax + 0.2], [dx, -0.9], [4.5, -0.9], [4.6, -4.0]], () => {
+        if (day === d && d.tasks.indexOf(task) >= 0) task.boxes = W.dropBoxes(4.9, -5.4);
+        dp.cargo(false); dp.walk([[4.5, -0.9], [dx, -0.9], [dx, L.salon.zMax + 0.2], [dx + 1.5, L.galeria.zMax + 3]], () => dp.remove());
       });
     }
     toast('<b>' + st.icon + ' ' + st.name + '</b>' + st.task.name + '. Cuando puedas.', '', 2200);
@@ -219,7 +308,7 @@ GS.Game = (function () {
   function leave(cu, withBag) {
     cu.st = 'leaving'; cu.slotM = -1; cu.slotC = -1; cu.label.hidden = true; cu.person.bag(!!withBag);
     const dx = L.puerta.x, d = day;
-    cu.person.walk([[-0.6, -0.9], [dx, L.salon.zMax + 0.2], [dx + U.rnd(-2, 2), L.galeria.zMax + 3]], () => {
+    cu.person.walk([[dx, -1.2], [dx, L.salon.zMax + 0.2], [dx + U.rnd(-2, 2), L.galeria.zMax + 3]], () => {
       cu.person.remove(); cu.label.remove(); const i = d.customers.indexOf(cu); if (i >= 0) d.customers.splice(i, 1);
     });
   }
@@ -260,6 +349,7 @@ GS.Game = (function () {
     const ref = job.ref, isCust = job.type === 'mostrador' || job.type === 'caja';
     ref.st = isCust ? (job.type === 'mostrador' ? 'inM' : 'inC') : 'in'; ref.pat = Math.max(ref.pat, 0.55);
     focusFor(job.type);
+    { const at = job.type === 'caja' || job.type === 'cierre' ? L.yoCaja : ['mostrador', 'whatsapp', 'devol', 'stock'].indexOf(job.type) >= 0 ? L.yoMostrador : null, yo = W.player(); if (at && yo) yo.walk([at], () => yo.face(0)); }
     const cb = {
       onMistake(kind) { breakCombo(); addRep(-0.02); addCord(-CD.mistake); if (kind === 'caja') day.cajaErr++; else day.otherErr++; if (!day.relaxed) ref.pat = Math.max(0.05, ref.pat - C.day.mistakeCost); },
       onEnd(ok, info) {
@@ -267,7 +357,7 @@ GS.Game = (function () {
         if (job.type === 'mostrador') {
           addScore(100, ref.pat); addRep(0.02); { const v = GS.Store.get('vid') || 0, saw = Math.random() < v * 0.7 + (upNow().vidluz ? 0.15 : 0); if (saw) addRep(0.02); sayAt(ref.person, saw ? U.pick(LN.sawWindow) : '¡Eso! Voy a la caja.', saw ? 3000 : 1900); } ref.st = 'toCaja'; ref.slotM = -1; ref.pat = Math.max(ref.pat, 0.8);
           ref.slotC = Math.max(0, freeSlot('slotC', L.colaCaja.length));
-          ref.person.walk([[0.1, -2.1], L.colaCaja[ref.slotC]], () => { ref.st = 'waitC'; ref.person.face(Math.PI / 2); });
+          ref.person.walk([[Math.min(ref.person.group.position.x + 0.8, 1.6), -2.1], L.colaCaja[ref.slotC]], () => { ref.st = 'waitC'; ref.person.face(Math.PI); });
         } else if (job.type === 'caja') {
           day.served++;
           if (info.total) day.sales += info.total;
@@ -311,6 +401,7 @@ GS.Game = (function () {
         if (!day.queue.length && !day.tasks.length && !open && !day.intr && day.customers.every(c => c.st === 'leaving')) endWave();
       }
     }
+    updateLookers(dt); updateHelper(dt);
     // cordura: se recupera en los respiros y baja despacito cuando se junta mucho
     { const u = upNow();
       if (day.stage === 'rest' && day.wave >= 0 && !day.closing) addCord(CD.rest * (u.cafetera ? 1.6 : 1) * dt);
@@ -320,7 +411,7 @@ GS.Game = (function () {
     // paciencia (en el turno tranquilo no baja)
     if (!day.relaxed) {
       for (const cu of day.customers.slice()) {
-        if (cu.st === 'waitM' || cu.st === 'waitC') cu.pat -= dt / (cfg.patienceWait * patMult() * (cu.st === 'waitC' && upNow().caja2 ? 2 : 1));
+        if (cu.st === 'waitM' || cu.st === 'waitC') cu.pat -= dt / (cfg.patienceWait * patMult());
         else if ((cu.st === 'inM' || cu.st === 'inC') && !MG.isResolving()) cu.pat -= dt / cfg.patienceGame;
         if (cu.pat <= 0 && (cu.st === 'waitM' || cu.st === 'waitC' || cu.st === 'inM' || cu.st === 'inC')) {
           if (cu.st === 'inM' || cu.st === 'inC') { if (MG.isResolving()) { cu.pat = 0.01; continue; } MG.close(); W.focus(null); }
@@ -467,7 +558,7 @@ GS.Game = (function () {
     state = 'end'; MG.close(); W.focus(null); W.showAll(); A.play('endDay'); A.setMood('menu'); $('rain').hidden = true;
     const d = day; d.intr = null;
     const cordEnd = Math.round(d.cord), cordPts = cordEnd * CD.bonus; d.score += cordPts;
-    d.customers.slice().forEach(c => { if (c.st !== 'leaving') leave(c, false); });
+    d.customers.slice().forEach(c => { if (c.st !== 'leaving') leave(c, false); }); d.lookers.slice().forEach(lk => { if (lk.st !== 'out') { lk.p.stop(); lookerOut(lk); } });
     d.tasks.slice().forEach(removeTask); d.says.forEach(x => x.el.remove()); d.says = [];
     $('hud').hidden = true; $('jobs').hidden = true;
     const done = d.served + d.tasksDone, missed = d.lost + d.tasksLate, errs = d.cajaErr + d.otherErr;
@@ -504,8 +595,10 @@ GS.Game = (function () {
       (isFinal ? '<button class="btn gold" id="endFinal">🎬 Ver el final de la temporada</button>' : '') +
       '<button class="btn' + (isFinal ? ' ghost' : '') + '" id="endAgain">Siguiente jornada</button><button class="btn ghost" id="endCard">📸 Tarjeta para compartir</button>' +
       '<div class="row"><button class="btn ghost" id="endHome">Inicio</button><button class="btn ghost" id="endRecs">Récords</button></div>' +
-      '<button class="phases" id="phasesEnd"></button></div>';
+      (C.links.tienda ? '<a class="btn ghost" id="endStore" target="_blank" rel="noopener" href="' + C.links.tienda + '">🛒 Ver la tienda de verdad</a>' : '') +
+      '<button class="phases" id="phasesEnd"' + (C.launched ? ' hidden' : '') + '></button></div>';
     $('phasesEnd').innerHTML = phasesCompact(); $('phasesEnd').addEventListener('click', showPhases);
+    if ($('endStore')) $('endStore').addEventListener('click', () => GS.track('click_tienda', { desde: 'cierre' }));
     $('endCard').addEventListener('click', () => showCard()); if (isFinal) $('endFinal').addEventListener('click', () => startFinal());
     $('endAgain').addEventListener('click', () => startDay(d.relaxed));
     $('endHome').addEventListener('click', goHome); $('endRecs').addEventListener('click', showRecords); $('endShop').addEventListener('click', openShop);
@@ -540,7 +633,7 @@ GS.Game = (function () {
     }).join('') + (g.levels.length > 1 ? '' : '');
     const show = Object.assign({}, u); show[g.id] = Math.max(own, preview == null ? Math.min(own + 1, g.levels.length) : preview);   // vista previa del modelo en su lugar
     W.setUpgrades(show); W.focusAt(g.pos[0], g.pos[1], g.zoom || 0.36, 0.2);
-    $('shopHint').textContent = own >= g.levels.length ? 'Ya lo tenés en el local.' : 'Vista previa en el local' + (g.levels.length > 1 ? ' · deslizá para ver los modelos' : '');
+    $('shopHint').textContent = (shopSel + 1) + ' de ' + GS.UPGRADES.length + ' · ' + (own >= g.levels.length ? 'Ya lo tenés en el local.' : 'Vista previa en el local');
   }
   function buy(i) {
     const u = upNow(), g = GS.UPGRADES[shopSel], lv = g.levels[i]; if ((u[g.id] || 0) !== i || coinsNow() < lv.price) return;
@@ -706,8 +799,9 @@ GS.Game = (function () {
     const seg = (name, vals, curv) => '<div class="seg" data-seg="' + name + '">' + vals.map(v => '<button data-v="' + v[0] + '" class="' + (v[0] === curv ? 'on' : '') + '">' + v[1] + '</button>').join('') + '</div>';
     modal('<h2>Opciones</h2>' +
       '<div class="setting"><span>Sonido</span>' + seg('mute', [['0', 'Con sonido'], ['1', 'Silencio']], A.isMuted() ? '1' : '0') + '</div>' +
-      '<div class="setting"><span>Música</span>' + seg('music', [['1', 'Con música'], ['0', 'Sin música']], A.isMusicOn() ? '1' : '0') + '</div>' +
+      '<div class="setting"><span>Música</span>' + seg('music', [['0', 'Sin música'], ['1', 'Suave'], ['2', 'Normal']], String(A.musicLevel())) + '</div>' +
       '<div class="setting"><span>Calidad gráfica</span>' + seg('quality', [['auto', 'Auto'], ['alta', 'Alta'], ['media', 'Media'], ['baja', 'Baja']], q) + '</div>' +
+      '<div class="setting"><span>Texto grande</span>' + seg('big', [['0', 'No'], ['1', 'Sí']], GS.Store.get('big') ? '1' : '0') + '</div>' +
       '<div class="setting"><span>Reducir movimiento</span>' + seg('calm', [['0', 'No'], ['1', 'Sí']], calm ? '1' : '0') + '</div>' +
       '<div class="setting"><span>Tu personaje</span><button class="btn ghost" id="optAv" style="width:auto">Cambiar</button></div>' +
       '<div class="setting"><span>Jornada (modo prueba)</span>' + seg('testDay', [['0', 'Auto'], ['1', '1'], ['2', '2'], ['3', '3'], ['4', '4'], ['5', '5'], ['6', '6'], ['8', '8']], String(GS.Store.get('testDay') || 0)) + '</div>' +
@@ -721,8 +815,9 @@ GS.Game = (function () {
       s.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
       const name = s.dataset.seg, v = b.dataset.v;
       if (name === 'mute') { A.unlock(); A.setMuted(v === '1'); syncMute(); A.play('click'); }
-      if (name === 'music') { A.unlock(); A.setMusic(v === '1'); }
-      if (name === 'quality') { GS.Store.set('quality', v); W.setQuality(v === 'auto' ? autoQuality() : v); }
+      if (name === 'music') { A.unlock(); A.setMusic(Number(v)); }
+      if (name === 'quality') { GS.Store.set('quality', v); autoQ = autoQuality(); W.setQuality(v === 'auto' ? autoQ : v); }
+      if (name === 'big') { GS.Store.set('big', v === '1'); document.body.classList.toggle('big', v === '1'); }
       if (name === 'calm') { setCalm(v === '1'); GS.Store.set('calm', calm); }
       if (name === 'testDay') { GS.Store.set('testDay', Number(v)); refreshStart(); }
       if (name === 'testCond') GS.Store.set('testCond', v);
@@ -750,12 +845,16 @@ GS.Game = (function () {
   }
 
   /* ---------------- Bucle principal ---------------- */
+  let fpsT = 0, fpsN = 0, autoQ = 'media';
   function frame(t) {
     requestAnimationFrame(frame);
     if (document.hidden) { lastT = t; return; }             // pestaña oculta: no se dibuja ni corre el reloj
     const dt = Math.min(0.05, (t - lastT) / 1000 || 0); lastT = t;
     if (state === 'day' && !paused) updateDay(dt);
     if (state === 'final' && !paused) updateFinal(dt);
+    if (!paused) updateStaff(dt);
+    // calidad automática: si el equipo no llega a unos 22 cuadros por segundo durante un rato, baja un escalón sola
+    if ((GS.Store.get('quality') || 'auto') === 'auto' && dt > 0) { fpsT += dt; fpsN++; if (fpsT >= 4) { const fps = fpsN / fpsT; fpsT = fpsN = 0; if (fps < 22 && autoQ !== 'baja') { autoQ = autoQ === 'alta' ? 'media' : 'baja'; W.setQuality(autoQ); GS.track('calidad_auto', { nivel: autoQ }); } } }
     if (!paused && (walkT -= dt) <= 0 && walkers < 4) {                 // peatones: pasan por la vereda y siguen de largo
       walkT = U.rnd(3, 7) * (day && day.cond === 'lluvia' ? 2.2 : 1); walkers++;
       const dir = Math.random() < 0.5 ? 1 : -1, z = L.galeria.zMax + U.rnd(1.6, 2.6), hs = U.pick(GS.HAIRSTYLES)[0];
@@ -770,13 +869,19 @@ GS.Game = (function () {
     $('phasesStart').innerHTML = phasesCompact();
     $('chipPhase').textContent = '🚧 Etapa ' + C.phase + ' de ' + GS.PHASES.length;
     const q = GS.Store.get('quality') || 'auto';
-    W.setQuality(q === 'auto' ? autoQuality() : q);
+    autoQ = autoQuality(); W.setQuality(q === 'auto' ? autoQ : q);
     if (!W.init($('c'))) {
       modal('<h2>Ups</h2><p>Este navegador no pudo iniciar los gráficos 3D. Probá actualizarlo o abrir el juego en otro navegador.</p>');
       return;
     }
+    staffInit(); luchoLook(dayNumber()); document.body.classList.toggle('big', !!GS.Store.get('big')); if (C.launched) { $('phasesStart').hidden = true; $('chipPhase').hidden = true; document.querySelector('.fine').firstChild.textContent = 'Precios y stock ficticios.'; }
+    GS.track.init(); GS.track('abrir_juego', { jornada: dayNumber() }); window.addEventListener('error', e => GS.track('error_js', { msg: String(e.message).slice(0, 80) }));
+    if (C.links.tienda) { $('btnStore').hidden = false; $('btnStore').href = C.links.tienda; $('btnStore').addEventListener('click', () => GS.track('click_tienda', { desde: 'inicio' })); }
     setCalm(!!GS.Store.get('calm')); syncMute(); W.showAll(); W.setUpgrades(upNow()); W.setPlayerLook(GS.Store.get('avatar'));
     $('btnShop').addEventListener('click', openShop); $('shopDone').addEventListener('click', closeShop);
+    const shopStep = k => { if (state !== 'shop') return; shopSel = (shopSel + k + GS.UPGRADES.length) % GS.UPGRADES.length; A.play('click'); renderShop(); const on = $('shopSlots').querySelector('.on'); if (on && on.scrollIntoView) on.scrollIntoView({ block: 'nearest', inline: 'center' }); };
+    $('shopPrev').addEventListener('click', () => shopStep(-1)); $('shopNext').addEventListener('click', () => shopStep(1));
+    $('shopSlots').addEventListener('wheel', e => { if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) { $('shopSlots').scrollLeft += e.deltaY; e.preventDefault(); } }, { passive: false });
     $('shopSlots').addEventListener('click', e => { const b = e.target.closest('.slotb'); if (b) { shopSel = Number(b.dataset.i); A.play('click'); renderShop(); } });
     $('shopCards').addEventListener('click', e => { const b = e.target.closest('[data-buy]'); if (b) buy(Number(b.dataset.buy)); });
     $('shopCards').addEventListener('scroll', () => { const el = $('shopCards'), i = Math.round(el.scrollLeft / Math.max(1, el.clientWidth * 0.86)); if (el._i !== i) { el._i = i; const u = upNow(), g = GS.UPGRADES[shopSel], sh = Object.assign({}, u); sh[g.id] = Math.max(u[g.id] || 0, i + 1); W.setUpgrades(sh); } });
@@ -798,6 +903,7 @@ GS.Game = (function () {
     document.addEventListener('visibilitychange', () => { if (document.hidden && state === 'day' && !paused && $('modal').hidden) showPause(); });
     document.addEventListener('keydown', e => {
       if (!$('modal').hidden) { if (e.key === 'Escape' || e.key === 'Enter') { const b = $('sheet').querySelector('[data-close], #pResume'); if (b) b.click(); } return; }
+      if (state === 'shop') { if (e.key === 'ArrowLeft') shopStep(-1); else if (e.key === 'ArrowRight') shopStep(1); else if (e.key === 'Escape') closeShop(); return; }
       if (state !== 'day') return;
       if (e.key === 'Escape') return showPause();
       if (MG.isOpen()) return MG.key(e);

@@ -4,8 +4,9 @@
    generativo tranquilo, distinto según el momento) y los balbuceos.
    ===================================================================== */
 GS.Audio = (function () {
-  let ctx = null, master = null, mGain = null, muted = !!GS.Store.get('mute'), musicOn = GS.Store.get('music') !== false;
+  let ctx = null, master = null, mGain = null, muted = !!GS.Store.get('mute'), mLevel = GS.Store.get('music') == null || GS.Store.get('music') === true ? 1 : Number(GS.Store.get('music')) || 0, musicOn = mLevel > 0;
 
+  const MVOL = [0, 0.55, 1];           // sin música, suave (por defecto) y normal
   function unlock() {
     if (ctx) { if (ctx.state === 'suspended') ctx.resume(); return; }
     try {
@@ -13,7 +14,7 @@ GS.Audio = (function () {
       if (!AC) return;
       ctx = new AC(); master = ctx.createGain();
       master.gain.value = muted ? 0 : 0.5; master.connect(ctx.destination);
-      mGain = ctx.createGain(); mGain.gain.value = musicOn ? 1 : 0; mGain.connect(master);
+      mGain = ctx.createGain(); mGain.gain.value = MVOL[mLevel]; mGain.connect(master);
       if (!mTimer) mTimer = setInterval(pump, 90);
     } catch (e) { ctx = null; }
   }
@@ -42,40 +43,38 @@ GS.Audio = (function () {
     s.connect(f); f.connect(g); g.connect(master); s.start(t);
   }
 
-  /* ---------- Música: loop generativo, sin archivos. Cada momento tiene su clima ---------- */
+  /* ---------- Música: de fondo, suave y sin archivos. Acordes largos, bajo redondo y una melodía con silencios,
+     todo pasado por un filtro que le saca el brillo para que acompañe sin cansar. Cada momento tiene su clima. ---------- */
   const N = n => 440 * Math.pow(2, (n - 69) / 12);      // nota MIDI a frecuencia
+  // prog: acordes (bajo + tres notas). mel: melodía de dos compases en corcheas (grados de la escala; null = silencio)
+  const SCALE = [60, 62, 64, 67, 69, 72, 74, 76];       // pentatónica mayor de do: no hay nota que suene mal
   const MOODS = {
-    menu:  { bpm: 76,  prog: [[48, 64, 67, 71], [45, 64, 67, 72], [41, 65, 69, 72], [43, 62, 67, 71]], arp: 'sine',     hat: 0,    bass: [0, 8] },
-    day:   { bpm: 96,  prog: [[48, 64, 67, 71], [45, 60, 64, 67], [41, 65, 69, 72], [43, 62, 67, 71]], arp: 'triangle', hat: 0.03, bass: [0, 6, 8, 14] },
-    rain:  { bpm: 72,  prog: [[45, 64, 69, 72], [41, 65, 69, 72], [48, 64, 67, 72], [43, 62, 67, 71]], arp: 'sine',     hat: 0,    bass: [0, 8] },
-    party: { bpm: 108, prog: [[48, 64, 67, 72], [43, 62, 67, 71], [45, 64, 69, 72], [41, 65, 69, 72]], arp: 'triangle', hat: 0.04, bass: [0, 4, 8, 12] },
-    final: { bpm: 112, prog: [[48, 64, 67, 72], [41, 65, 69, 72], [43, 67, 71, 74], [48, 67, 72, 76]], arp: 'square',   hat: 0.04, bass: [0, 4, 8, 12] }
+    menu:  { bpm: 66, prog: [[48, 64, 67, 71], [45, 64, 67, 72], [41, 64, 69, 72], [43, 62, 67, 71]], mel: [4, null, null, 2, null, null, 3, null, 2, null, null, 0, null, null, null, null], kick: 0 },
+    day:   { bpm: 80, prog: [[48, 64, 67, 71], [45, 60, 64, 67], [41, 60, 65, 69], [43, 62, 65, 71]], mel: [2, null, 3, null, 4, null, null, 3, null, 2, null, 0, null, null, 1, null], kick: 0.1 },
+    rain:  { bpm: 62, prog: [[45, 64, 67, 72], [41, 64, 69, 72], [48, 64, 67, 71], [43, 62, 67, 71]], mel: [4, null, null, null, 3, null, 2, null, null, null, 0, null, null, null, null, null], kick: 0 },
+    party: { bpm: 92, prog: [[48, 64, 67, 72], [43, 62, 67, 71], [45, 64, 69, 72], [41, 65, 69, 72]], mel: [0, null, 2, 3, null, 4, null, 3, 2, null, 3, null, 5, null, 4, null], kick: 0.13 },
+    final: { bpm: 96, prog: [[48, 64, 67, 72], [41, 65, 69, 72], [43, 62, 67, 71], [48, 64, 67, 76]], mel: [2, 3, 4, null, 5, null, 4, 3, 4, null, 5, 6, 7, null, null, null], kick: 0.13 }
   };
-  const ARP = [0, 1, 2, 1, 2, 1, 0, 2];
-  let mood = 'menu', mStep = 0, mNext = 0, mTimer = null;
-  function voice(freq, dur, type, vol, t, att) {
+  let mood = 'menu', mStep = 0, mNext = 0, mTimer = null, mLp = null;
+  function voice(freq, dur, type, vol, t, att, rel) {
+    if (!mLp) { mLp = ctx.createBiquadFilter(); mLp.type = 'lowpass'; mLp.frequency.value = 1500; mLp.Q.value = 0.3; mLp.connect(mGain); }
     const o = ctx.createOscillator(), g = ctx.createGain();
     o.type = type; o.frequency.setValueAtTime(freq, t);
-    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + (att || 0.015)); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-    o.connect(g); g.connect(mGain); o.start(t); o.stop(t + dur + 0.05);
-  }
-  function hat(t, vol) {
-    const len = Math.floor(ctx.sampleRate * 0.03), buf = ctx.createBuffer(1, len, ctx.sampleRate), d = buf.getChannelData(0);
-    for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / len);
-    const s = ctx.createBufferSource(), f = ctx.createBiquadFilter(), g = ctx.createGain(); s.buffer = buf; f.type = 'highpass'; f.frequency.value = 6000; g.gain.value = vol;
-    s.connect(f); f.connect(g); g.connect(mGain); s.start(t);
+    g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(vol, t + (att || 0.02)); g.gain.setTargetAtTime(0.0001, t + (att || 0.02), (rel || dur) / 4);
+    o.connect(g); g.connect(mLp); o.start(t); o.stop(t + dur + 0.1);
   }
   // Agenda las notas un rato antes de que suenen (así no se corta si el juego se traba un instante)
   function pump() {
     if (!ctx || muted || !musicOn || document.hidden || ctx.state !== 'running') { mNext = 0; return; }
-    const m = MOODS[mood], sp = 60 / m.bpm / 4;
-    if (mNext < ctx.currentTime) mNext = ctx.currentTime + 0.06;
-    while (mNext < ctx.currentTime + 0.3) {
-      const st = mStep % 16, ch = m.prog[Math.floor(mStep / 16) % m.prog.length], t = mNext;
-      if (st === 0) for (let i = 1; i < 4; i++) voice(N(ch[i]), sp * 15, 'sine', 0.035, t, 0.25);         // colchón del acorde
-      if (m.bass.indexOf(st) >= 0) voice(N(ch[0] - (st === 6 || st === 14 ? 0 : 12)), sp * 3.2, 'triangle', 0.16, t);
-      if (st % 2 === 0) voice(N(ch[1 + ARP[(st / 2) % 8]] + 12), sp * 1.7, m.arp, m.arp === 'square' ? 0.028 : 0.06, t);
-      if (m.hat && st % 4 === 2) hat(t, m.hat);
+    const m = MOODS[mood], sp = 60 / m.bpm / 2;                                   // paso = una corchea
+    if (mNext < ctx.currentTime) mNext = ctx.currentTime + 0.08;
+    while (mNext < ctx.currentTime + 0.35) {
+      const st = mStep % 8, bar = Math.floor(mStep / 8), ch = m.prog[bar % m.prog.length], t = mNext + (st % 2 ? sp * 0.12 : 0);   // un poquito de swing
+      if (st === 0) for (let i = 1; i < 4; i++) voice(N(ch[i]), sp * 9, 'sine', 0.05, t + i * 0.03, 0.5, sp * 6);               // colchón del acorde, entra de a poco
+      if (st === 0 || st === 5) voice(N(ch[0] - 12), sp * 2.6, 'sine', st ? 0.11 : 0.16, t, 0.03);                             // bajo redondo
+      if (m.kick && (st === 0 || st === 4)) voice(90, 0.16, 'sine', m.kick, t, 0.005, 0.12);                                   // pulso apenas marcado
+      const deg = m.mel[(bar % 2) * 8 + st];
+      if (deg != null && (bar % 4 !== 3 || st < 4)) voice(N(SCALE[deg] + (bar % 8 >= 4 && st === 0 ? 12 : 0)), sp * 2.4, 'triangle', 0.05, t, 0.03);   // melodía con aire
       mStep++; mNext += sp;
     }
   }
@@ -109,8 +108,8 @@ GS.Audio = (function () {
     play(name, arg) { if (sfx[name]) sfx[name](arg); },
     babble,
     setMood(m) { if (MOODS[m] && m !== mood) { mood = m; mStep = 0; } },
-    isMusicOn: () => musicOn,
-    setMusic(v) { musicOn = v; GS.Store.set('music', v); if (mGain) mGain.gain.value = v ? 1 : 0; },
+    musicLevel: () => mLevel,
+    setMusic(v) { mLevel = v; musicOn = v > 0; GS.Store.set('music', v); if (mGain) mGain.gain.value = MVOL[v]; },
     isMuted: () => muted,
     setMuted(m) { muted = m; GS.Store.set('mute', m); if (master) master.gain.value = m ? 0 : 0.5; }
   };
