@@ -35,7 +35,7 @@ async def main():
             await pg.wait_for_timeout(110)
             st = await pg.evaluate("GS.Game.state()")
             if st=='end': break
-            r = await pg.evaluate("(()=>{const i=document.querySelector('[data-intr=\"1\"]'); if(i&&!GS.Minigames.isOpen()){i.click();return 'intr';} if(!GS.Minigames.isOpen()){const j=document.querySelector('.job[data-i]'); if(j){j.click();return 'job';}} return null;})()")
+            r = await pg.evaluate("(()=>{const o=document.querySelector('#modal:not([hidden]) [data-o]'); if(o){o.click();return 'historia';} const cl=document.querySelector('#modal:not([hidden]) [data-close]'); if(cl){cl.click();return 'cerrar';} const i=document.querySelector('[data-intr=\"1\"]'); if(i&&!GS.Minigames.isOpen()){i.click();return 'intr';} if(!GS.Minigames.isOpen()){const j=document.querySelector('.job[data-i]'); if(j){j.click();return 'job';}} return null;})()")
             r = r or await pg.evaluate(SOLVE); log[r]=log.get(r,0)+1
             nb = await pg.evaluate("document.querySelectorAll('.say:not(.zz)').length"); mx = max(mx, nb); seen.update(await pg.evaluate("[...document.querySelectorAll('.say.boss')].map(e=>e.textContent)"))
         d = await pg.evaluate("(()=>{const d=GS.Game.day();return {st:GS.Game.state(),score:d.score,served:d.served,lost:d.lost,tasks:d.tasksDone,late:d.tasksLate,cord:Math.round(d.cord),intrOk:d.intrOk,mate:d.mate}})()")

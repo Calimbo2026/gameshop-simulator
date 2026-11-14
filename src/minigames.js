@@ -10,7 +10,8 @@ GS.Minigames = (function () {
 
   function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
   function head(cust, station) {
-    return '<div class="mg-head"><div class="mg-face">' + cust.arche.face + '</div><div class="mg-who"><b>' + esc(cust.arche.name) + '</b><span>' + esc(cust.arche.tag) +
+    const pic = cust.look && GS.faceSvg;      // los clientes muestran su cara, con la mueca que corresponde a lo que pasa
+    return '<div class="mg-head"><div class="mg-face' + (pic ? ' pic' : '') + '" id="mgFace">' + (pic ? GS.faceSvg(cust.look, cust.pat < 0.35 ? 'impatient' : 'talk') : cust.arche.face) + '</div><div class="mg-who"><b>' + esc(cust.arche.name) + '</b><span>' + esc(cust.arche.tag) +
       '</span><div class="mg-pat"><i id="mgPat"></i></div></div><div class="mg-station">' + station + '</div></div>';
   }
   // Foto real del producto si la tiene; si no, el ícono
@@ -25,9 +26,10 @@ GS.Minigames = (function () {
     b.textContent = text; b.classList.toggle('joke', !!joke);
     if (joke) { b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake'); }
   }
-  function mistake(kind, text) { GS.Audio.play('error'); say(text, true); cur.cb.onMistake(kind); }
+  function face(m) { const el = document.getElementById('mgFace'); if (el && cur && cur.cust && cur.cust.look && GS.faceSvg) el.innerHTML = GS.faceSvg(cur.cust.look, m); }
+  function mistake(kind, text) { GS.Audio.play('error'); say(text, true); face('angry'); const c = cur; setTimeout(() => { if (cur === c && !c.done) face(c.cust.pat < 0.35 ? 'impatient' : 'sad'); }, 1600); cur.cb.onMistake(kind); }
   function finish(ok, title, sub, info) {
-    if (!cur || cur.done) return; cur.done = true;
+    if (!cur || cur.done) return; cur.done = true; face(info && info.caught ? 'nervous' : ok ? 'happy' : info && info.cajaError ? 'happy' : 'angry');
     const r = document.createElement('div'); r.className = 'result' + (ok ? '' : ' bad');
     r.innerHTML = '<div>' + esc(title) + (sub ? '<small>' + esc(sub) + '</small>' : '') + '</div>';
     root().appendChild(r);
@@ -148,6 +150,7 @@ GS.Minigames = (function () {
       rows.map((r, i) => '<button class="rowb" data-k="' + r[0] + '"><kbd>' + (i + 1) + '</kbd><span>' + r[1] + '</span><b>' + esc(f[r[0]]) + '</b></button>').join('') + '</div>' +
       '<div class="rule" id="mgBubble">¿Hay algún dato distinto? Tocalo. Si coincide todo, aprobá.</div>' +
       '<button class="btn okb" id="mgYes">✔ Coincide todo: aprobar</button>';
+    face(fake ? (Math.random() < 0.6 ? 'nervous' : 'normal') : Math.random() < 0.12 ? 'nervous' : 'normal');     // el que trae un comprobante trucho suele transpirar (no siempre)
     const rb = [...root().querySelectorAll('.rowb')];
     const mark = () => { if (flag) root().querySelector('.rowb[data-k="' + flag + '"]').classList.add('flag'); };
     function tapRow(b) {
@@ -395,10 +398,11 @@ GS.Minigames = (function () {
 
   /* ---------------- 12. VIDRIERA: elegir los 4 productos que van con el tema ---------------- */
   function vidriera(job) {
-    const th = U.pick(GS.THEMES), good = U.shuffle(GS.CATALOG.filter(p => p.cat === th.cat)).slice(0, 4), bad = U.shuffle(GS.CATALOG.filter(p => p.cat !== th.cat)).slice(0, 4), all = U.shuffle(good.concat(bad));
-    root().innerHTML = head(job, 'Vidriera') + '<div class="bubble" id="mgBubble">Tema de la vidriera: <b>' + esc(th.t) + '</b>. Elegí los 4 productos que mejor van.</div>' +
+    const th = U.pick(GS.THEMES), good = U.shuffle(GS.CATALOG.filter(p => th.ids.indexOf(p.id) >= 0)).slice(0, 4), bad = U.shuffle(GS.CATALOG.filter(p => th.ids.indexOf(p.id) < 0)).slice(0, 4), all = U.shuffle(good.concat(bad));
+    root().innerHTML = head(job, 'Vidriera') + '<div class="bubble" id="mgBubble">Esta semana la vidriera es <b>' + esc(th.t) + '</b>: ' + esc(th.hint) + '.</div>' +
+      '<div class="info"><b>Hay 8 productos: 4 van con el tema y 4 no. Elegí los 4 que van.</b></div>' +
       '<div class="opts four">' + all.map((p, i) => '<button class="opt" data-i="' + i + '"><kbd>' + (i + 1) + '</kbd>' + pic(p) + '<span class="n">' + esc(p.name) + '</span></button>').join('') + '</div>' +
-      '<div class="rule">Elegidos: <span id="mgN">0</span> de 4 · tocá de nuevo para sacar uno</div>';
+      '<div class="rule">Elegidos: <span id="mgN">0</span> de 4 · tocá de nuevo para sacar uno · al elegir el cuarto se arma la vidriera</div>';
     const btns = [...root().querySelectorAll('.opt')], me = cur;
     function toggle(b) {
       if (!cur || cur.done) return;
@@ -408,8 +412,8 @@ GS.Minigames = (function () {
       const sel = btns.filter(x => x.classList.contains('sel')); document.getElementById('mgN').textContent = sel.length;
       if (sel.length === 4) {
         const n = sel.filter(x => good.indexOf(all[x.dataset.i]) >= 0).length;
-        btns.forEach(x => x.classList.add(good.indexOf(all[x.dataset.i]) >= 0 ? 'good' : 'dim'));
-        setTimeout(() => { if (cur !== me) return; GS.Audio.play(n >= 3 ? 'ok' : 'click'); finish(true, n === 4 ? '¡Vidriera perfecta!' : n >= 2 ? 'Vidriera aceptable' : 'Vidriera... original', n + ' de 4 productos van con "' + th.t + '".', { quality: n / 4 }); }, 700);
+        btns.forEach(x => { const g = good.indexOf(all[x.dataset.i]) >= 0; x.classList.add(g ? 'good' : 'dim'); if (!g && x.classList.contains('sel')) x.classList.add('bad'); });
+        setTimeout(() => { if (cur !== me) return; GS.Audio.play(n >= 3 ? 'ok' : 'click'); finish(true, n === 4 ? '¡Vidriera perfecta!' : n >= 2 ? 'Vidriera aceptable' : 'Vidriera... original', n + ' de 4 iban con "' + th.t + '" (' + th.hint + ').', { quality: n / 4 }); }, 1300);
       }
     }
     btns.forEach(b => b.addEventListener('click', () => toggle(b)));

@@ -106,3 +106,17 @@ Sin datos sensibles del negocio, sin personas reales, precios y stock ficticios.
 - **Vereda según la hora** (`setSky` y `World.setDayTime`): mañana, mediodía, tarde dorada y anochecer con faroles y la luz del local sobre la vereda. Con lluvia, todo más gris.
 - **Compras por la página:** la estación que era de Mercado Libre ahora representa las compras de www.gameshop.com.ar.
 - **Carteles de mesas** (`rail` en `src/world.js`): misma altura, mismo tamaño y del lado que mira a la cámara.
+
+### Trama, historias y personajes nuevos (v0.12)
+
+- **Trama central: "El local de al lado"** (`GS.PLOT` en `src/data.js`). Hay un fondo que se llena con monedas (botones "Aportar" en Mejorar el local) y con algunas visitas. La temporada cierra en la jornada `GS.CONFIG.finalDay` (20) y el fondo decide uno de cuatro finales (`tiers`). Así las monedas siguen sirviendo cuando ya están todas las mejoras.
+- **Visitas con historia** (`GS.STORIES`): seis personajes que vuelven en varias jornadas (Doña Elvira, Benja, Don Anselmo, Tito Ofertas, Cami y el hombre del maletín) y tres visitas raras sueltas. Cada visita es un diálogo con una decisión que cambia reputación, cordura, fondo o lo que cuesta el local. Aparecen con 📖 en los pedidos y no tienen apuro. Todo queda en la **Libreta** (inicio y cierre de caja).
+- **Empezar una temporada nueva:** en Opciones. Vuelve a la jornada 1 y reinicia trama y libreta, conservando monedas y mejoras.
+- **Personajes** (`makePerson` en `src/world.js`, `avatarSvg` en `src/game.js`): muñecos cabezones con brazos, piernas y pasos, cada uno en 4 colores plenos (piel, pelo, remera, pantalón; ojos, cejas, anteojos y zapatillas van del color del pantalón). En mostrador, caja y visitas se ve la cara del cliente con la mueca que corresponde.
+- **Clientes disfrazados:** de los héroes de los juegos inventados (Capitán Carpincho, Astromatero, La Reina de Espadas, Rayo). No se usan personajes de juegos reales.
+- **Productos:** cuatro juegos físicos con portada inventada (Carpincho Kart, Galaxia Mate, Truco Royale, Subte Runner), DualSense en seis colores con sus pedidos, y parlante portátil redibujado.
+- **Vidriera:** diez temas con consigna explícita ("4 van con el tema y 4 no") y se marca cuáles no iban.
+- **Interrupciones:** 14 nuevas, cinco inspiradas en noticias insólitas de la Ciudad (un carpincho por la vereda, excusas en un control, un colectivo con ruidos raros, la plaza de Fórmula 1, papelitos).
+- **Segunda caja:** Brian cobra cuando hay dos esperando para pagar, o uno solo si estás ocupado en otra tarea.
+
+**Pruebas:** `python3 test/v11.py` (capturas) y `python3 test/v8.py 6` (juega sola una jornada, incluidas las visitas).

@@ -507,25 +507,43 @@ GS.World = (function () {
     }
   }
 
-  /* ---------- Personajes low-poly (cabezones) ---------- */
+  /* ---------- Personajes: muñequitos cabezones con brazos y piernas, en 4 colores plenos ----------
+     Cada personaje usa exactamente cuatro colores: PIEL, PELO, REMERA y PANTALÓN. Las zapatillas, los ojos, las cejas y los
+     anteojos van del color del pantalón; la barba y las pestañas, del color del pelo; los labios, del color de la remera.
+     Así cada uno se puede llevar a una impresión 3D de cuatro filamentos. */
   const SKINS = [0xf2c9a0, 0xe0ac7e, 0xc68a5c, 0x9a643c, 0xf6d7bd];
-  const gBody = new T.CylinderGeometry(0.2, 0.3, 0.8, 8), gHead = new T.SphereGeometry(0.33, 12, 10),
-        gHair = new T.SphereGeometry(0.35, 12, 8, 0, Math.PI * 2, 0, Math.PI * 0.52), gEye = new T.SphereGeometry(0.04, 6, 6),
+  const PANTS = [0x23232b, 0x2a3550, 0x3a2a1a, 0x1f3d2a, 0x4a4a55];
+  const HR = 0.36;                                                    // radio de la cabeza
+  const gHead = new T.SphereGeometry(HR, 16, 12), gEar = new T.SphereGeometry(0.085, 8, 6), gEye = new T.SphereGeometry(0.05, 8, 6),
+        gTorso = new T.CylinderGeometry(0.15, 0.2, 0.36, 12), gHip = new T.CylinderGeometry(0.2, 0.19, 0.16, 12), gLegP = new T.CylinderGeometry(0.085, 0.08, 0.14, 8),
+        gLeg = new T.CylinderGeometry(0.06, 0.055, 0.2, 8), gArm = new T.CylinderGeometry(0.052, 0.046, 0.26, 8), gSleeve = new T.CylinderGeometry(0.075, 0.07, 0.13, 8),
+        gHand = new T.SphereGeometry(0.062, 8, 6), gSmile = new T.TorusGeometry(0.075, 0.016, 6, 10, Math.PI),
         gShadow = new T.CircleGeometry(0.36, 16);
   const shadowMat = new T.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.2, depthWrite: false });
-  const gCone = new T.CylinderGeometry(0.15, 0.34, 0.86, 12), gBun = new T.SphereGeometry(0.15, 8, 8), gCurl = new T.SphereGeometry(0.13, 7, 6),
-        gBeard = new T.SphereGeometry(0.348, 14, 6, Math.PI * 0.06, Math.PI * 0.88, Math.PI * 0.6, Math.PI * 0.36),
-        gCap = new T.SphereGeometry(0.348, 16, 10, 0, Math.PI * 2, 0, Math.PI * 0.47), gMass = new T.SphereGeometry(0.36, 12, 10);
+  const gBun = new T.SphereGeometry(0.16, 8, 8), gCurl = new T.SphereGeometry(0.14, 7, 6), gTuft = new T.SphereGeometry(0.13, 7, 6),
+        gBeard = new T.SphereGeometry(HR + 0.018, 14, 6, Math.PI * 0.06, Math.PI * 0.88, Math.PI * 0.6, Math.PI * 0.36),
+        gCap = new T.SphereGeometry(HR + 0.02, 16, 10, 0, Math.PI * 2, 0, Math.PI * 0.5), gMass = new T.SphereGeometry(HR + 0.03, 12, 10),
+        gHelmet = new T.SphereGeometry(HR + 0.06, 16, 12, 0, Math.PI * 2, 0, Math.PI * 0.62);
   function makePerson(o) {
     o = o || {};
     const g = new T.Group(), base = o.scale || 1; g.scale.setScalar(base); g.userData.base = base;
-    const body = new T.Mesh(gCone, mat(o.shirt || 0x4a6fb5)); body.position.y = 0.45; g.add(body);
-    const head = new T.Mesh(gHead, mat(SKINS[0])); head.position.y = 1.14; g.add(head);
-    [-0.12, 0.12].forEach(x => { const e = new T.Mesh(gEye, mat(0x111111)); e.position.set(x, 1.14, 0.3); g.add(e); });
+    const HY = 1.14, parts = { skin: [], top: [], bot: [] };
+    const add = (parent, geo, kind, x, y, z) => { const m = new T.Mesh(geo, mat(0xffffff)); m.position.set(x, y, z); parent.add(m); parts[kind].push(m); return m; };
+    // piernas (giran desde la cadera al caminar): pernera del pantalón, pierna y zapatilla
+    const legs = [-1, 1].map(sd => { const L2 = new T.Group(); L2.position.set(sd * 0.1, 0.42, 0); g.add(L2);
+      add(L2, gLegP, 'bot', 0, -0.07, 0); add(L2, gLeg, 'skin', 0, -0.23, 0);
+      const shoe = box(L2, 0.14, 0.09, 0.24, 0xffffff, 0, -0.42, 0.04); parts.bot.push(shoe); return L2; });
+    add(g, gHip, 'bot', 0, 0.46, 0); add(g, gTorso, 'top', 0, 0.7, 0);
+    // brazos (giran desde el hombro): manga, brazo y mano
+    const arms = [-1, 1].map(sd => { const A2 = new T.Group(); A2.position.set(sd * 0.2, 0.82, 0); A2.rotation.z = sd * 0.16; g.add(A2);
+      add(A2, gSleeve, 'top', 0, -0.06, 0); add(A2, gArm, 'skin', 0, -0.24, 0); add(A2, gHand, 'skin', 0, -0.39, 0); return A2; });
+    const head = add(g, gHead, 'skin', 0, HY, 0); [-1, 1].forEach(sd => add(g, gEar, 'skin', sd * (HR - 0.01), HY - 0.03, 0));
+    [-1, 1].forEach(sd => { const e = add(g, gEye, 'bot', sd * 0.13, HY - 0.01, HR - 0.045); e.scale.set(1, 1.35, 0.6); });
+    const smile = add(g, gSmile, 'bot', 0, HY - 0.13, HR - 0.035); smile.rotation.z = Math.PI; smile.rotation.x = -0.25;
     const sh = new T.Mesh(gShadow, shadowMat); sh.rotation.x = -Math.PI / 2; sh.position.y = 0.02; g.add(sh);
-    const bag = box(g, 0.26, 0.3, 0.12, 0xe10600, 0.3, 0.3, 0.1); bag.visible = false;
-    const carry = box(g, 0.36, 0.28, 0.3, 0xc49a6c, 0, 0.42, 0.34); carry.visible = false;
-    const phone = o.phone ? box(g, 0.1, 0.18, 0.03, 0x111111, 0.12, 0.72, 0.26) : null;
+    const bag = box(g, 0.26, 0.3, 0.12, 0xe10600, 0.36, 0.3, 0.1); bag.visible = false;
+    const carry = box(g, 0.36, 0.28, 0.3, 0xc49a6c, 0, 0.5, 0.3); carry.visible = false;
+    const phone = o.phone ? box(g, 0.1, 0.18, 0.03, 0x111111, 0.16, 0.6, 0.2) : null;
     let cargo = null;
     if (o.cart) {
       box(g, 0.62, 0.06, 0.8, 0x3a6fd1, 0, 0.16, 0.85); box(g, 0.05, 0.9, 0.05, 0x3a6fd1, -0.26, 0.16, 0.48); box(g, 0.05, 0.9, 0.05, 0x3a6fd1, 0.26, 0.16, 0.48);
@@ -534,27 +552,41 @@ GS.World = (function () {
       cargo = new T.Group(); g.add(cargo);
       box(cargo, 0.5, 0.36, 0.5, 0xc49a6c, 0, 0.22, 0.9); box(cargo, 0.44, 0.3, 0.44, 0xb98d5e, 0.02, 0.58, 0.9); box(cargo, 0.3, 0.22, 0.3, 0xc49a6c, -0.04, 0.88, 0.9);
     }
-    // Estilo libre: cualquier combinación de peinado y accesorios (sin distinguir géneros)
-    let acc = null;
+    // Estilo libre: cualquier combinación de peinado y accesorios (sin distinguir géneros), siempre con los cuatro colores
+    let acc = null, cur = {};
     function style(a) {
-      if (acc) g.remove(acc); acc = new T.Group(); acc.position.y = 1.14; g.add(acc);
-      head.material = mat(a.skin || SKINS[1]); const hm = mat(a.hair || 0x3a2a1a), st = a.hairStyle || 'corto';
-      const cap = () => { const m = new T.Mesh(gCap, hm); m.rotation.x = -0.5; acc.add(m); };      // casquete concéntrico con la cabeza que deja la frente libre
-      if (st === 'corto' || st === 'largo' || st === 'rodete') cap();
-      if (st === 'largo') { const m = new T.Mesh(gMass, hm); m.scale.set(1.06, 1.3, 0.8); m.position.set(0, -0.2, -0.16); acc.add(m); }   // melena redondeada por detrás
-      if (st === 'rodete') { const b = new T.Mesh(gBun, hm); b.position.set(0, 0.4, -0.12); acc.add(b); }
-      if (st === 'rulos') { for (let i = 0; i < 9; i++) { const an = i / 9 * Math.PI * 2, c = new T.Mesh(gCurl, hm); c.scale.setScalar(1.25); c.position.set(Math.cos(an) * 0.25, 0.2, Math.sin(an) * 0.25 - 0.05); acc.add(c); }
-        [[0, 0.36, -0.04], [0.14, 0.33, 0.06], [-0.14, 0.33, 0.06], [0, 0.32, -0.2]].forEach(q => { const c = new T.Mesh(gCurl, hm); c.scale.setScalar(1.3); c.position.set(q[0], q[1], q[2]); acc.add(c); }); }
-      if (st === 'mohicano') { box(acc, 0.1, 0.26, 0.62, hm, 0, 0.22, -0.03); box(acc, 0.1, 0.14, 0.3, hm, 0, 0.44, -0.03); }
-      if (a.beard) acc.add(new T.Mesh(gBeard, hm));                                                  // sigue la forma del mentón, solo por delante
-      if (a.glasses) { box(acc, 0.16, 0.12, 0.03, 0x111111, -0.12, -0.07, 0.3); box(acc, 0.16, 0.12, 0.03, 0x111111, 0.12, -0.07, 0.3); box(acc, 0.1, 0.03, 0.03, 0x111111, 0, -0.01, 0.3); }
-      if (a.lashes) [-0.12, 0.12].forEach(x => { const l = box(acc, 0.13, 0.025, 0.03, 0x111111, x, 0.06, 0.3); l.rotation.z = x < 0 ? 0.3 : -0.3; });
-      if (a.lips) box(acc, 0.14, 0.05, 0.05, 0xd81e5b, 0, -0.19, 0.28);
+      cur = Object.assign({}, cur, a);
+      const skinC = cur.skin || SKINS[1], hairC = cur.hair == null ? 0x3a2a1a : cur.hair, topC = cur.shirt || 0x4a6fb5, botC = cur.pants || PANTS[(topC >> 3) % PANTS.length];
+      parts.skin.forEach(m => { m.material = mat(skinC); }); parts.top.forEach(m => { m.material = mat(topC); }); parts.bot.forEach(m => { m.material = mat(botC); });
+      if (acc) g.remove(acc); acc = new T.Group(); acc.position.y = HY; g.add(acc);
+      const hm = mat(hairC), st = cur.hairStyle || 'corto', hat = cur.hat;
+      const cap = () => { const m = new T.Mesh(gCap, hm); m.rotation.x = -0.42; acc.add(m); };                    // casquete que deja la frente libre
+      const tufts = () => [[0.02, 0.36, 0.1, 1], [-0.14, 0.34, 0.14, 0.85], [0.17, 0.33, 0.1, 0.8], [0, 0.3, 0.22, 0.7]].forEach(q => { const m = new T.Mesh(gTuft, hm); m.scale.set(q[3] * 1.3, q[3] * 0.8, q[3] * 1.3); m.position.set(q[0], q[1], q[2]); acc.add(m); });   // jopo despeinado
+      if (hat !== 'casco') {
+        if (st === 'corto' || st === 'largo' || st === 'rodete') cap();
+        if (st === 'corto') tufts();
+        if (st === 'largo') { const m = new T.Mesh(gMass, hm); m.scale.set(1.06, 1.3, 0.8); m.position.set(0, -0.2, -0.17); acc.add(m); }
+        if (st === 'rodete') { const b = new T.Mesh(gBun, hm); b.position.set(0, 0.42, -0.12); acc.add(b); }
+        if (st === 'rulos') { for (let i = 0; i < 9; i++) { const an = i / 9 * Math.PI * 2, c = new T.Mesh(gCurl, hm); c.scale.setScalar(1.25); c.position.set(Math.cos(an) * 0.27, 0.22, Math.sin(an) * 0.27 - 0.05); acc.add(c); }
+          [[0, 0.39, -0.04], [0.15, 0.36, 0.06], [-0.15, 0.36, 0.06], [0, 0.35, -0.2]].forEach(q => { const c = new T.Mesh(gCurl, hm); c.scale.setScalar(1.3); c.position.set(q[0], q[1], q[2]); acc.add(c); }); }
+        if (st === 'mohicano') [[0.3, 0.2, 0.9], [0.4, 0.08, 1.15], [0.43, -0.06, 1.3], [0.38, -0.2, 1.15], [0.27, -0.31, 0.95]].forEach(q => { const m = new T.Mesh(gTuft, hm); m.scale.set(0.62, q[2] * 1.25, 1.05); m.position.set(0, q[0], q[1]); acc.add(m); });   // cresta de mechones, más alta en el medio
+      }
+      if (cur.beard) acc.add(new T.Mesh(gBeard, hm));
+      const bm = mat(botC), tm = mat(topC);
+      [-1, 1].forEach(sd => { const b = box(acc, 0.12, 0.028, 0.03, bm, sd * 0.13, 0.1, HR - 0.03); b.rotation.z = sd * -0.12; });     // cejas
+      if (cur.glasses) { [-1, 1].forEach(sd => { const r = new T.Mesh(new T.TorusGeometry(0.085, 0.016, 6, 14), bm); r.position.set(sd * 0.13, -0.01, HR - 0.015); acc.add(r); }); box(acc, 0.09, 0.025, 0.025, bm, 0, -0.01, HR - 0.01); }
+      if (cur.lashes) [-1, 1].forEach(sd => { const l = box(acc, 0.1, 0.022, 0.03, hm, sd * 0.2, 0.04, HR - 0.07); l.rotation.z = sd * 0.5; });
+      smile.visible = !cur.lips; if (cur.lips) box(acc, 0.13, 0.05, 0.05, tm, 0, -0.17, HR - 0.03);
+      // sombreros de los disfraces (siempre con los colores del personaje)
+      if (hat === 'orejas') { [-1, 1].forEach(sd => { const e = new T.Mesh(gTuft, hm); e.scale.set(0.9, 1, 0.5); e.position.set(sd * 0.22, 0.37, 0); acc.add(e); }); }
+      if (hat === 'casco') { const h = new T.Mesh(gHelmet, tm); h.rotation.x = -0.5; acc.add(h); box(acc, 0.05, 0.2, 0.05, tm, 0.28, 0.42, -0.05); const b = new T.Mesh(gEar, hm); b.position.set(0.28, 0.64, -0.05); acc.add(b); }
+      if (hat === 'corona') { for (let i = 0; i < 7; i++) { const an = i / 7 * Math.PI * 2; box(acc, 0.09, i % 2 ? 0.14 : 0.2, 0.05, tm, Math.cos(an) * 0.22, 0.33, Math.sin(an) * 0.22).rotation.y = -an + Math.PI / 2; } }
+      if (hat === 'vincha') { const r = new T.Mesh(new T.TorusGeometry(HR - 0.022, 0.045, 6, 20), tm); r.rotation.x = Math.PI / 2 - 0.12; r.position.y = 0.15; acc.add(r); box(acc, 0.06, 0.22, 0.03, tm, 0.12, -0.02, -HR - 0.02).rotation.z = 0.3; }
     }
     style(o);
     scene.add(g);
     const p = {
-      group: g, path: [], speed: o.speed || 2.9, t: Math.random() * 6, onArrive: null, moving: false,
+      group: g, path: [], speed: o.speed || 2.9, t: Math.random() * 6, onArrive: null, moving: false, legs, arms,
       setPos(x, z) { g.position.set(x, 0, z); },
       face(ry) { g.rotation.y = ry; },
       walk(points, cb) { p.path = points.slice(); p.onArrive = cb || null; p.moving = true; },
@@ -562,13 +594,14 @@ GS.World = (function () {
       look(a) { style(a); },
       cargo(v) { if (cargo) cargo.visible = v; },
       phone(v) { if (phone) phone.visible = v; },
-      carry(v) { carry.visible = v; },
+      carry(v) { carry.visible = v; arms.forEach(a => { a.rotation.x = v ? -1.1 : 0; }); p.holding = v; },
       lie(v) { g.rotation.x = v ? -1.3 : 0; g.position.y = v ? 0.28 : 0; },
-      stop() { p.path = []; p.moving = false; p.onArrive = null; g.position.y = 0; },
+      stop() { p.path = []; p.moving = false; p.onArrive = null; g.position.y = 0; rest(p); },
       remove() { scene.remove(g); const i = people.indexOf(p); if (i >= 0) people.splice(i, 1); }
     };
     people.push(p); return p;
   }
+  function rest(p) { p.legs.forEach(l => { l.rotation.x = 0; }); if (!p.holding) p.arms.forEach(a => { a.rotation.x = 0; }); }
   function updatePeople(dt) {
     for (const p of people) {
       p.t += dt;
@@ -577,14 +610,18 @@ GS.World = (function () {
         const tx = p.path[0][0], tz = p.path[0][1], dx = tx - g.position.x, dz = tz - g.position.z, d = Math.hypot(dx, dz), step = p.speed * dt;
         if (d <= step) {
           g.position.x = tx; g.position.z = tz; p.path.shift();
-          if (!p.path.length) { p.moving = false; g.position.y = 0; const cb = p.onArrive; p.onArrive = null; if (cb) cb(); }
+          if (!p.path.length) { p.moving = false; g.position.y = 0; rest(p); const cb = p.onArrive; p.onArrive = null; if (cb) cb(); }
         } else {
           g.position.x += dx / d * step; g.position.z += dz / d * step;
           g.rotation.y = Math.atan2(dx, dz);
-          g.position.y = reduceMotion ? 0 : Math.abs(Math.sin(p.t * 11)) * 0.07;
+          if (!reduceMotion) {                                                  // pasitos: piernas y brazos alternados
+            const sw = Math.sin(p.t * (7 + p.speed * 1.6)) * 0.75;
+            p.legs[0].rotation.x = sw; p.legs[1].rotation.x = -sw; if (!p.holding) { p.arms[0].rotation.x = -sw * 0.8; p.arms[1].rotation.x = sw * 0.8; }
+            g.position.y = Math.abs(sw) * 0.035;
+          }
         }
       } else if (!reduceMotion) {
-        g.scale.y = (g.userData.base || 1) * (1 + Math.sin(p.t * 2.2) * 0.015);   // respiración
+        g.scale.y = (g.userData.base || 1) * (1 + Math.sin(p.t * 2.2) * 0.012);   // respiración
       }
     }
   }

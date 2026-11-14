@@ -53,7 +53,7 @@ GS.Game = (function () {
       relaxed: false, arcade: null, t: 0, dur: C.day.seconds, score: 0, combo: 0, bestCombo: 0, sales: 0, served: 0, lost: 0, cajaErr: 0, otherErr: 0,
       tasksDone: 0, tasksLate: 0, customers: [], tasks: [], spawned: 0, tasksSpawned: 0,
       extras: [], n: 1, unlocked: unlockedFor(1), plan: planDay(1), rep0: repNow(), dueno: null, wave: -1, stage: 'rest', rest: 0.6, queue: [], says: [], sayQ: [], sayGap: 0, beat: 0, wv: { done: {} }, ev: {},
-      cajaCount: 0, closing: false, jobSig: '', cord: CD.start, mate: false, lookers: [], lookT: 4, spots: {}, helper: null, intr: null, intrN: 0, intrOk: 0, intrBag: [], reqBag: U.shuffle(GS.REQUESTS), archBag: U.shuffle(GS.CUSTOMERS), taskBag: []
+      cajaCount: 0, closing: false, jobSig: '', visits: [], cord: CD.start, mate: false, lookers: [], lookT: 4, spots: {}, helper: null, intr: null, intrN: 0, intrOk: 0, intrBag: [], reqBag: U.shuffle(GS.REQUESTS), archBag: U.shuffle(GS.CUSTOMERS), taskBag: []
     }, extra || {});
   }
   // Arma la jornada: cuántos clientes y tareas trae cada tanda. Va de menos a más.
@@ -147,6 +147,7 @@ GS.Game = (function () {
     for (let i = 0; i < w.c; i++) day.queue.push({ kind: 'c', t: 0.3 + i * C.day.customerGap });
     for (let i = 0; i < w.t; i++) day.queue.push({ kind: w.final ? 'f' : 't', t: (w.final ? 0.6 : 5) + i * C.day.taskGap });
     for (let i = 0; i < (w.ml || 0); i++) day.queue.push({ kind: 'm', t: 3 + i * C.day.taskGap });
+    day.visits.forEach(v => { if (v.wave === day.wave && !v.sent) { v.sent = 1; day.queue.push({ kind: 'v', v: v.S, t: U.rnd(3, 8) }); } });
     if (GS.DEBUG_INTR || (day.n >= CD.intrFromDay && !w.final && day.wave >= 1 && day.intrN < (day.n >= 6 ? 3 : 2) && Math.random() < 0.6)) { day.queue.push({ kind: 'i', t: U.rnd(5, 11) }); day.intrN++; }
     day.queue.sort((a, b) => a.t - b.t);
   }
@@ -194,10 +195,12 @@ GS.Game = (function () {
     const cond = conditionFor(n);
     day = newDay({ relaxed, n, cond, unlocked: un, plan: planDay(n, cond), rest: 7.5 }); state = 'day'; enterPlay(); $('jobs').hidden = false;
     A.setMood(cond === 'lluvia' ? 'rain' : cond ? 'party' : 'day');
+    if (!relaxed) { const nw = day.plan.filter(w => !w.final).length; day.visits = dueStories(n).map((S, i) => ({ S, wave: Math.min(nw - 1, i + (nw > 2 ? 1 : 0)) })); }
     const d = day, msg = n === 1 ? 'Bienvenido a GameShop. Abrimos de 10 a 19. Hoy: mostrador y caja. Vos tocá el pedido, que tu personaje va solo.'
       : cond ? GS.CONDITIONS[cond].name.slice(3) + '. ' + GS.CONDITIONS[cond].say
       : fresh.length ? 'Jornada ' + n + '. Hoy sumamos: ' + fresh.map(id => ST(id).name).join(' y ') + '. Cuando aparezcan, te explico.' : 'Jornada ' + n + '. ' + duenoLine();
     setTimeout(() => { if (day === d) duenoSpeak(msg); }, 500);
+    if (n >= 2 && !relaxed && !GS.Store.get('plotIntro') && n <= C.finalDay) { GS.Store.set('plotIntro', true); setTimeout(() => { if (day === d) duenoSpeak(PL.intro.replace('{n}', C.finalDay)); }, 3200); }
     $('rain').hidden = cond !== 'lluvia'; $('chipCond').hidden = !cond; if (cond) { $('chipCond').textContent = GS.CONDITIONS[cond].name; toast('<b>Hoy</b>' + GS.CONDITIONS[cond].name, 'dueno', 3800); }
     $('clockS').textContent = relaxed ? 'Turno tranquilo' : 'Abrimos';
     updateHud();
@@ -214,16 +217,21 @@ GS.Game = (function () {
     $('labels').appendChild(label); return label;
   }
 
+  // Cada personaje mantiene siempre su look (los mismos rasgos de siempre), tanto en el muñeco 3D como en la cara del diálogo
+  function lookOf(ar) {
+    const k = ar.id.charCodeAt(0) + ar.id.length * 7;
+    return { shirt: ar.shirt, hair: ar.hair, skin: 0xe0ac7e, hairStyle: ar.hairStyle || GS.HAIRSTYLES[k % 5][0], glasses: k % 3 === 0, beard: !ar.hat && k % 4 === 1, lips: ar.lips != null ? ar.lips : k % 2 === 0, lashes: k % 5 < 2, hat: ar.hat };
+  }
   function spawnCustomer() {
     const slot = freeSlot('slotM', L.colaMostrador.length); if (slot < 0) return;
     if (!day.reqBag.length) day.reqBag = U.shuffle(GS.REQUESTS);
     if (!day.archBag.length) day.archBag = U.shuffle(GS.CUSTOMERS);
     const req = day.reqBag.pop(), arche = day.archBag.pop(), product = GS.CATALOG.find(p => p.id === req.p);
     const k = arche.id.charCodeAt(0) + arche.id.length * 7;   // cada personaje mantiene su look
-    const person = W.makePerson({ shirt: arche.shirt, hair: arche.hair, hairStyle: GS.HAIRSTYLES[k % 5][0], glasses: k % 3 === 0, beard: k % 4 === 1, lips: k % 2 === 0, lashes: k % 5 < 2 });
+    const look = lookOf(arche), person = W.makePerson(look);
     const dx = L.puerta.x; person.setPos(dx + U.rnd(-0.5, 0.5), day.spawned === 0 ? L.salon.zMax + 1 : L.galeria.zMax + 2.4);
     person.voice = 230 + (k % 7) * 45;
-    const cu = { id: ++uid, arche, request: req.t, product, st: 'entering', pat: 1, person, slotM: slot, slotC: -1, label: makeLabel('❓') };
+    const cu = { id: ++uid, arche, look, request: req.t, product, st: 'entering', pat: 1, person, slotM: slot, slotC: -1, label: makeLabel('❓') };
     day.customers.push(cu); day.spawned++;
     const sp = day.spawned > 1 && Math.random() < 0.45 ? freeSpot() : null;
     if (sp) { day.spots[sp.i] = 1; cu.spot = sp; person.walk(sp.via.concat([sp.p]), () => { cu.st = 'browse'; cu.wait = U.rnd(2.6, 4.6); person.face(sp.f); }); }   // primero mira un rato y después se acerca
@@ -302,7 +310,7 @@ GS.Game = (function () {
     const b = STAFF[1], h = day.helper;
     if (!h) {
       if (!upNow().caja2 || !b || b.busy) return;
-      const wc = day.customers.filter(c => c.st === 'waitC'); if (wc.length < 2) return;
+      const wc = day.customers.filter(c => c.st === 'waitC'); if (!wc.length || (wc.length < 2 && !(MG.isOpen() && wc[0].wc > 5) && !(wc[0].wc > 14))) return;   // cola de 2, o uno esperando mientras estás ocupado
       const cu = wc.sort((a, c) => c.slotC - a.slotC)[0], g = b.p.group.position, pre = g.x > 6.2 && g.z < -1.2 ? [[7.4, -4.4], [6.0, -4.4]] : g.x > 6.2 ? [[6.0, 5.5], [4.0, 5.5], [4.5, -1.2]] : g.z > 5.8 ? [[-0.3, 5.5], [4.0, 5.5], [4.5, -1.2]] : g.z < -4.6 ? [] : [[4.5, -1.2]];
       cu.st = 'helped'; cu.slotC = -1; cu.label.hidden = true; b.busy = true; b.moving = false; b.q = []; b.act = null; b.p.lie(false); b.p.carry(false);
       const hp = day.helper = { cu, t: -1 }, d = day;
@@ -314,6 +322,70 @@ GS.Game = (function () {
     const cu = h.cu; day.helper = null; day.wv.helped = 1; day.served++; day.sales += cu.product.price; day.score += 90; addRep(0.03); A.play('cash');
     sayAt(cu.person, cu.arche.bye, 3200); leave(cu, true); toast('<b>🧾 Segunda caja</b>Brian le cobró a ' + cu.arche.name + '.', '', 2400);
     b.busy = false; b.q = [['go', [[4.0, -5.0], [4.6, -4.4], [4.5, -1.2], b.hub]], ['wait', 3]];
+  }
+
+  /* ---------------- TRAMA: el fondo para el local de al lado ---------------- */
+  const PL = GS.PLOT;
+  const fondoNow = () => GS.Store.get('fondo') || 0, goalNow = () => Math.max(3000, PL.goal + (GS.Store.get('goalAdj') || 0));
+  const tierNow = () => { const r = fondoNow() / goalNow(); let t = PL.tiers[0]; PL.tiers.forEach(x => { if (r >= x.at) t = x; }); return t; };
+  const daysLeft = () => Math.max(0, C.finalDay - dayNumber() + 1);
+  function addFondo(v) { GS.Store.set('fondo', Math.max(0, fondoNow() + v)); }
+  function plotHtml() {
+    const f = fondoNow(), g = goalNow(), left = daysLeft();
+    return '<b>🏠 ' + PL.name + '</b><span class="pb"><i style="width:' + Math.min(100, f / g * 100).toFixed(0) + '%"></i></span><small>Fondo: 🪙 ' + f + ' de ' + g +
+      (GS.Store.get('final2Seen') ? ' · temporada cerrada: ' + tierNow().title : left ? ' · ' + (left === 1 ? 'última jornada' : 'quedan ' + left + ' jornadas') : '') + '</small>';
+  }
+  /* ---------------- VISITAS CON HISTORIA: clientes que vuelven, con decisiones chiquitas que dejan marca ---------------- */
+  const histAll = () => GS.Store.get('hist') || {};
+  function dueStories(n) {
+    const h = histAll(), out = [];
+    for (const S of GS.STORIES) {
+      const st = h[S.id]; if (st && st.done) continue;
+      if (n < S.from || (st && st.last && n < st.last + (S.gap || 1))) continue;
+      if (S.once && Math.random() > 0.45) continue;
+      out.push(S);
+    }
+    return U.shuffle(out).sort((a, b) => (a.once ? 1 : 0) - (b.once ? 1 : 0)).slice(0, n < 4 ? 1 : 2);
+  }
+  function spawnVisit(S) {
+    const slot = freeSlot('slotM', L.colaMostrador.length);
+    if (slot < 0 || day.closing) { if (!day.closing) { day.queue.push({ kind: 'v', v: S, t: 4 }); day.queue.sort((a, b) => a.t - b.t); } return; }
+    const look = Object.assign({ skin: 0xe0ac7e }, S.look), person = W.makePerson(look), dx = L.puerta.x;
+    person.voice = 240 + S.id.length * 30; person.setPos(dx, L.galeria.zMax + 2.4);
+    const cu = { id: ++uid, arche: { id: S.id, name: S.name, tag: S.tag, face: '📖', bye: '', lost: '' }, look, story: S, st: 'entering', pat: 1, person, slotM: slot, slotC: -1, label: makeLabel('📖') };
+    day.customers.push(cu); toCounter(cu, [[dx, L.salon.zMax + 0.2]]); setTimeout(() => A.play('bell'), 900);
+  }
+  function openStory(cu) {
+    const S = cu.story, h = histAll(), st = h[S.id] || { step: 0, flags: {}, notes: [] }, step = S.steps[st.step], alt = step.alt && st.flags[step.alt.flag] ? step.alt : null;
+    const text = alt ? alt.t : step.t, mood = alt ? alt.m : step.m; let chosen = false;
+    A.unlock(); A.play('click'); cu.st = 'inM'; paused = true; yoGo('most'); focusFor('mostrador'); A.babble(text, cu.person.voice);
+    const faceBox = m => '<div class="st-face">' + avatarSvg(cu.look, m) + '</div>';
+    modal('<div class="story"><div class="st-head">' + faceBox(mood) + '<div><b>' + S.name + '</b><span>' + S.tag + (st.step ? ' · visita ' + (st.step + 1) : '') + '</span></div></div>' +
+      '<div class="bubble">' + text + '</div>' + step.opts.map((o, i) => '<button class="btn ghost st-opt" data-o="' + i + '">' + o.b + '</button>').join('') + '</div>', () => {
+      paused = false; W.focus(null);
+      if (!chosen) { cu.st = 'waitM'; return; }
+      cu.slotM = -1; leave(cu, false);
+    });
+    $('sheet').querySelectorAll('[data-o]').forEach(b => b.addEventListener('click', () => {
+      const o = step.opts[Number(b.dataset.o)], fx = o.fx || {}, chips = []; chosen = true;
+      if (fx.rep) { addRep(fx.rep); chips.push((fx.rep > 0 ? '▲' : '▼') + ' Reputación'); }
+      if (fx.fondo) { addFondo(fx.fondo); chips.push((fx.fondo > 0 ? '+' : '−') + ' 🪙 ' + Math.abs(fx.fondo) + ' al fondo'); }
+      if (fx.cord) { addCord(fx.cord); chips.push((fx.cord > 0 ? '▲' : '▼') + ' Cordura'); }
+      if (fx.goal) { GS.Store.set('goalAdj', (GS.Store.get('goalAdj') || 0) + fx.goal); chips.push(fx.goal < 0 ? '🏠 El local de al lado sale más barato' : '🏠 El local de al lado se encarece'); }
+      if (fx.flag) st.flags[fx.flag] = 1;
+      st.step++; st.last = day.n; st.notes.push(step.note); if (step.end || st.step >= S.steps.length) st.done = true;
+      h[S.id] = st; GS.Store.set('hist', h); GS.track('visita', { quien: S.id, paso: st.step }); A.play(fx.rep < 0 || fx.fondo < 0 ? 'error' : 'ok'); A.babble(o.r, cu.person.voice);
+      $('sheet').innerHTML = '<div class="story"><div class="st-head">' + faceBox(o.rm || 'normal') + '<div><b>' + S.name + '</b><span>' + (st.done ? 'Historia cerrada · quedó en tu libreta' : 'Dijo que vuelve · quedó en tu libreta') + '</span></div></div>' +
+        '<div class="bubble">' + o.r + '</div><div class="st-chips">' + chips.map(c => '<span>' + c + '</span>').join('') + '</div><button class="btn" data-close>Seguir</button></div>';
+      $('sheet').querySelector('[data-close]').addEventListener('click', closeModal);
+    }));
+  }
+  function showLibreta() {
+    const h = histAll(), known = GS.STORIES.filter(S => h[S.id]), unk = GS.STORIES.length - known.length, wasDay = state === 'day'; if (wasDay) paused = true;
+    A.unlock(); A.play('click');
+    modal('<h2>📖 Tu libreta</h2><div class="plot big">' + plotHtml() + '</div><p style="font-size:13.5px;color:var(--mute);margin:0">Las monedas se aportan desde "Mejorar el local". Algunas visitas también suman al fondo, o cambian lo que cuesta el local.</p>' +
+      (known.length ? known.map(S => { const st = h[S.id]; return '<div class="lib"><div class="lib-face">' + avatarSvg(Object.assign({ skin: 0xe0ac7e }, S.look), st.done ? 'happy' : 'normal') + '</div><div><b>' + S.name + '</b> <em>' + S.tag + '</em><ul>' + st.notes.map(n => '<li>' + n + '</li>').join('') + '</ul><small>' + (st.done ? '✔ Historia cerrada' : '… Dijo que vuelve') + '</small></div></div>'; }).join('') : '<p>Todavía no anotaste a nadie. Hay clientes que vuelven: cuando alguien quiera hablar, vas a ver una 📖 en los pedidos.</p>') +
+      (unk ? '<p style="font-size:13.5px;color:var(--mute);margin:0">Te falta conocer a ' + unk + (unk === 1 ? ' persona.' : ' personas.') + '</p>' : '') + '<button class="btn" data-close>Cerrar</button>', () => { if (wasDay) paused = false; });
   }
 
   function spawnTask(forced) {
@@ -360,7 +432,8 @@ GS.Game = (function () {
   function pendingJobs() {
     const jobs = [];
     for (const c of day.customers) {
-      if (c.st === 'waitM') jobs.push({ key: 'c' + c.id, type: 'mostrador', ref: c, pat: c.pat, icon: '🛎', title: 'Mostrador', sub: 'Atender a ' + c.arche.name });
+      if (c.st === 'waitM' && c.story) jobs.push({ key: 'c' + c.id, type: 'historia', ref: c, pat: 1, icon: '📖', title: 'Visita', sub: c.arche.name + ' quiere hablar' });
+      else if (c.st === 'waitM') jobs.push({ key: 'c' + c.id, type: 'mostrador', ref: c, pat: c.pat, icon: '🛎', title: 'Mostrador', sub: 'Atender a ' + c.arche.name });
       else if (c.st === 'waitC') jobs.push({ key: 'c' + c.id + 'k', type: 'caja', ref: c, pat: c.pat, icon: '💵', title: 'Caja', sub: 'Cobrar a ' + c.arche.name });
     }
     for (const t of day.tasks) if (t.st === 'wait') jobs.push({ key: 't' + t.id, type: t.station.id, ref: t, pat: t.pat, icon: t.station.icon, title: t.station.short || t.station.name, sub: t.station.task.name });
@@ -398,6 +471,7 @@ GS.Game = (function () {
   }
   function openJob(job) {
     if (state !== 'day' || paused || MG.isOpen() || day.closing || day.beat > 0) return;
+    if (job.type === 'historia') return openStory(job.ref);
     A.unlock(); A.play('click');
     const ref = job.ref, isCust = job.type === 'mostrador' || job.type === 'caja';
     ref.st = isCust ? (job.type === 'mostrador' ? 'inM' : 'inC') : 'in'; ref.pat = Math.max(ref.pat, 0.55);
@@ -450,7 +524,7 @@ GS.Game = (function () {
       if (day.stage === 'rest') { day.rest -= dt; if (day.rest <= 0) startWave(); }
       else {
         for (const q of day.queue) q.t -= dt;
-        while (day.queue.length && day.queue[0].t <= 0) { const q = day.queue.shift(); if (q.kind === 'c') spawnCustomer(); else if (q.kind === 'i') spawnIntr(); else spawnTask(q.kind === 'f' ? ST('cierre') : q.kind === 'm' ? ST('ml') : null); }
+        while (day.queue.length && day.queue[0].t <= 0) { const q = day.queue.shift(); if (q.kind === 'c') spawnCustomer(); else if (q.kind === 'i') spawnIntr(); else if (q.kind === 'v') spawnVisit(q.v); else spawnTask(q.kind === 'f' ? ST('cierre') : q.kind === 'm' ? ST('ml') : null); }
         if (!day.queue.length && !day.tasks.length && !open && !day.intr && day.customers.every(c => c.st === 'leaving')) endWave();
       }
     }
@@ -464,6 +538,8 @@ GS.Game = (function () {
     // paciencia (en el turno tranquilo no baja)
     if (!day.relaxed) {
       for (const cu of day.customers.slice()) {
+        if (cu.story) continue;                       // las visitas con historia esperan sin apuro
+        if (cu.st === 'waitC') cu.wc = (cu.wc || 0) + dt;
         if (cu.st === 'waitM' || cu.st === 'waitC') cu.pat -= dt / (cfg.patienceWait * patMult());
         else if ((cu.st === 'inM' || cu.st === 'inC') && !MG.isResolving()) cu.pat -= dt / cfg.patienceGame;
         if (cu.pat <= 0 && (cu.st === 'waitM' || cu.st === 'waitC' || cu.st === 'inM' || cu.st === 'inC')) {
@@ -626,7 +702,7 @@ GS.Game = (function () {
     const pos = d.score > 0 ? GS.Store.addScore(entry) : -1;
     if (!GS.Store.get('testDay')) GS.Store.set('days', Math.max(GS.Store.get('days') || 0, d.n));
     { const tot = GS.Store.get('tot') || { c: 0, d: 0 }; tot.c += d.served; tot.d++; GS.Store.set('tot', tot); }
-    const isFinal = d.n === C.finalDay && !GS.Store.get('testDay') && !GS.Store.get('finalSeen');
+    const isFinal = d.n === C.finalDay && !GS.Store.get('testDay') && !GS.Store.get('final2Seen');
     lastCard = { n: d.n, score: d.score, stars, cord: cordEnd };
     const earned = Math.round(d.score / 20 * coinMult()); GS.Store.set('coins', coinsNow() + earned);
     const rv = repNow(), rd = rv - d.rep0; refreshStart();
@@ -638,6 +714,7 @@ GS.Game = (function () {
       '<p><span>Errores (con chiste)</span><b>' + errs + '</b></p>' +
       (d.caught ? '<p><span>Comprobantes truchos frenados</span><b>' + d.caught + '</b></p>' : '') +
       (d.intrOk ? '<p><span>Interrupciones bien resueltas</span><b>' + d.intrOk + '</b></p>' : '') +
+      '<p><span>🏠 Fondo del local de al lado</span><b>🪙 ' + fondoNow() + ' / ' + goalNow() + '</b></p>' +
       '<p><span>Cordura al cierre</span><b>🧠 ' + cordEnd + ' (+' + cordPts + ' pts)</b></p>' +
       '<p><span>Mejor racha</span><b>x' + d.bestCombo + '</b></p><p><span>Ventas (ficticias)</span><b>' + U.money(d.sales) + '</b></p>' +
       '<p><span>Monedas ganadas hoy</span><b>🪙 ' + earned + '</b></p><p><span>Reputación del local</span><b>⭐ ' + repTxt(rv) + ' (' + (rd >= 0 ? '+' : '−') + repTxt(Math.abs(rd)) + ')</b></p><hr>' +
@@ -648,13 +725,13 @@ GS.Game = (function () {
       '<div class="quote"><b>El Dueño opina</b>' + comment + '</div><p class="humanline">' + human + '</p>' +
       goalHtml() + '<button class="btn alt" id="endShop">🛠 Mejorar el local</button>' +
       (isFinal ? '<button class="btn gold" id="endFinal">🎬 Ver el final de la temporada</button>' : '') +
-      '<button class="btn' + (isFinal ? ' ghost' : '') + '" id="endAgain">Siguiente jornada</button><button class="btn ghost" id="endCard">📸 Tarjeta para compartir</button>' +
+      '<button class="btn' + (isFinal ? ' ghost' : '') + '" id="endAgain">Siguiente jornada</button><button class="btn ghost" id="endCard">📸 Tarjeta para compartir</button><button class="btn ghost" id="endLib">📖 Libreta y fondo</button>' +
       '<div class="row"><button class="btn ghost" id="endHome">Inicio</button><button class="btn ghost" id="endRecs">Récords</button></div>' +
       (C.links.tienda ? '<a class="btn ghost" id="endStore" target="_blank" rel="noopener" href="' + C.links.tienda + '">🛒 Ver la tienda de verdad</a>' : '') +
       '<button class="phases" id="phasesEnd"' + (C.launched ? ' hidden' : '') + '></button></div>';
     $('phasesEnd').innerHTML = phasesCompact(); $('phasesEnd').addEventListener('click', showPhases);
     if ($('endStore')) $('endStore').addEventListener('click', () => GS.track('click_tienda', { desde: 'cierre' }));
-    $('endCard').addEventListener('click', () => showCard()); if (isFinal) $('endFinal').addEventListener('click', () => startFinal());
+    $('endCard').addEventListener('click', () => showCard()); $('endLib').addEventListener('click', showLibreta); if (isFinal) $('endFinal').addEventListener('click', () => startFinal());
     $('endAgain').addEventListener('click', () => startDay(d.relaxed));
     $('endHome').addEventListener('click', goHome); $('endRecs').addEventListener('click', showRecords); $('endShop').addEventListener('click', openShop);
     $('end').hidden = false; $('end').scrollTop = 0;
@@ -680,6 +757,7 @@ GS.Game = (function () {
   function renderShop(preview) {
     const u = upNow(), c = coinsNow(), g = GS.UPGRADES[shopSel], own = u[g.id] || 0;
     $('shopCoins').textContent = '🪙 ' + c;
+    $('shopFund').innerHTML = '<div class="plot">' + plotHtml() + '</div><div class="row">' + [100, 500, 0].map(v => '<button class="btn ghost" data-fund="' + v + '"' + (c < (v || 1) ? ' disabled' : '') + '>' + (v ? 'Aportar 🪙 ' + v : 'Aportar todo') + '</button>').join('') + '</div>';
     $('shopSlots').innerHTML = GS.UPGRADES.map((x, i) => '<button class="slotb' + (i === shopSel ? ' on' : '') + ((u[x.id] || 0) >= x.levels.length ? ' full' : '') + '" data-i="' + i + '">' + x.icon + '<small>' + x.name + '</small></button>').join('');
     $('shopCards').innerHTML = g.levels.map((lv, i) => {
       const has = own > i, can = own === i && c >= lv.price, locked = own < i;
@@ -695,24 +773,52 @@ GS.Game = (function () {
     u[g.id] = i + 1; GS.Store.set('up', u); GS.Store.set('newUp', true); GS.Store.set('coins', coinsNow() - lv.price); A.play('cash'); toast('<b>¡Mejora comprada!</b>' + lv.n, '', 2600); renderShop();
   }
   function closeShop() { $('shop').hidden = true; W.setUpgrades(upNow()); state = 'menu'; $('start').hidden = false; refreshStart(); W.showAll(); A.play('click'); }
-  function avatarSvg(a) {
-    const hex = n => '#' + n.toString(16).padStart(6, '0'), h = hex(a.hair), sk = hex(a.skin), st = a.hairStyle || 'corto';
-    const top = '<path d="M22.600 46 A27.400 27.400 0 0 1 77.400 46 L73.500 46 Q71 33 50 33.500 Q29 33 26.500 46z" fill="' + h + '"/>';   // casquete concéntrico con la cabeza, con patillas
-    let v = '<svg viewBox="0 0 100 124" width="120" height="149"><path d="M33 122 L43 66 H57 L67 122z" fill="#e10600"/><path d="M43 66 H57 L50 76z" fill="#fff"/>';
-    if (st === 'largo') v += '<path d="M19.500 44 A30.500 30.500 0 0 1 80.500 44 V82 Q80.500 92 71 92 H29 Q19.500 92 19.500 82z" fill="' + h + '"/>';
-    v += '<circle cx="50" cy="44" r="26" fill="' + sk + '"/><circle cx="33" cy="52" r="5" fill="#ff6b6b" opacity=".22"/><circle cx="67" cy="52" r="5" fill="#ff6b6b" opacity=".22"/>';
-    if (st === 'corto' || st === 'rodete') v += top;
-    if (st === 'largo') v += top;
-    if (st === 'rodete') v += '<circle cx="50" cy="13" r="10" fill="' + h + '"/>';
-    if (st === 'rulos') { v += top; for (let i = 0; i < 9; i++) { const an = Math.PI * (1.02 + i * 0.12); v += '<circle cx="' + (50 + Math.cos(an) * 26).toFixed(1) + '" cy="' + (44 + Math.sin(an) * 26).toFixed(1) + '" r="9.500" fill="' + h + '"/>'; } v += '<circle cx="40" cy="24" r="8" fill="' + h + '"/><circle cx="60" cy="24" r="8" fill="' + h + '"/><circle cx="50" cy="20" r="8" fill="' + h + '"/>'; }
-    if (st === 'mohicano') v += '<path d="M43 30 L45 6 L50 14 L55 4 L57 30 Q50 26 43 30z" fill="' + h + '"/>';
-    if (a.beard) v += '<path d="M24.500 48 A26.500 26.500 0 0 0 75.500 48 Q70 57 60 54 Q50 49 40 54 Q30 57 24.500 48z" fill="' + h + '"/>';
-    v += '<ellipse cx="40" cy="43" rx="3.400" ry="4.200" fill="#16161c"/><ellipse cx="60" cy="43" rx="3.400" ry="4.200" fill="#16161c"/><circle cx="41.200" cy="41.500" r="1.100" fill="#fff"/><circle cx="61.200" cy="41.500" r="1.100" fill="#fff"/>';
-    if (a.lashes) v += '<g stroke="#16161c" stroke-width="1.800" stroke-linecap="round"><path d="M35.500 39.500l-3-2.500M38 37.800l-1.500-3.300M41 37.300l.5-3.500M64.500 39.500l3-2.500M62 37.800l1.500-3.300M59 37.300l-.5-3.500"/></g>';
-    if (a.glasses) v += '<g fill="rgba(255,255,255,.18)" stroke="#16161c" stroke-width="2.400"><circle cx="40" cy="43" r="8.500"/><circle cx="60" cy="43" r="8.500"/></g><path d="M48.500 43h3" stroke="#16161c" stroke-width="2.400"/>';
-    v += a.lips ? '<path d="M43 58 Q46.500 55.500 50 57.500 Q53.500 55.500 57 58 Q50 65 43 58z" fill="#d81e5b"/>' : '<path d="M43.500 58 Q50 63 56.500 58" fill="none" stroke="' + (a.beard ? '#fff' : '#8a4a2a') + '" stroke-width="2.400" stroke-linecap="round" opacity=".9"/>';
+  // Cara y busto de un personaje, en el mismo estilo que el muñeco 3D (4 colores: piel, pelo, remera y pantalón).
+  // mood = la mueca: normal, talk (hablando), happy, angry, impatient, nervous, sad, surprised.
+  function avatarSvg(a, mood) {
+    const hex = n => '#' + Number(n).toString(16).padStart(6, '0'), h = hex(a.hair == null ? 0x3a2a1a : a.hair), sk = hex(a.skin || 0xe0ac7e), top = hex(a.shirt || 0xe10600), ink = hex(a.pants || 0x23232b);
+    const st = a.hairStyle || 'corto', m = mood || 'normal', hat = a.hat;
+    const cap = '<path d="M21 50 A29 29 0 0 1 79 50 L75.500 50 Q73 33 50 33 Q27 33 24.500 50z" fill="' + h + '"/>';
+    let v = '<svg viewBox="0 0 100 124" width="120" height="149">';
+    if (st === 'largo' && hat !== 'casco') v += '<path d="M17.500 48 A32.500 32.500 0 0 1 82.500 48 V88 Q82.500 98 73 98 H27 Q17.500 98 17.500 88z" fill="' + h + '"/>';
+    v += '<path d="M24 124 Q24 100 41 97 H59 Q76 100 76 124z" fill="' + top + '"/><rect x="43" y="84" width="14" height="16" rx="6" fill="' + sk + '"/>';
+    v += '<circle cx="20.500" cy="53" r="7" fill="' + sk + '"/><circle cx="79.500" cy="53" r="7" fill="' + sk + '"/><circle cx="50" cy="48" r="29" fill="' + sk + '"/>';
+    v += '<circle cx="31" cy="59" r="5.500" fill="#ff6b6b" opacity=".2"/><circle cx="69" cy="59" r="5.500" fill="#ff6b6b" opacity=".2"/>';
+    if (hat !== 'casco') {
+      if (st === 'corto' || st === 'rodete' || st === 'largo') v += cap;
+      if (st === 'corto') v += '<path d="M33 31 Q38 15 52 19 Q47 12 58 13 Q68 16 70 32 Q58 24 50 30 Q42 25 33 31z" fill="' + h + '"/>';
+      if (st === 'rodete') v += '<circle cx="50" cy="15" r="10.500" fill="' + h + '"/>';
+      if (st === 'rulos') { v += cap; for (let i = 0; i < 9; i++) { const an = Math.PI * (1.02 + i * 0.12); v += '<circle cx="' + (50 + Math.cos(an) * 29).toFixed(1) + '" cy="' + (48 + Math.sin(an) * 29).toFixed(1) + '" r="10" fill="' + h + '"/>'; } v += '<circle cx="39" cy="26" r="8.500" fill="' + h + '"/><circle cx="61" cy="26" r="8.500" fill="' + h + '"/><circle cx="50" cy="22" r="8.500" fill="' + h + '"/>'; }
+      if (st === 'mohicano') v += '<path d="M42 32 L44 5 L50 14 L56 3 L58 32 Q50 27 42 32z" fill="' + h + '"/>';
+    }
+    if (a.beard) v += '<path d="M21.500 52 A28.500 28.500 0 0 0 78.500 52 Q73 62 61 59 Q50 54 39 59 Q27 62 21.500 52z" fill="' + h + '"/>';
+    // sombreros de los disfraces
+    if (hat === 'orejas') v += '<ellipse cx="29" cy="22" rx="8" ry="9" fill="' + h + '"/><ellipse cx="71" cy="22" rx="8" ry="9" fill="' + h + '"/>';
+    if (hat === 'casco') v += '<path d="M17 52 A33 33 0 0 1 83 52 L78 52 Q76 36 50 36 Q24 36 22 52z" fill="' + top + '"/><rect x="76" y="14" width="3.500" height="16" fill="' + top + '"/><circle cx="77.700" cy="12" r="4.200" fill="' + h + '"/>';
+    if (hat === 'corona') v += '<path d="M29 30 L27 9 L38 20 L50 5 L62 20 L73 9 L71 30 Q50 22 29 30z" fill="' + top + '"/>';
+    if (hat === 'vincha') v += '<path d="M21.500 42 Q50 28 78.500 42 L78 48 Q50 35 22 48z" fill="' + top + '"/>';
+    // ojos, cejas y boca según la mueca
+    const dx = m === 'nervous' ? 2.200 : 0, ry = m === 'surprised' ? 6.800 : m === 'impatient' ? 3.200 : 5.200;
+    if (m === 'happy') v += '<g fill="none" stroke="' + ink + '" stroke-width="3.200" stroke-linecap="round"><path d="M33.500 51 Q39 44 44.500 51"/><path d="M55.500 51 Q61 44 66.500 51"/></g>';
+    else v += '<ellipse cx="' + (39 + dx) + '" cy="50" rx="4" ry="' + ry + '" fill="' + ink + '"/><ellipse cx="' + (61 + dx) + '" cy="50" rx="4" ry="' + ry + '" fill="' + ink + '"/><circle cx="' + (40.300 + dx) + '" cy="48.200" r="1.300" fill="#fff"/><circle cx="' + (62.300 + dx) + '" cy="48.200" r="1.300" fill="#fff"/>';
+    if (m === 'impatient') v += '<path d="M33.500 47.200h11M55.500 47.200h11" stroke="' + sk + '" stroke-width="3"/>';
+    const brows = { normal: 'M33 40 Q39 38 45 40M55 40 Q61 38 67 40', talk: 'M33 39.500 Q39 37 45 39.500M55 39.500 Q61 37 67 39.500', happy: 'M33 39 Q39 35.500 45 39M55 39 Q61 35.500 67 39', angry: 'M32 36.500 L45 41.500M68 36.500 L55 41.500',
+      impatient: 'M33 41 H45M55 37.500 Q61 34.500 67 38', nervous: 'M33 41 L45 37M67 41 L55 37', sad: 'M33 41.500 L45 37.500M67 41.500 L55 37.500', surprised: 'M33 35 Q39 31.500 45 35M55 35 Q61 31.500 67 35' };
+    v += '<path d="' + (brows[m] || brows.normal) + '" fill="none" stroke="' + ink + '" stroke-width="2.800" stroke-linecap="round"/>';
+    if (a.lashes) v += '<g stroke="' + h + '" stroke-width="1.800" stroke-linecap="round"><path d="M34 45.500l-3-2.500M66 45.500l3-2.500M36 43.500l-1.500-3M64 43.500l1.500-3"/></g>';
+    if (a.glasses) v += '<g fill="rgba(255,255,255,.2)" stroke="' + ink + '" stroke-width="2.400"><circle cx="39" cy="50" r="9"/><circle cx="61" cy="50" r="9"/></g><path d="M48 50h4" stroke="' + ink + '" stroke-width="2.400"/>';
+    const mc = a.beard ? '#fff' : ink;
+    const mouths = { normal: a.lips ? '<path d="M43 64 Q46.500 61.500 50 63.500 Q53.500 61.500 57 64 Q50 71 43 64z" fill="' + top + '"/>' : '<path d="M43 64 Q50 70 57 64" fill="none" stroke="' + mc + '" stroke-width="2.600" stroke-linecap="round"/>',
+      talk: '<ellipse cx="50" cy="66" rx="5" ry="4.200" fill="' + (a.lips ? top : mc) + '"/>', happy: '<path d="M40 62 Q50 77 60 62z" fill="' + mc + '"/><path d="M45 68.500 Q50 72 55 68.500 Q50 66.500 45 68.500z" fill="#ff8a8a"/>',
+      angry: '<path d="M43 68 Q50 61 57 68" fill="none" stroke="' + mc + '" stroke-width="2.800" stroke-linecap="round"/>', impatient: '<path d="M44 66 H57" fill="none" stroke="' + mc + '" stroke-width="2.800" stroke-linecap="round"/>',
+      nervous: '<path d="M42 66 q3.500-3.500 7 0 t7 0" fill="none" stroke="' + mc + '" stroke-width="2.600" stroke-linecap="round"/>', sad: '<path d="M44 68 Q50 63 56 68" fill="none" stroke="' + mc + '" stroke-width="2.600" stroke-linecap="round"/>',
+      surprised: '<ellipse cx="50" cy="67" rx="4.200" ry="5.400" fill="' + mc + '"/>' };
+    v += mouths[m] || mouths.normal;
+    if (m === 'nervous') v += '<path d="M80 30 q4 6 0 9 q-4-3 0-9z" fill="#57b8ff"/>';
+    if (m === 'angry') v += '<g stroke="#e10600" stroke-width="2.200" stroke-linecap="round"><path d="M80 24l5-4M82 30h6M80 18l2-5"/></g>';
     return v + '</svg>';
   }
+  GS.faceSvg = avatarSvg;
   function showAvatar(then) {
     const a = Object.assign({ skin: GS.SKINS[2], hair: GS.HAIRS[0], hairStyle: 'corto', glasses: false, beard: false, lips: false }, GS.Store.get('avatar') || {}), hex = n => '#' + n.toString(16).padStart(6, '0');
     const sw = (key, list) => '<div class="sw" data-k="' + key + '">' + list.map(c => '<button style="background:' + hex(c) + '" data-c="' + c + '" class="' + (a[key] === c ? 'on' : '') + '"></button>').join('') + '</div>';
@@ -729,7 +835,7 @@ GS.Game = (function () {
   }
   function refreshStart() {
     const n = dayNumber(), fresh = n <= GS.UNLOCKS.length ? GS.UNLOCKS[n - 1] : [];
-    $('playT').textContent = 'Jugar la jornada ' + n; $('goalStart').innerHTML = goalHtml();
+    $('playT').textContent = 'Jugar la jornada ' + n; $('goalStart').innerHTML = goalHtml(); $('btnPlot').innerHTML = plotHtml();
     $('rankT').textContent = '🎖 ' + rankOf(n) + ' · ⭐ ' + repTxt(repNow()) + ' · 🪙 ' + coinsNow();
     $('playS').textContent = n === 1 ? 'Inducción: mostrador y caja · de 10 a 19' : fresh.length ? 'Se suma: ' + fresh.map(id => ST(id).name).join(' y ') : 'De 10 a 19 · reputación ⭐ ' + repTxt(repNow());
   }
@@ -749,10 +855,11 @@ GS.Game = (function () {
     W.focusAt(0.6, -1.4, 0.66, -0.08);
     const d = day, f = d.fin, bx = 4.3, bz = -0.5, dx = L.puerta.x;
     const spots = [[-3.3, -1.7], [-1.9, -0.9], [-0.5, -1.8], [0.5, -0.5], [-2.8, 0.5], [-1.1, 0.7], [0.3, 1.3], [-4.2, -0.4], [1.2, -1.6]];
-    f.lines = GS.FINAL.boss.map(x => x.replace('{rank}', rankOf(C.finalDay + 1)));
+    const tr = tierNow(); f.tier = tr;
+    f.lines = GS.FINAL.boss.map(x => x.replace('{rank}', tr.title).replace('{fondo}', '🪙 ' + fondoNow()).replace('{meta}', goalNow()).replace('{resultado}', tr.line));
     GS.CUSTOMERS.forEach((ar, i) => {
       const k = ar.id.charCodeAt(0) + ar.id.length * 7, sp = spots[i % spots.length];
-      const p = W.makePerson({ shirt: ar.shirt, hair: ar.hair, hairStyle: GS.HAIRSTYLES[k % 5][0], glasses: k % 3 === 0, beard: k % 4 === 1, lips: k % 2 === 0, lashes: k % 5 < 2, speed: 3.6 });
+      const p = W.makePerson(Object.assign(lookOf(ar), { speed: 3.6 }));
       p.setPos(dx + U.rnd(-0.4, 0.4), L.salon.zMax + 0.6 + i * 0.7); d.extras.push(p); f.crowd.push(p);
       p.walk([[dx, 3.4], sp], () => p.face(Math.atan2(bx - sp[0], bz - sp[1])));
     });
@@ -774,9 +881,9 @@ GS.Game = (function () {
     updateLabels(dt);
   }
   function finishFinal() {
-    const f = day && day.fin; if (!f || f.done) return; f.done = true; GS.Store.set('finalSeen', true);
+    const f = day && day.fin; if (!f || f.done) return; f.done = true; GS.Store.set('finalSeen', true); GS.Store.set('final2Seen', true); const hh = histAll(), closed = GS.STORIES.filter(S => hh[S.id] && hh[S.id].done).length;
     day.says.forEach(x => x.el.remove()); day.says = []; day.sayQ = []; f.t = 0.5; $('final').classList.add('party'); $('finSkip').hidden = true; A.play('fanfare');
-    $('finCard').innerHTML = '<h2>Fin de la <span>temporada</span></h2><p>Llegaste a <b>' + rankOf(C.finalDay + 1) + '</b>. El local sigue abierto: podés seguir jugando jornadas, comprar las mejoras que falten y batir tus récords.</p>' +
+    $('finCard').innerHTML = '<h2>Fin de la <span>temporada</span></h2><p><b>' + f.tier.title + '</b>. ' + f.tier.line + '</p><p>Fondo: 🪙 ' + fondoNow() + ' de ' + goalNow() + ' · Historias cerradas: ' + closed + ' de ' + GS.STORIES.length + '. El local sigue abierto: podés seguir jugando para alcanzar otro final y cerrar las historias que faltan.</p>' +
       '<button class="btn" id="finShare">📸 Tarjeta para compartir</button><button class="btn ghost" id="finGo">Seguir jugando</button><small>Un juego de GameShop · Gracias por jugar</small>';
     $('finCard').hidden = false;
     $('finShare').addEventListener('click', () => showCard(true)); $('finGo').addEventListener('click', goHome);
@@ -801,7 +908,7 @@ GS.Game = (function () {
       if (im[1]) { g.save(); g.beginPath(); g.arc(W_ / 2, 560, 204, 0, 7); g.clip(); try { g.drawImage(im[1], W_ / 2 - 190, 372, 380, 472); } catch (e) {} g.restore(); }
       g.lineWidth = 10; g.strokeStyle = '#ff0000'; g.beginPath(); g.arc(W_ / 2, 560, 223, 0, 7); g.stroke();
       // rango
-      const rk = rankOf(n + 1).toUpperCase(); g.font = F(64); const rw = Math.min(940, g.measureText(rk).width + 90);
+      const rk = (GS.Store.get('final2Seen') ? tierNow().title : rankOf(n + 1)).toUpperCase(); g.font = F(64); const rw = Math.min(940, g.measureText(rk).width + 90);
       g.fillStyle = '#f5c518'; g.beginPath(); g.moveTo(W_ / 2 - rw / 2 + 24, 770); g.lineTo(W_ / 2 + rw / 2, 770); g.lineTo(W_ / 2 + rw / 2 - 24, 868); g.lineTo(W_ / 2 - rw / 2, 868); g.fill();
       g.fillStyle = '#000'; g.fillText(rk, W_ / 2, 843, 860);
       g.fillStyle = '#fff'; g.font = F(50, '700'); g.fillText(GS.FINAL.card[0].replace('{n}', n), W_ / 2, 946, 980);
@@ -862,8 +969,8 @@ GS.Game = (function () {
       '<div class="setting"><span>Tu personaje</span><button class="btn ghost" id="optAv" style="width:auto">Cambiar</button></div>' +
       '<div class="setting"><span>Jornada (modo prueba)</span>' + seg('testDay', [['0', 'Auto'], ['1', '1'], ['2', '2'], ['3', '3'], ['4', '4'], ['5', '5'], ['6', '6'], ['8', '8']], String(GS.Store.get('testDay') || 0)) + '</div>' +
       '<div class="setting"><span>Clima (modo prueba)</span>' + seg('testCond', [['', 'Auto'], ['ninguna', 'Normal'], ['lluvia', 'Lluvia'], ['blackfriday', 'Black Friday'], ['navidad', 'Navidad']], GS.Store.get('testCond') || '') + '</div>' +
-      (fromPause ? '' : '<div class="setting"><span>Escena final<br><small>' + (GS.Store.get('finalSeen') ? 'Volver a verla' : 'Se ve al terminar la jornada ' + C.finalDay + ' (modo prueba)') + '</small></span><button class="btn ghost" id="optFinal" style="width:auto">Ver</button></div>') +
-      '<div class="setting"><span>Volver a la jornada 1<br><small>Conserva monedas y mejoras</small></span><button class="btn ghost" id="optDay1" style="width:auto">Volver</button></div>' +
+      (fromPause ? '' : '<div class="setting"><span>Escena final<br><small>' + (GS.Store.get('final2Seen') ? 'Volver a verla' : 'Se ve al terminar la jornada ' + C.finalDay + ' (modo prueba)') + '</small></span><button class="btn ghost" id="optFinal" style="width:auto">Ver</button></div>') +
+      '<div class="setting"><span>Empezar una temporada nueva<br><small>Vuelve a la jornada 1 y reinicia la trama. Conserva monedas y mejoras</small></span><button class="btn ghost" id="optDay1" style="width:auto">Volver</button></div>' +
       '<div class="setting"><span>Borrar todo<br><small>Jornadas, monedas, mejoras y récords</small></span><button class="btn ghost" id="optReset" style="width:auto">Reiniciar</button></div>' +
       '<button class="btn" data-close>Listo</button>', () => { if (fromPause) showPause(); });
     $('sheet').querySelectorAll('.seg').forEach(s => s.addEventListener('click', e => {
@@ -878,7 +985,7 @@ GS.Game = (function () {
       if (name === 'testDay') { GS.Store.set('testDay', Number(v)); refreshStart(); }
       if (name === 'testCond') GS.Store.set('testCond', v);
     }));
-    $('optDay1').addEventListener('click', e => { GS.Store.set('days', 0); GS.Store.set('seen', {}); GS.Store.set('testDay', 0); refreshStart(); e.target.textContent = 'Listo ✔'; });
+    $('optDay1').addEventListener('click', e => { GS.Store.set('days', 0); GS.Store.set('seen', {}); GS.Store.set('testDay', 0); ['hist', 'fondo', 'goalAdj', 'final2Seen', 'plotIntro'].forEach(k => GS.Store.set(k, null)); refreshStart(); e.target.textContent = 'Listo ✔'; });
     $('optAv').addEventListener('click', () => showAvatar(() => showOptions(fromPause)));
     if ($('optFinal')) $('optFinal').addEventListener('click', () => { modalOnClose = null; $('modal').hidden = true; startFinal(); });
     $('optReset').addEventListener('click', e => { GS.Store.reset(); W.setUpgrades({}); refreshStart(); e.target.textContent = 'Borrado ✔'; });
@@ -944,6 +1051,10 @@ GS.Game = (function () {
     if (C.links.tienda) { $('btnStore').hidden = false; $('btnStore').href = C.links.tienda; $('btnStore').addEventListener('click', () => GS.track('click_tienda', { desde: 'inicio' })); }
     setCalm(!!GS.Store.get('calm')); syncMute(); W.showAll(); W.setUpgrades(upNow()); W.setPlayerLook(GS.Store.get('avatar'));
     $('btnShop').addEventListener('click', openShop); $('shopDone').addEventListener('click', closeShop);
+    $('shopFund').addEventListener('click', e => { const b = e.target.closest('[data-fund]'); if (!b) return; const c = coinsNow(), v = Math.min(c, Number(b.dataset.fund) || c); if (v <= 0) return;
+      const before = fondoNow() >= goalNow(); GS.Store.set('coins', c - v); addFondo(v); A.play('cash'); GS.track('aporte_fondo', { monto: v });
+      toast(!before && fondoNow() >= goalNow() ? '<b>🏠 ¡Meta alcanzada!</b>Ya alcanza para el local de al lado. Lo que sumes de más mejora el final.' : '<b>🏠 Aportaste 🪙 ' + v + '</b>Fondo: ' + fondoNow() + ' de ' + goalNow() + '.', '', 2600); renderShop(); });
+    $('btnPlot').addEventListener('click', showLibreta);
     const shopStep = k => { if (state !== 'shop') return; shopSel = (shopSel + k + GS.UPGRADES.length) % GS.UPGRADES.length; A.play('click'); renderShop(); const on = $('shopSlots').querySelector('.on'); if (on && on.scrollIntoView) on.scrollIntoView({ block: 'nearest', inline: 'center' }); };
     $('shopPrev').addEventListener('click', () => shopStep(-1)); $('shopNext').addEventListener('click', () => shopStep(1));
     $('shopSlots').addEventListener('wheel', e => { if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) { $('shopSlots').scrollLeft += e.deltaY; e.preventDefault(); } }, { passive: false });

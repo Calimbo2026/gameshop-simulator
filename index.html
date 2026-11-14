@@ -343,6 +343,21 @@ body.big #mg, body.big #jobs, body.big .sheet, body.big #toasts, body.big .fin-c
 .say.zz { background: rgba(255,255,255,.92); padding: 3px 8px; font-size: 15px; box-shadow: none; border-radius: 12px; }
 body { transition: background 1.2s linear; }
 
+/* ---------- Trama, visitas con historia y caras ---------- */
+.mg-face.pic { width: 62px; height: 62px; overflow: hidden; background: #e9e9ee; display: block; border: 2px solid #fff; }
+.mg-face.pic svg { width: 84px; height: auto; margin: -9px 0 0 -13px; display: block; }
+.plot { display: grid; gap: 4px; text-align: left; background: rgba(245,197,24,.08); border: 2px solid var(--warn); border-radius: 14px; padding: 9px 12px; color: #fff; width: 100%; }
+.plot b { font-size: 15px; } .plot small { font-size: 12.5px; color: #d6d6dd; } .plot .pb { height: 8px; border-radius: 4px; background: #33333a; overflow: hidden; display: block; } .plot .pb i { display: block; height: 100%; background: var(--warn); }
+button.plot { cursor: pointer; } .plot.big b { font-size: 17px; }
+.shop-fund { padding: 6px 10px 0; display: grid; gap: 6px; } .shop-fund .btn { font-size: 14px; padding: 8px 6px; } .shop-fund .btn[disabled] { opacity: .4; }
+.story { display: flex; flex-direction: column; gap: 10px; } .st-head { display: flex; gap: 12px; align-items: center; } .st-head b { display: block; font-size: 19px; } .st-head span { font-size: 13px; color: var(--mute); }
+.st-face { width: 92px; height: 92px; border-radius: 50%; overflow: hidden; background: #e9e9ee; border: 3px solid var(--warn); flex: none; } .st-face svg { width: 124px; height: auto; margin: -13px 0 0 -19px; display: block; }
+.story .bubble { background: #fff; color: #000; border-radius: 14px 14px 14px 3px; padding: 11px 13px; font-size: 16px; line-height: 1.35; }
+.st-opt { text-align: left; font-size: 15.5px; padding: 11px 13px; } .st-chips { display: flex; flex-wrap: wrap; gap: 6px; } .st-chips span { background: #26262b; border: 1px solid #44444c; border-radius: 999px; padding: 4px 10px; font-size: 13px; }
+.lib { display: flex; gap: 10px; align-items: flex-start; background: #1b1b20; border-radius: 12px; padding: 9px; } .lib b { font-size: 15.5px; } .lib em { font-style: normal; font-size: 12.5px; color: var(--mute); } .lib ul { margin: 4px 0; padding-left: 16px; font-size: 13.5px; line-height: 1.35; } .lib small { color: var(--warn); font-size: 12.5px; }
+.lib-face { width: 52px; height: 52px; border-radius: 50%; overflow: hidden; background: #e9e9ee; flex: none; } .lib-face svg { width: 70px; height: auto; margin: -8px 0 0 -9px; display: block; }
+.opt.bad.dim { outline: 2px solid var(--red); opacity: .75; }
+
 </style>
 </head>
 <body>
@@ -385,6 +400,7 @@ body { transition: background 1.2s linear; }
     <div style="display:flex;flex-direction:column;gap:12px">
       <button class="btn" id="btnPlay"><span id="playT">Jugar la jornada 1</span><small id="playS">De 10 a 19 · en tandas, con respiros</small></button>
       <div id="goalStart"></div>
+      <button class="plot" id="btnPlot" aria-label="El local de al lado: fondo y libreta"></button>
       <button class="btn alt" id="btnShop">🛠 Mejorar el local<small>Gastá tus monedas en cartel, góndolas, arcade y más</small></button>
       <button class="btn ghost" id="btnRelax" style="font-size:17px">Turno tranquilo · sin apuro</button>
       <button class="btn ghost" id="btnArcade" style="font-size:18px">🕹️ Arcade · estaciones sueltas</button>
@@ -403,7 +419,7 @@ body { transition: background 1.2s linear; }
 <!-- Tienda de mejoras -->
 <div id="shop" hidden>
   <div class="shop-top"><b>Mejoras del local</b><span id="shopCoins">🪙 0</span><button class="btn ghost" id="shopDone">Listo</button></div>
-  <div class="shop-panel"><div class="shop-nav"><button class="icon-btn" id="shopPrev" aria-label="Mejora anterior">‹</button><div class="shop-slots" id="shopSlots"></div><button class="icon-btn" id="shopNext" aria-label="Mejora siguiente">›</button></div><div class="shop-cards" id="shopCards"></div><div class="rule" id="shopHint"></div></div>
+  <div class="shop-panel"><div class="shop-nav"><button class="icon-btn" id="shopPrev" aria-label="Mejora anterior">‹</button><div class="shop-slots" id="shopSlots"></div><button class="icon-btn" id="shopNext" aria-label="Mejora siguiente">›</button></div><div class="shop-cards" id="shopCards"></div><div class="rule" id="shopHint"></div><div class="shop-fund" id="shopFund"></div></div>
 </div>
 
 <!-- Escena final -->
@@ -436,15 +452,15 @@ const GS = {};
 GS.LOGO = "data:image/png;base64,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";
 
 GS.CONFIG = {
-  version: '0.11.0',
+  version: '0.12.0',
   phase: 5,
-  phaseNote: 'Últimos ajustes: caminata automática, globitos de a uno, vereda según la hora y compras por la página',                       // fase actual del proyecto (1 a 5)
+  phaseNote: 'Trama del local de al lado, visitas con historia, personajes nuevos y más variedad',                       // fase actual del proyecto (1 a 5)
   links: { tienda: 'https://www.gameshop.com.ar', instagram: '' },   // botones del inicio y del cierre (vacío = no se muestra)
   // Analítica: pegá acá el ID de medición de Google Analytics 4 (G-XXXXXXXXXX) y el juego empieza a contar jugadores. Vacío = no se envía nada.
   analytics: { ga4: '' },
   launched: false,                // true = se oculta el cartel de "en construcción" y los buscadores pueden indexar el juego
   shareUrl: '',                   // dirección que se imprime en la tarjeta para compartir (vacío = la dirección desde donde se juega)
-  finalDay: 10,                   // jornada que cierra la temporada y dispara la escena final
+  finalDay: 20,                   // jornada que cierra la temporada y dispara la escena final
   promoMode: null,                // 'hotsale' | 'cyber' | null (Fase 3)
   camera: { tilt: 55, rot: 38, fov: 22 },
   day: {
@@ -488,7 +504,15 @@ GS.CATALOG = [
   { id: 'deck',     name: 'Steam Deck',              cat: 'consolas',    icon: '📟', price: 1080000, stock: 1, shelf: 'fondo',   url: '' },
   { id: 'xbox',     name: 'Xbox Series X',           cat: 'consolas',    icon: '⬛', price: 1140000, stock: 2, shelf: 'fondo',   url: '' },
   { id: 'dualsense',name: 'Joystick DualSense rosa', cat: 'consolas',    icon: '🎮', price: 150000,  stock: 6, shelf: 'fondo',   url: '' },
-  { id: 'juego',    name: 'Juego físico',            cat: 'consolas',    icon: '💿', price: 90000,   stock: 9, shelf: 'fondo',   url: '' },
+  { id: 'juego',    name: 'Juego Carpincho Kart',    cat: 'consolas',    icon: '💿', price: 90000,   stock: 9, shelf: 'fondo',   url: '' },
+  { id: 'juego2',   name: 'Juego Galaxia Mate',      cat: 'consolas',    icon: '💿', price: 90000,   stock: 5, shelf: 'fondo',   url: '' },
+  { id: 'juego3',   name: 'Juego Truco Royale',      cat: 'consolas',    icon: '💿', price: 85000,   stock: 6, shelf: 'fondo',   url: '' },
+  { id: 'juego4',   name: 'Juego Subte Runner',      cat: 'consolas',    icon: '💿', price: 85000,   stock: 7, shelf: 'fondo',   url: '' },
+  { id: 'ds_blanco',name: 'Joystick DualSense blanco',  cat: 'consolas', icon: '🎮', price: 140000,  stock: 8, shelf: 'fondo',   url: '' },
+  { id: 'ds_negro', name: 'Joystick DualSense negro',   cat: 'consolas', icon: '🎮', price: 145000,  stock: 5, shelf: 'fondo',   url: '' },
+  { id: 'ds_rojo',  name: 'Joystick DualSense rojo',    cat: 'consolas', icon: '🎮', price: 150000,  stock: 4, shelf: 'fondo',   url: '' },
+  { id: 'ds_azul',  name: 'Joystick DualSense azul',    cat: 'consolas', icon: '🎮', price: 150000,  stock: 4, shelf: 'fondo',   url: '' },
+  { id: 'ds_violeta',name: 'Joystick DualSense violeta', cat: 'consolas', icon: '🎮', price: 150000, stock: 3, shelf: 'fondo',   url: '' },
   { id: 'airpods',  name: 'AirPods',                 cat: 'apple',       icon: '🎧', price: 360000,  stock: 5, shelf: 'derecha', url: '' },
   { id: 'homepod',  name: 'HomePod Mini',            cat: 'apple',       icon: '🔊', price: 270000,  stock: 2, shelf: 'derecha', url: '' },
   { id: 'magic',    name: 'Magic Mouse',             cat: 'apple',       icon: '🖱️', price: 180000,  stock: 3, shelf: 'derecha', url: '' },
@@ -540,9 +564,34 @@ GS.REQUESTS = [
   { t: 'Un joystick de Play, pero que no sea aburrido. Rosa, ponele.', p: 'dualsense' },
   { t: 'El control de la Play nueva, de color.', p: 'dualsense' },
   { t: 'Un mando para la PS5, pero que combine con la pieza de la nena.', p: 'dualsense' },
-  { t: 'Un juego en caja, de los de antes. Que se pueda prestar.', p: 'juego' },
-  { t: 'Un jueguito de regalo, con cajita y todo.', p: 'juego' },
-  { t: 'Un juego para la consola, de los que vienen con disco o cartucho.', p: 'juego' },
+  { t: 'El joystick de la Play, el blanco, el que viene con la consola.', p: 'ds_blanco' },
+  { t: 'Un DualSense clásico, blanco, sin vueltas.', p: 'ds_blanco' },
+  { t: 'El mando blanco de la PS5. Al mío lo gasté de tanto perder.', p: 'ds_blanco' },
+  { t: 'El joystick de Play negro, que no se le note la mugre.', p: 'ds_negro' },
+  { t: 'Un mando de PS5 oscuro y elegante. Como yo.', p: 'ds_negro' },
+  { t: 'El DualSense negro medianoche, o como se llame.', p: 'ds_negro' },
+  { t: 'El joystick rojo de la Play. Rojo furioso.', p: 'ds_rojo' },
+  { t: 'Un mando de PS5 colorado, como la camiseta.', p: 'ds_rojo' },
+  { t: 'El DualSense rojo. Dicen que con ese se gana más.', p: 'ds_rojo' },
+  { t: 'El joystick azul de la Play. El azul lindo.', p: 'ds_azul' },
+  { t: 'Un mando de PS5 azul, tipo cielo de noche.', p: 'ds_azul' },
+  { t: 'El DualSense azul. Mi sobrino lo pide desde marzo.', p: 'ds_azul' },
+  { t: 'El joystick violeta de la Play.', p: 'ds_violeta' },
+  { t: 'Un mando de PS5 violeta, medio galáctico.', p: 'ds_violeta' },
+  { t: 'El DualSense lila, púrpura, violeta... ese.', p: 'ds_violeta' },
+  { t: 'El de los carpinchos que corren en karting.', p: 'juego' },
+  { t: 'El del astronauta que toma mate en el espacio.', p: 'juego2' },
+  { t: 'Galaxia Mate, el juego. En caja.', p: 'juego2' },
+  { t: 'Ese de naves donde cebás mate. Mi hijo no habla de otra cosa.', p: 'juego2' },
+  { t: 'El juego de cartas con espadas y coronas. ¿Truco algo?', p: 'juego3' },
+  { t: 'Truco Royale, para regalar.', p: 'juego3' },
+  { t: 'El del truco, pero con reyes peleando.', p: 'juego3' },
+  { t: 'El del pibe que corre por el subte.', p: 'juego4' },
+  { t: 'Subte Runner, el físico.', p: 'juego4' },
+  { t: 'Ese de correr por los andenes sin perder la tarjeta.', p: 'juego4' },
+  { t: 'Un juego en caja, de los de antes. El de los carpinchos.', p: 'juego' },
+  { t: 'Un jueguito de regalo, con cajita y todo. El de las carreras de carpinchos.', p: 'juego' },
+  { t: 'Carpincho Kart, el que viene con disco.', p: 'juego' },
   { t: 'Los auriculares de la manzanita. Los que se pierden de a uno.', p: 'airpods' },
   { t: 'Auriculares sin cable. Los blanquitos que parecen hisopos.', p: 'airpods' },
   { t: 'Los auriculares chiquitos que vienen en una cajita blanca.', p: 'airpods' },
@@ -633,7 +682,8 @@ GS.REQUESTS = [
 ];
 
 /* Producto "parecido" a cada uno: siempre aparece entre las opciones del mostrador para confundir */
-GS.SIMILAR = { ps5: 'xbox', xbox: 'ps5', switch2: 'deck', deck: 'switch2', quest: 'auris', dualsense: 'joyxbox', joyxbox: 'dualsense', juego: 'muneco', muneco: 'juego',
+GS.SIMILAR = { ps5: 'xbox', xbox: 'ps5', switch2: 'deck', deck: 'switch2', quest: 'auris', dualsense: 'ds_rojo', joyxbox: 'ds_negro', juego: 'juego3', muneco: 'juego', juego2: 'juego4', juego3: 'juego', juego4: 'juego2',
+  ds_blanco: 'ds_negro', ds_negro: 'ds_blanco', ds_rojo: 'dualsense', ds_azul: 'ds_violeta', ds_violeta: 'ds_azul',
   airpods: 'auris', auris: 'airpods', homepod: 'parlante', parlante: 'homepod', magic: 'mouse', mouse: 'magic', ipad: 'notebook', watch: 'airpods', gpu: 'ram', ram: 'gpu',
   notebook: 'monitor', monitor: 'ipad', gabinete: 'xbox', router: 'disco', tinta: 'impresora', impresora: 'tinta', pendrive: 'disco', disco: 'pendrive', cable: 'cargador', cargador: 'cable',
   streamdeck: 'teclado', teclado: 'streamdeck', mic: 'webcam', webcam: 'mic', silla: 'volante', volante: 'joyxbox', mousepad: 'teclado' };
@@ -653,7 +703,7 @@ GS.UPGRADES = [
   { id: 'cafetera', name: 'Cafetera', icon: '☕', pos: [0.3, -5.6], zoom: 0.3, levels: [{ n: 'Cafetera detrás del mostrador', d: 'Respiros que rinden: recuperás cordura más rápido.', price: 550 }] },
   { id: 'luces', name: 'Luces LED', icon: '💡', pos: [-1.5, -4.6], zoom: 0.5, levels: [{ n: 'Tiras LED en el salón', d: 'Todo se luce más: +10% de monedas por jornada.', price: 650 }] },
   { id: 'vidluz', name: 'Vidriera iluminada', icon: '🪟', pos: [3.6, 8.5], zoom: 0.45, levels: [{ n: 'Luces en la vidriera', d: 'Se ve desde la vereda de enfrente: +1 cliente y más gente que entra por la vidriera.', price: 1000 }] },
-  { id: 'caja2', name: 'Segunda caja', icon: '🧾', pos: [2.6, -3.6], zoom: 0.3, levels: [{ n: 'Segunda caja con Brian', d: 'Cuando se juntan 2 o más clientes para pagar, Brian viene y le cobra a uno por vos.', price: 1200 }] }
+  { id: 'caja2', name: 'Segunda caja', icon: '🧾', pos: [2.6, -3.6], zoom: 0.3, levels: [{ n: 'Segunda caja con Brian', d: 'Si estás ocupado con otra tarea o se juntan clientes para pagar, Brian va a la caja y les cobra por vos. No perdés ventas por la cola.', price: 1200 }] }
 ];
 GS.RANKS = [[1, 'Vendedor nuevo'], [3, 'Vendedor'], [5, 'Vendedor senior'], [8, 'Encargado'], [11, 'Mano derecha del Dueño']];
 /* Condiciones del día: cambian cuánta gente viene y cuántos pedidos salen */
@@ -685,6 +735,14 @@ GS.EXPLAIN = {
 
 /* Clientes: arquetipos inventados (ninguno es una persona real) */
 GS.CUSTOMERS = [
+  { id: 'cosCarpi', name: 'Capitán Carpincho', face: '🦫', shirt: 0x2d6cdf, hair: 0x8a5a2b, hat: 'orejas', tag: 'Disfrazado del héroe de Carpincho Kart',
+    bye: '¡A fondo y con mate! Perdón, es la frase del personaje.', lost: 'Un capitán nunca espera. Bueno, sí, pero no tanto.' },
+  { id: 'cosAstro', name: 'Astromatero', face: '🧑‍🚀', shirt: 0xf4f4f6, hair: 0xe07a5f, hat: 'casco', tag: 'Disfrazado del héroe de Galaxia Mate',
+    bye: 'Misión cumplida. Vuelvo a la nave, que se enfría el agua.', lost: 'Houston, acá no me atienden. Despego.' },
+  { id: 'cosReina', name: 'La Reina de Espadas', face: '👑', shirt: 0x7b4fd1, hair: 0x111111, hat: 'corona', hairStyle: 'largo', lips: true, tag: 'Disfrazada de la heroína de Truco Royale',
+    bye: 'Quiero retruco. Digo: gracias.', lost: 'Me voy al mazo.' },
+  { id: 'cosRayo', name: 'Rayo', face: '⚡', shirt: 0xf5c518, hair: 0x2d6cdf, hat: 'vincha', hairStyle: 'mohicano', tag: 'Disfrazado del héroe de Subte Runner',
+    bye: '¡Me voy corriendo, que cierra el molinete!', lost: 'Si no corro, pierdo la combinación. Chau.' },
   { id: 'ruben', name: 'Don Rubén',  face: '👴', shirt: 0x6b7a8f, hair: 0xdddddd, tag: 'El nostálgico',
     bye: 'Qué lindo que todavía atienda una persona.', lost: 'Antes esto se arreglaba hablando. Chau.' },
   { id: 'marta', name: 'Marta',      face: '👵', shirt: 0xb86fa8, hair: 0xc9c9d6, tag: 'La tecnología es extraña',
@@ -918,11 +976,38 @@ GS.STATIONS = [
   { id: 'vidriera', n: 12, name: 'Vidriera', icon: '🪟', pos: [3.6, 8.5],
     task: { name: 'Armar la vidriera', tag: 'Que se luzca desde la vereda', late: 'La vidriera quedó como estaba. Nadie lo notó. Ese es el problema.' } }
 ];
-GS.THEMES = [{ t: 'Semana gamer', cat: 'perifericos' }, { t: 'Vuelta al cole', cat: 'pc' }, { t: 'Día del niño', cat: 'consolas' }, { t: 'Mundo Apple', cat: 'apple' }];
+GS.THEMES = [
+  { t: 'Semana gamer', hint: 'periféricos para jugar en la PC', ids: ['teclado', 'mouse', 'auris', 'mousepad', 'silla', 'volante', 'streamdeck'] },
+  { t: 'Vuelta al cole', hint: 'cosas para estudiar y hacer la tarea', ids: ['notebook', 'impresora', 'tinta', 'pendrive', 'ipad', 'router'] },
+  { t: 'Día del niño', hint: 'regalos para los más chicos', ids: ['switch2', 'juego', 'juego2', 'juego4', 'muneco', 'ds_azul'] },
+  { t: 'Mundo Apple', hint: 'solo productos de la manzanita', ids: ['airpods', 'homepod', 'magic', 'ipad', 'watch'] },
+  { t: 'Armá tu PC', hint: 'componentes y partes para armar una compu', ids: ['gpu', 'gabinete', 'ram', 'disco', 'monitor', 'teclado'] },
+  { t: 'Quiero ser streamer', hint: 'todo para transmitir en vivo', ids: ['mic', 'webcam', 'streamdeck', 'auris', 'silla'] },
+  { t: 'Noche de Play', hint: 'todo lo que va con la PlayStation', ids: ['ps5', 'dualsense', 'ds_blanco', 'ds_negro', 'ds_rojo', 'ds_violeta', 'juego3'] },
+  { t: 'Verano y pileta', hint: 'música y diversión para las vacaciones', ids: ['parlante', 'quest', 'switch2', 'deck', 'airpods'] },
+  { t: 'Regalos de bolsillo', hint: 'cosas chiquitas que entran en un bolsillo', ids: ['pendrive', 'cable', 'airpods', 'cargador', 'ram', 'tinta'] },
+  { t: 'Oficina en casa', hint: 'para trabajar cómodo desde casa', ids: ['notebook', 'monitor', 'webcam', 'router', 'silla', 'impresora'] }
+];
 
 /* Interrupciones suaves: aparecen de a una, se contestan con un toque y si no las contestás se resuelven solas (sin castigo).
    ok = la respuesta con criterio (suma cordura); bad = la otra (resta un poquito y trae un chiste). r = remate. mate = recupera más. */
 GS.INTERRUPTS = [
+  // inspiradas en noticias insólitas de la Ciudad
+  { ic: '🦫', who: 'En la vereda', t: 'Un carpincho pasa caminando lo más tranquilo.', ok: 'Avisar al 103 y dejarlo en paz', bad: 'Ofrecerle 3 cuotas sin interés', r: 'Vinieron a buscarlo para llevarlo a un lugar seguro. Se fue mirando la vidriera.', rb: 'No tiene bolsillos ni pulgares. Igual miró los joysticks.' },
+  { ic: '🚌', who: 'Un colectivero', t: '"Jefe, el colectivo hace un ruido raro en el motor. ¿Ustedes arreglan?"', ok: 'Notebooks y PC sí; motores no', bad: 'Tráigalo, lo abrimos en el taller', r: 'Se fue a un mecánico. Dejó dicho que vuelve por un cargador.', rb: 'El colectivo no pasa por la puerta del taller.' },
+  { ic: '🚓', who: 'Por la vidriera', t: 'En un control, un conductor explica: "Es solo por hoy".', ok: 'Seguir atendiendo', bad: 'Salir a opinar', r: 'Las excusas no pasan el control. Las transferencias truchas, tampoco.', rb: 'Ahora el agente te pregunta a vos.' },
+  { ic: '🏎️', who: 'Una vecina', t: '"¿Vieron la plaza nueva con juegos de Fórmula 1?"', ok: 'Acá tenemos volantes para practicar', bad: 'No me interesan las plazas', r: 'Se llevó un folleto para el nieto.', rb: 'La vecina se fue ofendida. Y la plaza está buenísima.' },
+  { ic: '🎊', who: 'Entró un hincha', t: 'Festeja un gol tirando papelitos en el salón.', ok: 'Pedirle que festeje en la vereda', bad: 'Tirar papelitos también', r: 'Festejó afuera y volvió a mirar joysticks.', rb: 'Ahora hay que barrer todo el salón.' },
+  // del día a día
+  { ic: '🛵', who: 'Un repartidor', t: '"Pedido para Gladys: dos docenas de empanadas."', ok: 'Acá no es, probá al lado', bad: 'Sí, dejalas acá', r: 'Gladys vive al lado. Las empanadas llegaron calientes.', rb: 'Gladys vino a reclamar. Quedaban tres.' },
+  { ic: '🕊️', who: 'Entró una paloma', t: 'Camina entre las góndolas como si buscara algo.', ok: 'Abrir la puerta y esperar', bad: 'Correrla por todo el local', r: 'Salió sola. No compró nada.', rb: 'Ahora hay plumas en la mesa de PC.' },
+  { ic: '📸', who: 'Unos turistas', t: 'Le sacan fotos al cartel y preguntan si pueden entrar.', ok: 'Pasen y miren tranquilos', bad: 'Las fotos se cobran', r: 'Se llevaron un mousepad de recuerdo.', rb: 'Se fueron a sacarle fotos al kiosco.' },
+  { ic: '📺', who: 'Un señor con un televisor', t: '"¿Arreglan teles? Esta es de 1998 y anda bárbaro, salvo que no anda."', ok: 'Solo notebooks y PC', bad: 'Déjela, algo inventamos', r: 'Preguntó si las notebooks vienen con antena.', rb: 'Ahora hay un televisor de 30 kilos en el taller.' },
+  { ic: '☔', who: 'Un vendedor ambulante', t: '"¡Paraguas, paraguas! ¿Me dejás ofrecer adentro?"', ok: 'Adentro no, pero suerte', bad: 'Dale, poné un puestito', r: 'Vendió tres paraguas en la vereda. No llovió.', rb: 'El Dueño preguntó desde cuándo vendemos paraguas.' },
+  { ic: '🎸', who: 'Un músico callejero', t: 'Toca en la puerta. Solo sabe una canción.', ok: 'Dejarle una moneda y seguir', bad: 'Pedirle un tema de un juego', r: 'Agradeció y se corrió a la esquina.', rb: 'Sabe el tema. Lo toca hace veinte minutos.' },
+  { ic: '🧓', who: 'Una señora', t: '"Nene, ¿el 60 para por acá?"', ok: 'En la esquina, señora', bad: 'Acá solo paran clientes', r: 'Llegó a horario. Saludó desde el colectivo.', rb: 'Se quedó esperando el 60 adentro del local.' },
+  { ic: '🎈', who: 'Brian', t: '"Hoy es mi cumpleaños. No dije nada para no molestar."', ok: '¡Feliz cumple, Brian!', bad: 'El año que viene avisá', r: 'Sonrió todo el día. Hasta cobró en la caja.', rb: 'Se fue al depósito. A "contar stock".', mate: true },
+  { ic: '🔌', who: 'Un chico apurado', t: '"¿Me prestás un enchufe? Tengo 1% y me están por llamar."', ok: 'Enchufalo ahí un ratito', bad: 'Vendemos cargadores', r: 'Lo llamaron. Era para avisarle que ya no hacía falta.', rb: 'Compró el cargador. Igual te miró feo.' },
   { ic: '📞', who: 'Suena el teléfono', t: '"Hola, ¿es la pizzería?"', ok: 'No, pero vendemos joysticks', bad: 'Sí, ¿grande de muzza?', r: 'Número equivocado. Igual anotó la dirección del local.', rb: 'Ahora hay que conseguir una grande de muzza.' },
   { ic: '📞', who: 'Suena el teléfono', t: '"¿Hasta qué hora están?"', ok: 'De 10 a 19', bad: 'Hasta que nos cansemos', r: 'Dijo que pasa a las 18:55. Clásico.', rb: 'Abrimos de 10 a 19. Ni un minuto más, ni uno menos.' },
   { ic: '📞', who: 'Suena el teléfono', t: '"¿Hacen envíos a Jujuy?"', ok: 'Sí, a todo el país', bad: 'Solo si no llueve', r: 'A todo el país. Hasta donde llegue el correo.', rb: 'Hacemos envíos a todo el país, llueva o truene.' },
@@ -937,11 +1022,100 @@ GS.INTERRUPTS = [
   { ic: '🧾', who: 'Volvió un cliente', t: '"Me olvidé el ticket en el mostrador."', ok: 'Acá está, te lo guardé', bad: '¿Qué ticket?', r: 'Con el ticket tiene la garantía en regla.', rb: 'Apareció abajo del frasco de caramelos.' }
 ];
 /* Escena final: se ve al terminar la jornada GS.CONFIG.finalDay. {rank} = el rango nuevo. */
+/* TRAMA CENTRAL: "El local de al lado". El dueño del edificio vende el local pegado. Si para la jornada final se juntó el fondo,
+   se abre GameShop 2. Las monedas se aportan desde "Mejorar el local" y algunas visitas suman (o complican).
+   tiers: desde cuánto fondo (en proporción a la meta) se llega a cada final. */
+GS.PLOT = { goal: 6000, name: 'El local de al lado',
+  intro: 'Te cuento un secreto: se vende el local de al lado. Si para la jornada {n} juntamos el fondo, abrimos GameShop 2. Aportá monedas desde "Mejorar el local".',
+  tiers: [
+    { at: 0,    key: 'chico',   title: 'Mano derecha del Dueño',      line: 'No llegamos al local de al lado. Pero el nuestro quedó hecho un lujo, y eso también es tuyo.' },
+    { at: 0.5,  key: 'medio',   title: 'Jefe del punto de retiro',    line: 'No alcanzó para todo el local, pero alquilamos la mitad: ahí va el punto de retiro de las compras por la página. Y lo manejás vos.' },
+    { at: 1,    key: 'grande',  title: 'Encargado de GameShop 2',     line: '¡El local de al lado es nuestro! Abre GameShop 2, y el encargado sos vos. Las llaves ya tienen tu nombre.' },
+    { at: 1.5,  key: 'leyenda', title: 'Socio de GameShop',           line: 'Compramos el local de al lado y sobró para ponerle cartel pantalla. Desde hoy no sos empleado: sos socio.' }
+  ] };
+/* VISITAS CON HISTORIA: clientes que vuelven. Cada paso es una visita: t = lo que dicen, m = la cara que ponen,
+   opts = lo que podés contestar (b), cómo reaccionan (r, rm) y qué cambia (fx: rep, fondo, cord, goal = mueve la meta, flag).
+   alt = texto distinto si antes pasó algo. note = lo que queda anotado en la libreta. from = primera jornada, gap = jornadas entre visitas. */
+GS.STORIES = [
+  { id: 'elvira', name: 'Doña Elvira', tag: 'La abuela del cumpleaños', from: 2, gap: 2, look: { shirt: 0xb86fa8, hair: 0xc9c9d6, hairStyle: 'rodete', skin: 0xf2c9a0, glasses: true, lips: true }, steps: [
+    { m: 'talk', t: 'Mi nieto cumple 9 y quiere "la Suich". Junté esto en una lata de galletitas. ¿Me alcanza?', note: 'Junta plata en una lata para la consola del nieto. Dijo que vuelve.', opts: [
+      { b: 'Con 3 cuotas sin interés, llega', r: '¡Tres cuotas! Como el lavarropas. Vuelvo en unos días con la lata.', rm: 'happy', fx: { rep: 0.1 } },
+      { b: 'Mejor lleve algo más barato', r: 'Ay, no sé... Él quería esa. Lo voy a pensar.', rm: 'sad', fx: { cord: -3 } }] },
+    { m: 'talk', t: 'Volví. Traje la lata. Son todas monedas, ¿eh? ¿Las cuenta usted o las cuento yo?', note: 'Trajo la lata llena de monedas.', opts: [
+      { b: 'Las contamos juntos', r: 'Mil doscientas monedas después... ¡alcanza! Envuélvamela, que es regalo.', rm: 'happy', fx: { rep: 0.15, fondo: 150 } },
+      { b: 'En efectivo tiene 10% OFF: le sobra', r: '¿Me sobra? ¡Entonces llevo también un jueguito!', rm: 'happy', fx: { rep: 0.1, fondo: 300 } }] },
+    { m: 'happy', t: '¡Le encantó! Gritó, lloró y después no nos habló por tres días porque estaba jugando. Le traje torta.', note: 'El nieto no suelta la consola. Hubo torta para todos.', end: true, opts: [
+      { b: 'Gracias, Elvira', r: 'Guárdele un pedazo al muchacho que duerme en el depósito.', rm: 'happy', fx: { cord: 25, rep: 0.1 } }] }] },
+  { id: 'benja', name: 'Benja', tag: 'Ahorra para un joystick', from: 3, gap: 2, look: { shirt: 0x3bb54a, hair: 0x4a3a2a, hairStyle: 'corto', skin: 0xe0ac7e, scale: 0.8 }, steps: [
+    { m: 'talk', t: 'Hola. ¿Cuánto sale el joystick azul? Tengo esto. (Muestra un puñado de monedas y un botón.)', note: 'Quiere el joystick azul. Tiene monedas y un botón.', opts: [
+      { b: 'Te falta un poquito. Seguí juntando', r: 'Bueno. El botón no cuenta, ¿no? Vuelvo.', rm: 'normal', fx: { rep: 0.05 } },
+      { b: 'El botón no lo aceptamos', r: 'Era de la suerte. Vuelvo con más.', rm: 'sad', fx: { cord: 3 } }] },
+    { m: 'talk', t: 'Lavé el auto de mi tío, el de mi otro tío y uno que no sé de quién era. ¿Ahora me alcanza?', note: 'Lavó tres autos. Uno no sabe de quién era.', opts: [
+      { b: 'Casi. En efectivo tenés 10% OFF', r: '¿Diez por ciento es mucho? ¡Entonces me falta re poco!', rm: 'happy', fx: { rep: 0.1 } }] },
+    { m: 'happy', t: 'Junté todo. Lo conté tres veces. La tercera me dio distinto, pero la segunda estaba bien.', note: 'Se llevó el joystick azul. Sin bolsa: lo quería ir mirando.', end: true, opts: [
+      { b: 'Contémoslo juntos', r: '¡Alcanza justo! ¿Me lo das sin bolsa? Lo quiero ir mirando.', rm: 'happy', fx: { rep: 0.2, fondo: 150, cord: 15 } }] }] },
+  { id: 'anselmo', name: 'Don Anselmo', tag: 'El coleccionista', from: 3, gap: 3, look: { shirt: 0x6b7a8f, hair: 0xdddddd, hairStyle: 'pelado', beard: true, skin: 0xf6d7bd, glasses: true }, steps: [
+    { m: 'talk', t: 'Busco "Galaxia Mate", primera edición, con el manual. Lo busco desde 2009. ¿Lo tienen?', note: 'Busca Galaxia Mate primera edición desde 2009.', opts: [
+      { b: 'No, pero lo anoto y le aviso', r: 'Anóteme: Anselmo. Igual vengo todos los martes.', rm: 'normal', fx: { rep: 0.05 } },
+      { b: 'Tengo la edición nueva', r: 'La nueva no trae el manual con olor a manual. Vuelvo.', rm: 'sad', fx: {} }] },
+    { m: 'impatient', t: '¿Llegó? ...No me diga nada. Se lo veo en la cara. No llegó.', note: 'Volvió a preguntar. Todavía no llegó.', opts: [
+      { b: 'Todavía no, Anselmo', r: 'Diecisiete años esperé. Puedo esperar un martes más.', rm: 'normal', fx: { cord: 3 } },
+      { b: '¿Probó mirarlo en la página?', r: 'La miro todas las noches. Antes de dormir.', rm: 'normal', fx: { rep: 0.05 } }] },
+    { m: 'surprised', t: 'Dígame que ese paquete que bajó el de la carreta es lo que yo creo.', note: 'Llegó una copia de Galaxia Mate primera edición.', opts: [
+      { b: 'Es suyo: se lo guardé', r: '¡Con el manual! Cóbrese. Y esto aparte, para ese fondo del que habla el Dueño.', rm: 'happy', fx: { rep: 0.2, fondo: 600 } },
+      { b: 'Un revendedor ofrece el doble', r: '...Entiendo. Los negocios son los negocios.', rm: 'sad', fx: { fondo: 900, rep: -0.3, flag: 'traicion' } }] },
+    { m: 'happy', t: 'Lo terminé. Dos veces. Vengo a contarle el final.', alt: { flag: 'traicion', m: 'sad', t: 'Lo conseguí igual. Me costó el triple. No le guardo rencor. Bueno, un poco.' }, note: 'Terminó de buscar. Diecisiete años.', end: true, opts: [
+      { b: 'Lo escucho', r: 'Resulta que el mate era la nave. Todo el tiempo. Hasta el martes.', rm: 'happy', fx: { cord: 15, rep: 0.05 } }] }] },
+  { id: 'tito', name: 'Tito Ofertas', tag: 'Siempre tiene un negocio', from: 4, gap: 3, look: { shirt: 0xd9a514, hair: 0x111111, hairStyle: 'corto', beard: true, skin: 0xc68a5c }, steps: [
+    { m: 'nervous', t: 'Maestro: tengo diez joysticks que me sobraron de un evento. Sin caja, sin factura, sin preguntas. ¿Te los dejo baratos?', note: 'Ofreció joysticks sin caja ni factura.', opts: [
+      { b: 'Acá todo es nuevo, original y con factura', r: 'Uh, qué serio. Bueno, yo pregunté.', rm: 'sad', fx: { rep: 0.15 } },
+      { b: '¿Cuánto?', r: '¡Ese es mi pibe! ...No, mentira, era una prueba. Paso otro día.', rm: 'happy', fx: { rep: -0.15 } }] },
+    { m: 'nervous', t: 'Te transfiero ya. Mirá el comprobante: dice "GeimShop", pero es el autocorrector.', note: 'Quiso pagar con un comprobante a nombre de "GeimShop".', opts: [
+      { b: 'Sin comprobante correcto no hay venta', r: 'Ya vuelvo. Voy a retar al autocorrector.', rm: 'angry', fx: { rep: 0.1 } },
+      { b: 'Dale, pasá', r: 'La plata nunca llegó. El Dueño miró el cierre de caja en silencio.', rm: 'happy', fx: { fondo: -300, rep: -0.2 } }] },
+    { m: 'talk', t: 'Vengo a comprar en serio. Con plata de verdad. Efectivo. ¿Es cierto lo del 10%?', note: 'Tito se reformó. Más o menos.', end: true, opts: [
+      { b: '10% OFF en efectivo, como a todos', r: 'Mirá vos: portarse bien sale más barato. Me llevo dos.', rm: 'happy', fx: { fondo: 400, rep: 0.15 } }] }] },
+  { id: 'cami', name: 'Cami', tag: 'Streamer en ascenso', from: 5, gap: 3, look: { shirt: 0xff5fa2, hair: 0x7b4fd1, hairStyle: 'largo', skin: 0xf2c9a0, lashes: true, lips: true }, steps: [
+    { m: 'talk', t: 'Soy streamer. Tengo tres seguidores: mi mamá, mi tía y uno que creo que es un bot. ¿Qué micrófono me recomendás?', note: 'Streamer con tres seguidores (uno es un bot).', opts: [
+      { b: 'Uno bueno, y en 3 cuotas', r: '¡Listo! Con esto me van a escuchar perfecto los tres.', rm: 'happy', fx: { rep: 0.1, fondo: 150 } },
+      { b: 'Primero conseguí seguidores', r: 'Auch. Igual me lo llevo.', rm: 'sad', fx: { rep: -0.05 } }] },
+    { m: 'happy', t: '¡Llegué a cien! El bot trajo amigos. Necesito una webcam: ya no puedo transmitir con la del microondas.', note: 'Llegó a cien seguidores. Compró una webcam.', opts: [
+      { b: 'Con esta se te ve bárbaro', r: '¡Se me ven hasta las ojeras! La amo.', rm: 'happy', fx: { fondo: 200, rep: 0.1 } }] },
+    { m: 'talk', t: 'Mañana transmito desde acá, si me dejás. Nombro el local. ¿Qué querés que diga?', note: 'Transmitió en vivo desde el local.', opts: [
+      { b: '3 cuotas sin interés y envíos a todo el país', r: 'Hecho. Y que atiende gente copada.', rm: 'happy', fx: { rep: 0.25, fondo: 300 } },
+      { b: 'Que no toquen nada', r: 'Jaja, ok: "no toquen nada", dice el local.', rm: 'normal', fx: { rep: 0.05 } }] },
+    { m: 'happy', t: '¡Se llenó el chat! Uno preguntó si el del mohicano es parte del decorado.', note: 'El chat explotó. Preguntaron por el del mohicano.', end: true, opts: [
+      { b: 'Es parte del equipo', r: 'Les mando saludos a todos. ¡Vuelvo para el cierre de la temporada!', rm: 'happy', fx: { fondo: 500, cord: 10 } }] }] },
+  { id: 'maletin', name: 'El hombre del maletín', tag: 'Pregunta demasiado', from: 6, gap: 3, look: { shirt: 0x23232b, hair: 0x2b2b3a, hairStyle: 'corto', skin: 0xe0ac7e, glasses: true }, steps: [
+    { m: 'normal', t: 'Buenas. Una consulta, nada más: el local de al lado... ¿cuántos metros tiene? ¿Entra mucha gente por acá?', note: 'Preguntó por el local de al lado. Raro.', opts: [
+      { b: 'Eso pregúnteselo al Dueño', r: 'Discreto. Interesante. Buenas tardes.', rm: 'impatient', fx: { goal: -300 } },
+      { b: 'Un montón, y lo vamos a comprar nosotros', r: '¿Ah, sí? Qué dato. Muy amable.', rm: 'happy', fx: { goal: 500 } }] },
+    { m: 'talk', t: 'Represento a MegaPlay Center. Vamos a ofertar por el local de al lado. Y por vos: te pagamos el doble. ¿Qué decís?', note: 'Es de MegaPlay Center. Quieren el local... y me ofreció trabajo.', opts: [
+      { b: 'Mi lugar es GameShop', r: 'Lealtad. Qué antiguo. Dejo mi tarjeta igual.', rm: 'impatient', fx: { rep: 0.2, goal: -300, cord: 10 } },
+      { b: '¿El doble de cuánto?', r: 'El doble de lo que sea. Lo consultamos y te avisamos.', rm: 'happy', fx: { rep: -0.1 } }] },
+    { m: 'nervous', t: 'Última oferta: MegaPlay se retira de la compra si me decís cuánto juntaron ustedes.', note: 'MegaPlay hizo su última jugada.', end: true, opts: [
+      { b: 'Lo suficiente. Buenas tardes', r: '...Me caés bien. Voy a decir que el local tiene humedad.', rm: 'happy', fx: { goal: -500, rep: 0.1 } },
+      { b: 'Poquito, la verdad', r: 'Mh. Entonces ofertamos más. Gracias por la sinceridad.', rm: 'happy', fx: { goal: 500 } }] }] },
+  // visitas sueltas: cosas raras que pasan una sola vez
+  { id: 'loro', name: 'La señora del loro', tag: 'Una visita rara', once: true, from: 4, look: { shirt: 0x21a0a0, hair: 0xd9a514, hairStyle: 'rulos', skin: 0xf6d7bd, lips: true }, steps: [
+    { m: 'talk', t: 'Mi loro dice "tres cuotas sin interés". Lo aprendió pasando por acá. ¿Hay descuento por la publicidad?', note: 'Su loro repite "tres cuotas sin interés".', end: true, opts: [
+      { b: 'Para el loro, un mousepad de regalo', r: 'Lo va a usar de alfombra. ¡Gracias! Dice "gracias" también.', rm: 'happy', fx: { rep: 0.15 } },
+      { b: 'Que aprenda "10% OFF en efectivo"', r: 'Le va a costar la "efe". Pero lo intento.', rm: 'happy', fx: { rep: 0.1, cord: 5 } }] }] },
+  { id: 'futuro', name: 'El viajero', tag: 'Una visita rara', once: true, from: 7, look: { shirt: 0xc9ccd1, hair: 0x57e6ff, hairStyle: 'mohicano', skin: 0x9a643c, glasses: true }, steps: [
+    { m: 'surprised', t: 'Vengo del año 2046. ¿Todavía usan joysticks con botones? Qué ternura. Me llevo uno de recuerdo.', note: 'Dijo venir del 2046. Compró un joystick "de época".', end: true, opts: [
+      { b: '¿Y en 2046 seguimos abiertos?', r: 'De 10 a 19. Eso no cambió nunca.', rm: 'happy', fx: { fondo: 200, cord: 8 } },
+      { b: 'Son 3 cuotas sin interés. ¿Llegás a pagarlas?', r: 'La última la pago ayer. Es complicado.', rm: 'nervous', fx: { fondo: 200 } }] }] },
+  { id: 'perdido', name: 'Un turista', tag: 'Una visita rara', once: true, from: 5, look: { shirt: 0xe07a5f, hair: 0xd9a514, hairStyle: 'corto', skin: 0xf6d7bd }, steps: [
+    { m: 'talk', t: 'Perdón... busco el Obelisco. El mapa del celular me trajo acá. Dos veces.', note: 'Buscaba el Obelisco. El mapa lo trajo dos veces.', end: true, opts: [
+      { b: 'Tomate el subte, y cargá el celu acá', r: '¡Gracias! Me llevo un cargador portátil, por las dudas.', rm: 'happy', fx: { fondo: 120, rep: 0.1 } },
+      { b: 'Es este. Lo achicaron', r: 'Ah. En las fotos parecía más alto.', rm: 'surprised', fx: { cord: 6 } }] }] }
+];
 GS.FINAL = {
   boss: [
-    'Diez jornadas. Nadie había durado tanto desde... bueno, desde Brian.',
-    'Atendiste, cobraste, contaste, embalaste y contestaste WhatsApp. Y casi nunca perdiste la cordura.',
-    'Por eso, desde hoy sos {rank}. Te ganaste la llave del local y el grupo de WhatsApp de proveedores. Suerte con eso.',
+    'Veinte jornadas. Nadie había durado tanto desde... bueno, desde Brian.',
+    'Atendiste, cobraste, embalaste y casi nunca perdiste la cordura. Y para el local de al lado juntamos {fondo} de {meta}.',
+    '{resultado}',
+    'Por eso, desde hoy sos {rank}. Te ganaste la llave y el grupo de WhatsApp de proveedores. Suerte con eso.',
     'Gracias por jugar. Y acordate: 10% OFF en efectivo y transferencia. Eso no cambia nunca.'
   ],
   crowd: ['¡Bravo!', '¡Grande!', '¡Ídolo!', '¡Así se atiende!', '¡Que hable!', '¡Aplausos!', '¿Hay descuento por el festejo?', '¡Esto lo subo a mi canal!'],
@@ -983,7 +1157,7 @@ GS.SHELVES = [
   { cat: 'consolas', name: 'Consolas y juegos', icon: '🎮', pos: [7.5, -6.0] }, { cat: 'apple', name: 'Apple', icon: '🍏', pos: [9.9, -6.0] },
   { cat: 'pc', name: 'PC y accesorios', icon: '💻', pos: [7.5, -2.6] }, { cat: 'perifericos', name: 'Periféricos gamer', icon: '🎧', pos: [9.9, -2.6] }
 ];
-GS.BOX_SIZE = { chica: ['cable', 'pendrive', 'tinta', 'airpods', 'juego', 'magic', 'watch', 'mouse', 'dualsense', 'homepod', 'webcam', 'joyxbox', 'muneco', 'disco', 'cargador', 'ram'],
+GS.BOX_SIZE = { chica: ['cable', 'pendrive', 'tinta', 'airpods', 'juego', 'magic', 'watch', 'mouse', 'dualsense', 'ds_blanco', 'ds_negro', 'ds_rojo', 'ds_azul', 'ds_violeta', 'juego2', 'juego3', 'juego4', 'homepod', 'webcam', 'joyxbox', 'muneco', 'disco', 'cargador', 'ram'],
   mediana: ['switch2', 'quest', 'deck', 'ipad', 'router', 'auris', 'gpu', 'streamdeck', 'mic', 'notebook', 'teclado', 'parlante', 'mousepad'], grande: ['ps5', 'xbox', 'gabinete', 'silla', 'volante', 'monitor', 'impresora'] };
 GS.BOXES = { chica: { cm: 15, max: 20 }, mediana: { cm: 35, max: 40 }, grande: { cm: 60, max: 70 } };
 GS.BUYERS = ['CRACK_DEL_TECLADO', 'LA_TIA_GAMER', 'PEPE_COMPRA_TODO', 'NO_SOY_UN_BOT_22', 'MATE_Y_FPS', 'ABUELA_PRO_PLAYER', 'EL_REY_DEL_ENVIO', 'CARRITO_LLENO_OK'];
@@ -1025,7 +1199,7 @@ GS.Store = (function () {
       data.best.push(entry); data.best.sort((a, b) => b.score - a.score); data.best = data.best.slice(0, 5); save();
       return data.best.indexOf(entry);
     },
-    reset() { data = { best: [], tutorial: false, mute: data.mute, music: data.music, quality: data.quality, big: data.big, uid: data.uid }; save(); }
+    reset() { data = { best: [], tutorial: false, mute: data.mute, music: data.music, quality: data.quality, big: data.big, uid: data.uid, avatar: data.avatar }; save(); }
   };
 })();
 
@@ -1037,15 +1211,22 @@ GS.Store = (function () {
   const S = b => '<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">' + b + '</svg>';
   const pad = (fill, extra) => '<path d="M9 17q15-7 30 0q6 14 4 20q-4 5-9-6H14q-5 11-9 6q-2-6 4-20z" fill="' + fill + '" stroke="rgba(0,0,0,.25)"/>' +
     '<circle cx="17" cy="25" r="3.2" fill="#1b1b1f"/><circle cx="29" cy="29" r="3.2" fill="#1b1b1f"/>' + extra;
+  const ds = (body, det) => S(pad(body, '<rect x="20" y="17" width="8" height="5" rx="1.500" fill="' + det + '"/><path d="M19 12q5-2 10 0" fill="none" stroke="' + det + '" stroke-width="1.200" opacity=".6"/><g fill="' + det + '"><circle cx="33" cy="20" r="1.300"/><circle cx="36" cy="23" r="1.300"/><circle cx="30" cy="23" r="1.300"/><circle cx="33" cy="26" r="1.300"/></g><path d="M13 20v6M10 23h6" stroke="' + det + '" stroke-width="1.600" stroke-linecap="round"/>'));
+  // Caja de juego físico con la portada de un juego inventado: franja de arriba, ilustración y título
+  const cover = (band, bg, art, t1, t2) => S('<rect x="9" y="3" width="30" height="42" rx="2" fill="' + band + '"/><rect x="11" y="9" width="26" height="34" fill="' + bg + '"/>' + art +
+    '<rect x="11" y="33" width="26" height="10" fill="rgba(0,0,0,.72)"/><text x="24" y="37.600" text-anchor="middle" font-family="Impact,Arial Black,sans-serif" font-size="4.600" fill="#fff">' + t1 + '</text><text x="24" y="41.800" text-anchor="middle" font-family="Impact,Arial Black,sans-serif" font-size="4.200" fill="#f5c518">' + t2 + '</text><rect x="12" y="5" width="9" height="2.400" rx="1" fill="#fff" opacity=".85"/>');
   GS.ICONS = {
     ps5: S('<rect x="19" y="6" width="10" height="36" rx="2" fill="#15151a"/><path d="M12 5q7-3 8 3v32q-1 6-8 3z" fill="#f4f4f6" stroke="#c9c9d1"/><path d="M36 5q-7-3-8 3v32q1 6 8 3z" fill="#f4f4f6" stroke="#c9c9d1"/><rect x="23" y="10" width="2" height="12" rx="1" fill="#3aa0ff"/>'),
     switch2: S('<rect x="12" y="13" width="24" height="22" rx="2" fill="#1b1b1f"/><rect x="14" y="15" width="20" height="18" fill="#56b8ff"/><rect x="3" y="13" width="9" height="22" rx="4.5" fill="#22a9e8"/><rect x="36" y="13" width="9" height="22" rx="4.5" fill="#ee4b33"/><circle cx="7.500" cy="20" r="2" fill="#0d0d10"/><circle cx="40.500" cy="28" r="2" fill="#0d0d10"/>'),
     quest: S('<path d="M6 22q18-10 36 0" fill="none" stroke="#8d9199" stroke-width="3"/><rect x="7" y="18" width="34" height="18" rx="9" fill="#f6f6f8" stroke="#c4c4cc"/><circle cx="14" cy="24" r="1.600" fill="#333"/><circle cx="34" cy="24" r="1.600" fill="#333"/><circle cx="24" cy="31" r="1.600" fill="#333"/>'),
     deck: S('<rect x="2" y="13" width="44" height="22" rx="7" fill="#1b1b1f"/><rect x="14" y="16" width="20" height="16" rx="1" fill="#4aa8e8"/><circle cx="8" cy="21" r="2.600" fill="#3a3a44"/><circle cx="40" cy="21" r="2.600" fill="#3a3a44"/><rect x="5.500" y="27" width="5" height="5" rx="1" fill="#2b2b33"/><rect x="37.500" y="27" width="5" height="5" rx="1" fill="#2b2b33"/>'),
     xbox: S('<rect x="14" y="4" width="20" height="40" rx="1.500" fill="#17171a"/><rect x="14" y="4" width="20" height="5" fill="#1f8f2f"/><g fill="#0b0b0d"><circle cx="19" cy="6.500" r="1"/><circle cx="24" cy="6.500" r="1"/><circle cx="29" cy="6.500" r="1"/></g><circle cx="18.500" cy="14" r="1.600" fill="#f4f4f6"/><rect x="17" y="36" width="8" height="1.500" fill="#33333a"/>'),
-    dualsense: S(pad('#ff8fc0', '<rect x="20" y="17" width="8" height="5" rx="1.500" fill="#fff"/><g fill="#fff"><circle cx="33" cy="20" r="1.300"/><circle cx="36" cy="23" r="1.300"/><circle cx="30" cy="23" r="1.300"/><circle cx="33" cy="26" r="1.300"/></g>')),
+    dualsense: ds('#ff8fc0', '#fff'), ds_blanco: ds('#f4f4f6', '#1b1b1f'), ds_negro: ds('#26262c', '#8d9199'), ds_rojo: ds('#d81e2c', '#1b1b1f'), ds_azul: ds('#2d6cdf', '#0d1b3a'), ds_violeta: ds('#8a4fd1', '#fff'),
     joyxbox: S(pad('#2a2a30', '<circle cx="24" cy="18" r="2.200" fill="#f4f4f6"/><circle cx="33" cy="19.500" r="1.400" fill="#f5c518"/><circle cx="36" cy="22.500" r="1.400" fill="#e8452a"/><circle cx="30" cy="22.500" r="1.400" fill="#3a8dff"/><circle cx="33" cy="25.500" r="1.400" fill="#3bb54a"/>')),
-    juego: S('<rect x="11" y="5" width="26" height="38" rx="2" fill="#2d6cdf"/><rect x="11" y="5" width="26" height="6" fill="#1d4fae"/><rect x="14" y="13" width="20" height="26" fill="#fdfdf8"/><circle cx="24" cy="24" r="6" fill="#f5c518"/><path d="M14 39l7-9 5 6 3-3 5 6z" fill="#3bb54a"/>'),
+    juego: cover('#1d4fae', '#6fcf7a', '<path d="M11 28h26v5H11z" fill="#3a3a44"/><path d="M11 30.500h4M18 30.500h4M25 30.500h4M32 30.500h4" stroke="#f5c518"/><rect x="15" y="22" width="18" height="6" rx="3" fill="#e10600"/><circle cx="18" cy="28.500" r="2.400" fill="#111"/><circle cx="30" cy="28.500" r="2.400" fill="#111"/><ellipse cx="24" cy="18" rx="6" ry="5" fill="#8a5a2b"/><circle cx="20" cy="13.800" r="1.600" fill="#8a5a2b"/><circle cx="28" cy="13.800" r="1.600" fill="#8a5a2b"/><circle cx="22" cy="17" r="1" fill="#111"/><circle cx="26" cy="17" r="1" fill="#111"/><ellipse cx="24" cy="20" rx="2.200" ry="1.400" fill="#5a3a1a"/>', 'CARPINCHO', 'KART'),
+    juego2: cover('#14143a', '#1b1b4a', '<g fill="#fff"><circle cx="15" cy="13" r=".700"/><circle cx="33" cy="12" r=".900"/><circle cx="30" cy="22" r=".600"/><circle cx="14" cy="26" r=".800"/></g><circle cx="31" cy="17" r="4" fill="#f5c518" opacity=".9"/><circle cx="22" cy="19" r="6.500" fill="#f4f4f6"/><circle cx="22" cy="19" r="4.300" fill="#e0ac7e"/><circle cx="20.500" cy="18.500" r=".800" fill="#111"/><circle cx="23.500" cy="18.500" r=".800" fill="#111"/><rect x="17" y="25" width="10" height="8" rx="3" fill="#f4f4f6"/><path d="M28 27h3v4h-3z" fill="#6b3e1e"/><path d="M30.500 27l1.500-4" stroke="#c9ccd1" stroke-width="1"/>', 'GALAXIA', 'MATE'),
+    juego3: cover('#5a2a8a', '#7b4fd1', '<rect x="14" y="13" width="9" height="13" rx="1.200" fill="#fff" transform="rotate(-12 18 20)"/><rect x="25" y="13" width="9" height="13" rx="1.200" fill="#fff" transform="rotate(12 30 20)"/><path d="M18 15v8M16 17h4" stroke="#2d6cdf" stroke-width="1.600" transform="rotate(-12 18 20)"/><path d="M27 17l2-3 1.500 2 1.500-2 2 3v3h-7z" fill="#f5c518" transform="rotate(12 30 20)"/><path d="M20 30l4-3 4 3" fill="none" stroke="#f5c518" stroke-width="1.500"/>', 'TRUCO', 'ROYALE'),
+    juego4: cover('#b88a00', '#f5c518', '<path d="M11 14h26v4H11z" fill="#2d6cdf"/><circle cx="16" cy="16" r="1.300" fill="#fff"/><circle cx="24" cy="16" r="1.300" fill="#fff"/><circle cx="32" cy="16" r="1.300" fill="#fff"/><path d="M11 29h26v4H11z" fill="#3a3a44"/><circle cx="25" cy="21" r="2.600" fill="#e0ac7e"/><path d="M22.500 20q2.500-3 5 0" fill="#2d6cdf"/><path d="M25 23.500l-1 4-3 2M24 27.500l3 2.500M23 24.500l-3 1M26 24.500l3 .500" stroke="#111" stroke-width="1.500" stroke-linecap="round" fill="none"/><path d="M13 21h5M14 24h4" stroke="#fff" stroke-width="1" opacity=".8"/>', 'SUBTE', 'RUNNER'),
     airpods: S('<rect x="11" y="14" width="26" height="26" rx="9" fill="#f8f8fa" stroke="#c9c9d1"/><path d="M11 24h26" stroke="#c9c9d1"/><circle cx="24" cy="30" r="1.200" fill="#3bb54a"/><path d="M17 5a3 3 0 0 1 3 3v6h-3z" fill="#fff" stroke="#c9c9d1"/><path d="M31 5a3 3 0 0 0-3 3v6h3z" fill="#fff" stroke="#c9c9d1"/>'),
     homepod: S('<ellipse cx="24" cy="27" rx="16" ry="15" fill="#2a2a30"/><g stroke="#3d3d47" stroke-width="1"><path d="M9 24h30M9 30h30M11 36h26M14 18h20"/></g><ellipse cx="24" cy="13.500" rx="9" ry="3" fill="#7b4fd1"/><ellipse cx="24" cy="13.500" rx="5" ry="1.600" fill="#56d6ff"/>'),
     magic: S('<ellipse cx="24" cy="24" rx="12" ry="19" fill="#fafafc" stroke="#c9c9d1"/><path d="M24 7v9" stroke="#d9d9e0" stroke-width="1.500"/>'),
@@ -1065,7 +1246,7 @@ GS.Store = (function () {
     silla: S('<rect x="15" y="3" width="18" height="25" rx="6" fill="#17171a"/><rect x="21.500" y="5" width="5" height="21" rx="2" fill="#e10600"/><rect x="12" y="26" width="24" height="7" rx="3" fill="#17171a"/><rect x="22.500" y="33" width="3" height="7" fill="#555"/><path d="M12 43l12-4 12 4" fill="none" stroke="#33333a" stroke-width="3" stroke-linecap="round"/>'),
     teclado: S('<rect x="2" y="15" width="44" height="18" rx="2.500" fill="#17171a"/><g fill="#ff4fa3"><rect x="5" y="18" width="4" height="3.500"/><rect x="11" y="18" width="4" height="3.500"/><rect x="17" y="18" width="4" height="3.500"/></g><g fill="#56d6ff"><rect x="23" y="18" width="4" height="3.500"/><rect x="29" y="18" width="4" height="3.500"/><rect x="35" y="18" width="4" height="3.500"/><rect x="5" y="23" width="4" height="3.500"/><rect x="11" y="23" width="4" height="3.500"/></g><g fill="#3aff9c"><rect x="17" y="23" width="4" height="3.500"/><rect x="23" y="23" width="4" height="3.500"/><rect x="29" y="23" width="4" height="3.500"/><rect x="35" y="23" width="4" height="3.500"/><rect x="12" y="28" width="22" height="3"/></g>'),
     webcam: S('<circle cx="24" cy="20" r="14" fill="#23232b"/><circle cx="24" cy="20" r="8" fill="#0d0d10"/><circle cx="24" cy="20" r="4.500" fill="#3a8dff"/><circle cx="22" cy="18" r="1.300" fill="#fff"/><path d="M15 34h18l3 9H12z" fill="#33333a"/>'),
-    parlante: S('<rect x="3" y="14" width="42" height="20" rx="10" fill="#ee4b33"/><circle cx="10" cy="24" r="5" fill="#1b1b1f"/><circle cx="38" cy="24" r="5" fill="#1b1b1f"/><g stroke="#b5321f" stroke-width="1"><path d="M18 18v12M22 18v12M26 18v12M30 18v12"/></g>'),
+    parlante: S('<defs><pattern id="pm" width="2.400" height="2.400" patternUnits="userSpaceOnUse"><circle cx="1.200" cy="1.200" r=".550" fill="#000" opacity=".28"/></pattern></defs><path d="M10 9q14-7 28 0" fill="none" stroke="#2a2a30" stroke-width="2.200" stroke-linecap="round"/><rect x="4" y="14" width="40" height="21" rx="10.500" fill="#e8452a"/><rect x="9" y="14" width="30" height="21" fill="url(#pm)"/><path d="M9 17.500q15-4 30 0" fill="none" stroke="#fff" stroke-width="1.200" opacity=".28"/><ellipse cx="8.500" cy="24.500" rx="5" ry="9.500" fill="#1b1b1f"/><ellipse cx="8.500" cy="24.500" rx="3.200" ry="6.600" fill="#3a3a44"/><ellipse cx="8.500" cy="24.500" rx="1.300" ry="2.800" fill="#e8452a"/><ellipse cx="39.500" cy="24.500" rx="5" ry="9.500" fill="#1b1b1f"/><ellipse cx="39.500" cy="24.500" rx="3.200" ry="6.600" fill="#3a3a44"/><ellipse cx="39.500" cy="24.500" rx="1.300" ry="2.800" fill="#e8452a"/><rect x="19.500" y="21.500" width="9" height="5.200" rx="1.200" fill="#f57a1f" stroke="#fff" stroke-width=".700"/><path d="M22 24.100h4" stroke="#fff" stroke-width="1.100" stroke-linecap="round"/><g fill="#fff" opacity=".9"><path d="M16 16.800h2.400M17.200 15.600v2.400" stroke="#fff" stroke-width=".800"/><path d="M23 16.200l2 1.200-2 1.200z"/><path d="M30 16.800h2.400" stroke="#fff" stroke-width=".800"/></g><ellipse cx="24" cy="38.500" rx="15" ry="1.800" fill="#000" opacity=".18"/>'),
     volante: S('<circle cx="24" cy="22" r="16" fill="none" stroke="#17171a" stroke-width="6"/><path d="M9 22h30M24 22v15" stroke="#33333a" stroke-width="4"/><circle cx="24" cy="22" r="4.500" fill="#e10600"/><rect x="16" y="40" width="16" height="5" rx="2" fill="#33333a"/>'),
     mousepad: S('<rect x="3" y="12" width="42" height="24" rx="4" fill="#17171a" stroke="#7b4fd1" stroke-width="2.500"/><path d="M8 30q10-12 18-4t16-8" fill="none" stroke="#56d6ff" stroke-width="1.500" opacity=".8"/>'),
     muneco: S('<rect x="12" y="4" width="24" height="22" rx="7" fill="#f2c9a0"/><path d="M12 12q12-12 24 0v-3q-12-9-24 0z" fill="#3a2a1a"/><circle cx="19" cy="16" r="3.200" fill="#111"/><circle cx="29" cy="16" r="3.200" fill="#111"/><rect x="17" y="26" width="14" height="13" rx="2" fill="#2d6cdf"/><rect x="13" y="39" width="22" height="5" rx="2" fill="#17171a"/>'),
@@ -1706,25 +1887,43 @@ GS.World = (function () {
     }
   }
 
-  /* ---------- Personajes low-poly (cabezones) ---------- */
+  /* ---------- Personajes: muñequitos cabezones con brazos y piernas, en 4 colores plenos ----------
+     Cada personaje usa exactamente cuatro colores: PIEL, PELO, REMERA y PANTALÓN. Las zapatillas, los ojos, las cejas y los
+     anteojos van del color del pantalón; la barba y las pestañas, del color del pelo; los labios, del color de la remera.
+     Así cada uno se puede llevar a una impresión 3D de cuatro filamentos. */
   const SKINS = [0xf2c9a0, 0xe0ac7e, 0xc68a5c, 0x9a643c, 0xf6d7bd];
-  const gBody = new T.CylinderGeometry(0.2, 0.3, 0.8, 8), gHead = new T.SphereGeometry(0.33, 12, 10),
-        gHair = new T.SphereGeometry(0.35, 12, 8, 0, Math.PI * 2, 0, Math.PI * 0.52), gEye = new T.SphereGeometry(0.04, 6, 6),
+  const PANTS = [0x23232b, 0x2a3550, 0x3a2a1a, 0x1f3d2a, 0x4a4a55];
+  const HR = 0.36;                                                    // radio de la cabeza
+  const gHead = new T.SphereGeometry(HR, 16, 12), gEar = new T.SphereGeometry(0.085, 8, 6), gEye = new T.SphereGeometry(0.05, 8, 6),
+        gTorso = new T.CylinderGeometry(0.15, 0.2, 0.36, 12), gHip = new T.CylinderGeometry(0.2, 0.19, 0.16, 12), gLegP = new T.CylinderGeometry(0.085, 0.08, 0.14, 8),
+        gLeg = new T.CylinderGeometry(0.06, 0.055, 0.2, 8), gArm = new T.CylinderGeometry(0.052, 0.046, 0.26, 8), gSleeve = new T.CylinderGeometry(0.075, 0.07, 0.13, 8),
+        gHand = new T.SphereGeometry(0.062, 8, 6), gSmile = new T.TorusGeometry(0.075, 0.016, 6, 10, Math.PI),
         gShadow = new T.CircleGeometry(0.36, 16);
   const shadowMat = new T.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.2, depthWrite: false });
-  const gCone = new T.CylinderGeometry(0.15, 0.34, 0.86, 12), gBun = new T.SphereGeometry(0.15, 8, 8), gCurl = new T.SphereGeometry(0.13, 7, 6),
-        gBeard = new T.SphereGeometry(0.348, 14, 6, Math.PI * 0.06, Math.PI * 0.88, Math.PI * 0.6, Math.PI * 0.36),
-        gCap = new T.SphereGeometry(0.348, 16, 10, 0, Math.PI * 2, 0, Math.PI * 0.47), gMass = new T.SphereGeometry(0.36, 12, 10);
+  const gBun = new T.SphereGeometry(0.16, 8, 8), gCurl = new T.SphereGeometry(0.14, 7, 6), gTuft = new T.SphereGeometry(0.13, 7, 6),
+        gBeard = new T.SphereGeometry(HR + 0.018, 14, 6, Math.PI * 0.06, Math.PI * 0.88, Math.PI * 0.6, Math.PI * 0.36),
+        gCap = new T.SphereGeometry(HR + 0.02, 16, 10, 0, Math.PI * 2, 0, Math.PI * 0.5), gMass = new T.SphereGeometry(HR + 0.03, 12, 10),
+        gHelmet = new T.SphereGeometry(HR + 0.06, 16, 12, 0, Math.PI * 2, 0, Math.PI * 0.62);
   function makePerson(o) {
     o = o || {};
     const g = new T.Group(), base = o.scale || 1; g.scale.setScalar(base); g.userData.base = base;
-    const body = new T.Mesh(gCone, mat(o.shirt || 0x4a6fb5)); body.position.y = 0.45; g.add(body);
-    const head = new T.Mesh(gHead, mat(SKINS[0])); head.position.y = 1.14; g.add(head);
-    [-0.12, 0.12].forEach(x => { const e = new T.Mesh(gEye, mat(0x111111)); e.position.set(x, 1.14, 0.3); g.add(e); });
+    const HY = 1.14, parts = { skin: [], top: [], bot: [] };
+    const add = (parent, geo, kind, x, y, z) => { const m = new T.Mesh(geo, mat(0xffffff)); m.position.set(x, y, z); parent.add(m); parts[kind].push(m); return m; };
+    // piernas (giran desde la cadera al caminar): pernera del pantalón, pierna y zapatilla
+    const legs = [-1, 1].map(sd => { const L2 = new T.Group(); L2.position.set(sd * 0.1, 0.42, 0); g.add(L2);
+      add(L2, gLegP, 'bot', 0, -0.07, 0); add(L2, gLeg, 'skin', 0, -0.23, 0);
+      const shoe = box(L2, 0.14, 0.09, 0.24, 0xffffff, 0, -0.42, 0.04); parts.bot.push(shoe); return L2; });
+    add(g, gHip, 'bot', 0, 0.46, 0); add(g, gTorso, 'top', 0, 0.7, 0);
+    // brazos (giran desde el hombro): manga, brazo y mano
+    const arms = [-1, 1].map(sd => { const A2 = new T.Group(); A2.position.set(sd * 0.2, 0.82, 0); A2.rotation.z = sd * 0.16; g.add(A2);
+      add(A2, gSleeve, 'top', 0, -0.06, 0); add(A2, gArm, 'skin', 0, -0.24, 0); add(A2, gHand, 'skin', 0, -0.39, 0); return A2; });
+    const head = add(g, gHead, 'skin', 0, HY, 0); [-1, 1].forEach(sd => add(g, gEar, 'skin', sd * (HR - 0.01), HY - 0.03, 0));
+    [-1, 1].forEach(sd => { const e = add(g, gEye, 'bot', sd * 0.13, HY - 0.01, HR - 0.045); e.scale.set(1, 1.35, 0.6); });
+    const smile = add(g, gSmile, 'bot', 0, HY - 0.13, HR - 0.035); smile.rotation.z = Math.PI; smile.rotation.x = -0.25;
     const sh = new T.Mesh(gShadow, shadowMat); sh.rotation.x = -Math.PI / 2; sh.position.y = 0.02; g.add(sh);
-    const bag = box(g, 0.26, 0.3, 0.12, 0xe10600, 0.3, 0.3, 0.1); bag.visible = false;
-    const carry = box(g, 0.36, 0.28, 0.3, 0xc49a6c, 0, 0.42, 0.34); carry.visible = false;
-    const phone = o.phone ? box(g, 0.1, 0.18, 0.03, 0x111111, 0.12, 0.72, 0.26) : null;
+    const bag = box(g, 0.26, 0.3, 0.12, 0xe10600, 0.36, 0.3, 0.1); bag.visible = false;
+    const carry = box(g, 0.36, 0.28, 0.3, 0xc49a6c, 0, 0.5, 0.3); carry.visible = false;
+    const phone = o.phone ? box(g, 0.1, 0.18, 0.03, 0x111111, 0.16, 0.6, 0.2) : null;
     let cargo = null;
     if (o.cart) {
       box(g, 0.62, 0.06, 0.8, 0x3a6fd1, 0, 0.16, 0.85); box(g, 0.05, 0.9, 0.05, 0x3a6fd1, -0.26, 0.16, 0.48); box(g, 0.05, 0.9, 0.05, 0x3a6fd1, 0.26, 0.16, 0.48);
@@ -1733,27 +1932,41 @@ GS.World = (function () {
       cargo = new T.Group(); g.add(cargo);
       box(cargo, 0.5, 0.36, 0.5, 0xc49a6c, 0, 0.22, 0.9); box(cargo, 0.44, 0.3, 0.44, 0xb98d5e, 0.02, 0.58, 0.9); box(cargo, 0.3, 0.22, 0.3, 0xc49a6c, -0.04, 0.88, 0.9);
     }
-    // Estilo libre: cualquier combinación de peinado y accesorios (sin distinguir géneros)
-    let acc = null;
+    // Estilo libre: cualquier combinación de peinado y accesorios (sin distinguir géneros), siempre con los cuatro colores
+    let acc = null, cur = {};
     function style(a) {
-      if (acc) g.remove(acc); acc = new T.Group(); acc.position.y = 1.14; g.add(acc);
-      head.material = mat(a.skin || SKINS[1]); const hm = mat(a.hair || 0x3a2a1a), st = a.hairStyle || 'corto';
-      const cap = () => { const m = new T.Mesh(gCap, hm); m.rotation.x = -0.5; acc.add(m); };      // casquete concéntrico con la cabeza que deja la frente libre
-      if (st === 'corto' || st === 'largo' || st === 'rodete') cap();
-      if (st === 'largo') { const m = new T.Mesh(gMass, hm); m.scale.set(1.06, 1.3, 0.8); m.position.set(0, -0.2, -0.16); acc.add(m); }   // melena redondeada por detrás
-      if (st === 'rodete') { const b = new T.Mesh(gBun, hm); b.position.set(0, 0.4, -0.12); acc.add(b); }
-      if (st === 'rulos') { for (let i = 0; i < 9; i++) { const an = i / 9 * Math.PI * 2, c = new T.Mesh(gCurl, hm); c.scale.setScalar(1.25); c.position.set(Math.cos(an) * 0.25, 0.2, Math.sin(an) * 0.25 - 0.05); acc.add(c); }
-        [[0, 0.36, -0.04], [0.14, 0.33, 0.06], [-0.14, 0.33, 0.06], [0, 0.32, -0.2]].forEach(q => { const c = new T.Mesh(gCurl, hm); c.scale.setScalar(1.3); c.position.set(q[0], q[1], q[2]); acc.add(c); }); }
-      if (st === 'mohicano') { box(acc, 0.1, 0.26, 0.62, hm, 0, 0.22, -0.03); box(acc, 0.1, 0.14, 0.3, hm, 0, 0.44, -0.03); }
-      if (a.beard) acc.add(new T.Mesh(gBeard, hm));                                                  // sigue la forma del mentón, solo por delante
-      if (a.glasses) { box(acc, 0.16, 0.12, 0.03, 0x111111, -0.12, -0.07, 0.3); box(acc, 0.16, 0.12, 0.03, 0x111111, 0.12, -0.07, 0.3); box(acc, 0.1, 0.03, 0.03, 0x111111, 0, -0.01, 0.3); }
-      if (a.lashes) [-0.12, 0.12].forEach(x => { const l = box(acc, 0.13, 0.025, 0.03, 0x111111, x, 0.06, 0.3); l.rotation.z = x < 0 ? 0.3 : -0.3; });
-      if (a.lips) box(acc, 0.14, 0.05, 0.05, 0xd81e5b, 0, -0.19, 0.28);
+      cur = Object.assign({}, cur, a);
+      const skinC = cur.skin || SKINS[1], hairC = cur.hair == null ? 0x3a2a1a : cur.hair, topC = cur.shirt || 0x4a6fb5, botC = cur.pants || PANTS[(topC >> 3) % PANTS.length];
+      parts.skin.forEach(m => { m.material = mat(skinC); }); parts.top.forEach(m => { m.material = mat(topC); }); parts.bot.forEach(m => { m.material = mat(botC); });
+      if (acc) g.remove(acc); acc = new T.Group(); acc.position.y = HY; g.add(acc);
+      const hm = mat(hairC), st = cur.hairStyle || 'corto', hat = cur.hat;
+      const cap = () => { const m = new T.Mesh(gCap, hm); m.rotation.x = -0.42; acc.add(m); };                    // casquete que deja la frente libre
+      const tufts = () => [[0.02, 0.36, 0.1, 1], [-0.14, 0.34, 0.14, 0.85], [0.17, 0.33, 0.1, 0.8], [0, 0.3, 0.22, 0.7]].forEach(q => { const m = new T.Mesh(gTuft, hm); m.scale.set(q[3] * 1.3, q[3] * 0.8, q[3] * 1.3); m.position.set(q[0], q[1], q[2]); acc.add(m); });   // jopo despeinado
+      if (hat !== 'casco') {
+        if (st === 'corto' || st === 'largo' || st === 'rodete') cap();
+        if (st === 'corto') tufts();
+        if (st === 'largo') { const m = new T.Mesh(gMass, hm); m.scale.set(1.06, 1.3, 0.8); m.position.set(0, -0.2, -0.17); acc.add(m); }
+        if (st === 'rodete') { const b = new T.Mesh(gBun, hm); b.position.set(0, 0.42, -0.12); acc.add(b); }
+        if (st === 'rulos') { for (let i = 0; i < 9; i++) { const an = i / 9 * Math.PI * 2, c = new T.Mesh(gCurl, hm); c.scale.setScalar(1.25); c.position.set(Math.cos(an) * 0.27, 0.22, Math.sin(an) * 0.27 - 0.05); acc.add(c); }
+          [[0, 0.39, -0.04], [0.15, 0.36, 0.06], [-0.15, 0.36, 0.06], [0, 0.35, -0.2]].forEach(q => { const c = new T.Mesh(gCurl, hm); c.scale.setScalar(1.3); c.position.set(q[0], q[1], q[2]); acc.add(c); }); }
+        if (st === 'mohicano') [[0.3, 0.2, 0.9], [0.4, 0.08, 1.15], [0.43, -0.06, 1.3], [0.38, -0.2, 1.15], [0.27, -0.31, 0.95]].forEach(q => { const m = new T.Mesh(gTuft, hm); m.scale.set(0.62, q[2] * 1.25, 1.05); m.position.set(0, q[0], q[1]); acc.add(m); });   // cresta de mechones, más alta en el medio
+      }
+      if (cur.beard) acc.add(new T.Mesh(gBeard, hm));
+      const bm = mat(botC), tm = mat(topC);
+      [-1, 1].forEach(sd => { const b = box(acc, 0.12, 0.028, 0.03, bm, sd * 0.13, 0.1, HR - 0.03); b.rotation.z = sd * -0.12; });     // cejas
+      if (cur.glasses) { [-1, 1].forEach(sd => { const r = new T.Mesh(new T.TorusGeometry(0.085, 0.016, 6, 14), bm); r.position.set(sd * 0.13, -0.01, HR - 0.015); acc.add(r); }); box(acc, 0.09, 0.025, 0.025, bm, 0, -0.01, HR - 0.01); }
+      if (cur.lashes) [-1, 1].forEach(sd => { const l = box(acc, 0.1, 0.022, 0.03, hm, sd * 0.2, 0.04, HR - 0.07); l.rotation.z = sd * 0.5; });
+      smile.visible = !cur.lips; if (cur.lips) box(acc, 0.13, 0.05, 0.05, tm, 0, -0.17, HR - 0.03);
+      // sombreros de los disfraces (siempre con los colores del personaje)
+      if (hat === 'orejas') { [-1, 1].forEach(sd => { const e = new T.Mesh(gTuft, hm); e.scale.set(0.9, 1, 0.5); e.position.set(sd * 0.22, 0.37, 0); acc.add(e); }); }
+      if (hat === 'casco') { const h = new T.Mesh(gHelmet, tm); h.rotation.x = -0.5; acc.add(h); box(acc, 0.05, 0.2, 0.05, tm, 0.28, 0.42, -0.05); const b = new T.Mesh(gEar, hm); b.position.set(0.28, 0.64, -0.05); acc.add(b); }
+      if (hat === 'corona') { for (let i = 0; i < 7; i++) { const an = i / 7 * Math.PI * 2; box(acc, 0.09, i % 2 ? 0.14 : 0.2, 0.05, tm, Math.cos(an) * 0.22, 0.33, Math.sin(an) * 0.22).rotation.y = -an + Math.PI / 2; } }
+      if (hat === 'vincha') { const r = new T.Mesh(new T.TorusGeometry(HR - 0.022, 0.045, 6, 20), tm); r.rotation.x = Math.PI / 2 - 0.12; r.position.y = 0.15; acc.add(r); box(acc, 0.06, 0.22, 0.03, tm, 0.12, -0.02, -HR - 0.02).rotation.z = 0.3; }
     }
     style(o);
     scene.add(g);
     const p = {
-      group: g, path: [], speed: o.speed || 2.9, t: Math.random() * 6, onArrive: null, moving: false,
+      group: g, path: [], speed: o.speed || 2.9, t: Math.random() * 6, onArrive: null, moving: false, legs, arms,
       setPos(x, z) { g.position.set(x, 0, z); },
       face(ry) { g.rotation.y = ry; },
       walk(points, cb) { p.path = points.slice(); p.onArrive = cb || null; p.moving = true; },
@@ -1761,13 +1974,14 @@ GS.World = (function () {
       look(a) { style(a); },
       cargo(v) { if (cargo) cargo.visible = v; },
       phone(v) { if (phone) phone.visible = v; },
-      carry(v) { carry.visible = v; },
+      carry(v) { carry.visible = v; arms.forEach(a => { a.rotation.x = v ? -1.1 : 0; }); p.holding = v; },
       lie(v) { g.rotation.x = v ? -1.3 : 0; g.position.y = v ? 0.28 : 0; },
-      stop() { p.path = []; p.moving = false; p.onArrive = null; g.position.y = 0; },
+      stop() { p.path = []; p.moving = false; p.onArrive = null; g.position.y = 0; rest(p); },
       remove() { scene.remove(g); const i = people.indexOf(p); if (i >= 0) people.splice(i, 1); }
     };
     people.push(p); return p;
   }
+  function rest(p) { p.legs.forEach(l => { l.rotation.x = 0; }); if (!p.holding) p.arms.forEach(a => { a.rotation.x = 0; }); }
   function updatePeople(dt) {
     for (const p of people) {
       p.t += dt;
@@ -1776,14 +1990,18 @@ GS.World = (function () {
         const tx = p.path[0][0], tz = p.path[0][1], dx = tx - g.position.x, dz = tz - g.position.z, d = Math.hypot(dx, dz), step = p.speed * dt;
         if (d <= step) {
           g.position.x = tx; g.position.z = tz; p.path.shift();
-          if (!p.path.length) { p.moving = false; g.position.y = 0; const cb = p.onArrive; p.onArrive = null; if (cb) cb(); }
+          if (!p.path.length) { p.moving = false; g.position.y = 0; rest(p); const cb = p.onArrive; p.onArrive = null; if (cb) cb(); }
         } else {
           g.position.x += dx / d * step; g.position.z += dz / d * step;
           g.rotation.y = Math.atan2(dx, dz);
-          g.position.y = reduceMotion ? 0 : Math.abs(Math.sin(p.t * 11)) * 0.07;
+          if (!reduceMotion) {                                                  // pasitos: piernas y brazos alternados
+            const sw = Math.sin(p.t * (7 + p.speed * 1.6)) * 0.75;
+            p.legs[0].rotation.x = sw; p.legs[1].rotation.x = -sw; if (!p.holding) { p.arms[0].rotation.x = -sw * 0.8; p.arms[1].rotation.x = sw * 0.8; }
+            g.position.y = Math.abs(sw) * 0.035;
+          }
         }
       } else if (!reduceMotion) {
-        g.scale.y = (g.userData.base || 1) * (1 + Math.sin(p.t * 2.2) * 0.015);   // respiración
+        g.scale.y = (g.userData.base || 1) * (1 + Math.sin(p.t * 2.2) * 0.012);   // respiración
       }
     }
   }
@@ -1964,7 +2182,8 @@ GS.Minigames = (function () {
 
   function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
   function head(cust, station) {
-    return '<div class="mg-head"><div class="mg-face">' + cust.arche.face + '</div><div class="mg-who"><b>' + esc(cust.arche.name) + '</b><span>' + esc(cust.arche.tag) +
+    const pic = cust.look && GS.faceSvg;      // los clientes muestran su cara, con la mueca que corresponde a lo que pasa
+    return '<div class="mg-head"><div class="mg-face' + (pic ? ' pic' : '') + '" id="mgFace">' + (pic ? GS.faceSvg(cust.look, cust.pat < 0.35 ? 'impatient' : 'talk') : cust.arche.face) + '</div><div class="mg-who"><b>' + esc(cust.arche.name) + '</b><span>' + esc(cust.arche.tag) +
       '</span><div class="mg-pat"><i id="mgPat"></i></div></div><div class="mg-station">' + station + '</div></div>';
   }
   // Foto real del producto si la tiene; si no, el ícono
@@ -1979,9 +2198,10 @@ GS.Minigames = (function () {
     b.textContent = text; b.classList.toggle('joke', !!joke);
     if (joke) { b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake'); }
   }
-  function mistake(kind, text) { GS.Audio.play('error'); say(text, true); cur.cb.onMistake(kind); }
+  function face(m) { const el = document.getElementById('mgFace'); if (el && cur && cur.cust && cur.cust.look && GS.faceSvg) el.innerHTML = GS.faceSvg(cur.cust.look, m); }
+  function mistake(kind, text) { GS.Audio.play('error'); say(text, true); face('angry'); const c = cur; setTimeout(() => { if (cur === c && !c.done) face(c.cust.pat < 0.35 ? 'impatient' : 'sad'); }, 1600); cur.cb.onMistake(kind); }
   function finish(ok, title, sub, info) {
-    if (!cur || cur.done) return; cur.done = true;
+    if (!cur || cur.done) return; cur.done = true; face(info && info.caught ? 'nervous' : ok ? 'happy' : info && info.cajaError ? 'happy' : 'angry');
     const r = document.createElement('div'); r.className = 'result' + (ok ? '' : ' bad');
     r.innerHTML = '<div>' + esc(title) + (sub ? '<small>' + esc(sub) + '</small>' : '') + '</div>';
     root().appendChild(r);
@@ -2102,6 +2322,7 @@ GS.Minigames = (function () {
       rows.map((r, i) => '<button class="rowb" data-k="' + r[0] + '"><kbd>' + (i + 1) + '</kbd><span>' + r[1] + '</span><b>' + esc(f[r[0]]) + '</b></button>').join('') + '</div>' +
       '<div class="rule" id="mgBubble">¿Hay algún dato distinto? Tocalo. Si coincide todo, aprobá.</div>' +
       '<button class="btn okb" id="mgYes">✔ Coincide todo: aprobar</button>';
+    face(fake ? (Math.random() < 0.6 ? 'nervous' : 'normal') : Math.random() < 0.12 ? 'nervous' : 'normal');     // el que trae un comprobante trucho suele transpirar (no siempre)
     const rb = [...root().querySelectorAll('.rowb')];
     const mark = () => { if (flag) root().querySelector('.rowb[data-k="' + flag + '"]').classList.add('flag'); };
     function tapRow(b) {
@@ -2349,10 +2570,11 @@ GS.Minigames = (function () {
 
   /* ---------------- 12. VIDRIERA: elegir los 4 productos que van con el tema ---------------- */
   function vidriera(job) {
-    const th = U.pick(GS.THEMES), good = U.shuffle(GS.CATALOG.filter(p => p.cat === th.cat)).slice(0, 4), bad = U.shuffle(GS.CATALOG.filter(p => p.cat !== th.cat)).slice(0, 4), all = U.shuffle(good.concat(bad));
-    root().innerHTML = head(job, 'Vidriera') + '<div class="bubble" id="mgBubble">Tema de la vidriera: <b>' + esc(th.t) + '</b>. Elegí los 4 productos que mejor van.</div>' +
+    const th = U.pick(GS.THEMES), good = U.shuffle(GS.CATALOG.filter(p => th.ids.indexOf(p.id) >= 0)).slice(0, 4), bad = U.shuffle(GS.CATALOG.filter(p => th.ids.indexOf(p.id) < 0)).slice(0, 4), all = U.shuffle(good.concat(bad));
+    root().innerHTML = head(job, 'Vidriera') + '<div class="bubble" id="mgBubble">Esta semana la vidriera es <b>' + esc(th.t) + '</b>: ' + esc(th.hint) + '.</div>' +
+      '<div class="info"><b>Hay 8 productos: 4 van con el tema y 4 no. Elegí los 4 que van.</b></div>' +
       '<div class="opts four">' + all.map((p, i) => '<button class="opt" data-i="' + i + '"><kbd>' + (i + 1) + '</kbd>' + pic(p) + '<span class="n">' + esc(p.name) + '</span></button>').join('') + '</div>' +
-      '<div class="rule">Elegidos: <span id="mgN">0</span> de 4 · tocá de nuevo para sacar uno</div>';
+      '<div class="rule">Elegidos: <span id="mgN">0</span> de 4 · tocá de nuevo para sacar uno · al elegir el cuarto se arma la vidriera</div>';
     const btns = [...root().querySelectorAll('.opt')], me = cur;
     function toggle(b) {
       if (!cur || cur.done) return;
@@ -2362,8 +2584,8 @@ GS.Minigames = (function () {
       const sel = btns.filter(x => x.classList.contains('sel')); document.getElementById('mgN').textContent = sel.length;
       if (sel.length === 4) {
         const n = sel.filter(x => good.indexOf(all[x.dataset.i]) >= 0).length;
-        btns.forEach(x => x.classList.add(good.indexOf(all[x.dataset.i]) >= 0 ? 'good' : 'dim'));
-        setTimeout(() => { if (cur !== me) return; GS.Audio.play(n >= 3 ? 'ok' : 'click'); finish(true, n === 4 ? '¡Vidriera perfecta!' : n >= 2 ? 'Vidriera aceptable' : 'Vidriera... original', n + ' de 4 productos van con "' + th.t + '".', { quality: n / 4 }); }, 700);
+        btns.forEach(x => { const g = good.indexOf(all[x.dataset.i]) >= 0; x.classList.add(g ? 'good' : 'dim'); if (!g && x.classList.contains('sel')) x.classList.add('bad'); });
+        setTimeout(() => { if (cur !== me) return; GS.Audio.play(n >= 3 ? 'ok' : 'click'); finish(true, n === 4 ? '¡Vidriera perfecta!' : n >= 2 ? 'Vidriera aceptable' : 'Vidriera... original', n + ' de 4 iban con "' + th.t + '" (' + th.hint + ').', { quality: n / 4 }); }, 1300);
       }
     }
     btns.forEach(b => b.addEventListener('click', () => toggle(b)));
@@ -2466,7 +2688,7 @@ GS.Game = (function () {
       relaxed: false, arcade: null, t: 0, dur: C.day.seconds, score: 0, combo: 0, bestCombo: 0, sales: 0, served: 0, lost: 0, cajaErr: 0, otherErr: 0,
       tasksDone: 0, tasksLate: 0, customers: [], tasks: [], spawned: 0, tasksSpawned: 0,
       extras: [], n: 1, unlocked: unlockedFor(1), plan: planDay(1), rep0: repNow(), dueno: null, wave: -1, stage: 'rest', rest: 0.6, queue: [], says: [], sayQ: [], sayGap: 0, beat: 0, wv: { done: {} }, ev: {},
-      cajaCount: 0, closing: false, jobSig: '', cord: CD.start, mate: false, lookers: [], lookT: 4, spots: {}, helper: null, intr: null, intrN: 0, intrOk: 0, intrBag: [], reqBag: U.shuffle(GS.REQUESTS), archBag: U.shuffle(GS.CUSTOMERS), taskBag: []
+      cajaCount: 0, closing: false, jobSig: '', visits: [], cord: CD.start, mate: false, lookers: [], lookT: 4, spots: {}, helper: null, intr: null, intrN: 0, intrOk: 0, intrBag: [], reqBag: U.shuffle(GS.REQUESTS), archBag: U.shuffle(GS.CUSTOMERS), taskBag: []
     }, extra || {});
   }
   // Arma la jornada: cuántos clientes y tareas trae cada tanda. Va de menos a más.
@@ -2560,6 +2782,7 @@ GS.Game = (function () {
     for (let i = 0; i < w.c; i++) day.queue.push({ kind: 'c', t: 0.3 + i * C.day.customerGap });
     for (let i = 0; i < w.t; i++) day.queue.push({ kind: w.final ? 'f' : 't', t: (w.final ? 0.6 : 5) + i * C.day.taskGap });
     for (let i = 0; i < (w.ml || 0); i++) day.queue.push({ kind: 'm', t: 3 + i * C.day.taskGap });
+    day.visits.forEach(v => { if (v.wave === day.wave && !v.sent) { v.sent = 1; day.queue.push({ kind: 'v', v: v.S, t: U.rnd(3, 8) }); } });
     if (GS.DEBUG_INTR || (day.n >= CD.intrFromDay && !w.final && day.wave >= 1 && day.intrN < (day.n >= 6 ? 3 : 2) && Math.random() < 0.6)) { day.queue.push({ kind: 'i', t: U.rnd(5, 11) }); day.intrN++; }
     day.queue.sort((a, b) => a.t - b.t);
   }
@@ -2607,10 +2830,12 @@ GS.Game = (function () {
     const cond = conditionFor(n);
     day = newDay({ relaxed, n, cond, unlocked: un, plan: planDay(n, cond), rest: 7.5 }); state = 'day'; enterPlay(); $('jobs').hidden = false;
     A.setMood(cond === 'lluvia' ? 'rain' : cond ? 'party' : 'day');
+    if (!relaxed) { const nw = day.plan.filter(w => !w.final).length; day.visits = dueStories(n).map((S, i) => ({ S, wave: Math.min(nw - 1, i + (nw > 2 ? 1 : 0)) })); }
     const d = day, msg = n === 1 ? 'Bienvenido a GameShop. Abrimos de 10 a 19. Hoy: mostrador y caja. Vos tocá el pedido, que tu personaje va solo.'
       : cond ? GS.CONDITIONS[cond].name.slice(3) + '. ' + GS.CONDITIONS[cond].say
       : fresh.length ? 'Jornada ' + n + '. Hoy sumamos: ' + fresh.map(id => ST(id).name).join(' y ') + '. Cuando aparezcan, te explico.' : 'Jornada ' + n + '. ' + duenoLine();
     setTimeout(() => { if (day === d) duenoSpeak(msg); }, 500);
+    if (n >= 2 && !relaxed && !GS.Store.get('plotIntro') && n <= C.finalDay) { GS.Store.set('plotIntro', true); setTimeout(() => { if (day === d) duenoSpeak(PL.intro.replace('{n}', C.finalDay)); }, 3200); }
     $('rain').hidden = cond !== 'lluvia'; $('chipCond').hidden = !cond; if (cond) { $('chipCond').textContent = GS.CONDITIONS[cond].name; toast('<b>Hoy</b>' + GS.CONDITIONS[cond].name, 'dueno', 3800); }
     $('clockS').textContent = relaxed ? 'Turno tranquilo' : 'Abrimos';
     updateHud();
@@ -2627,16 +2852,21 @@ GS.Game = (function () {
     $('labels').appendChild(label); return label;
   }
 
+  // Cada personaje mantiene siempre su look (los mismos rasgos de siempre), tanto en el muñeco 3D como en la cara del diálogo
+  function lookOf(ar) {
+    const k = ar.id.charCodeAt(0) + ar.id.length * 7;
+    return { shirt: ar.shirt, hair: ar.hair, skin: 0xe0ac7e, hairStyle: ar.hairStyle || GS.HAIRSTYLES[k % 5][0], glasses: k % 3 === 0, beard: !ar.hat && k % 4 === 1, lips: ar.lips != null ? ar.lips : k % 2 === 0, lashes: k % 5 < 2, hat: ar.hat };
+  }
   function spawnCustomer() {
     const slot = freeSlot('slotM', L.colaMostrador.length); if (slot < 0) return;
     if (!day.reqBag.length) day.reqBag = U.shuffle(GS.REQUESTS);
     if (!day.archBag.length) day.archBag = U.shuffle(GS.CUSTOMERS);
     const req = day.reqBag.pop(), arche = day.archBag.pop(), product = GS.CATALOG.find(p => p.id === req.p);
     const k = arche.id.charCodeAt(0) + arche.id.length * 7;   // cada personaje mantiene su look
-    const person = W.makePerson({ shirt: arche.shirt, hair: arche.hair, hairStyle: GS.HAIRSTYLES[k % 5][0], glasses: k % 3 === 0, beard: k % 4 === 1, lips: k % 2 === 0, lashes: k % 5 < 2 });
+    const look = lookOf(arche), person = W.makePerson(look);
     const dx = L.puerta.x; person.setPos(dx + U.rnd(-0.5, 0.5), day.spawned === 0 ? L.salon.zMax + 1 : L.galeria.zMax + 2.4);
     person.voice = 230 + (k % 7) * 45;
-    const cu = { id: ++uid, arche, request: req.t, product, st: 'entering', pat: 1, person, slotM: slot, slotC: -1, label: makeLabel('❓') };
+    const cu = { id: ++uid, arche, look, request: req.t, product, st: 'entering', pat: 1, person, slotM: slot, slotC: -1, label: makeLabel('❓') };
     day.customers.push(cu); day.spawned++;
     const sp = day.spawned > 1 && Math.random() < 0.45 ? freeSpot() : null;
     if (sp) { day.spots[sp.i] = 1; cu.spot = sp; person.walk(sp.via.concat([sp.p]), () => { cu.st = 'browse'; cu.wait = U.rnd(2.6, 4.6); person.face(sp.f); }); }   // primero mira un rato y después se acerca
@@ -2715,7 +2945,7 @@ GS.Game = (function () {
     const b = STAFF[1], h = day.helper;
     if (!h) {
       if (!upNow().caja2 || !b || b.busy) return;
-      const wc = day.customers.filter(c => c.st === 'waitC'); if (wc.length < 2) return;
+      const wc = day.customers.filter(c => c.st === 'waitC'); if (!wc.length || (wc.length < 2 && !(MG.isOpen() && wc[0].wc > 5) && !(wc[0].wc > 14))) return;   // cola de 2, o uno esperando mientras estás ocupado
       const cu = wc.sort((a, c) => c.slotC - a.slotC)[0], g = b.p.group.position, pre = g.x > 6.2 && g.z < -1.2 ? [[7.4, -4.4], [6.0, -4.4]] : g.x > 6.2 ? [[6.0, 5.5], [4.0, 5.5], [4.5, -1.2]] : g.z > 5.8 ? [[-0.3, 5.5], [4.0, 5.5], [4.5, -1.2]] : g.z < -4.6 ? [] : [[4.5, -1.2]];
       cu.st = 'helped'; cu.slotC = -1; cu.label.hidden = true; b.busy = true; b.moving = false; b.q = []; b.act = null; b.p.lie(false); b.p.carry(false);
       const hp = day.helper = { cu, t: -1 }, d = day;
@@ -2727,6 +2957,70 @@ GS.Game = (function () {
     const cu = h.cu; day.helper = null; day.wv.helped = 1; day.served++; day.sales += cu.product.price; day.score += 90; addRep(0.03); A.play('cash');
     sayAt(cu.person, cu.arche.bye, 3200); leave(cu, true); toast('<b>🧾 Segunda caja</b>Brian le cobró a ' + cu.arche.name + '.', '', 2400);
     b.busy = false; b.q = [['go', [[4.0, -5.0], [4.6, -4.4], [4.5, -1.2], b.hub]], ['wait', 3]];
+  }
+
+  /* ---------------- TRAMA: el fondo para el local de al lado ---------------- */
+  const PL = GS.PLOT;
+  const fondoNow = () => GS.Store.get('fondo') || 0, goalNow = () => Math.max(3000, PL.goal + (GS.Store.get('goalAdj') || 0));
+  const tierNow = () => { const r = fondoNow() / goalNow(); let t = PL.tiers[0]; PL.tiers.forEach(x => { if (r >= x.at) t = x; }); return t; };
+  const daysLeft = () => Math.max(0, C.finalDay - dayNumber() + 1);
+  function addFondo(v) { GS.Store.set('fondo', Math.max(0, fondoNow() + v)); }
+  function plotHtml() {
+    const f = fondoNow(), g = goalNow(), left = daysLeft();
+    return '<b>🏠 ' + PL.name + '</b><span class="pb"><i style="width:' + Math.min(100, f / g * 100).toFixed(0) + '%"></i></span><small>Fondo: 🪙 ' + f + ' de ' + g +
+      (GS.Store.get('final2Seen') ? ' · temporada cerrada: ' + tierNow().title : left ? ' · ' + (left === 1 ? 'última jornada' : 'quedan ' + left + ' jornadas') : '') + '</small>';
+  }
+  /* ---------------- VISITAS CON HISTORIA: clientes que vuelven, con decisiones chiquitas que dejan marca ---------------- */
+  const histAll = () => GS.Store.get('hist') || {};
+  function dueStories(n) {
+    const h = histAll(), out = [];
+    for (const S of GS.STORIES) {
+      const st = h[S.id]; if (st && st.done) continue;
+      if (n < S.from || (st && st.last && n < st.last + (S.gap || 1))) continue;
+      if (S.once && Math.random() > 0.45) continue;
+      out.push(S);
+    }
+    return U.shuffle(out).sort((a, b) => (a.once ? 1 : 0) - (b.once ? 1 : 0)).slice(0, n < 4 ? 1 : 2);
+  }
+  function spawnVisit(S) {
+    const slot = freeSlot('slotM', L.colaMostrador.length);
+    if (slot < 0 || day.closing) { if (!day.closing) { day.queue.push({ kind: 'v', v: S, t: 4 }); day.queue.sort((a, b) => a.t - b.t); } return; }
+    const look = Object.assign({ skin: 0xe0ac7e }, S.look), person = W.makePerson(look), dx = L.puerta.x;
+    person.voice = 240 + S.id.length * 30; person.setPos(dx, L.galeria.zMax + 2.4);
+    const cu = { id: ++uid, arche: { id: S.id, name: S.name, tag: S.tag, face: '📖', bye: '', lost: '' }, look, story: S, st: 'entering', pat: 1, person, slotM: slot, slotC: -1, label: makeLabel('📖') };
+    day.customers.push(cu); toCounter(cu, [[dx, L.salon.zMax + 0.2]]); setTimeout(() => A.play('bell'), 900);
+  }
+  function openStory(cu) {
+    const S = cu.story, h = histAll(), st = h[S.id] || { step: 0, flags: {}, notes: [] }, step = S.steps[st.step], alt = step.alt && st.flags[step.alt.flag] ? step.alt : null;
+    const text = alt ? alt.t : step.t, mood = alt ? alt.m : step.m; let chosen = false;
+    A.unlock(); A.play('click'); cu.st = 'inM'; paused = true; yoGo('most'); focusFor('mostrador'); A.babble(text, cu.person.voice);
+    const faceBox = m => '<div class="st-face">' + avatarSvg(cu.look, m) + '</div>';
+    modal('<div class="story"><div class="st-head">' + faceBox(mood) + '<div><b>' + S.name + '</b><span>' + S.tag + (st.step ? ' · visita ' + (st.step + 1) : '') + '</span></div></div>' +
+      '<div class="bubble">' + text + '</div>' + step.opts.map((o, i) => '<button class="btn ghost st-opt" data-o="' + i + '">' + o.b + '</button>').join('') + '</div>', () => {
+      paused = false; W.focus(null);
+      if (!chosen) { cu.st = 'waitM'; return; }
+      cu.slotM = -1; leave(cu, false);
+    });
+    $('sheet').querySelectorAll('[data-o]').forEach(b => b.addEventListener('click', () => {
+      const o = step.opts[Number(b.dataset.o)], fx = o.fx || {}, chips = []; chosen = true;
+      if (fx.rep) { addRep(fx.rep); chips.push((fx.rep > 0 ? '▲' : '▼') + ' Reputación'); }
+      if (fx.fondo) { addFondo(fx.fondo); chips.push((fx.fondo > 0 ? '+' : '−') + ' 🪙 ' + Math.abs(fx.fondo) + ' al fondo'); }
+      if (fx.cord) { addCord(fx.cord); chips.push((fx.cord > 0 ? '▲' : '▼') + ' Cordura'); }
+      if (fx.goal) { GS.Store.set('goalAdj', (GS.Store.get('goalAdj') || 0) + fx.goal); chips.push(fx.goal < 0 ? '🏠 El local de al lado sale más barato' : '🏠 El local de al lado se encarece'); }
+      if (fx.flag) st.flags[fx.flag] = 1;
+      st.step++; st.last = day.n; st.notes.push(step.note); if (step.end || st.step >= S.steps.length) st.done = true;
+      h[S.id] = st; GS.Store.set('hist', h); GS.track('visita', { quien: S.id, paso: st.step }); A.play(fx.rep < 0 || fx.fondo < 0 ? 'error' : 'ok'); A.babble(o.r, cu.person.voice);
+      $('sheet').innerHTML = '<div class="story"><div class="st-head">' + faceBox(o.rm || 'normal') + '<div><b>' + S.name + '</b><span>' + (st.done ? 'Historia cerrada · quedó en tu libreta' : 'Dijo que vuelve · quedó en tu libreta') + '</span></div></div>' +
+        '<div class="bubble">' + o.r + '</div><div class="st-chips">' + chips.map(c => '<span>' + c + '</span>').join('') + '</div><button class="btn" data-close>Seguir</button></div>';
+      $('sheet').querySelector('[data-close]').addEventListener('click', closeModal);
+    }));
+  }
+  function showLibreta() {
+    const h = histAll(), known = GS.STORIES.filter(S => h[S.id]), unk = GS.STORIES.length - known.length, wasDay = state === 'day'; if (wasDay) paused = true;
+    A.unlock(); A.play('click');
+    modal('<h2>📖 Tu libreta</h2><div class="plot big">' + plotHtml() + '</div><p style="font-size:13.5px;color:var(--mute);margin:0">Las monedas se aportan desde "Mejorar el local". Algunas visitas también suman al fondo, o cambian lo que cuesta el local.</p>' +
+      (known.length ? known.map(S => { const st = h[S.id]; return '<div class="lib"><div class="lib-face">' + avatarSvg(Object.assign({ skin: 0xe0ac7e }, S.look), st.done ? 'happy' : 'normal') + '</div><div><b>' + S.name + '</b> <em>' + S.tag + '</em><ul>' + st.notes.map(n => '<li>' + n + '</li>').join('') + '</ul><small>' + (st.done ? '✔ Historia cerrada' : '… Dijo que vuelve') + '</small></div></div>'; }).join('') : '<p>Todavía no anotaste a nadie. Hay clientes que vuelven: cuando alguien quiera hablar, vas a ver una 📖 en los pedidos.</p>') +
+      (unk ? '<p style="font-size:13.5px;color:var(--mute);margin:0">Te falta conocer a ' + unk + (unk === 1 ? ' persona.' : ' personas.') + '</p>' : '') + '<button class="btn" data-close>Cerrar</button>', () => { if (wasDay) paused = false; });
   }
 
   function spawnTask(forced) {
@@ -2773,7 +3067,8 @@ GS.Game = (function () {
   function pendingJobs() {
     const jobs = [];
     for (const c of day.customers) {
-      if (c.st === 'waitM') jobs.push({ key: 'c' + c.id, type: 'mostrador', ref: c, pat: c.pat, icon: '🛎', title: 'Mostrador', sub: 'Atender a ' + c.arche.name });
+      if (c.st === 'waitM' && c.story) jobs.push({ key: 'c' + c.id, type: 'historia', ref: c, pat: 1, icon: '📖', title: 'Visita', sub: c.arche.name + ' quiere hablar' });
+      else if (c.st === 'waitM') jobs.push({ key: 'c' + c.id, type: 'mostrador', ref: c, pat: c.pat, icon: '🛎', title: 'Mostrador', sub: 'Atender a ' + c.arche.name });
       else if (c.st === 'waitC') jobs.push({ key: 'c' + c.id + 'k', type: 'caja', ref: c, pat: c.pat, icon: '💵', title: 'Caja', sub: 'Cobrar a ' + c.arche.name });
     }
     for (const t of day.tasks) if (t.st === 'wait') jobs.push({ key: 't' + t.id, type: t.station.id, ref: t, pat: t.pat, icon: t.station.icon, title: t.station.short || t.station.name, sub: t.station.task.name });
@@ -2811,6 +3106,7 @@ GS.Game = (function () {
   }
   function openJob(job) {
     if (state !== 'day' || paused || MG.isOpen() || day.closing || day.beat > 0) return;
+    if (job.type === 'historia') return openStory(job.ref);
     A.unlock(); A.play('click');
     const ref = job.ref, isCust = job.type === 'mostrador' || job.type === 'caja';
     ref.st = isCust ? (job.type === 'mostrador' ? 'inM' : 'inC') : 'in'; ref.pat = Math.max(ref.pat, 0.55);
@@ -2863,7 +3159,7 @@ GS.Game = (function () {
       if (day.stage === 'rest') { day.rest -= dt; if (day.rest <= 0) startWave(); }
       else {
         for (const q of day.queue) q.t -= dt;
-        while (day.queue.length && day.queue[0].t <= 0) { const q = day.queue.shift(); if (q.kind === 'c') spawnCustomer(); else if (q.kind === 'i') spawnIntr(); else spawnTask(q.kind === 'f' ? ST('cierre') : q.kind === 'm' ? ST('ml') : null); }
+        while (day.queue.length && day.queue[0].t <= 0) { const q = day.queue.shift(); if (q.kind === 'c') spawnCustomer(); else if (q.kind === 'i') spawnIntr(); else if (q.kind === 'v') spawnVisit(q.v); else spawnTask(q.kind === 'f' ? ST('cierre') : q.kind === 'm' ? ST('ml') : null); }
         if (!day.queue.length && !day.tasks.length && !open && !day.intr && day.customers.every(c => c.st === 'leaving')) endWave();
       }
     }
@@ -2877,6 +3173,8 @@ GS.Game = (function () {
     // paciencia (en el turno tranquilo no baja)
     if (!day.relaxed) {
       for (const cu of day.customers.slice()) {
+        if (cu.story) continue;                       // las visitas con historia esperan sin apuro
+        if (cu.st === 'waitC') cu.wc = (cu.wc || 0) + dt;
         if (cu.st === 'waitM' || cu.st === 'waitC') cu.pat -= dt / (cfg.patienceWait * patMult());
         else if ((cu.st === 'inM' || cu.st === 'inC') && !MG.isResolving()) cu.pat -= dt / cfg.patienceGame;
         if (cu.pat <= 0 && (cu.st === 'waitM' || cu.st === 'waitC' || cu.st === 'inM' || cu.st === 'inC')) {
@@ -3039,7 +3337,7 @@ GS.Game = (function () {
     const pos = d.score > 0 ? GS.Store.addScore(entry) : -1;
     if (!GS.Store.get('testDay')) GS.Store.set('days', Math.max(GS.Store.get('days') || 0, d.n));
     { const tot = GS.Store.get('tot') || { c: 0, d: 0 }; tot.c += d.served; tot.d++; GS.Store.set('tot', tot); }
-    const isFinal = d.n === C.finalDay && !GS.Store.get('testDay') && !GS.Store.get('finalSeen');
+    const isFinal = d.n === C.finalDay && !GS.Store.get('testDay') && !GS.Store.get('final2Seen');
     lastCard = { n: d.n, score: d.score, stars, cord: cordEnd };
     const earned = Math.round(d.score / 20 * coinMult()); GS.Store.set('coins', coinsNow() + earned);
     const rv = repNow(), rd = rv - d.rep0; refreshStart();
@@ -3051,6 +3349,7 @@ GS.Game = (function () {
       '<p><span>Errores (con chiste)</span><b>' + errs + '</b></p>' +
       (d.caught ? '<p><span>Comprobantes truchos frenados</span><b>' + d.caught + '</b></p>' : '') +
       (d.intrOk ? '<p><span>Interrupciones bien resueltas</span><b>' + d.intrOk + '</b></p>' : '') +
+      '<p><span>🏠 Fondo del local de al lado</span><b>🪙 ' + fondoNow() + ' / ' + goalNow() + '</b></p>' +
       '<p><span>Cordura al cierre</span><b>🧠 ' + cordEnd + ' (+' + cordPts + ' pts)</b></p>' +
       '<p><span>Mejor racha</span><b>x' + d.bestCombo + '</b></p><p><span>Ventas (ficticias)</span><b>' + U.money(d.sales) + '</b></p>' +
       '<p><span>Monedas ganadas hoy</span><b>🪙 ' + earned + '</b></p><p><span>Reputación del local</span><b>⭐ ' + repTxt(rv) + ' (' + (rd >= 0 ? '+' : '−') + repTxt(Math.abs(rd)) + ')</b></p><hr>' +
@@ -3061,13 +3360,13 @@ GS.Game = (function () {
       '<div class="quote"><b>El Dueño opina</b>' + comment + '</div><p class="humanline">' + human + '</p>' +
       goalHtml() + '<button class="btn alt" id="endShop">🛠 Mejorar el local</button>' +
       (isFinal ? '<button class="btn gold" id="endFinal">🎬 Ver el final de la temporada</button>' : '') +
-      '<button class="btn' + (isFinal ? ' ghost' : '') + '" id="endAgain">Siguiente jornada</button><button class="btn ghost" id="endCard">📸 Tarjeta para compartir</button>' +
+      '<button class="btn' + (isFinal ? ' ghost' : '') + '" id="endAgain">Siguiente jornada</button><button class="btn ghost" id="endCard">📸 Tarjeta para compartir</button><button class="btn ghost" id="endLib">📖 Libreta y fondo</button>' +
       '<div class="row"><button class="btn ghost" id="endHome">Inicio</button><button class="btn ghost" id="endRecs">Récords</button></div>' +
       (C.links.tienda ? '<a class="btn ghost" id="endStore" target="_blank" rel="noopener" href="' + C.links.tienda + '">🛒 Ver la tienda de verdad</a>' : '') +
       '<button class="phases" id="phasesEnd"' + (C.launched ? ' hidden' : '') + '></button></div>';
     $('phasesEnd').innerHTML = phasesCompact(); $('phasesEnd').addEventListener('click', showPhases);
     if ($('endStore')) $('endStore').addEventListener('click', () => GS.track('click_tienda', { desde: 'cierre' }));
-    $('endCard').addEventListener('click', () => showCard()); if (isFinal) $('endFinal').addEventListener('click', () => startFinal());
+    $('endCard').addEventListener('click', () => showCard()); $('endLib').addEventListener('click', showLibreta); if (isFinal) $('endFinal').addEventListener('click', () => startFinal());
     $('endAgain').addEventListener('click', () => startDay(d.relaxed));
     $('endHome').addEventListener('click', goHome); $('endRecs').addEventListener('click', showRecords); $('endShop').addEventListener('click', openShop);
     $('end').hidden = false; $('end').scrollTop = 0;
@@ -3093,6 +3392,7 @@ GS.Game = (function () {
   function renderShop(preview) {
     const u = upNow(), c = coinsNow(), g = GS.UPGRADES[shopSel], own = u[g.id] || 0;
     $('shopCoins').textContent = '🪙 ' + c;
+    $('shopFund').innerHTML = '<div class="plot">' + plotHtml() + '</div><div class="row">' + [100, 500, 0].map(v => '<button class="btn ghost" data-fund="' + v + '"' + (c < (v || 1) ? ' disabled' : '') + '>' + (v ? 'Aportar 🪙 ' + v : 'Aportar todo') + '</button>').join('') + '</div>';
     $('shopSlots').innerHTML = GS.UPGRADES.map((x, i) => '<button class="slotb' + (i === shopSel ? ' on' : '') + ((u[x.id] || 0) >= x.levels.length ? ' full' : '') + '" data-i="' + i + '">' + x.icon + '<small>' + x.name + '</small></button>').join('');
     $('shopCards').innerHTML = g.levels.map((lv, i) => {
       const has = own > i, can = own === i && c >= lv.price, locked = own < i;
@@ -3108,24 +3408,52 @@ GS.Game = (function () {
     u[g.id] = i + 1; GS.Store.set('up', u); GS.Store.set('newUp', true); GS.Store.set('coins', coinsNow() - lv.price); A.play('cash'); toast('<b>¡Mejora comprada!</b>' + lv.n, '', 2600); renderShop();
   }
   function closeShop() { $('shop').hidden = true; W.setUpgrades(upNow()); state = 'menu'; $('start').hidden = false; refreshStart(); W.showAll(); A.play('click'); }
-  function avatarSvg(a) {
-    const hex = n => '#' + n.toString(16).padStart(6, '0'), h = hex(a.hair), sk = hex(a.skin), st = a.hairStyle || 'corto';
-    const top = '<path d="M22.600 46 A27.400 27.400 0 0 1 77.400 46 L73.500 46 Q71 33 50 33.500 Q29 33 26.500 46z" fill="' + h + '"/>';   // casquete concéntrico con la cabeza, con patillas
-    let v = '<svg viewBox="0 0 100 124" width="120" height="149"><path d="M33 122 L43 66 H57 L67 122z" fill="#e10600"/><path d="M43 66 H57 L50 76z" fill="#fff"/>';
-    if (st === 'largo') v += '<path d="M19.500 44 A30.500 30.500 0 0 1 80.500 44 V82 Q80.500 92 71 92 H29 Q19.500 92 19.500 82z" fill="' + h + '"/>';
-    v += '<circle cx="50" cy="44" r="26" fill="' + sk + '"/><circle cx="33" cy="52" r="5" fill="#ff6b6b" opacity=".22"/><circle cx="67" cy="52" r="5" fill="#ff6b6b" opacity=".22"/>';
-    if (st === 'corto' || st === 'rodete') v += top;
-    if (st === 'largo') v += top;
-    if (st === 'rodete') v += '<circle cx="50" cy="13" r="10" fill="' + h + '"/>';
-    if (st === 'rulos') { v += top; for (let i = 0; i < 9; i++) { const an = Math.PI * (1.02 + i * 0.12); v += '<circle cx="' + (50 + Math.cos(an) * 26).toFixed(1) + '" cy="' + (44 + Math.sin(an) * 26).toFixed(1) + '" r="9.500" fill="' + h + '"/>'; } v += '<circle cx="40" cy="24" r="8" fill="' + h + '"/><circle cx="60" cy="24" r="8" fill="' + h + '"/><circle cx="50" cy="20" r="8" fill="' + h + '"/>'; }
-    if (st === 'mohicano') v += '<path d="M43 30 L45 6 L50 14 L55 4 L57 30 Q50 26 43 30z" fill="' + h + '"/>';
-    if (a.beard) v += '<path d="M24.500 48 A26.500 26.500 0 0 0 75.500 48 Q70 57 60 54 Q50 49 40 54 Q30 57 24.500 48z" fill="' + h + '"/>';
-    v += '<ellipse cx="40" cy="43" rx="3.400" ry="4.200" fill="#16161c"/><ellipse cx="60" cy="43" rx="3.400" ry="4.200" fill="#16161c"/><circle cx="41.200" cy="41.500" r="1.100" fill="#fff"/><circle cx="61.200" cy="41.500" r="1.100" fill="#fff"/>';
-    if (a.lashes) v += '<g stroke="#16161c" stroke-width="1.800" stroke-linecap="round"><path d="M35.500 39.500l-3-2.500M38 37.800l-1.500-3.300M41 37.300l.5-3.500M64.500 39.500l3-2.500M62 37.800l1.500-3.300M59 37.300l-.5-3.500"/></g>';
-    if (a.glasses) v += '<g fill="rgba(255,255,255,.18)" stroke="#16161c" stroke-width="2.400"><circle cx="40" cy="43" r="8.500"/><circle cx="60" cy="43" r="8.500"/></g><path d="M48.500 43h3" stroke="#16161c" stroke-width="2.400"/>';
-    v += a.lips ? '<path d="M43 58 Q46.500 55.500 50 57.500 Q53.500 55.500 57 58 Q50 65 43 58z" fill="#d81e5b"/>' : '<path d="M43.500 58 Q50 63 56.500 58" fill="none" stroke="' + (a.beard ? '#fff' : '#8a4a2a') + '" stroke-width="2.400" stroke-linecap="round" opacity=".9"/>';
+  // Cara y busto de un personaje, en el mismo estilo que el muñeco 3D (4 colores: piel, pelo, remera y pantalón).
+  // mood = la mueca: normal, talk (hablando), happy, angry, impatient, nervous, sad, surprised.
+  function avatarSvg(a, mood) {
+    const hex = n => '#' + Number(n).toString(16).padStart(6, '0'), h = hex(a.hair == null ? 0x3a2a1a : a.hair), sk = hex(a.skin || 0xe0ac7e), top = hex(a.shirt || 0xe10600), ink = hex(a.pants || 0x23232b);
+    const st = a.hairStyle || 'corto', m = mood || 'normal', hat = a.hat;
+    const cap = '<path d="M21 50 A29 29 0 0 1 79 50 L75.500 50 Q73 33 50 33 Q27 33 24.500 50z" fill="' + h + '"/>';
+    let v = '<svg viewBox="0 0 100 124" width="120" height="149">';
+    if (st === 'largo' && hat !== 'casco') v += '<path d="M17.500 48 A32.500 32.500 0 0 1 82.500 48 V88 Q82.500 98 73 98 H27 Q17.500 98 17.500 88z" fill="' + h + '"/>';
+    v += '<path d="M24 124 Q24 100 41 97 H59 Q76 100 76 124z" fill="' + top + '"/><rect x="43" y="84" width="14" height="16" rx="6" fill="' + sk + '"/>';
+    v += '<circle cx="20.500" cy="53" r="7" fill="' + sk + '"/><circle cx="79.500" cy="53" r="7" fill="' + sk + '"/><circle cx="50" cy="48" r="29" fill="' + sk + '"/>';
+    v += '<circle cx="31" cy="59" r="5.500" fill="#ff6b6b" opacity=".2"/><circle cx="69" cy="59" r="5.500" fill="#ff6b6b" opacity=".2"/>';
+    if (hat !== 'casco') {
+      if (st === 'corto' || st === 'rodete' || st === 'largo') v += cap;
+      if (st === 'corto') v += '<path d="M33 31 Q38 15 52 19 Q47 12 58 13 Q68 16 70 32 Q58 24 50 30 Q42 25 33 31z" fill="' + h + '"/>';
+      if (st === 'rodete') v += '<circle cx="50" cy="15" r="10.500" fill="' + h + '"/>';
+      if (st === 'rulos') { v += cap; for (let i = 0; i < 9; i++) { const an = Math.PI * (1.02 + i * 0.12); v += '<circle cx="' + (50 + Math.cos(an) * 29).toFixed(1) + '" cy="' + (48 + Math.sin(an) * 29).toFixed(1) + '" r="10" fill="' + h + '"/>'; } v += '<circle cx="39" cy="26" r="8.500" fill="' + h + '"/><circle cx="61" cy="26" r="8.500" fill="' + h + '"/><circle cx="50" cy="22" r="8.500" fill="' + h + '"/>'; }
+      if (st === 'mohicano') v += '<path d="M42 32 L44 5 L50 14 L56 3 L58 32 Q50 27 42 32z" fill="' + h + '"/>';
+    }
+    if (a.beard) v += '<path d="M21.500 52 A28.500 28.500 0 0 0 78.500 52 Q73 62 61 59 Q50 54 39 59 Q27 62 21.500 52z" fill="' + h + '"/>';
+    // sombreros de los disfraces
+    if (hat === 'orejas') v += '<ellipse cx="29" cy="22" rx="8" ry="9" fill="' + h + '"/><ellipse cx="71" cy="22" rx="8" ry="9" fill="' + h + '"/>';
+    if (hat === 'casco') v += '<path d="M17 52 A33 33 0 0 1 83 52 L78 52 Q76 36 50 36 Q24 36 22 52z" fill="' + top + '"/><rect x="76" y="14" width="3.500" height="16" fill="' + top + '"/><circle cx="77.700" cy="12" r="4.200" fill="' + h + '"/>';
+    if (hat === 'corona') v += '<path d="M29 30 L27 9 L38 20 L50 5 L62 20 L73 9 L71 30 Q50 22 29 30z" fill="' + top + '"/>';
+    if (hat === 'vincha') v += '<path d="M21.500 42 Q50 28 78.500 42 L78 48 Q50 35 22 48z" fill="' + top + '"/>';
+    // ojos, cejas y boca según la mueca
+    const dx = m === 'nervous' ? 2.200 : 0, ry = m === 'surprised' ? 6.800 : m === 'impatient' ? 3.200 : 5.200;
+    if (m === 'happy') v += '<g fill="none" stroke="' + ink + '" stroke-width="3.200" stroke-linecap="round"><path d="M33.500 51 Q39 44 44.500 51"/><path d="M55.500 51 Q61 44 66.500 51"/></g>';
+    else v += '<ellipse cx="' + (39 + dx) + '" cy="50" rx="4" ry="' + ry + '" fill="' + ink + '"/><ellipse cx="' + (61 + dx) + '" cy="50" rx="4" ry="' + ry + '" fill="' + ink + '"/><circle cx="' + (40.300 + dx) + '" cy="48.200" r="1.300" fill="#fff"/><circle cx="' + (62.300 + dx) + '" cy="48.200" r="1.300" fill="#fff"/>';
+    if (m === 'impatient') v += '<path d="M33.500 47.200h11M55.500 47.200h11" stroke="' + sk + '" stroke-width="3"/>';
+    const brows = { normal: 'M33 40 Q39 38 45 40M55 40 Q61 38 67 40', talk: 'M33 39.500 Q39 37 45 39.500M55 39.500 Q61 37 67 39.500', happy: 'M33 39 Q39 35.500 45 39M55 39 Q61 35.500 67 39', angry: 'M32 36.500 L45 41.500M68 36.500 L55 41.500',
+      impatient: 'M33 41 H45M55 37.500 Q61 34.500 67 38', nervous: 'M33 41 L45 37M67 41 L55 37', sad: 'M33 41.500 L45 37.500M67 41.500 L55 37.500', surprised: 'M33 35 Q39 31.500 45 35M55 35 Q61 31.500 67 35' };
+    v += '<path d="' + (brows[m] || brows.normal) + '" fill="none" stroke="' + ink + '" stroke-width="2.800" stroke-linecap="round"/>';
+    if (a.lashes) v += '<g stroke="' + h + '" stroke-width="1.800" stroke-linecap="round"><path d="M34 45.500l-3-2.500M66 45.500l3-2.500M36 43.500l-1.500-3M64 43.500l1.500-3"/></g>';
+    if (a.glasses) v += '<g fill="rgba(255,255,255,.2)" stroke="' + ink + '" stroke-width="2.400"><circle cx="39" cy="50" r="9"/><circle cx="61" cy="50" r="9"/></g><path d="M48 50h4" stroke="' + ink + '" stroke-width="2.400"/>';
+    const mc = a.beard ? '#fff' : ink;
+    const mouths = { normal: a.lips ? '<path d="M43 64 Q46.500 61.500 50 63.500 Q53.500 61.500 57 64 Q50 71 43 64z" fill="' + top + '"/>' : '<path d="M43 64 Q50 70 57 64" fill="none" stroke="' + mc + '" stroke-width="2.600" stroke-linecap="round"/>',
+      talk: '<ellipse cx="50" cy="66" rx="5" ry="4.200" fill="' + (a.lips ? top : mc) + '"/>', happy: '<path d="M40 62 Q50 77 60 62z" fill="' + mc + '"/><path d="M45 68.500 Q50 72 55 68.500 Q50 66.500 45 68.500z" fill="#ff8a8a"/>',
+      angry: '<path d="M43 68 Q50 61 57 68" fill="none" stroke="' + mc + '" stroke-width="2.800" stroke-linecap="round"/>', impatient: '<path d="M44 66 H57" fill="none" stroke="' + mc + '" stroke-width="2.800" stroke-linecap="round"/>',
+      nervous: '<path d="M42 66 q3.500-3.500 7 0 t7 0" fill="none" stroke="' + mc + '" stroke-width="2.600" stroke-linecap="round"/>', sad: '<path d="M44 68 Q50 63 56 68" fill="none" stroke="' + mc + '" stroke-width="2.600" stroke-linecap="round"/>',
+      surprised: '<ellipse cx="50" cy="67" rx="4.200" ry="5.400" fill="' + mc + '"/>' };
+    v += mouths[m] || mouths.normal;
+    if (m === 'nervous') v += '<path d="M80 30 q4 6 0 9 q-4-3 0-9z" fill="#57b8ff"/>';
+    if (m === 'angry') v += '<g stroke="#e10600" stroke-width="2.200" stroke-linecap="round"><path d="M80 24l5-4M82 30h6M80 18l2-5"/></g>';
     return v + '</svg>';
   }
+  GS.faceSvg = avatarSvg;
   function showAvatar(then) {
     const a = Object.assign({ skin: GS.SKINS[2], hair: GS.HAIRS[0], hairStyle: 'corto', glasses: false, beard: false, lips: false }, GS.Store.get('avatar') || {}), hex = n => '#' + n.toString(16).padStart(6, '0');
     const sw = (key, list) => '<div class="sw" data-k="' + key + '">' + list.map(c => '<button style="background:' + hex(c) + '" data-c="' + c + '" class="' + (a[key] === c ? 'on' : '') + '"></button>').join('') + '</div>';
@@ -3142,7 +3470,7 @@ GS.Game = (function () {
   }
   function refreshStart() {
     const n = dayNumber(), fresh = n <= GS.UNLOCKS.length ? GS.UNLOCKS[n - 1] : [];
-    $('playT').textContent = 'Jugar la jornada ' + n; $('goalStart').innerHTML = goalHtml();
+    $('playT').textContent = 'Jugar la jornada ' + n; $('goalStart').innerHTML = goalHtml(); $('btnPlot').innerHTML = plotHtml();
     $('rankT').textContent = '🎖 ' + rankOf(n) + ' · ⭐ ' + repTxt(repNow()) + ' · 🪙 ' + coinsNow();
     $('playS').textContent = n === 1 ? 'Inducción: mostrador y caja · de 10 a 19' : fresh.length ? 'Se suma: ' + fresh.map(id => ST(id).name).join(' y ') : 'De 10 a 19 · reputación ⭐ ' + repTxt(repNow());
   }
@@ -3162,10 +3490,11 @@ GS.Game = (function () {
     W.focusAt(0.6, -1.4, 0.66, -0.08);
     const d = day, f = d.fin, bx = 4.3, bz = -0.5, dx = L.puerta.x;
     const spots = [[-3.3, -1.7], [-1.9, -0.9], [-0.5, -1.8], [0.5, -0.5], [-2.8, 0.5], [-1.1, 0.7], [0.3, 1.3], [-4.2, -0.4], [1.2, -1.6]];
-    f.lines = GS.FINAL.boss.map(x => x.replace('{rank}', rankOf(C.finalDay + 1)));
+    const tr = tierNow(); f.tier = tr;
+    f.lines = GS.FINAL.boss.map(x => x.replace('{rank}', tr.title).replace('{fondo}', '🪙 ' + fondoNow()).replace('{meta}', goalNow()).replace('{resultado}', tr.line));
     GS.CUSTOMERS.forEach((ar, i) => {
       const k = ar.id.charCodeAt(0) + ar.id.length * 7, sp = spots[i % spots.length];
-      const p = W.makePerson({ shirt: ar.shirt, hair: ar.hair, hairStyle: GS.HAIRSTYLES[k % 5][0], glasses: k % 3 === 0, beard: k % 4 === 1, lips: k % 2 === 0, lashes: k % 5 < 2, speed: 3.6 });
+      const p = W.makePerson(Object.assign(lookOf(ar), { speed: 3.6 }));
       p.setPos(dx + U.rnd(-0.4, 0.4), L.salon.zMax + 0.6 + i * 0.7); d.extras.push(p); f.crowd.push(p);
       p.walk([[dx, 3.4], sp], () => p.face(Math.atan2(bx - sp[0], bz - sp[1])));
     });
@@ -3187,9 +3516,9 @@ GS.Game = (function () {
     updateLabels(dt);
   }
   function finishFinal() {
-    const f = day && day.fin; if (!f || f.done) return; f.done = true; GS.Store.set('finalSeen', true);
+    const f = day && day.fin; if (!f || f.done) return; f.done = true; GS.Store.set('finalSeen', true); GS.Store.set('final2Seen', true); const hh = histAll(), closed = GS.STORIES.filter(S => hh[S.id] && hh[S.id].done).length;
     day.says.forEach(x => x.el.remove()); day.says = []; day.sayQ = []; f.t = 0.5; $('final').classList.add('party'); $('finSkip').hidden = true; A.play('fanfare');
-    $('finCard').innerHTML = '<h2>Fin de la <span>temporada</span></h2><p>Llegaste a <b>' + rankOf(C.finalDay + 1) + '</b>. El local sigue abierto: podés seguir jugando jornadas, comprar las mejoras que falten y batir tus récords.</p>' +
+    $('finCard').innerHTML = '<h2>Fin de la <span>temporada</span></h2><p><b>' + f.tier.title + '</b>. ' + f.tier.line + '</p><p>Fondo: 🪙 ' + fondoNow() + ' de ' + goalNow() + ' · Historias cerradas: ' + closed + ' de ' + GS.STORIES.length + '. El local sigue abierto: podés seguir jugando para alcanzar otro final y cerrar las historias que faltan.</p>' +
       '<button class="btn" id="finShare">📸 Tarjeta para compartir</button><button class="btn ghost" id="finGo">Seguir jugando</button><small>Un juego de GameShop · Gracias por jugar</small>';
     $('finCard').hidden = false;
     $('finShare').addEventListener('click', () => showCard(true)); $('finGo').addEventListener('click', goHome);
@@ -3214,7 +3543,7 @@ GS.Game = (function () {
       if (im[1]) { g.save(); g.beginPath(); g.arc(W_ / 2, 560, 204, 0, 7); g.clip(); try { g.drawImage(im[1], W_ / 2 - 190, 372, 380, 472); } catch (e) {} g.restore(); }
       g.lineWidth = 10; g.strokeStyle = '#ff0000'; g.beginPath(); g.arc(W_ / 2, 560, 223, 0, 7); g.stroke();
       // rango
-      const rk = rankOf(n + 1).toUpperCase(); g.font = F(64); const rw = Math.min(940, g.measureText(rk).width + 90);
+      const rk = (GS.Store.get('final2Seen') ? tierNow().title : rankOf(n + 1)).toUpperCase(); g.font = F(64); const rw = Math.min(940, g.measureText(rk).width + 90);
       g.fillStyle = '#f5c518'; g.beginPath(); g.moveTo(W_ / 2 - rw / 2 + 24, 770); g.lineTo(W_ / 2 + rw / 2, 770); g.lineTo(W_ / 2 + rw / 2 - 24, 868); g.lineTo(W_ / 2 - rw / 2, 868); g.fill();
       g.fillStyle = '#000'; g.fillText(rk, W_ / 2, 843, 860);
       g.fillStyle = '#fff'; g.font = F(50, '700'); g.fillText(GS.FINAL.card[0].replace('{n}', n), W_ / 2, 946, 980);
@@ -3275,8 +3604,8 @@ GS.Game = (function () {
       '<div class="setting"><span>Tu personaje</span><button class="btn ghost" id="optAv" style="width:auto">Cambiar</button></div>' +
       '<div class="setting"><span>Jornada (modo prueba)</span>' + seg('testDay', [['0', 'Auto'], ['1', '1'], ['2', '2'], ['3', '3'], ['4', '4'], ['5', '5'], ['6', '6'], ['8', '8']], String(GS.Store.get('testDay') || 0)) + '</div>' +
       '<div class="setting"><span>Clima (modo prueba)</span>' + seg('testCond', [['', 'Auto'], ['ninguna', 'Normal'], ['lluvia', 'Lluvia'], ['blackfriday', 'Black Friday'], ['navidad', 'Navidad']], GS.Store.get('testCond') || '') + '</div>' +
-      (fromPause ? '' : '<div class="setting"><span>Escena final<br><small>' + (GS.Store.get('finalSeen') ? 'Volver a verla' : 'Se ve al terminar la jornada ' + C.finalDay + ' (modo prueba)') + '</small></span><button class="btn ghost" id="optFinal" style="width:auto">Ver</button></div>') +
-      '<div class="setting"><span>Volver a la jornada 1<br><small>Conserva monedas y mejoras</small></span><button class="btn ghost" id="optDay1" style="width:auto">Volver</button></div>' +
+      (fromPause ? '' : '<div class="setting"><span>Escena final<br><small>' + (GS.Store.get('final2Seen') ? 'Volver a verla' : 'Se ve al terminar la jornada ' + C.finalDay + ' (modo prueba)') + '</small></span><button class="btn ghost" id="optFinal" style="width:auto">Ver</button></div>') +
+      '<div class="setting"><span>Empezar una temporada nueva<br><small>Vuelve a la jornada 1 y reinicia la trama. Conserva monedas y mejoras</small></span><button class="btn ghost" id="optDay1" style="width:auto">Volver</button></div>' +
       '<div class="setting"><span>Borrar todo<br><small>Jornadas, monedas, mejoras y récords</small></span><button class="btn ghost" id="optReset" style="width:auto">Reiniciar</button></div>' +
       '<button class="btn" data-close>Listo</button>', () => { if (fromPause) showPause(); });
     $('sheet').querySelectorAll('.seg').forEach(s => s.addEventListener('click', e => {
@@ -3291,7 +3620,7 @@ GS.Game = (function () {
       if (name === 'testDay') { GS.Store.set('testDay', Number(v)); refreshStart(); }
       if (name === 'testCond') GS.Store.set('testCond', v);
     }));
-    $('optDay1').addEventListener('click', e => { GS.Store.set('days', 0); GS.Store.set('seen', {}); GS.Store.set('testDay', 0); refreshStart(); e.target.textContent = 'Listo ✔'; });
+    $('optDay1').addEventListener('click', e => { GS.Store.set('days', 0); GS.Store.set('seen', {}); GS.Store.set('testDay', 0); ['hist', 'fondo', 'goalAdj', 'final2Seen', 'plotIntro'].forEach(k => GS.Store.set(k, null)); refreshStart(); e.target.textContent = 'Listo ✔'; });
     $('optAv').addEventListener('click', () => showAvatar(() => showOptions(fromPause)));
     if ($('optFinal')) $('optFinal').addEventListener('click', () => { modalOnClose = null; $('modal').hidden = true; startFinal(); });
     $('optReset').addEventListener('click', e => { GS.Store.reset(); W.setUpgrades({}); refreshStart(); e.target.textContent = 'Borrado ✔'; });
@@ -3357,6 +3686,10 @@ GS.Game = (function () {
     if (C.links.tienda) { $('btnStore').hidden = false; $('btnStore').href = C.links.tienda; $('btnStore').addEventListener('click', () => GS.track('click_tienda', { desde: 'inicio' })); }
     setCalm(!!GS.Store.get('calm')); syncMute(); W.showAll(); W.setUpgrades(upNow()); W.setPlayerLook(GS.Store.get('avatar'));
     $('btnShop').addEventListener('click', openShop); $('shopDone').addEventListener('click', closeShop);
+    $('shopFund').addEventListener('click', e => { const b = e.target.closest('[data-fund]'); if (!b) return; const c = coinsNow(), v = Math.min(c, Number(b.dataset.fund) || c); if (v <= 0) return;
+      const before = fondoNow() >= goalNow(); GS.Store.set('coins', c - v); addFondo(v); A.play('cash'); GS.track('aporte_fondo', { monto: v });
+      toast(!before && fondoNow() >= goalNow() ? '<b>🏠 ¡Meta alcanzada!</b>Ya alcanza para el local de al lado. Lo que sumes de más mejora el final.' : '<b>🏠 Aportaste 🪙 ' + v + '</b>Fondo: ' + fondoNow() + ' de ' + goalNow() + '.', '', 2600); renderShop(); });
+    $('btnPlot').addEventListener('click', showLibreta);
     const shopStep = k => { if (state !== 'shop') return; shopSel = (shopSel + k + GS.UPGRADES.length) % GS.UPGRADES.length; A.play('click'); renderShop(); const on = $('shopSlots').querySelector('.on'); if (on && on.scrollIntoView) on.scrollIntoView({ block: 'nearest', inline: 'center' }); };
     $('shopPrev').addEventListener('click', () => shopStep(-1)); $('shopNext').addEventListener('click', () => shopStep(1));
     $('shopSlots').addEventListener('wheel', e => { if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) { $('shopSlots').scrollLeft += e.deltaY; e.preventDefault(); } }, { passive: false });

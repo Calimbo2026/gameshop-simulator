@@ -327,3 +327,18 @@ body.big #mg, body.big #jobs, body.big .sheet, body.big #toasts, body.big .fin-c
 
 .say.zz { background: rgba(255,255,255,.92); padding: 3px 8px; font-size: 15px; box-shadow: none; border-radius: 12px; }
 body { transition: background 1.2s linear; }
+
+/* ---------- Trama, visitas con historia y caras ---------- */
+.mg-face.pic { width: 62px; height: 62px; overflow: hidden; background: #e9e9ee; display: block; border: 2px solid #fff; }
+.mg-face.pic svg { width: 84px; height: auto; margin: -9px 0 0 -13px; display: block; }
+.plot { display: grid; gap: 4px; text-align: left; background: rgba(245,197,24,.08); border: 2px solid var(--warn); border-radius: 14px; padding: 9px 12px; color: #fff; width: 100%; }
+.plot b { font-size: 15px; } .plot small { font-size: 12.5px; color: #d6d6dd; } .plot .pb { height: 8px; border-radius: 4px; background: #33333a; overflow: hidden; display: block; } .plot .pb i { display: block; height: 100%; background: var(--warn); }
+button.plot { cursor: pointer; } .plot.big b { font-size: 17px; }
+.shop-fund { padding: 6px 10px 0; display: grid; gap: 6px; } .shop-fund .btn { font-size: 14px; padding: 8px 6px; } .shop-fund .btn[disabled] { opacity: .4; }
+.story { display: flex; flex-direction: column; gap: 10px; } .st-head { display: flex; gap: 12px; align-items: center; } .st-head b { display: block; font-size: 19px; } .st-head span { font-size: 13px; color: var(--mute); }
+.st-face { width: 92px; height: 92px; border-radius: 50%; overflow: hidden; background: #e9e9ee; border: 3px solid var(--warn); flex: none; } .st-face svg { width: 124px; height: auto; margin: -13px 0 0 -19px; display: block; }
+.story .bubble { background: #fff; color: #000; border-radius: 14px 14px 14px 3px; padding: 11px 13px; font-size: 16px; line-height: 1.35; }
+.st-opt { text-align: left; font-size: 15.5px; padding: 11px 13px; } .st-chips { display: flex; flex-wrap: wrap; gap: 6px; } .st-chips span { background: #26262b; border: 1px solid #44444c; border-radius: 999px; padding: 4px 10px; font-size: 13px; }
+.lib { display: flex; gap: 10px; align-items: flex-start; background: #1b1b20; border-radius: 12px; padding: 9px; } .lib b { font-size: 15.5px; } .lib em { font-style: normal; font-size: 12.5px; color: var(--mute); } .lib ul { margin: 4px 0; padding-left: 16px; font-size: 13.5px; line-height: 1.35; } .lib small { color: var(--warn); font-size: 12.5px; }
+.lib-face { width: 52px; height: 52px; border-radius: 50%; overflow: hidden; background: #e9e9ee; flex: none; } .lib-face svg { width: 70px; height: auto; margin: -8px 0 0 -9px; display: block; }
+.opt.bad.dim { outline: 2px solid var(--red); opacity: .75; }
