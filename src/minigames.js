@@ -103,16 +103,16 @@ GS.Minigames = (function () {
 
   // (b) Dar el vuelto sumando billetes
   function cajaVuelto(cust) {
-    const T = Math.round(cust.product.price * 0.9);
+    const T = Math.floor(cust.product.price * 0.9 / 1000) * 1000;      // en efectivo se redondea a favor del cliente: siempre se puede armar con los billetes
     const cands = [Math.ceil((T + 1) / 10000) * 10000, Math.ceil((T + 1) / 20000) * 20000 + 20000, Math.ceil((T + 1) / 50000) * 50000]
       .filter(g => g - T >= 1000 && g - T <= 45000);
     const G = cands.length ? U.pick(cands) : T + 5000, change = G - T;
     const bills = [20000, 10000, 2000, 1000]; let given = 0;
     root().innerHTML = head(cust, 'Caja · Vuelto') +
       '<div class="bubble" id="mgBubble">Pago en efectivo. Tomá, cobrate.</div>' +
-      '<div class="info"><span>Total con 10% OFF <b>' + U.money(T) + '</b></span><span>Paga con <b>' + U.money(G) + '</b></span></div>' +
+      '<div class="info"><span>Total con 10% OFF, redondeado <b>' + U.money(T) + '</b></span><span>Paga con <b>' + U.money(G) + '</b></span></div>' +
       '<div class="tray"><span>Vuelto que le das</span><b id="mgGiven">$0</b></div>' +
-      '<div class="bills">' + bills.map((b, i) => '<button class="bill" data-b="' + b + '">' + U.money(b) + '</button>').join('') + '</div>' +
+      '<div class="bills">' + bills.map((b, i) => '<button class="bill" data-b="' + b + '" aria-label="Billete de ' + U.money(b) + '"><i>' + b / 1000 + '</i><span class="seal">GS</span><b>' + U.money(b) + '</b><small>' + ['veinte mil', 'diez mil', 'dos mil', 'mil'][i] + '</small><i>' + b / 1000 + '</i></button>').join('') + '</div>' +
       '<div class="row"><button class="btn ghost" id="mgClear">Borrar</button><button class="btn" id="mgGive" style="flex:2;font-size:19px;padding:12px">Dar el vuelto</button></div>';
     const out = document.getElementById('mgGiven');
     const add = b => { if (!cur || cur.done) return; given += b; out.textContent = U.money(given); GS.Audio.play('bill'); };

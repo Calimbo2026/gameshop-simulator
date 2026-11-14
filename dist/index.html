@@ -358,6 +358,18 @@ button.plot { cursor: pointer; } .plot.big b { font-size: 17px; }
 .lib-face { width: 52px; height: 52px; border-radius: 50%; overflow: hidden; background: #e9e9ee; flex: none; } .lib-face svg { width: 70px; height: auto; margin: -8px 0 0 -9px; display: block; }
 .opt.bad.dim { outline: 2px solid var(--red); opacity: .75; }
 
+/* Billetes del vuelto: que se lean como billetes (marco, sello, número en las esquinas), no como botones */
+.bills { grid-template-columns: repeat(2, 1fr); gap: 9px 10px; }
+.bill { position: relative; aspect-ratio: 2.25 / 1; padding: 0; border-radius: 5px; border-width: 1px; overflow: hidden; display: grid; place-items: center; text-align: center;
+  background-image: repeating-linear-gradient(115deg, rgba(255,255,255,.34) 0 2px, transparent 2px 7px), radial-gradient(ellipse at 50% 50%, rgba(255,255,255,.55), transparent 62%); box-shadow: 0 2px 0 rgba(0,0,0,.35), 3px 4px 0 -1px rgba(255,255,255,.5), 3px 4px 0 0 rgba(0,0,0,.3); }
+.bill:nth-child(1) { background-color: #a9d99c; } .bill:nth-child(2) { background-color: #f1bfa8; } .bill:nth-child(3) { background-color: #eea9c6; } .bill:nth-child(4) { background-color: #b6c7f2; }
+.bill::before { content: ""; position: absolute; inset: 5px; border: 1.5px solid currentColor; border-radius: 3px; opacity: .55; }
+.bill b { position: relative; font-family: var(--display); font-size: 21px; font-weight: 400; line-height: 1; margin-top: -4px; letter-spacing: .3px; }
+.bill small { position: absolute; left: 0; right: 0; bottom: 9px; font: 600 8.5px/1 system-ui, sans-serif; letter-spacing: .6px; text-transform: uppercase; opacity: .7; }
+.bill i { position: absolute; font: 700 11px/1 system-ui, sans-serif; font-style: normal; top: 9px; left: 10px; opacity: .85; } .bill i:last-child { top: auto; left: auto; bottom: 9px; right: 10px; }
+.bill .seal { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); width: 30px; height: 30px; border-radius: 50%; border: 1.5px solid currentColor; display: grid; place-items: center; font: 700 10px/1 system-ui, sans-serif; opacity: .4; }
+.bill:active { transform: translateY(2px) rotate(-1deg); }
+
 </style>
 </head>
 <body>
@@ -2275,16 +2287,16 @@ GS.Minigames = (function () {
 
   // (b) Dar el vuelto sumando billetes
   function cajaVuelto(cust) {
-    const T = Math.round(cust.product.price * 0.9);
+    const T = Math.floor(cust.product.price * 0.9 / 1000) * 1000;      // en efectivo se redondea a favor del cliente: siempre se puede armar con los billetes
     const cands = [Math.ceil((T + 1) / 10000) * 10000, Math.ceil((T + 1) / 20000) * 20000 + 20000, Math.ceil((T + 1) / 50000) * 50000]
       .filter(g => g - T >= 1000 && g - T <= 45000);
     const G = cands.length ? U.pick(cands) : T + 5000, change = G - T;
     const bills = [20000, 10000, 2000, 1000]; let given = 0;
     root().innerHTML = head(cust, 'Caja · Vuelto') +
       '<div class="bubble" id="mgBubble">Pago en efectivo. Tomá, cobrate.</div>' +
-      '<div class="info"><span>Total con 10% OFF <b>' + U.money(T) + '</b></span><span>Paga con <b>' + U.money(G) + '</b></span></div>' +
+      '<div class="info"><span>Total con 10% OFF, redondeado <b>' + U.money(T) + '</b></span><span>Paga con <b>' + U.money(G) + '</b></span></div>' +
       '<div class="tray"><span>Vuelto que le das</span><b id="mgGiven">$0</b></div>' +
-      '<div class="bills">' + bills.map((b, i) => '<button class="bill" data-b="' + b + '">' + U.money(b) + '</button>').join('') + '</div>' +
+      '<div class="bills">' + bills.map((b, i) => '<button class="bill" data-b="' + b + '" aria-label="Billete de ' + U.money(b) + '"><i>' + b / 1000 + '</i><span class="seal">GS</span><b>' + U.money(b) + '</b><small>' + ['veinte mil', 'diez mil', 'dos mil', 'mil'][i] + '</small><i>' + b / 1000 + '</i></button>').join('') + '</div>' +
       '<div class="row"><button class="btn ghost" id="mgClear">Borrar</button><button class="btn" id="mgGive" style="flex:2;font-size:19px;padding:12px">Dar el vuelto</button></div>';
     const out = document.getElementById('mgGiven');
     const add = b => { if (!cur || cur.done) return; given += b; out.textContent = U.money(given); GS.Audio.play('bill'); };
