@@ -7,7 +7,7 @@
 const GS = {};
 
 GS.CONFIG = {
-  version: '0.12.0',
+  version: '0.13.0',
   phase: 5,
   phaseNote: 'Trama del local de al lado, visitas con historia, personajes nuevos y más variedad',                       // fase actual del proyecto (1 a 5)
   links: { tienda: 'https://www.gameshop.com.ar', instagram: '' },   // botones del inicio y del cierre (vacío = no se muestra)
@@ -263,9 +263,9 @@ GS.UPGRADES = [
 GS.RANKS = [[1, 'Vendedor nuevo'], [3, 'Vendedor'], [5, 'Vendedor senior'], [8, 'Encargado'], [11, 'Mano derecha del Dueño']];
 /* Condiciones del día: cambian cuánta gente viene y cuántos pedidos salen */
 GS.CONDITIONS = {
-  lluvia: { name: '🌧️ Día de lluvia', say: 'Llueve. Va a venir menos gente al local, pero van a entrar más compras por la página.', cust: -2, ml: 2 },
-  blackfriday: { name: '🏷️ Black Friday', say: 'Hoy es Black Friday. Viene más gente y entran muchas compras por la página. Tranquilos, que se puede.', cust: 2, ml: 2 },
-  navidad: { name: '🎄 Semana de Navidad', say: 'Semana de Navidad. Todos compran regalos a último momento. Paciencia y buena cara.', cust: 2, ml: 1 }
+  lluvia: { name: '🌧️ Día de lluvia', say: 'Va a venir menos gente al local, pero van a entrar más compras por la página.', cust: -2, ml: 2 },
+  blackfriday: { name: '🏷️ Black Friday', say: 'Viene más gente y entran muchas compras por la página. Tranquilos, que se puede.', cust: 2, ml: 2 },
+  navidad: { name: '🎄 Semana de Navidad', say: 'Todos compran regalos a último momento. Paciencia y buena cara.', cust: 2, ml: 1 }
 };
 GS.HAIRSTYLES = [['corto', 'Corto'], ['largo', 'Largo'], ['rodete', 'Rodete'], ['rulos', 'Rulos'], ['mohicano', 'Mohicano'], ['pelado', 'Pelado']];
 GS.SKINS = [0xf6d7bd, 0xf2c9a0, 0xe0ac7e, 0xc68a5c, 0x9a643c, 0x6b4428];
@@ -274,6 +274,7 @@ GS.HAIRS = [0x000000, 0x2b2b3a, 0x4a3a2a, 0x7a3b1e, 0xd9a514, 0xc9c9d6, 0x2d6cdf
 /* Progresión: qué estaciones se suman en cada jornada (de menos a más) y cómo las explica el Dueño */
 GS.UNLOCKS = [['mostrador', 'caja'], ['whatsapp', 'cierre'], ['repo', 'stock', 'vidriera'], ['ml', 'proveedor'], ['pc', 'service'], ['devol']];
 GS.EXPLAIN = {
+  adornos: 'Mañana empieza la semana de Navidad. Elegí el árbol, las guirnaldas y las luces: como lo armes hoy, así amanece el local.',
   vidriera: 'Armá la vidriera según el tema: elegí los 4 productos que mejor van. Si queda bien, va a entrar gente diciendo que lo vio ahí.',
   mostrador: 'El cliente pide como puede. Vos elegís el producto correcto. Ojo: siempre hay uno parecido para confundirte.',
   caja: 'Al cobrar: 10% OFF en efectivo o transferencia, y 3 cuotas sin interés con tarjeta. Si te muestran un comprobante, compará cada dato antes de aprobar. Si hay uno incorrecto, selecciónalo.',
@@ -298,23 +299,23 @@ GS.CUSTOMERS = [
     bye: 'Quiero retruco. Digo: gracias.', lost: 'Me voy al mazo.' },
   { id: 'cosRayo', name: 'Rayo', face: '⚡', shirt: 0xf5c518, hair: 0x2d6cdf, hat: 'vincha', hairStyle: 'mohicano', tag: 'Disfrazado del héroe de Subte Runner',
     bye: '¡Me voy corriendo, que cierra el molinete!', lost: 'Si no corro, pierdo la combinación. Chau.' },
-  { id: 'ruben', name: 'Don Rubén',  face: '👴', shirt: 0x6b7a8f, hair: 0xdddddd, tag: 'El nostálgico',
+  { id: 'ruben', name: 'Don Rubén',  look: { hairStyle: 'corto', glasses: true, beard: true, lips: false, lashes: false }, face: '👴', shirt: 0x6b7a8f, hair: 0xdddddd, tag: 'El nostálgico',
     bye: 'Qué lindo que todavía atienda una persona.', lost: 'Antes esto se arreglaba hablando. Chau.' },
-  { id: 'marta', name: 'Marta',      face: '👵', shirt: 0xb86fa8, hair: 0xc9c9d6, tag: 'La tecnología es extraña',
+  { id: 'marta', name: 'Marta',      look: { hairStyle: 'rodete', glasses: true, beard: false, lips: true, lashes: false }, face: '👵', shirt: 0xb86fa8, hair: 0xc9c9d6, tag: 'La tecnología es extraña',
     bye: 'Gracias, querido. No entendí nada, pero gracias.', lost: 'Yo de esto no entiendo. Vuelvo con mi nieto.' },
-  { id: 'fede',  name: 'Fede',       face: '🧔', shirt: 0x3d7a4a, hair: 0x3a2a1a, tag: 'Lo vio más barato',
+  { id: 'fede',  name: 'Fede',       look: { hairStyle: 'corto', glasses: false, beard: true, lips: false, lashes: false }, face: '🧔', shirt: 0x3d7a4a, hair: 0x3a2a1a, tag: 'Lo vio más barato',
     bye: 'Igual después lo miro tranquilo en la página, eh.', lost: 'Listo, lo compro por la página desde casa.' },
-  { id: 'tano',  name: 'El Tano',    face: '😎', shirt: 0xd9a514, hair: 0x1e1e1e, tag: 'Por ser cliente',
+  { id: 'tano',  name: 'El Tano',    look: { hairStyle: 'pelado', glasses: true, beard: true, lips: false, lashes: false }, face: '😎', shirt: 0xd9a514, hair: 0x1e1e1e, tag: 'Por ser cliente',
     bye: '¿Y por ser cliente no me regalás un cablecito?', lost: 'Así tratan a un cliente de toda la vida.' },
-  { id: 'sergio',name: 'Sergio',     face: '👨', shirt: 0x4a6fb5, hair: 0x4a3a2a, tag: 'Padre que no sabe qué compra',
+  { id: 'sergio',name: 'Sergio',     look: { hairStyle: 'corto', glasses: false, beard: false, lips: false, lashes: false }, face: '👨', shirt: 0x4a6fb5, hair: 0x4a3a2a, tag: 'Padre que no sabe qué compra',
     bye: 'Si no es este, vuelvo. Seguro vuelvo.', lost: 'Mejor le pregunto de nuevo al nene.' },
-  { id: 'luli',  name: 'Luli',       face: '🤨', shirt: 0xe07a5f, hair: 0x7a3b1e, tag: '¿Es original?',
+  { id: 'luli',  name: 'Luli',       look: { hairStyle: 'largo', glasses: false, beard: false, lips: true, lashes: true }, face: '🤨', shirt: 0xe07a5f, hair: 0x7a3b1e, tag: '¿Es original?',
     bye: 'Pero es original-original, ¿no?', lost: 'Tanta demora... me voy a preguntar a otro lado.' },
-  { id: 'kevin', name: 'Kevin',      face: '🤓', shirt: 0x7b4fd1, hair: 0x15151f, tag: 'Gamer experto',
+  { id: 'kevin', name: 'Kevin',      look: { hairStyle: 'rulos', glasses: true, beard: false, lips: false, lashes: false }, face: '🤓', shirt: 0x7b4fd1, hair: 0x15151f, tag: 'Gamer experto',
     bye: 'Es lo mejor que encontré según las specs.', lost: 'En el tiempo que esperé, ya lo speedruneé en otro lado.' },
-  { id: 'nico',  name: 'Nico',       face: '🏃', shirt: 0x21a0a0, hair: 0x5a4632, tag: 'El apurado',
+  { id: 'nico',  name: 'Nico',       look: { hairStyle: 'corto', glasses: false, beard: false, lips: false, lashes: false }, face: '🏃', shirt: 0x21a0a0, hair: 0x5a4632, tag: 'El apurado',
     bye: '¡Gracias! Dejé el auto en doble fila.', lost: 'Dejé el auto en doble fila y me lo llevó la grúa.' },
-  { id: 'sofi',  name: 'Sofi',       face: '🎤', shirt: 0xff5fa2, hair: 0x2b1b3f, tag: 'Streamer en potencia',
+  { id: 'sofi',  name: 'Sofi',       look: { hairStyle: 'largo', glasses: false, beard: false, lips: true, lashes: true }, face: '🎤', shirt: 0xff5fa2, hair: 0x2b1b3f, tag: 'Streamer en potencia',
     bye: 'Es para mi canal. Ya tengo 14 seguidores.', lost: 'Esto lo cuento en un vivo. A mis 14 seguidores.' }
 ];
 
@@ -528,6 +529,8 @@ GS.STATIONS = [
     task: { name: 'Quieren devolver algo', tag: '"Lo usé poquito"', late: 'El de la devolución se fue. Vuelve mañana, con refuerzos.' } },
   { id: 'cierre', n: 11, name: 'Cierre de caja', icon: '🧾', pos: [2.4, -3.8], finalOnly: true,
     task: { name: 'Cerrar la caja', tag: 'Última tarea del día', late: 'La caja quedó sin cerrar. Mañana va a ser un día largo.' } },
+  { id: 'adornos', n: 999, name: 'Adornos de Navidad', short: 'Adornos', icon: '🎄', pos: [0.4, 4.6],
+    task: { name: 'Decorar el local', tag: 'Mañana empieza la semana de Navidad', late: 'El arbolito quedó en la caja. Mañana habrá que improvisar.' } },
   { id: 'vidriera', n: 12, name: 'Vidriera', icon: '🪟', pos: [3.6, 8.5],
     task: { name: 'Armar la vidriera', tag: 'Que se luzca desde la vereda', late: 'La vidriera quedó como estaba. Nadie lo notó. Ese es el problema.' } }
 ];
@@ -607,20 +610,22 @@ GS.STORIES = [
       { b: 'El botón no lo aceptamos', r: 'Era de la suerte. Vuelvo con más.', rm: 'sad', fx: { cord: 3 } }] },
     { m: 'talk', t: 'Lavé el auto de mi tío, el de mi otro tío y uno que no sé de quién era. ¿Ahora me alcanza?', note: 'Lavó tres autos. Uno no sabe de quién era.', opts: [
       { b: 'Casi. En efectivo tenés 10% OFF', r: '¿Diez por ciento es mucho? ¡Entonces me falta re poco!', rm: 'happy', fx: { rep: 0.1 } }] },
-    { m: 'happy', t: 'Junté todo. Lo conté tres veces. La tercera me dio distinto, pero la segunda estaba bien.', note: 'Se llevó el joystick azul. Sin bolsa: lo quería ir mirando.', end: true, opts: [
+    { m: 'happy', t: 'Le armé el set a una streamer: enchufé todo y no se prendió fuego nada. Me pagó. ¡Junté todo! Lo conté tres veces.', note: 'Con la changa del set de Cami juntó lo que faltaba. Se llevó el joystick azul sin bolsa.', end: true,
+      need: 'changa', waitMax: 3, wait: { m: 'sad', t: 'Todavía me falta. ¿No sabés de alguien que necesite una mano? Hago changas.', opts: [{ b: 'Si me entero de algo, te aviso', r: 'Gracias. Sé enchufar cosas y casi nunca rompo nada.', rm: 'normal', fx: {} }] }, opts: [
       { b: 'Contémoslo juntos', r: '¡Alcanza justo! ¿Me lo das sin bolsa? Lo quiero ir mirando.', rm: 'happy', fx: { rep: 0.2, fondo: 150, cord: 15 } }] }] },
   { id: 'anselmo', name: 'Don Anselmo', tag: 'El coleccionista', from: 3, gap: 3, look: { shirt: 0x6b7a8f, hair: 0xdddddd, hairStyle: 'pelado', beard: true, skin: 0xf6d7bd, glasses: true }, steps: [
     { m: 'talk', t: 'Busco "Galaxia Mate", primera edición, con el manual. Lo busco desde 2009. ¿Lo tienen?', note: 'Busca Galaxia Mate primera edición desde 2009.', opts: [
       { b: 'No, pero lo anoto y le aviso', r: 'Anóteme: Anselmo. Igual vengo todos los martes.', rm: 'normal', fx: { rep: 0.05 } },
       { b: 'Tengo la edición nueva', r: 'La nueva no trae el manual con olor a manual. Vuelvo.', rm: 'sad', fx: {} }] },
     { m: 'impatient', t: '¿Llegó? ...No me diga nada. Se lo veo en la cara. No llegó.', note: 'Volvió a preguntar. Todavía no llegó.', opts: [
-      { b: 'Todavía no, Anselmo', r: 'Diecisiete años esperé. Puedo esperar un martes más.', rm: 'normal', fx: { cord: 3 } },
+      { b: 'Todavía no, Anselmo', r: 'Diecisiete años esperé. Si alguien trae juegos viejos para vender, acuérdese de mí.', rm: 'normal', fx: { cord: 3 } },
       { b: '¿Probó mirarlo en la página?', r: 'La miro todas las noches. Antes de dormir.', rm: 'normal', fx: { rep: 0.05 } }] },
-    { m: 'surprised', t: 'Dígame que ese paquete que bajó el de la carreta es lo que yo creo.', note: 'Llegó una copia de Galaxia Mate primera edición.', opts: [
+    { m: 'surprised', t: 'Me dijeron que les entró una caja de juegos viejos. Dígame que adentro está lo que yo creo.', note: 'Le mostré la caja que le compré a Nilda: adentro estaba su Galaxia Mate.',
+      need: 'galaxia', wait: { m: 'impatient', t: '¿Y? ¿Entró algo? ...No, ya veo que no.', opts: [{ b: 'Nada todavía, Anselmo', r: 'Si aparece alguien vendiendo juegos viejos, cómprele. Yo después se lo agradezco.', rm: 'sad', fx: {} }] }, opts: [
       { b: 'Es suyo: se lo guardé', r: '¡Con el manual! Cóbrese. Y esto aparte, para ese fondo del que habla el Dueño.', rm: 'happy', fx: { rep: 0.2, fondo: 600 } },
       { b: 'Un revendedor ofrece el doble', r: '...Entiendo. Los negocios son los negocios.', rm: 'sad', fx: { fondo: 900, rep: -0.3, flag: 'traicion' } }] },
     { m: 'happy', t: 'Lo terminé. Dos veces. Vengo a contarle el final.', alt: { flag: 'traicion', m: 'sad', t: 'Lo conseguí igual. Me costó el triple. No le guardo rencor. Bueno, un poco.' }, note: 'Terminó de buscar. Diecisiete años.', end: true, opts: [
-      { b: 'Lo escucho', r: 'Resulta que el mate era la nave. Todo el tiempo. Hasta el martes.', rm: 'happy', fx: { cord: 15, rep: 0.05 } }] }] },
+      { b: 'Lo escucho', r: 'Resulta que el mate era el planeta. Muy ingenioso el desarrollo argentino.', rm: 'happy', fx: { cord: 15, rep: 0.05 } }] }] },
   { id: 'tito', name: 'Tito Ofertas', tag: 'Siempre tiene un negocio', from: 4, gap: 3, look: { shirt: 0xd9a514, hair: 0x111111, hairStyle: 'corto', beard: true, skin: 0xc68a5c }, steps: [
     { m: 'nervous', t: 'Maestro: tengo diez joysticks que me sobraron de un evento. Sin caja, sin factura, sin preguntas. ¿Te los dejo baratos?', note: 'Ofreció joysticks sin caja ni factura.', opts: [
       { b: 'Acá todo es nuevo, original y con factura', r: 'Uh, qué serio. Bueno, yo pregunté.', rm: 'sad', fx: { rep: 0.15 } },
@@ -635,7 +640,8 @@ GS.STORIES = [
       { b: 'Uno bueno, y en 3 cuotas', r: '¡Listo! Con esto me van a escuchar perfecto los tres.', rm: 'happy', fx: { rep: 0.1, fondo: 150 } },
       { b: 'Primero conseguí seguidores', r: 'Auch. Igual me lo llevo.', rm: 'sad', fx: { rep: -0.05 } }] },
     { m: 'happy', t: '¡Llegué a cien! El bot trajo amigos. Necesito una webcam: ya no puedo transmitir con la del microondas.', note: 'Llegó a cien seguidores. Compró una webcam.', opts: [
-      { b: 'Con esta se te ve bárbaro', r: '¡Se me ven hasta las ojeras! La amo.', rm: 'happy', fx: { fondo: 200, rep: 0.1 } }] },
+      { b: 'Con esta se te ve bárbaro', r: '¡Se me ven hasta las ojeras! La amo.', rm: 'happy', fx: { fondo: 200, rep: 0.1 } },
+      { b: 'Y para armar el set, conozco a un pibe: Benja', r: '¡Sí! Odio los cables. Que venga, que le pago.', rm: 'happy', fx: { fondo: 200, rep: 0.1, gflag: 'changa' }, note: 'Compró la webcam y le recomendé a Benja para armar el set.' }] },
     { m: 'talk', t: 'Mañana transmito desde acá, si me dejás. Nombro el local. ¿Qué querés que diga?', note: 'Transmitió en vivo desde el local.', opts: [
       { b: '3 cuotas sin interés y envíos a todo el país', r: 'Hecho. Y que atiende gente copada.', rm: 'happy', fx: { rep: 0.25, fondo: 300 } },
       { b: 'Que no toquen nada', r: 'Jaja, ok: "no toquen nada", dice el local.', rm: 'normal', fx: { rep: 0.05 } }] },
@@ -651,6 +657,10 @@ GS.STORIES = [
     { m: 'nervous', t: 'Última oferta: MegaPlay se retira de la compra si me decís cuánto juntaron ustedes.', note: 'MegaPlay hizo su última jugada.', end: true, opts: [
       { b: 'Lo suficiente. Buenas tardes', r: '...Me caés bien. Voy a decir que el local tiene humedad.', rm: 'happy', fx: { goal: -500, rep: 0.1 } },
       { b: 'Poquito, la verdad', r: 'Mh. Entonces ofertamos más. Gracias por la sinceridad.', rm: 'happy', fx: { goal: 500 } }] }] },
+  { id: 'nilda', name: 'Nilda', tag: 'Está vaciando un altillo', from: 4, gap: 2, look: { shirt: 0x21a0a0, hair: 0x7a3b1e, hairStyle: 'rodete', skin: 0xf2c9a0, lips: true, glasses: false }, steps: [
+    { m: 'talk', t: 'Estoy vaciando el altillo de mi hermano. Hay una caja de juegos viejos, con sus manuales. ¿Ustedes compran? Si no, va a la vereda.', note: 'Le compré la caja de juegos viejos del altillo, con manuales y todo.', end: true, opts: [
+      { b: 'Se la compro (🪙 200 del fondo)', r: '¡Menos mal! Hay uno de un astronauta con mate. Mire qué rareza.', rm: 'happy', fx: { fondo: -200, rep: 0.05, gflag: 'galaxia' } },
+      { b: 'No compramos usados', r: 'Bueno. La dejo unos días más en el altillo, por si cambia de idea.', rm: 'sad', fx: {}, stay: true }] }] },
   // visitas sueltas: cosas raras que pasan una sola vez
   { id: 'loro', name: 'La señora del loro', tag: 'Una visita rara', once: true, from: 4, look: { shirt: 0x21a0a0, hair: 0xd9a514, hairStyle: 'rulos', skin: 0xf6d7bd, lips: true }, steps: [
     { m: 'talk', t: 'Mi loro dice "tres cuotas sin interés". Lo aprendió pasando por acá. ¿Hay descuento por la publicidad?', note: 'Su loro repite "tres cuotas sin interés".', end: true, opts: [
@@ -664,6 +674,14 @@ GS.STORIES = [
     { m: 'talk', t: 'Perdón... busco el Obelisco. El mapa del celular me trajo acá. Dos veces.', note: 'Buscaba el Obelisco. El mapa lo trajo dos veces.', end: true, opts: [
       { b: 'Tomate el subte, y cargá el celu acá', r: '¡Gracias! Me llevo un cargador portátil, por las dudas.', rm: 'happy', fx: { fondo: 120, rep: 0.1 } },
       { b: 'Es este. Lo achicaron', r: 'Ah. En las fotos parecía más alto.', rm: 'surprised', fx: { cord: 6 } }] }] }
+];
+/* Placas de presentación del modo carrera: poco texto, y la cámara muestra de qué se habla. cam = [x, z, zoom]; who = a quién se ve. */
+GS.INTRO = [
+  { t: 'Tu primer día', d: 'Entrás a trabajar en GameShop: consolas, juegos, notebooks y accesorios. Abrimos de 10 a 19.', cam: null, who: ['yo'] },
+  { t: 'El Dueño', d: 'Vive en su oficina y sale a opinar de todo. Tiene un mohicano gris y una frase para cada cosa.', cam: [9.0, 1.3, 0.36], who: ['boss'] },
+  { t: 'Lucho y Brian', d: 'Tus compañeros. Lucho repone y cambia el color del mohicano cada día. Brian vive pegado al celular. Los dos duermen la siesta en el depósito.', cam: [4.0, 1.2, 0.3], who: ['lucho', 'brian'] },
+  { t: 'El local de al lado', d: 'Está en venta. Si juntan el fondo antes de la jornada 20, abre GameShop 2. Cuánto aportar, lo decidís vos.', cam: [-7.0, 10.2, 0.5], who: [] },
+  { t: 'Cómo se juega', d: 'Tocá los pedidos de abajo y tu personaje va solo. Hay respiros entre tandas y nunca se pierde: se aprende.', cam: [-0.6, -3.2, 0.5], who: ['yo'] }
 ];
 GS.FINAL = {
   boss: [

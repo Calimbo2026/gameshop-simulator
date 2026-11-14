@@ -120,3 +120,17 @@ Sin datos sensibles del negocio, sin personas reales, precios y stock ficticios.
 - **Segunda caja:** Brian cobra cuando hay dos esperando para pagar, o uno solo si estás ocupado en otra tarea.
 
 **Pruebas:** `python3 test/v11.py` (capturas) y `python3 test/v8.py 6` (juega sola una jornada, incluidas las visitas).
+
+### Modo carrera, Navidad y ajustes (v0.13)
+
+- **Modo carrera:** el botón principal dice "Iniciar modo carrera" la primera vez y "Seguir modo carrera" después. Al iniciar se ven cinco placas cortas (`GS.INTRO`, `showIntro`) con la cámara mostrando cada cosa: el local, el Dueño, Lucho y Brian, el local de al lado y cómo se juega.
+- **El local de al lado** existe en el mundo (`buildNext`), con cartel "SE VENDE"; pasa a "GAMESHOP 2" si la temporada cierra con el fondo completo.
+- **Navidad:** en la jornada previa (9, 19...) aparece la tarea "Adornos de Navidad" (`adornos` en `src/minigames.js`): se elige árbol, guirnaldas y luces, y se ven al instante. Al día siguiente el local amanece decorado así (`World.setXmas`) y todos llevan gorrito (`World.setHats`).
+- **Caja:** en efectivo o transferencia se pregunta cuántos pesos se descuentan (el 10% del precio); con débito la respuesta correcta es "nada".
+- **Historias encadenadas:** un paso puede depender de otra historia (`need`, `wait`, `gflag`, `stay`). Don Anselmo consigue su juego solo si antes le comprás a Nilda la caja del altillo; Benja junta lo que le falta solo si le conseguís la changa con Cami (o tras tres visitas de espera).
+- **Clientes:** cada uno tiene sus rasgos definidos a mano (`look` en `GS.CUSTOMERS`) para que acompañen al nombre.
+- **Celular:** el inicio entra en pantallas chicas, los minijuegos usan más alto de pantalla y se pueden deslizar si no entran, y la tienda de mejoras también.
+- **Lluvia:** el interior queda al 90% de la luz de una mañana sin lluvia.
+- **Stock:** la respuesta correcta cambia de lugar.
+
+**Pruebas:** `python3 test/v12.py` (celular de 360 x 640).

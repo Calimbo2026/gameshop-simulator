@@ -73,28 +73,30 @@ GS.Minigames = (function () {
   // (a) Aplicar bien el 10% OFF o las cuotas
   function cajaCobro(cust) {
     const P = cust.product.price, kind = U.pick(['cash', 'transfer', 'cuotas', 'debit']);
-    let line, q, correct, wrong, total, fmt = U.money, why;
+    let line, q, how, correct, wrong, total, fmt = U.money, why, okTitle = '¡Cobrado!';
     if (kind === 'cash' || kind === 'transfer') {
-      line = U.pick(kind === 'cash' ? LN.payCash : LN.payTransfer); q = '¿Cuánto le cobrás?'; correct = Math.round(P * 0.9); wrong = [P, Math.round(P * 0.8)]; total = correct;
-      why = 'Efectivo o transferencia: 10% OFF.';
+      // Se pregunta el descuento (el 10% del precio), no el total: es la cuenta que hay que saber hacer en la caja
+      line = U.pick(kind === 'cash' ? LN.payCash : LN.payTransfer); how = kind === 'cash' ? 'Paga en EFECTIVO' : 'Paga por TRANSFERENCIA';
+      q = 'Tiene 10% OFF. ¿Cuántos pesos le descontás?'; correct = Math.round(P * 0.1); wrong = [Math.round(P * 0.01), Math.round(P * 0.2)]; total = P - correct;
+      why = 'El 10% de ' + U.money(P) + ' es ' + U.money(correct) + ': se le corre una coma al precio.'; okTitle = '¡Descuento justo!';
     } else if (kind === 'cuotas') {
-      line = U.pick(LN.payCuotas); q = '¿De cuánto es cada cuota?'; correct = Math.round(P / 3); wrong = [Math.round(P * 0.3), Math.round(P / 2)]; total = P; fmt = n => '3 × ' + U.money(n);
+      line = U.pick(LN.payCuotas); how = 'Paga con TARJETA en 3 cuotas'; q = '¿De cuánto es cada cuota?'; correct = Math.round(P / 3); wrong = [Math.round(P * 0.3), Math.round(P / 2)]; total = P; fmt = n => '3 × ' + U.money(n);
       why = 'Son 3 cuotas sin interés sobre el precio de lista.';
     } else {
-      line = U.pick(LN.payDebit); q = '¿Cuánto le cobrás?'; correct = P; wrong = [Math.round(P * 0.9), Math.round(P * 1.1)]; total = P;
-      why = 'El 10% OFF es solo en efectivo o transferencia.';
+      line = U.pick(LN.payDebit); how = 'Paga con DÉBITO'; q = '¿Cuántos pesos le descontás?'; correct = 0; wrong = [Math.round(P * 0.1), Math.round(P * 0.05)]; total = P; fmt = n => n ? U.money(n) : 'Nada: $0';
+      why = 'El 10% OFF es solo en efectivo o transferencia. Con débito no hay descuento.';
     }
     const options = U.shuffle([correct].concat(wrong));
     root().innerHTML = head(cust, 'Caja') +
       '<div class="bubble" id="mgBubble">' + esc(line) + '</div>' +
       '<div class="info"><span>' + ico(cust.product) + esc(cust.product.name) + '</span><span>Precio de lista <b>' + U.money(P) + '</b></span></div>' +
-      '<div class="info"><b>' + q + '</b></div>' +
+      '<div class="ask"><span>' + how + '</span><b>' + q + '</b></div>' +
       '<div class="opts one">' + options.map((v, i) => '<button class="opt" data-v="' + v + '"><kbd>' + (i + 1) + '</kbd><span class="n">' + fmt(v) + '</span></button>').join('') + '</div>' +
       '<div class="rule">10% OFF en efectivo o transferencia · 3 cuotas sin interés con tarjeta</div>';
     const btns = [...root().querySelectorAll('.opt')];
     function choose(b) {
       if (!cur || cur.done || b.classList.contains('bad')) return;
-      if (Number(b.dataset.v) === correct) { b.classList.add('good'); GS.Audio.play('cash'); finish(true, '¡Cobrado!', U.money(total), { total }); }
+      if (Number(b.dataset.v) === correct) { b.classList.add('good'); GS.Audio.play('cash'); finish(true, okTitle, 'Le cobrás ' + U.money(total), { total }); }
       else { b.classList.add('bad'); mistake('caja', U.pick(LN.wrongCash) + ' (' + why + ')'); }
     }
     btns.forEach(b => b.addEventListener('click', () => choose(b)));
@@ -334,7 +336,7 @@ GS.Minigames = (function () {
     root().innerHTML = head(job, 'Control de stock') + '<div class="bubble" id="mgBubble">' + esc(p.name) + ': el sistema dice que hay <b>' + sys + '</b>.</div>' +
       '<div class="shelfv">' + Array.from({ length: real }, () => '<span class="pic" style="transform:rotate(' + Math.floor(U.rnd(-14, 14)) + 'deg) translateY(' + Math.floor(U.rnd(-4, 5)) + 'px)">' + (GS.ICONS[p.id] || p.icon) + '</span>').join('') + '</div>' +
       '<div class="info"><b>¿Cuántos hay de verdad en la góndola?</b></div>' +
-      '<div class="opts three low">' + [real - 1, real, real + 1].map((n, i) => '<button class="opt" data-ok="' + (n === real ? 1 : 0) + '"><kbd>' + (i + 1) + '</kbd><span class="n big">' + n + '</span></button>').join('') + '</div>';
+      '<div class="opts three low">' + U.pick([[real - 2, real - 1, real], [real - 1, real, real + 1], [real, real + 1, real + 2]]).map((n, i) => '<button class="opt" data-ok="' + (n === real ? 1 : 0) + '"><kbd>' + (i + 1) + '</kbd><span class="n big">' + n + '</span></button>').join('') + '</div>';
     listOptions(b => b.dataset.ok === '1', () => { GS.Audio.play('ok'); finish(true, '¡Stock corregido!', sys === real ? 'El sistema tenía razón. Anotá la fecha.' : 'Eran ' + real + ', no ' + sys + '.', {}); }, () => mistake('stock', U.pick(LN.wrongStock)));
   }
 
@@ -431,13 +433,30 @@ GS.Minigames = (function () {
     cur.keys = e => { const n = parseInt(e.key, 10); if (n >= 1 && n <= btns.length) choose(btns[n - 1]); };
   }
 
-  const GAMES = { mostrador, caja, pc, service, ml, whatsapp, repo, stock, proveedor, devol, cierre, vidriera };
+  function adornos(job) {
+    const steps = [['a', '¿Qué árbol ponemos al lado de la entrada?', [['🌲', 'Clásico verde'], ['❄️', 'Blanco nevado'], ['🎮', 'Gamer rojo y negro']]],
+      ['g', '¿De qué color van las guirnaldas del mostrador?', [['🔴', 'Rojas'], ['🟡', 'Doradas'], ['🟢', 'Verdes']]],
+      ['l', '¿Y las lucecitas?', [['🕯️', 'Cálidas'], ['🌈', 'De colores'], ['💎', 'Blancas']]]], cfg = {}, me = cur; let i = 0;
+    function draw() {
+      const st = steps[i];
+      root().innerHTML = head(job, 'Adornos de Navidad') + '<div class="bubble" id="mgBubble">Paso ' + (i + 1) + ' de 3. Mirá el local: lo que elijas aparece en el momento.</div>' +
+        '<div class="ask"><span>Mañana empieza la semana de Navidad</span><b>' + st[1] + '</b></div>' +
+        '<div class="opts three low">' + st[2].map((o, k) => '<button class="opt" data-k="' + k + '"><kbd>' + (k + 1) + '</kbd><span class="n big">' + o[0] + '</span><span class="n">' + o[1] + '</span></button>').join('') + '</div>';
+      const btns = [...root().querySelectorAll('.opt')];
+      const pickIt = b => { if (cur !== me || me.done) return; cfg[st[0]] = Number(b.dataset.k); GS.Audio.play('ok'); GS.World.setXmas(cfg); i++; if (i < steps.length) draw(); else { GS.Store.set('xmas', cfg); finish(true, '¡Quedó hermoso!', 'Mañana el local amanece decorado. Y con gorritos.', {}); } };
+      btns.forEach(b => b.addEventListener('click', () => pickIt(b)));
+      cur.keys = e => { const n = parseInt(e.key, 10); if (n >= 1 && n <= 3) pickIt(btns[n - 1]); };
+    }
+    draw();
+  }
+  const GAMES = { mostrador, caja, pc, service, ml, whatsapp, repo, stock, proveedor, devol, cierre, vidriera, adornos };
   return {
     // type: 'mostrador' | 'caja'; opts.variant para caja: 'cobro' | 'vuelto' | 'comprobante'
     open(type, cust, cb, opts) {
       close(); cur = { type, cust, cb, keys: null, done: false, timer: null };
       root().hidden = false;
       GAMES[type](cust, opts && opts.variant);
+      const r = root(); r.scrollTop = 0; r.style.touchAction = r.scrollHeight > r.clientHeight + 6 ? 'pan-y' : '';     // si no entra en la pantalla del celular, se puede deslizar
     },
     close,
     // Tarjeta de inducción: el Dueño explica una estación la primera vez

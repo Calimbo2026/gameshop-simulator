@@ -305,7 +305,7 @@ body.calm * { animation: none !important; transition: none !important; }
 .avprev { width: 110px; height: 132px; } .setting small { color: var(--mute); font-size: 12px; }
 .promo { text-align: center; background: linear-gradient(90deg, #5a4300, #8a6a00, #5a4300); border: 2px solid var(--warn); border-radius: 14px; padding: 9px; font-weight: 800; color: #fff; } .promo b { display: block; font-family: var(--display); font-size: 22px; text-transform: uppercase; }
 /* lluvia */
-#rain { position: fixed; inset: 0; pointer-events: none; z-index: 4; background-color: rgba(20, 45, 90, .26);
+#rain { position: fixed; inset: 0; pointer-events: none; z-index: 4; background-color: rgba(20, 45, 90, .05);
   background-image: repeating-linear-gradient(103deg, transparent 0 17px, rgba(190, 215, 255, .30) 17px 18px, transparent 18px 46px); background-size: 230px 230px; animation: rain .45s linear infinite; }
 @keyframes rain { to { background-position: -53px 230px; } }
 .avprev { width: 120px; height: 149px; }
@@ -370,6 +370,22 @@ button.plot { cursor: pointer; } .plot.big b { font-size: 17px; }
 .bill .seal { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); width: 30px; height: 30px; border-radius: 50%; border: 1.5px solid currentColor; display: grid; place-items: center; font: 700 10px/1 system-ui, sans-serif; opacity: .4; }
 .bill:active { transform: translateY(2px) rotate(-1deg); }
 
+/* ---------- Celular: que todo entre y se pueda tocar ---------- */
+#mg { max-height: min(80%, calc(100dvh - 92px)); }
+.shop-panel { max-height: 66dvh; overflow-y: auto; touch-action: pan-y; }
+.duo { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-items: stretch; } .duo > * { min-width: 0; } .duo .goal, .duo .plot { padding: 7px 9px; height: 100%; } .duo b { font-size: 13px !important; line-height: 1.2; } .duo span, .duo small { font-size: 11.5px !important; }
+#start .row .btn.ghost { font-size: 15px; padding: 11px 6px; }
+@media (orientation: portrait) and (max-height: 820px) { #start .logo { max-width: 250px; width: 66%; } #start .sub { font-size: 26px; } #start .tag { margin: 2px 0; } #start .col { gap: 8px; } #start .col > div { gap: 8px !important; }
+  #start .btn { padding: 11px 12px; } #start .btn.alt small { display: none; } #start .fine { display: none; } #start .phases { padding: 7px 10px; } }
+@media (orientation: portrait) and (max-height: 700px) { #start .logo { max-width: 200px; } #start .tag { display: none; } #start .phases > *:not(:first-child) { display: none; } .ticket { font-size: 13px; } #end .btn { padding: 10px 12px; font-size: 17px; } }
+.ask { background: #fff; color: #000; border-radius: 12px; padding: 8px 12px; display: grid; gap: 2px; } .ask span { font-size: 12.5px; font-weight: 800; letter-spacing: .5px; color: var(--red2); text-transform: uppercase; } .ask b { font-size: 16.5px; line-height: 1.25; }
+/* placas del modo carrera */
+#intro { position: fixed; inset: 0; z-index: 32; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding: 12px 14px calc(16px + var(--sab)); background: linear-gradient(180deg, transparent 45%, rgba(0,0,0,.75)); }
+#intro .fin-card { border-color: var(--red); text-align: left; } #intro h2 { font-size: 28px; } #intro p { font-size: 16px; color: #fff; }
+.in-who { display: flex; gap: 14px; justify-content: center; margin-top: -58px; } .in-who figure { margin: 0; text-align: center; } .in-who figcaption { font-size: 12.5px; font-weight: 700; margin-top: 3px; } .in-who .st-face { border-color: var(--red); box-shadow: 0 6px 18px rgba(0,0,0,.6); }
+.in-sign { background: #fff; color: var(--red2); font-family: var(--display); font-size: 30px; padding: 8px 22px; border-radius: 8px; transform: rotate(-4deg); border: 3px solid var(--red2); box-shadow: 0 6px 18px rgba(0,0,0,.6); }
+.in-dots { display: flex; gap: 6px; justify-content: center; } .in-dots i { width: 8px; height: 8px; border-radius: 50%; background: #44444c; } .in-dots i.on { background: var(--red); width: 22px; border-radius: 4px; }
+
 </style>
 </head>
 <body>
@@ -411,11 +427,9 @@ button.plot { cursor: pointer; } .plot.big b { font-size: 17px; }
     </div>
     <div style="display:flex;flex-direction:column;gap:12px">
       <button class="btn" id="btnPlay"><span id="playT">Jugar la jornada 1</span><small id="playS">De 10 a 19 · en tandas, con respiros</small></button>
-      <div id="goalStart"></div>
-      <button class="plot" id="btnPlot" aria-label="El local de al lado: fondo y libreta"></button>
-      <button class="btn alt" id="btnShop">🛠 Mejorar el local<small>Gastá tus monedas en cartel, góndolas, arcade y más</small></button>
-      <button class="btn ghost" id="btnRelax" style="font-size:17px">Turno tranquilo · sin apuro</button>
-      <button class="btn ghost" id="btnArcade" style="font-size:18px">🕹️ Arcade · estaciones sueltas</button>
+      <div class="duo"><div id="goalStart"></div><button class="plot" id="btnPlot" aria-label="El local de al lado: fondo y libreta"></button></div>
+      <button class="btn alt" id="btnShop">🛠 Mejorar el local<small>Gastá tus monedas o aportá al fondo</small></button>
+      <div class="row"><button class="btn ghost" id="btnRelax">Turno tranquilo</button><button class="btn ghost" id="btnArcade">🕹️ Arcade</button></div>
       <div class="row">
         <button class="btn ghost" id="btnHow">Cómo se juega</button>
         <button class="btn ghost" id="btnRecs">Récords</button>
@@ -433,6 +447,9 @@ button.plot { cursor: pointer; } .plot.big b { font-size: 17px; }
   <div class="shop-top"><b>Mejoras del local</b><span id="shopCoins">🪙 0</span><button class="btn ghost" id="shopDone">Listo</button></div>
   <div class="shop-panel"><div class="shop-nav"><button class="icon-btn" id="shopPrev" aria-label="Mejora anterior">‹</button><div class="shop-slots" id="shopSlots"></div><button class="icon-btn" id="shopNext" aria-label="Mejora siguiente">›</button></div><div class="shop-cards" id="shopCards"></div><div class="rule" id="shopHint"></div><div class="shop-fund" id="shopFund"></div></div>
 </div>
+
+<!-- Placas de presentación del modo carrera -->
+<div id="intro" hidden><div class="fin-card" id="introCard"></div></div>
 
 <!-- Escena final -->
 <div id="final" hidden><div class="confetti" id="confetti"></div><button class="btn ghost" id="finSkip">Saltar ›</button><div class="fin-card" id="finCard" hidden></div></div>
@@ -464,7 +481,7 @@ const GS = {};
 GS.LOGO = "data:image/png;base64,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";
 
 GS.CONFIG = {
-  version: '0.12.0',
+  version: '0.13.0',
   phase: 5,
   phaseNote: 'Trama del local de al lado, visitas con historia, personajes nuevos y más variedad',                       // fase actual del proyecto (1 a 5)
   links: { tienda: 'https://www.gameshop.com.ar', instagram: '' },   // botones del inicio y del cierre (vacío = no se muestra)
@@ -720,9 +737,9 @@ GS.UPGRADES = [
 GS.RANKS = [[1, 'Vendedor nuevo'], [3, 'Vendedor'], [5, 'Vendedor senior'], [8, 'Encargado'], [11, 'Mano derecha del Dueño']];
 /* Condiciones del día: cambian cuánta gente viene y cuántos pedidos salen */
 GS.CONDITIONS = {
-  lluvia: { name: '🌧️ Día de lluvia', say: 'Llueve. Va a venir menos gente al local, pero van a entrar más compras por la página.', cust: -2, ml: 2 },
-  blackfriday: { name: '🏷️ Black Friday', say: 'Hoy es Black Friday. Viene más gente y entran muchas compras por la página. Tranquilos, que se puede.', cust: 2, ml: 2 },
-  navidad: { name: '🎄 Semana de Navidad', say: 'Semana de Navidad. Todos compran regalos a último momento. Paciencia y buena cara.', cust: 2, ml: 1 }
+  lluvia: { name: '🌧️ Día de lluvia', say: 'Va a venir menos gente al local, pero van a entrar más compras por la página.', cust: -2, ml: 2 },
+  blackfriday: { name: '🏷️ Black Friday', say: 'Viene más gente y entran muchas compras por la página. Tranquilos, que se puede.', cust: 2, ml: 2 },
+  navidad: { name: '🎄 Semana de Navidad', say: 'Todos compran regalos a último momento. Paciencia y buena cara.', cust: 2, ml: 1 }
 };
 GS.HAIRSTYLES = [['corto', 'Corto'], ['largo', 'Largo'], ['rodete', 'Rodete'], ['rulos', 'Rulos'], ['mohicano', 'Mohicano'], ['pelado', 'Pelado']];
 GS.SKINS = [0xf6d7bd, 0xf2c9a0, 0xe0ac7e, 0xc68a5c, 0x9a643c, 0x6b4428];
@@ -731,6 +748,7 @@ GS.HAIRS = [0x000000, 0x2b2b3a, 0x4a3a2a, 0x7a3b1e, 0xd9a514, 0xc9c9d6, 0x2d6cdf
 /* Progresión: qué estaciones se suman en cada jornada (de menos a más) y cómo las explica el Dueño */
 GS.UNLOCKS = [['mostrador', 'caja'], ['whatsapp', 'cierre'], ['repo', 'stock', 'vidriera'], ['ml', 'proveedor'], ['pc', 'service'], ['devol']];
 GS.EXPLAIN = {
+  adornos: 'Mañana empieza la semana de Navidad. Elegí el árbol, las guirnaldas y las luces: como lo armes hoy, así amanece el local.',
   vidriera: 'Armá la vidriera según el tema: elegí los 4 productos que mejor van. Si queda bien, va a entrar gente diciendo que lo vio ahí.',
   mostrador: 'El cliente pide como puede. Vos elegís el producto correcto. Ojo: siempre hay uno parecido para confundirte.',
   caja: 'Al cobrar: 10% OFF en efectivo o transferencia, y 3 cuotas sin interés con tarjeta. Si te muestran un comprobante, compará cada dato antes de aprobar. Si hay uno incorrecto, selecciónalo.',
@@ -755,23 +773,23 @@ GS.CUSTOMERS = [
     bye: 'Quiero retruco. Digo: gracias.', lost: 'Me voy al mazo.' },
   { id: 'cosRayo', name: 'Rayo', face: '⚡', shirt: 0xf5c518, hair: 0x2d6cdf, hat: 'vincha', hairStyle: 'mohicano', tag: 'Disfrazado del héroe de Subte Runner',
     bye: '¡Me voy corriendo, que cierra el molinete!', lost: 'Si no corro, pierdo la combinación. Chau.' },
-  { id: 'ruben', name: 'Don Rubén',  face: '👴', shirt: 0x6b7a8f, hair: 0xdddddd, tag: 'El nostálgico',
+  { id: 'ruben', name: 'Don Rubén',  look: { hairStyle: 'corto', glasses: true, beard: true, lips: false, lashes: false }, face: '👴', shirt: 0x6b7a8f, hair: 0xdddddd, tag: 'El nostálgico',
     bye: 'Qué lindo que todavía atienda una persona.', lost: 'Antes esto se arreglaba hablando. Chau.' },
-  { id: 'marta', name: 'Marta',      face: '👵', shirt: 0xb86fa8, hair: 0xc9c9d6, tag: 'La tecnología es extraña',
+  { id: 'marta', name: 'Marta',      look: { hairStyle: 'rodete', glasses: true, beard: false, lips: true, lashes: false }, face: '👵', shirt: 0xb86fa8, hair: 0xc9c9d6, tag: 'La tecnología es extraña',
     bye: 'Gracias, querido. No entendí nada, pero gracias.', lost: 'Yo de esto no entiendo. Vuelvo con mi nieto.' },
-  { id: 'fede',  name: 'Fede',       face: '🧔', shirt: 0x3d7a4a, hair: 0x3a2a1a, tag: 'Lo vio más barato',
+  { id: 'fede',  name: 'Fede',       look: { hairStyle: 'corto', glasses: false, beard: true, lips: false, lashes: false }, face: '🧔', shirt: 0x3d7a4a, hair: 0x3a2a1a, tag: 'Lo vio más barato',
     bye: 'Igual después lo miro tranquilo en la página, eh.', lost: 'Listo, lo compro por la página desde casa.' },
-  { id: 'tano',  name: 'El Tano',    face: '😎', shirt: 0xd9a514, hair: 0x1e1e1e, tag: 'Por ser cliente',
+  { id: 'tano',  name: 'El Tano',    look: { hairStyle: 'pelado', glasses: true, beard: true, lips: false, lashes: false }, face: '😎', shirt: 0xd9a514, hair: 0x1e1e1e, tag: 'Por ser cliente',
     bye: '¿Y por ser cliente no me regalás un cablecito?', lost: 'Así tratan a un cliente de toda la vida.' },
-  { id: 'sergio',name: 'Sergio',     face: '👨', shirt: 0x4a6fb5, hair: 0x4a3a2a, tag: 'Padre que no sabe qué compra',
+  { id: 'sergio',name: 'Sergio',     look: { hairStyle: 'corto', glasses: false, beard: false, lips: false, lashes: false }, face: '👨', shirt: 0x4a6fb5, hair: 0x4a3a2a, tag: 'Padre que no sabe qué compra',
     bye: 'Si no es este, vuelvo. Seguro vuelvo.', lost: 'Mejor le pregunto de nuevo al nene.' },
-  { id: 'luli',  name: 'Luli',       face: '🤨', shirt: 0xe07a5f, hair: 0x7a3b1e, tag: '¿Es original?',
+  { id: 'luli',  name: 'Luli',       look: { hairStyle: 'largo', glasses: false, beard: false, lips: true, lashes: true }, face: '🤨', shirt: 0xe07a5f, hair: 0x7a3b1e, tag: '¿Es original?',
     bye: 'Pero es original-original, ¿no?', lost: 'Tanta demora... me voy a preguntar a otro lado.' },
-  { id: 'kevin', name: 'Kevin',      face: '🤓', shirt: 0x7b4fd1, hair: 0x15151f, tag: 'Gamer experto',
+  { id: 'kevin', name: 'Kevin',      look: { hairStyle: 'rulos', glasses: true, beard: false, lips: false, lashes: false }, face: '🤓', shirt: 0x7b4fd1, hair: 0x15151f, tag: 'Gamer experto',
     bye: 'Es lo mejor que encontré según las specs.', lost: 'En el tiempo que esperé, ya lo speedruneé en otro lado.' },
-  { id: 'nico',  name: 'Nico',       face: '🏃', shirt: 0x21a0a0, hair: 0x5a4632, tag: 'El apurado',
+  { id: 'nico',  name: 'Nico',       look: { hairStyle: 'corto', glasses: false, beard: false, lips: false, lashes: false }, face: '🏃', shirt: 0x21a0a0, hair: 0x5a4632, tag: 'El apurado',
     bye: '¡Gracias! Dejé el auto en doble fila.', lost: 'Dejé el auto en doble fila y me lo llevó la grúa.' },
-  { id: 'sofi',  name: 'Sofi',       face: '🎤', shirt: 0xff5fa2, hair: 0x2b1b3f, tag: 'Streamer en potencia',
+  { id: 'sofi',  name: 'Sofi',       look: { hairStyle: 'largo', glasses: false, beard: false, lips: true, lashes: true }, face: '🎤', shirt: 0xff5fa2, hair: 0x2b1b3f, tag: 'Streamer en potencia',
     bye: 'Es para mi canal. Ya tengo 14 seguidores.', lost: 'Esto lo cuento en un vivo. A mis 14 seguidores.' }
 ];
 
@@ -985,6 +1003,8 @@ GS.STATIONS = [
     task: { name: 'Quieren devolver algo', tag: '"Lo usé poquito"', late: 'El de la devolución se fue. Vuelve mañana, con refuerzos.' } },
   { id: 'cierre', n: 11, name: 'Cierre de caja', icon: '🧾', pos: [2.4, -3.8], finalOnly: true,
     task: { name: 'Cerrar la caja', tag: 'Última tarea del día', late: 'La caja quedó sin cerrar. Mañana va a ser un día largo.' } },
+  { id: 'adornos', n: 999, name: 'Adornos de Navidad', short: 'Adornos', icon: '🎄', pos: [0.4, 4.6],
+    task: { name: 'Decorar el local', tag: 'Mañana empieza la semana de Navidad', late: 'El arbolito quedó en la caja. Mañana habrá que improvisar.' } },
   { id: 'vidriera', n: 12, name: 'Vidriera', icon: '🪟', pos: [3.6, 8.5],
     task: { name: 'Armar la vidriera', tag: 'Que se luzca desde la vereda', late: 'La vidriera quedó como estaba. Nadie lo notó. Ese es el problema.' } }
 ];
@@ -1064,20 +1084,22 @@ GS.STORIES = [
       { b: 'El botón no lo aceptamos', r: 'Era de la suerte. Vuelvo con más.', rm: 'sad', fx: { cord: 3 } }] },
     { m: 'talk', t: 'Lavé el auto de mi tío, el de mi otro tío y uno que no sé de quién era. ¿Ahora me alcanza?', note: 'Lavó tres autos. Uno no sabe de quién era.', opts: [
       { b: 'Casi. En efectivo tenés 10% OFF', r: '¿Diez por ciento es mucho? ¡Entonces me falta re poco!', rm: 'happy', fx: { rep: 0.1 } }] },
-    { m: 'happy', t: 'Junté todo. Lo conté tres veces. La tercera me dio distinto, pero la segunda estaba bien.', note: 'Se llevó el joystick azul. Sin bolsa: lo quería ir mirando.', end: true, opts: [
+    { m: 'happy', t: 'Le armé el set a una streamer: enchufé todo y no se prendió fuego nada. Me pagó. ¡Junté todo! Lo conté tres veces.', note: 'Con la changa del set de Cami juntó lo que faltaba. Se llevó el joystick azul sin bolsa.', end: true,
+      need: 'changa', waitMax: 3, wait: { m: 'sad', t: 'Todavía me falta. ¿No sabés de alguien que necesite una mano? Hago changas.', opts: [{ b: 'Si me entero de algo, te aviso', r: 'Gracias. Sé enchufar cosas y casi nunca rompo nada.', rm: 'normal', fx: {} }] }, opts: [
       { b: 'Contémoslo juntos', r: '¡Alcanza justo! ¿Me lo das sin bolsa? Lo quiero ir mirando.', rm: 'happy', fx: { rep: 0.2, fondo: 150, cord: 15 } }] }] },
   { id: 'anselmo', name: 'Don Anselmo', tag: 'El coleccionista', from: 3, gap: 3, look: { shirt: 0x6b7a8f, hair: 0xdddddd, hairStyle: 'pelado', beard: true, skin: 0xf6d7bd, glasses: true }, steps: [
     { m: 'talk', t: 'Busco "Galaxia Mate", primera edición, con el manual. Lo busco desde 2009. ¿Lo tienen?', note: 'Busca Galaxia Mate primera edición desde 2009.', opts: [
       { b: 'No, pero lo anoto y le aviso', r: 'Anóteme: Anselmo. Igual vengo todos los martes.', rm: 'normal', fx: { rep: 0.05 } },
       { b: 'Tengo la edición nueva', r: 'La nueva no trae el manual con olor a manual. Vuelvo.', rm: 'sad', fx: {} }] },
     { m: 'impatient', t: '¿Llegó? ...No me diga nada. Se lo veo en la cara. No llegó.', note: 'Volvió a preguntar. Todavía no llegó.', opts: [
-      { b: 'Todavía no, Anselmo', r: 'Diecisiete años esperé. Puedo esperar un martes más.', rm: 'normal', fx: { cord: 3 } },
+      { b: 'Todavía no, Anselmo', r: 'Diecisiete años esperé. Si alguien trae juegos viejos para vender, acuérdese de mí.', rm: 'normal', fx: { cord: 3 } },
       { b: '¿Probó mirarlo en la página?', r: 'La miro todas las noches. Antes de dormir.', rm: 'normal', fx: { rep: 0.05 } }] },
-    { m: 'surprised', t: 'Dígame que ese paquete que bajó el de la carreta es lo que yo creo.', note: 'Llegó una copia de Galaxia Mate primera edición.', opts: [
+    { m: 'surprised', t: 'Me dijeron que les entró una caja de juegos viejos. Dígame que adentro está lo que yo creo.', note: 'Le mostré la caja que le compré a Nilda: adentro estaba su Galaxia Mate.',
+      need: 'galaxia', wait: { m: 'impatient', t: '¿Y? ¿Entró algo? ...No, ya veo que no.', opts: [{ b: 'Nada todavía, Anselmo', r: 'Si aparece alguien vendiendo juegos viejos, cómprele. Yo después se lo agradezco.', rm: 'sad', fx: {} }] }, opts: [
       { b: 'Es suyo: se lo guardé', r: '¡Con el manual! Cóbrese. Y esto aparte, para ese fondo del que habla el Dueño.', rm: 'happy', fx: { rep: 0.2, fondo: 600 } },
       { b: 'Un revendedor ofrece el doble', r: '...Entiendo. Los negocios son los negocios.', rm: 'sad', fx: { fondo: 900, rep: -0.3, flag: 'traicion' } }] },
     { m: 'happy', t: 'Lo terminé. Dos veces. Vengo a contarle el final.', alt: { flag: 'traicion', m: 'sad', t: 'Lo conseguí igual. Me costó el triple. No le guardo rencor. Bueno, un poco.' }, note: 'Terminó de buscar. Diecisiete años.', end: true, opts: [
-      { b: 'Lo escucho', r: 'Resulta que el mate era la nave. Todo el tiempo. Hasta el martes.', rm: 'happy', fx: { cord: 15, rep: 0.05 } }] }] },
+      { b: 'Lo escucho', r: 'Resulta que el mate era el planeta. Muy ingenioso el desarrollo argentino.', rm: 'happy', fx: { cord: 15, rep: 0.05 } }] }] },
   { id: 'tito', name: 'Tito Ofertas', tag: 'Siempre tiene un negocio', from: 4, gap: 3, look: { shirt: 0xd9a514, hair: 0x111111, hairStyle: 'corto', beard: true, skin: 0xc68a5c }, steps: [
     { m: 'nervous', t: 'Maestro: tengo diez joysticks que me sobraron de un evento. Sin caja, sin factura, sin preguntas. ¿Te los dejo baratos?', note: 'Ofreció joysticks sin caja ni factura.', opts: [
       { b: 'Acá todo es nuevo, original y con factura', r: 'Uh, qué serio. Bueno, yo pregunté.', rm: 'sad', fx: { rep: 0.15 } },
@@ -1092,7 +1114,8 @@ GS.STORIES = [
       { b: 'Uno bueno, y en 3 cuotas', r: '¡Listo! Con esto me van a escuchar perfecto los tres.', rm: 'happy', fx: { rep: 0.1, fondo: 150 } },
       { b: 'Primero conseguí seguidores', r: 'Auch. Igual me lo llevo.', rm: 'sad', fx: { rep: -0.05 } }] },
     { m: 'happy', t: '¡Llegué a cien! El bot trajo amigos. Necesito una webcam: ya no puedo transmitir con la del microondas.', note: 'Llegó a cien seguidores. Compró una webcam.', opts: [
-      { b: 'Con esta se te ve bárbaro', r: '¡Se me ven hasta las ojeras! La amo.', rm: 'happy', fx: { fondo: 200, rep: 0.1 } }] },
+      { b: 'Con esta se te ve bárbaro', r: '¡Se me ven hasta las ojeras! La amo.', rm: 'happy', fx: { fondo: 200, rep: 0.1 } },
+      { b: 'Y para armar el set, conozco a un pibe: Benja', r: '¡Sí! Odio los cables. Que venga, que le pago.', rm: 'happy', fx: { fondo: 200, rep: 0.1, gflag: 'changa' }, note: 'Compró la webcam y le recomendé a Benja para armar el set.' }] },
     { m: 'talk', t: 'Mañana transmito desde acá, si me dejás. Nombro el local. ¿Qué querés que diga?', note: 'Transmitió en vivo desde el local.', opts: [
       { b: '3 cuotas sin interés y envíos a todo el país', r: 'Hecho. Y que atiende gente copada.', rm: 'happy', fx: { rep: 0.25, fondo: 300 } },
       { b: 'Que no toquen nada', r: 'Jaja, ok: "no toquen nada", dice el local.', rm: 'normal', fx: { rep: 0.05 } }] },
@@ -1108,6 +1131,10 @@ GS.STORIES = [
     { m: 'nervous', t: 'Última oferta: MegaPlay se retira de la compra si me decís cuánto juntaron ustedes.', note: 'MegaPlay hizo su última jugada.', end: true, opts: [
       { b: 'Lo suficiente. Buenas tardes', r: '...Me caés bien. Voy a decir que el local tiene humedad.', rm: 'happy', fx: { goal: -500, rep: 0.1 } },
       { b: 'Poquito, la verdad', r: 'Mh. Entonces ofertamos más. Gracias por la sinceridad.', rm: 'happy', fx: { goal: 500 } }] }] },
+  { id: 'nilda', name: 'Nilda', tag: 'Está vaciando un altillo', from: 4, gap: 2, look: { shirt: 0x21a0a0, hair: 0x7a3b1e, hairStyle: 'rodete', skin: 0xf2c9a0, lips: true, glasses: false }, steps: [
+    { m: 'talk', t: 'Estoy vaciando el altillo de mi hermano. Hay una caja de juegos viejos, con sus manuales. ¿Ustedes compran? Si no, va a la vereda.', note: 'Le compré la caja de juegos viejos del altillo, con manuales y todo.', end: true, opts: [
+      { b: 'Se la compro (🪙 200 del fondo)', r: '¡Menos mal! Hay uno de un astronauta con mate. Mire qué rareza.', rm: 'happy', fx: { fondo: -200, rep: 0.05, gflag: 'galaxia' } },
+      { b: 'No compramos usados', r: 'Bueno. La dejo unos días más en el altillo, por si cambia de idea.', rm: 'sad', fx: {}, stay: true }] }] },
   // visitas sueltas: cosas raras que pasan una sola vez
   { id: 'loro', name: 'La señora del loro', tag: 'Una visita rara', once: true, from: 4, look: { shirt: 0x21a0a0, hair: 0xd9a514, hairStyle: 'rulos', skin: 0xf6d7bd, lips: true }, steps: [
     { m: 'talk', t: 'Mi loro dice "tres cuotas sin interés". Lo aprendió pasando por acá. ¿Hay descuento por la publicidad?', note: 'Su loro repite "tres cuotas sin interés".', end: true, opts: [
@@ -1121,6 +1148,14 @@ GS.STORIES = [
     { m: 'talk', t: 'Perdón... busco el Obelisco. El mapa del celular me trajo acá. Dos veces.', note: 'Buscaba el Obelisco. El mapa lo trajo dos veces.', end: true, opts: [
       { b: 'Tomate el subte, y cargá el celu acá', r: '¡Gracias! Me llevo un cargador portátil, por las dudas.', rm: 'happy', fx: { fondo: 120, rep: 0.1 } },
       { b: 'Es este. Lo achicaron', r: 'Ah. En las fotos parecía más alto.', rm: 'surprised', fx: { cord: 6 } }] }] }
+];
+/* Placas de presentación del modo carrera: poco texto, y la cámara muestra de qué se habla. cam = [x, z, zoom]; who = a quién se ve. */
+GS.INTRO = [
+  { t: 'Tu primer día', d: 'Entrás a trabajar en GameShop: consolas, juegos, notebooks y accesorios. Abrimos de 10 a 19.', cam: null, who: ['yo'] },
+  { t: 'El Dueño', d: 'Vive en su oficina y sale a opinar de todo. Tiene un mohicano gris y una frase para cada cosa.', cam: [9.0, 1.3, 0.36], who: ['boss'] },
+  { t: 'Lucho y Brian', d: 'Tus compañeros. Lucho repone y cambia el color del mohicano cada día. Brian vive pegado al celular. Los dos duermen la siesta en el depósito.', cam: [4.0, 1.2, 0.3], who: ['lucho', 'brian'] },
+  { t: 'El local de al lado', d: 'Está en venta. Si juntan el fondo antes de la jornada 20, abre GameShop 2. Cuánto aportar, lo decidís vos.', cam: [-7.0, 10.2, 0.5], who: [] },
+  { t: 'Cómo se juega', d: 'Tocá los pedidos de abajo y tu personaje va solo. Hay respiros entre tandas y nunca se pierde: se aprende.', cam: [-0.6, -3.2, 0.5], who: ['yo'] }
 ];
 GS.FINAL = {
   boss: [
@@ -1794,6 +1829,49 @@ GS.World = (function () {
     box(lid, 0.03, 0.34, 0.5, 0x2a2a2e, 0, 0, 0); box(lid, 0.012, 0.28, 0.44, 0x56d6ff, 0.02, 0.03, 0, { emissive: 0x2a8aa0 });
   }
 
+  // El local de al lado (la trama): pegado a la izquierda, con la persiana baja y un cartel inclinado en el techo
+  let nextSigns = null, xmasG = null;
+  function buildNext(root) {
+    const s = L.salon, zA = s.zMax, zB = L.galeria.zMax, x1 = s.xMin - 0.7, x0 = x1 - 5.6, cx = (x0 + x1) / 2, cz = (zA + zB) / 2, w = x1 - x0, h = 2.7;
+    box(root, w + 0.4, 0.5, zB - zA + 3.4, 0x18181b, cx, -0.52, cz + 1.5); box(root, w + 0.4, 0.04, 2.9, sky.side, cx, -0.03, zB + 1.5);
+    box(root, w, h, zB - zA, 0x8b8f98, cx, 0, cz); box(root, w + 0.2, 0.14, zB - zA + 0.2, 0x5b5f68, cx, h, cz);
+    const shut = canvasTex(256, 128, (g, cw, ch) => { for (let y = 0; y < ch; y += 8) { g.fillStyle = (y / 8) % 2 ? '#7f848d' : '#9aa0aa'; g.fillRect(0, y, cw, 8); } });
+    plane(root, w - 1.0, 2.0, new T.MeshLambertMaterial({ map: shut }), cx, 1.02, zB + 0.012); box(root, w - 0.6, 0.16, 0.2, 0x3a3d44, cx, 2.05, zB + 0.1);
+    const mk = (txt, bg, fg) => new T.MeshBasicMaterial({ map: textTex(txt, { bg, fg, w: 640, h: 190, font: '900 96px Impact, "Arial Black", sans-serif' }) });
+    const k = new T.Group(); k.position.set(cx, h + 0.14, cz + 0.6); root.add(k); box(k, 4.5, 0.08, 1.5, 0x1b1b1f, 0, 0.02, 0);
+    const a = plane(k, 4.3, 1.28, mk('SE VENDE', '#ffffff', '#e10600'), 0, 0.5, 0.1), b = plane(k, 4.3, 1.28, mk('GAMESHOP 2', '#e10600', '#ffffff'), 0, 0.5, 0.1);
+    a.rotation.x = b.rotation.x = -0.95; b.visible = false; nextSigns = [a, b];
+    box(k, 0.08, 0.6, 0.08, 0x1b1b1f, -1.9, 0, -0.45); box(k, 0.08, 0.6, 0.08, 0x1b1b1f, 1.9, 0, -0.45);
+  }
+  // Decoración de Navidad: árbol (a), guirnaldas (g) y lucecitas (l), según lo que eligió el jugador el día anterior
+  function setXmas(cfg) {
+    if (xmasG) { scene.remove(xmasG); xmasG = null; }
+    if (!cfg) return;
+    const g = xmasG = new T.Group(); scene.add(g);
+    const m = L.mostrador, c = L.caja, s = L.salon, basic = col => new T.MeshBasicMaterial({ color: col });
+    if (cfg.a != null) {
+      const cols = [[0x2f9a41, 0x3bb54a], [0xf4f4f6, 0xdfe6ee], [0x1a1a1e, 0xd81e2c]][cfg.a], tx = 0.7, tz = 5.35;
+      box(g, 0.16, 0.34, 0.16, 0x6b3e1e, tx, 0, tz);
+      [[0.62, 0.7, 0.3], [0.5, 0.62, 0.78], [0.36, 0.56, 1.2]].forEach((q, i) => { const cn = new T.Mesh(new T.ConeGeometry(q[0], q[1], 12), mat(cols[i % 2])); cn.position.set(tx, q[2] + q[1] / 2, tz); g.add(cn); });
+      const star = new T.Mesh(new T.OctahedronGeometry(0.13), basic(0xf5c518)); star.position.set(tx, 1.86, tz); g.add(star);
+      const orn = cfg.a === 2 ? [0xffffff, 0xf5c518] : [0xd81e2c, 0xf5c518];
+      for (let i = 0; i < 12; i++) { const an = i * 2.4, y = 0.45 + (i % 6) * 0.2, r = 0.56 - (y - 0.3) * 0.36, o = new T.Mesh(new T.SphereGeometry(0.055, 8, 6), basic(orn[i % 2])); o.position.set(tx + Math.cos(an) * r, y, tz + Math.sin(an) * r); g.add(o); }
+      box(g, 0.3, 0.22, 0.3, 0xd81e2c, tx - 0.55, 0, tz + 0.25); box(g, 0.32, 0.04, 0.06, 0xf5c518, tx - 0.55, 0.22, tz + 0.25); box(g, 0.24, 0.3, 0.24, 0x2d6cdf, tx + 0.5, 0, tz + 0.3); box(g, 0.26, 0.04, 0.06, 0xffffff, tx + 0.5, 0.3, tz + 0.3);
+    }
+    if (cfg.g != null) {                           // guirnaldas en ondas a lo largo del mostrador y de la pared del fondo
+      const gm = mat([0xd81e2c, 0xe9b500, 0x2f9a41][cfg.g]), geo = new T.SphereGeometry(0.075, 7, 6), xa = m.x - m.w / 2 + 0.1, xb = c.x + c.w / 2 - 0.1;
+      const run = (x0, x1, y, z) => { const n = Math.round((x1 - x0) / 0.14); for (let i = 0; i <= n; i++) { const t = i / n, b = new T.Mesh(geo, gm); b.position.set(x0 + (x1 - x0) * t, y - Math.abs(Math.sin(t * Math.PI * 6)) * 0.2, z); g.add(b); } };
+      run(xa, xb, m.h - 0.04, m.z + m.d / 2 + 0.07); run(s.xMin + 0.4, s.xMax - 0.4, s.wallH - 0.25, s.zMin + 0.1);
+      [xa, (xa + xb) / 2, xb].forEach(x => { box(g, 0.2, 0.14, 0.05, 0xd81e2c, x - 0.1, m.h - 0.12, m.z + m.d / 2 + 0.1); });
+    }
+    if (cfg.l != null) {                           // lucecitas sobre la pared izquierda, el fondo y el frente de las vidrieras
+      const pal = [[0xffd98a], [0xff3b3b, 0x3bd16f, 0x3b8bff, 0xffd23b], [0xe6f3ff]][cfg.l], mats = pal.map(basic), geo = new T.SphereGeometry(0.06, 7, 6); let k = 0;
+      const dot = (x, y, z) => { const b = new T.Mesh(geo, mats[k++ % mats.length]); b.position.set(x, y, z); g.add(b); };
+      for (let z = s.zMin + 0.3; z < s.zMax; z += 0.42) dot(s.xMin + 0.08, s.wallH - 0.5 - Math.abs(Math.sin(z * 2.2)) * 0.14, z);
+      for (let x = s.xMin + 0.3; x < s.xMax; x += 0.42) dot(x, s.wallH - 0.62 - Math.abs(Math.sin(x * 2.2)) * 0.14, s.zMin + 0.16);
+      [-1, 1].forEach(sd => { for (let x = L.galeria.pasillo + 0.2; x < s.xMax - 0.1; x += 0.4) dot(sd * x, 2.5 - Math.abs(Math.sin(x * 2.4)) * 0.12, L.galeria.zMax - 0.02); });
+    }
+  }
   // Marco de puerta sobre la pared derecha (que está "cortada"): postes rojos, dintel y cartel de los dos lados
   function sideDoor(root, z, text) {
     const x = L.salon.xMax + 0.1;
@@ -1958,10 +2036,10 @@ GS.World = (function () {
         if (st === 'corto' || st === 'largo' || st === 'rodete') cap();
         if (st === 'corto') tufts();
         if (st === 'largo') { const m = new T.Mesh(gMass, hm); m.scale.set(1.06, 1.3, 0.8); m.position.set(0, -0.2, -0.17); acc.add(m); }
-        if (st === 'rodete') { const b = new T.Mesh(gBun, hm); b.position.set(0, 0.42, -0.12); acc.add(b); }
+        if (st === 'rodete' && hat !== 'gorro') { const b = new T.Mesh(gBun, hm); b.position.set(0, 0.42, -0.12); acc.add(b); }
         if (st === 'rulos') { for (let i = 0; i < 9; i++) { const an = i / 9 * Math.PI * 2, c = new T.Mesh(gCurl, hm); c.scale.setScalar(1.25); c.position.set(Math.cos(an) * 0.27, 0.22, Math.sin(an) * 0.27 - 0.05); acc.add(c); }
           [[0, 0.39, -0.04], [0.15, 0.36, 0.06], [-0.15, 0.36, 0.06], [0, 0.35, -0.2]].forEach(q => { const c = new T.Mesh(gCurl, hm); c.scale.setScalar(1.3); c.position.set(q[0], q[1], q[2]); acc.add(c); }); }
-        if (st === 'mohicano') [[0.3, 0.2, 0.9], [0.4, 0.08, 1.15], [0.43, -0.06, 1.3], [0.38, -0.2, 1.15], [0.27, -0.31, 0.95]].forEach(q => { const m = new T.Mesh(gTuft, hm); m.scale.set(0.62, q[2] * 1.25, 1.05); m.position.set(0, q[0], q[1]); acc.add(m); });   // cresta de mechones, más alta en el medio
+        if (st === 'mohicano' && hat !== 'gorro') [[0.3, 0.2, 0.9], [0.4, 0.08, 1.15], [0.43, -0.06, 1.3], [0.38, -0.2, 1.15], [0.27, -0.31, 0.95]].forEach(q => { const m = new T.Mesh(gTuft, hm); m.scale.set(0.62, q[2] * 1.25, 1.05); m.position.set(0, q[0], q[1]); acc.add(m); });   // cresta de mechones, más alta en el medio
       }
       if (cur.beard) acc.add(new T.Mesh(gBeard, hm));
       const bm = mat(botC), tm = mat(topC);
@@ -1970,6 +2048,11 @@ GS.World = (function () {
       if (cur.lashes) [-1, 1].forEach(sd => { const l = box(acc, 0.1, 0.022, 0.03, hm, sd * 0.2, 0.04, HR - 0.07); l.rotation.z = sd * 0.5; });
       smile.visible = !cur.lips; if (cur.lips) box(acc, 0.13, 0.05, 0.05, tm, 0, -0.17, HR - 0.03);
       // sombreros de los disfraces (siempre con los colores del personaje)
+      if (hat === 'gorro') {                       // gorrito navideño (rojo y blanco, es un accesorio de la semana de Navidad)
+        const red = mat(0xd81e2c), wh = mat(0xffffff), band = new T.Mesh(new T.TorusGeometry(HR - 0.045, 0.06, 6, 18), wh); band.rotation.x = Math.PI / 2; band.position.y = 0.2; acc.add(band);
+        const cone = new T.Mesh(new T.ConeGeometry(0.31, 0.5, 14), red); cone.position.set(0.04, 0.47, -0.02); cone.rotation.z = -0.28; acc.add(cone);
+        const pom = new T.Mesh(gEar, wh); pom.scale.setScalar(1.15); pom.position.set(0.15, 0.72, -0.02); acc.add(pom);
+      }
       if (hat === 'orejas') { [-1, 1].forEach(sd => { const e = new T.Mesh(gTuft, hm); e.scale.set(0.9, 1, 0.5); e.position.set(sd * 0.22, 0.37, 0); acc.add(e); }); }
       if (hat === 'casco') { const h = new T.Mesh(gHelmet, tm); h.rotation.x = -0.5; acc.add(h); box(acc, 0.05, 0.2, 0.05, tm, 0.28, 0.42, -0.05); const b = new T.Mesh(gEar, hm); b.position.set(0.28, 0.64, -0.05); acc.add(b); }
       if (hat === 'corona') { for (let i = 0; i < 7; i++) { const an = i / 7 * Math.PI * 2; box(acc, 0.09, i % 2 ? 0.14 : 0.2, 0.05, tm, Math.cos(an) * 0.22, 0.33, Math.sin(an) * 0.22).rotation.y = -an + Math.PI / 2; } }
@@ -2087,7 +2170,7 @@ GS.World = (function () {
     // zócalos bajos donde la pared está "cortada"
     { const doors = [L.depoDoor.z, -0.3, L.tallerDoor.z]; let z0 = L.salon.zMin;          // zócalo con los huecos de las tres puertas
       doors.concat([null]).forEach(dz => { const z1 = dz == null ? L.salon.zMax : dz - 0.55; if (z1 - z0 > 0.05) box(root, 0.2, 0.3, z1 - z0, 0xdedede, L.salon.xMax + 0.1, 0, (z0 + z1) / 2); if (dz != null) z0 = dz + 0.55; }); }
-    buildCounter(root); buildCenter(root); buildWorkStations(root); buildDepot(root); sideDoor(root, L.depoDoor.z, 'DEPÓSITO'); buildOffice(root); buildTaller(root); sideDoor(root, L.tallerDoor.z, 'TALLER'); buildGallery(root); buildSign(root); buildExtras(root);
+    buildCounter(root); buildCenter(root); buildWorkStations(root); buildDepot(root); sideDoor(root, L.depoDoor.z, 'DEPÓSITO'); buildOffice(root); buildTaller(root); sideDoor(root, L.tallerDoor.z, 'TALLER'); buildGallery(root); buildSign(root); buildExtras(root); buildNext(root);
 
     // empleados (inventados): vos en el mostrador y Brian, pegado al celular, en la caja
     yo = makePerson({ shirt: 0xe10600, hair: 0x2b2b3a, skin: SKINS[1], speed: 7.5 }); yo.setPos(L.yoMostrador[0], L.yoMostrador[1]);
@@ -2136,10 +2219,13 @@ GS.World = (function () {
       const col = arr => { const q = at(arr); return new T.Color(q[0]).lerp(new T.Color(q[1]), q[2]); }, num = arr => { const q = at(arr); return q[0] + (q[1] - q[0]) * q[2]; };
       const wet = rain ? 0.68 : 1, n = U.clamp((f - 0.7) / 0.25, 0, 1);
       sky.side.color.copy(col([0x868d98, 0x9c9ca0, 0xb0977c, 0x86687a, 0x3d4058])).multiplyScalar(wet); sky.joint.color.copy(sky.side.color).multiplyScalar(0.82);
-      sky.hemi.color.copy(col([0xeaf2ff, 0xffffff, 0xfff0dc, 0xfff4ea, 0xfff6ec])); sky.hemi.intensity = num([0.66, 0.68, 0.67, 0.67, 0.68]);
-      sky.sun.color.copy(col([0xfff4e0, 0xffffff, 0xffdcb0, 0xffe2c0, 0xfff1dc])); sky.sun.intensity = num([0.32, 0.38, 0.36, 0.34, 0.34]) * (rain ? 0.85 : 1);   // adentro siempre a pleno: de noche lo que cambia es la vereda sky.sun.position.x = 9 - f * 11;
+      sky.hemi.color.copy(col([0xeaf2ff, 0xffffff, 0xfff0dc, 0xfff4ea, 0xfff6ec])); sky.hemi.intensity = num([0.66, 0.68, 0.67, 0.67, 0.68]) * (rain ? 0.9 : 1);
+      sky.sun.color.copy(col([0xfff4e0, 0xffffff, 0xffdcb0, 0xffe2c0, 0xfff1dc])); sky.sun.intensity = num([0.32, 0.38, 0.36, 0.34, 0.34]) * (rain ? 0.9 : 1);   // adentro siempre a pleno: de noche lo que cambia es la vereda sky.sun.position.x = 9 - f * 11;
       sky.spill.opacity = n * 0.34 + (rain ? 0.08 : 0); sky.halo.opacity = n * 0.42; sky.bulb.color.set(0x55555c).lerp(new T.Color(0xfff2c0), n);
     },
+    setXmas,
+    setHats(on) { [yo, lucho, brian, boss].forEach(p => { if (p) p.look({ hat: on ? 'gorro' : null }); }); },
+    setNext(mode) { if (nextSigns) { nextSigns[0].visible = mode !== 'gs2'; nextSigns[1].visible = mode === 'gs2'; } },
     boss: () => boss,
     staff: () => [lucho, brian],
     player: () => yo,
@@ -2257,28 +2343,30 @@ GS.Minigames = (function () {
   // (a) Aplicar bien el 10% OFF o las cuotas
   function cajaCobro(cust) {
     const P = cust.product.price, kind = U.pick(['cash', 'transfer', 'cuotas', 'debit']);
-    let line, q, correct, wrong, total, fmt = U.money, why;
+    let line, q, how, correct, wrong, total, fmt = U.money, why, okTitle = '¡Cobrado!';
     if (kind === 'cash' || kind === 'transfer') {
-      line = U.pick(kind === 'cash' ? LN.payCash : LN.payTransfer); q = '¿Cuánto le cobrás?'; correct = Math.round(P * 0.9); wrong = [P, Math.round(P * 0.8)]; total = correct;
-      why = 'Efectivo o transferencia: 10% OFF.';
+      // Se pregunta el descuento (el 10% del precio), no el total: es la cuenta que hay que saber hacer en la caja
+      line = U.pick(kind === 'cash' ? LN.payCash : LN.payTransfer); how = kind === 'cash' ? 'Paga en EFECTIVO' : 'Paga por TRANSFERENCIA';
+      q = 'Tiene 10% OFF. ¿Cuántos pesos le descontás?'; correct = Math.round(P * 0.1); wrong = [Math.round(P * 0.01), Math.round(P * 0.2)]; total = P - correct;
+      why = 'El 10% de ' + U.money(P) + ' es ' + U.money(correct) + ': se le corre una coma al precio.'; okTitle = '¡Descuento justo!';
     } else if (kind === 'cuotas') {
-      line = U.pick(LN.payCuotas); q = '¿De cuánto es cada cuota?'; correct = Math.round(P / 3); wrong = [Math.round(P * 0.3), Math.round(P / 2)]; total = P; fmt = n => '3 × ' + U.money(n);
+      line = U.pick(LN.payCuotas); how = 'Paga con TARJETA en 3 cuotas'; q = '¿De cuánto es cada cuota?'; correct = Math.round(P / 3); wrong = [Math.round(P * 0.3), Math.round(P / 2)]; total = P; fmt = n => '3 × ' + U.money(n);
       why = 'Son 3 cuotas sin interés sobre el precio de lista.';
     } else {
-      line = U.pick(LN.payDebit); q = '¿Cuánto le cobrás?'; correct = P; wrong = [Math.round(P * 0.9), Math.round(P * 1.1)]; total = P;
-      why = 'El 10% OFF es solo en efectivo o transferencia.';
+      line = U.pick(LN.payDebit); how = 'Paga con DÉBITO'; q = '¿Cuántos pesos le descontás?'; correct = 0; wrong = [Math.round(P * 0.1), Math.round(P * 0.05)]; total = P; fmt = n => n ? U.money(n) : 'Nada: $0';
+      why = 'El 10% OFF es solo en efectivo o transferencia. Con débito no hay descuento.';
     }
     const options = U.shuffle([correct].concat(wrong));
     root().innerHTML = head(cust, 'Caja') +
       '<div class="bubble" id="mgBubble">' + esc(line) + '</div>' +
       '<div class="info"><span>' + ico(cust.product) + esc(cust.product.name) + '</span><span>Precio de lista <b>' + U.money(P) + '</b></span></div>' +
-      '<div class="info"><b>' + q + '</b></div>' +
+      '<div class="ask"><span>' + how + '</span><b>' + q + '</b></div>' +
       '<div class="opts one">' + options.map((v, i) => '<button class="opt" data-v="' + v + '"><kbd>' + (i + 1) + '</kbd><span class="n">' + fmt(v) + '</span></button>').join('') + '</div>' +
       '<div class="rule">10% OFF en efectivo o transferencia · 3 cuotas sin interés con tarjeta</div>';
     const btns = [...root().querySelectorAll('.opt')];
     function choose(b) {
       if (!cur || cur.done || b.classList.contains('bad')) return;
-      if (Number(b.dataset.v) === correct) { b.classList.add('good'); GS.Audio.play('cash'); finish(true, '¡Cobrado!', U.money(total), { total }); }
+      if (Number(b.dataset.v) === correct) { b.classList.add('good'); GS.Audio.play('cash'); finish(true, okTitle, 'Le cobrás ' + U.money(total), { total }); }
       else { b.classList.add('bad'); mistake('caja', U.pick(LN.wrongCash) + ' (' + why + ')'); }
     }
     btns.forEach(b => b.addEventListener('click', () => choose(b)));
@@ -2518,7 +2606,7 @@ GS.Minigames = (function () {
     root().innerHTML = head(job, 'Control de stock') + '<div class="bubble" id="mgBubble">' + esc(p.name) + ': el sistema dice que hay <b>' + sys + '</b>.</div>' +
       '<div class="shelfv">' + Array.from({ length: real }, () => '<span class="pic" style="transform:rotate(' + Math.floor(U.rnd(-14, 14)) + 'deg) translateY(' + Math.floor(U.rnd(-4, 5)) + 'px)">' + (GS.ICONS[p.id] || p.icon) + '</span>').join('') + '</div>' +
       '<div class="info"><b>¿Cuántos hay de verdad en la góndola?</b></div>' +
-      '<div class="opts three low">' + [real - 1, real, real + 1].map((n, i) => '<button class="opt" data-ok="' + (n === real ? 1 : 0) + '"><kbd>' + (i + 1) + '</kbd><span class="n big">' + n + '</span></button>').join('') + '</div>';
+      '<div class="opts three low">' + U.pick([[real - 2, real - 1, real], [real - 1, real, real + 1], [real, real + 1, real + 2]]).map((n, i) => '<button class="opt" data-ok="' + (n === real ? 1 : 0) + '"><kbd>' + (i + 1) + '</kbd><span class="n big">' + n + '</span></button>').join('') + '</div>';
     listOptions(b => b.dataset.ok === '1', () => { GS.Audio.play('ok'); finish(true, '¡Stock corregido!', sys === real ? 'El sistema tenía razón. Anotá la fecha.' : 'Eran ' + real + ', no ' + sys + '.', {}); }, () => mistake('stock', U.pick(LN.wrongStock)));
   }
 
@@ -2615,13 +2703,30 @@ GS.Minigames = (function () {
     cur.keys = e => { const n = parseInt(e.key, 10); if (n >= 1 && n <= btns.length) choose(btns[n - 1]); };
   }
 
-  const GAMES = { mostrador, caja, pc, service, ml, whatsapp, repo, stock, proveedor, devol, cierre, vidriera };
+  function adornos(job) {
+    const steps = [['a', '¿Qué árbol ponemos al lado de la entrada?', [['🌲', 'Clásico verde'], ['❄️', 'Blanco nevado'], ['🎮', 'Gamer rojo y negro']]],
+      ['g', '¿De qué color van las guirnaldas del mostrador?', [['🔴', 'Rojas'], ['🟡', 'Doradas'], ['🟢', 'Verdes']]],
+      ['l', '¿Y las lucecitas?', [['🕯️', 'Cálidas'], ['🌈', 'De colores'], ['💎', 'Blancas']]]], cfg = {}, me = cur; let i = 0;
+    function draw() {
+      const st = steps[i];
+      root().innerHTML = head(job, 'Adornos de Navidad') + '<div class="bubble" id="mgBubble">Paso ' + (i + 1) + ' de 3. Mirá el local: lo que elijas aparece en el momento.</div>' +
+        '<div class="ask"><span>Mañana empieza la semana de Navidad</span><b>' + st[1] + '</b></div>' +
+        '<div class="opts three low">' + st[2].map((o, k) => '<button class="opt" data-k="' + k + '"><kbd>' + (k + 1) + '</kbd><span class="n big">' + o[0] + '</span><span class="n">' + o[1] + '</span></button>').join('') + '</div>';
+      const btns = [...root().querySelectorAll('.opt')];
+      const pickIt = b => { if (cur !== me || me.done) return; cfg[st[0]] = Number(b.dataset.k); GS.Audio.play('ok'); GS.World.setXmas(cfg); i++; if (i < steps.length) draw(); else { GS.Store.set('xmas', cfg); finish(true, '¡Quedó hermoso!', 'Mañana el local amanece decorado. Y con gorritos.', {}); } };
+      btns.forEach(b => b.addEventListener('click', () => pickIt(b)));
+      cur.keys = e => { const n = parseInt(e.key, 10); if (n >= 1 && n <= 3) pickIt(btns[n - 1]); };
+    }
+    draw();
+  }
+  const GAMES = { mostrador, caja, pc, service, ml, whatsapp, repo, stock, proveedor, devol, cierre, vidriera, adornos };
   return {
     // type: 'mostrador' | 'caja'; opts.variant para caja: 'cobro' | 'vuelto' | 'comprobante'
     open(type, cust, cb, opts) {
       close(); cur = { type, cust, cb, keys: null, done: false, timer: null };
       root().hidden = false;
       GAMES[type](cust, opts && opts.variant);
+      const r = root(); r.scrollTop = 0; r.style.touchAction = r.scrollHeight > r.clientHeight + 6 ? 'pan-y' : '';     // si no entra en la pantalla del celular, se puede deslizar
     },
     close,
     // Tarjeta de inducción: el Dueño explica una estación la primera vez
@@ -2794,6 +2899,7 @@ GS.Game = (function () {
     for (let i = 0; i < w.c; i++) day.queue.push({ kind: 'c', t: 0.3 + i * C.day.customerGap });
     for (let i = 0; i < w.t; i++) day.queue.push({ kind: w.final ? 'f' : 't', t: (w.final ? 0.6 : 5) + i * C.day.taskGap });
     for (let i = 0; i < (w.ml || 0); i++) day.queue.push({ kind: 'm', t: 3 + i * C.day.taskGap });
+    if (!day.arcade && !day.relaxed && day.n % 10 === 9 && !day.xq && (day.wave >= 1 || day.plan.filter(w => !w.final).length < 2) && !w.final) { day.xq = 1; day.queue.push({ kind: 'x', t: 5 }); }    // víspera de la semana de Navidad
     day.visits.forEach(v => { if (v.wave === day.wave && !v.sent) { v.sent = 1; day.queue.push({ kind: 'v', v: v.S, t: U.rnd(3, 8) }); } });
     if (GS.DEBUG_INTR || (day.n >= CD.intrFromDay && !w.final && day.wave >= 1 && day.intrN < (day.n >= 6 ? 3 : 2) && Math.random() < 0.6)) { day.queue.push({ kind: 'i', t: U.rnd(5, 11) }); day.intrN++; }
     day.queue.sort((a, b) => a.t - b.t);
@@ -2842,6 +2948,7 @@ GS.Game = (function () {
     const cond = conditionFor(n);
     day = newDay({ relaxed, n, cond, unlocked: un, plan: planDay(n, cond), rest: 7.5 }); state = 'day'; enterPlay(); $('jobs').hidden = false;
     A.setMood(cond === 'lluvia' ? 'rain' : cond ? 'party' : 'day');
+    W.setXmas(cond === 'navidad' ? (GS.Store.get('xmas') || { a: 0, g: 0, l: 0 }) : null); W.setHats(cond === 'navidad');
     if (!relaxed) { const nw = day.plan.filter(w => !w.final).length; day.visits = dueStories(n).map((S, i) => ({ S, wave: Math.min(nw - 1, i + (nw > 2 ? 1 : 0)) })); }
     const d = day, msg = n === 1 ? 'Bienvenido a GameShop. Abrimos de 10 a 19. Hoy: mostrador y caja. Vos tocá el pedido, que tu personaje va solo.'
       : cond ? GS.CONDITIONS[cond].name.slice(3) + '. ' + GS.CONDITIONS[cond].say
@@ -2867,7 +2974,7 @@ GS.Game = (function () {
   // Cada personaje mantiene siempre su look (los mismos rasgos de siempre), tanto en el muñeco 3D como en la cara del diálogo
   function lookOf(ar) {
     const k = ar.id.charCodeAt(0) + ar.id.length * 7;
-    return { shirt: ar.shirt, hair: ar.hair, skin: 0xe0ac7e, hairStyle: ar.hairStyle || GS.HAIRSTYLES[k % 5][0], glasses: k % 3 === 0, beard: !ar.hat && k % 4 === 1, lips: ar.lips != null ? ar.lips : k % 2 === 0, lashes: k % 5 < 2, hat: ar.hat };
+    return Object.assign({ shirt: ar.shirt, hair: ar.hair, skin: 0xe0ac7e, hairStyle: ar.hairStyle || GS.HAIRSTYLES[k % 4][0], glasses: k % 3 === 0, beard: !ar.hat && k % 4 === 1, lips: ar.lips != null ? ar.lips : k % 2 === 0, lashes: k % 5 < 2, hat: ar.hat }, ar.look || {});   // look = rasgos definidos a mano para que acompañen al nombre
   }
   function spawnCustomer() {
     const slot = freeSlot('slotM', L.colaMostrador.length); if (slot < 0) return;
@@ -3003,7 +3110,8 @@ GS.Game = (function () {
     day.customers.push(cu); toCounter(cu, [[dx, L.salon.zMax + 0.2]]); setTimeout(() => A.play('bell'), 900);
   }
   function openStory(cu) {
-    const S = cu.story, h = histAll(), st = h[S.id] || { step: 0, flags: {}, notes: [] }, step = S.steps[st.step], alt = step.alt && st.flags[step.alt.flag] ? step.alt : null;
+    const S = cu.story, h = histAll(), st = h[S.id] || { step: 0, flags: {}, notes: [] }, real = S.steps[st.step], gf = GS.Store.get('gflags') || {};
+    const waiting = !!(real.need && !gf[real.need] && !(real.waitMax && (st.waits || 0) >= real.waitMax)), step = waiting ? real.wait : real, alt = step.alt && st.flags[step.alt.flag] ? step.alt : null;
     const text = alt ? alt.t : step.t, mood = alt ? alt.m : step.m; let chosen = false;
     A.unlock(); A.play('click'); cu.st = 'inM'; paused = true; yoGo('most'); focusFor('mostrador'); A.babble(text, cu.person.voice);
     const faceBox = m => '<div class="st-face">' + avatarSvg(cu.look, m) + '</div>';
@@ -3020,7 +3128,10 @@ GS.Game = (function () {
       if (fx.cord) { addCord(fx.cord); chips.push((fx.cord > 0 ? '▲' : '▼') + ' Cordura'); }
       if (fx.goal) { GS.Store.set('goalAdj', (GS.Store.get('goalAdj') || 0) + fx.goal); chips.push(fx.goal < 0 ? '🏠 El local de al lado sale más barato' : '🏠 El local de al lado se encarece'); }
       if (fx.flag) st.flags[fx.flag] = 1;
-      st.step++; st.last = day.n; st.notes.push(step.note); if (step.end || st.step >= S.steps.length) st.done = true;
+      if (fx.gflag) { gf[fx.gflag] = 1; GS.Store.set('gflags', gf); }
+      st.last = day.n;
+      if (waiting) st.waits = (st.waits || 0) + 1;                 // todavía falta algo que depende de otra historia: vuelve más adelante
+      else if (!o.stay) { st.step++; st.notes.push(o.note || step.note); if (step.end || st.step >= S.steps.length) st.done = true; }
       h[S.id] = st; GS.Store.set('hist', h); GS.track('visita', { quien: S.id, paso: st.step }); A.play(fx.rep < 0 || fx.fondo < 0 ? 'error' : 'ok'); A.babble(o.r, cu.person.voice);
       $('sheet').innerHTML = '<div class="story"><div class="st-head">' + faceBox(o.rm || 'normal') + '<div><b>' + S.name + '</b><span>' + (st.done ? 'Historia cerrada · quedó en tu libreta' : 'Dijo que vuelve · quedó en tu libreta') + '</span></div></div>' +
         '<div class="bubble">' + o.r + '</div><div class="st-chips">' + chips.map(c => '<span>' + c + '</span>').join('') + '</div><button class="btn" data-close>Seguir</button></div>';
@@ -3092,7 +3203,7 @@ GS.Game = (function () {
   const NAV = { O: [4.5, -1.2, null], A: [4.6, -4.4, 'O'], X: [4.0, -4.9, 'A'], caja: [L.yoCaja[0], L.yoCaja[1], 'X', 0], most: [L.yoMostrador[0], L.yoMostrador[1], 'caja', 0], wa: [-3.8, -4.9, 'most', 0],
     prov: [4.3, -5.5, 'X', 1.2], ml: [4.5, -2.3, 'O', 1.57], DD: [6.0, -4.4, 'A'], D1: [7.4, -4.4, 'DD'], repo: [8.3, -4.4, 'D1', 3.14],
     H: [4.0, 0.9, 'O'], T1: [4.0, 5.5, 'H'], TD: [6.0, 5.5, 'T1'], T2: [7.3, 5.9, 'TD'], service: [8.7, 5.65, 'T2', 3.14], pc: [10.1, 6.15, 'T2', 0], G: [-0.3, 5.5, 'T1'], vid: [0.6, 7.3, 'G', 1.57] };
-  const NODE_OF = { mostrador: 'most', devol: 'most', whatsapp: 'wa', stock: 'wa', caja: 'caja', cierre: 'caja', ml: 'ml', proveedor: 'prov', repo: 'repo', service: 'service', pc: 'pc', vidriera: 'vid' };
+  const NODE_OF = { mostrador: 'most', devol: 'most', whatsapp: 'wa', stock: 'wa', caja: 'caja', cierre: 'caja', adornos: 'H', ml: 'ml', proveedor: 'prov', repo: 'repo', service: 'service', pc: 'pc', vidriera: 'vid' };
   let yoAt = 'most', yoRoute = [];
   const navChain = n => { const c = []; while (n) { c.push(n); n = NAV[n][2]; } return c; };
   function yoGo(target) {
@@ -3171,7 +3282,7 @@ GS.Game = (function () {
       if (day.stage === 'rest') { day.rest -= dt; if (day.rest <= 0) startWave(); }
       else {
         for (const q of day.queue) q.t -= dt;
-        while (day.queue.length && day.queue[0].t <= 0) { const q = day.queue.shift(); if (q.kind === 'c') spawnCustomer(); else if (q.kind === 'i') spawnIntr(); else if (q.kind === 'v') spawnVisit(q.v); else spawnTask(q.kind === 'f' ? ST('cierre') : q.kind === 'm' ? ST('ml') : null); }
+        while (day.queue.length && day.queue[0].t <= 0) { const q = day.queue.shift(); if (q.kind === 'c') spawnCustomer(); else if (q.kind === 'i') spawnIntr(); else if (q.kind === 'v') spawnVisit(q.v); else if (q.kind === 'x') spawnTask(ST('adornos')); else spawnTask(q.kind === 'f' ? ST('cierre') : q.kind === 'm' ? ST('ml') : null); }
         if (!day.queue.length && !day.tasks.length && !open && !day.intr && day.customers.every(c => c.st === 'leaving')) endWave();
       }
     }
@@ -3482,12 +3593,12 @@ GS.Game = (function () {
   }
   function refreshStart() {
     const n = dayNumber(), fresh = n <= GS.UNLOCKS.length ? GS.UNLOCKS[n - 1] : [];
-    $('playT').textContent = 'Jugar la jornada ' + n; $('goalStart').innerHTML = goalHtml(); $('btnPlot').innerHTML = plotHtml();
+    $('playT').textContent = n === 1 && !GS.Store.get('introSeen') ? 'Iniciar modo carrera' : 'Seguir modo carrera'; W.setNext(GS.Store.get('final2Seen') && tierNow().at >= 1 ? 'gs2' : 'venta'); $('goalStart').innerHTML = goalHtml(); $('btnPlot').innerHTML = plotHtml();
     $('rankT').textContent = '🎖 ' + rankOf(n) + ' · ⭐ ' + repTxt(repNow()) + ' · 🪙 ' + coinsNow();
-    $('playS').textContent = n === 1 ? 'Inducción: mostrador y caja · de 10 a 19' : fresh.length ? 'Se suma: ' + fresh.map(id => ST(id).name).join(' y ') : 'De 10 a 19 · reputación ⭐ ' + repTxt(repNow());
+    $('playS').textContent = n === 1 ? (GS.Store.get('introSeen') ? 'Jornada 1 · inducción: mostrador y caja' : 'Conocé el local, al Dueño y a tus compañeros') : 'Jornada ' + n + (fresh.length ? ' · se suma: ' + fresh.map(id => ST(id).name).join(' y ') : ' · de 10 a 19 · ⭐ ' + repTxt(repNow()));
   }
   function goHome() {
-    A.play('click'); A.setMood('menu'); clearDay(); $('rain').hidden = true; $('final').hidden = true; setSky(0.3, false);
+    A.play('click'); A.setMood('menu'); clearDay(); $('rain').hidden = true; $('final').hidden = true; $('intro').hidden = true; setSky(0.3, false);
     day = null; state = 'menu'; paused = false;
     $('end').hidden = true; $('hud').hidden = true; $('jobs').hidden = true; $('start').hidden = false; $('toasts').innerHTML = ''; W.showAll();
   }
@@ -3585,6 +3696,29 @@ GS.Game = (function () {
     });
   }
 
+  /* ---------------- Modo carrera: la primera vez, unas placas cortas presentan el local, la gente y la trama ---------------- */
+  function careerStart() {
+    A.unlock();
+    if (!GS.Store.get('avatar')) return showAvatar(careerStart);
+    if (dayNumber() === 1 && !GS.Store.get('introSeen')) return showIntro(() => startDay(false));
+    startDay(false);
+  }
+  function showIntro(then) {
+    const SL = GS.INTRO, av = Object.assign({ skin: GS.SKINS[2], hair: GS.HAIRS[0], hairStyle: 'corto', shirt: 0xe10600 }, GS.Store.get('avatar') || {});
+    const WHO = { yo: [av, 'Vos'], boss: [{ shirt: 0x111111, hair: 0xb4b4bd, hairStyle: 'mohicano', skin: 0xe0ac7e }, 'El Dueño'], lucho: [{ shirt: 0xe10600, hair: MOHAWK[1], hairStyle: 'mohicano', skin: GS.SKINS[3], glasses: true }, 'Lucho'], brian: [{ shirt: 0xe10600, hair: 0x2d6cdf, hairStyle: 'corto', skin: GS.SKINS[0] }, 'Brian'] };
+    let i = 0; A.play('click'); A.setMood('menu'); state = 'intro'; $('start').hidden = true; $('intro').hidden = false;
+    STAFF.forEach(st => { st.q = [['wait', 60]]; st.moving = false; st.act = null; st.p.stop(); st.p.lie(false); st.p.carry(false); st.p.setPos(st.hub[0], st.hub[1]); st.p.face(0.5); });
+    function draw() {
+      const sl = SL[i]; if (sl.cam) W.focusAt(sl.cam[0], sl.cam[1], sl.cam[2], 0.1); else W.showAll();
+      $('introCard').innerHTML = (sl.who.length ? '<div class="in-who">' + sl.who.map((k, j) => '<figure><div class="st-face">' + avatarSvg(WHO[k][0], j ? 'normal' : 'happy') + '</div><figcaption>' + WHO[k][1] + '</figcaption></figure>').join('') + '</div>' : '<div class="in-who"><div class="in-sign">SE VENDE</div></div>') +
+        '<h2>' + sl.t + '</h2><p>' + sl.d + '</p><div class="in-dots">' + SL.map((_, k) => '<i' + (k === i ? ' class="on"' : '') + '></i>').join('') + '</div>' +
+        '<div class="row"><button class="btn ghost" id="inSkip">Saltar</button><button class="btn" id="inNext" style="flex:2">' + (i === SL.length - 1 ? '¡A trabajar!' : 'Siguiente') + '</button></div>';
+      $('inSkip').addEventListener('click', done); $('inNext').addEventListener('click', () => { A.play('click'); if (++i >= SL.length) done(); else draw(); });
+    }
+    function done() { GS.Store.set('introSeen', true); GS.Store.set('plotIntro', true); $('intro').hidden = true; STAFF.forEach(st => { st.q = [['wait', 2]]; }); GS.track('intro_carrera', { placas: i + 1 }); then(); }
+    draw();
+  }
+
   /* ---------------- Modales: cómo se juega, récords, opciones, pausa ---------------- */
   function showHow(fromDay) {
     if (fromDay) paused = true;
@@ -3632,7 +3766,7 @@ GS.Game = (function () {
       if (name === 'testDay') { GS.Store.set('testDay', Number(v)); refreshStart(); }
       if (name === 'testCond') GS.Store.set('testCond', v);
     }));
-    $('optDay1').addEventListener('click', e => { GS.Store.set('days', 0); GS.Store.set('seen', {}); GS.Store.set('testDay', 0); ['hist', 'fondo', 'goalAdj', 'final2Seen', 'plotIntro'].forEach(k => GS.Store.set(k, null)); refreshStart(); e.target.textContent = 'Listo ✔'; });
+    $('optDay1').addEventListener('click', e => { GS.Store.set('days', 0); GS.Store.set('seen', {}); GS.Store.set('testDay', 0); ['hist', 'fondo', 'goalAdj', 'final2Seen', 'plotIntro', 'gflags', 'introSeen', 'xmas'].forEach(k => GS.Store.set(k, null)); refreshStart(); e.target.textContent = 'Listo ✔'; });
     $('optAv').addEventListener('click', () => showAvatar(() => showOptions(fromPause)));
     if ($('optFinal')) $('optFinal').addEventListener('click', () => { modalOnClose = null; $('modal').hidden = true; startFinal(); });
     $('optReset').addEventListener('click', e => { GS.Store.reset(); W.setUpgrades({}); refreshStart(); e.target.textContent = 'Borrado ✔'; });
@@ -3709,7 +3843,7 @@ GS.Game = (function () {
     $('shopCards').addEventListener('click', e => { const b = e.target.closest('[data-buy]'); if (b) buy(Number(b.dataset.buy)); });
     $('shopCards').addEventListener('scroll', () => { const el = $('shopCards'), i = Math.round(el.scrollLeft / Math.max(1, el.clientWidth * 0.86)); if (el._i !== i) { el._i = i; const u = upNow(), g = GS.UPGRADES[shopSel], sh = Object.assign({}, u); sh[g.id] = Math.max(u[g.id] || 0, i + 1); W.setUpgrades(sh); } });
     W.onTap(st => openStation(st));
-    $('btnPlay').addEventListener('click', () => startDay(false));
+    $('btnPlay').addEventListener('click', careerStart);
     $('btnRelax').addEventListener('click', () => startDay(true));
     $('btnArcade').addEventListener('click', () => { A.unlock(); A.play('click'); showArcade(); });
     $('btnHow').addEventListener('click', () => { A.unlock(); A.play('click'); showHow(false); });
@@ -3738,7 +3872,7 @@ GS.Game = (function () {
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 
-  return { startDay, startArcade, startFinal, showCard, drawCard, debugIntr: () => spawnIntr(), openStation, openJob, pendingJobs, endDay, debugTask: id => spawnTask(ST(id)), state: () => state, day: () => day };
+  return { goHome, startDay, startArcade, startFinal, showCard, drawCard, debugIntr: () => spawnIntr(), openStation, openJob, pendingJobs, endDay, debugTask: id => spawnTask(ST(id)), state: () => state, day: () => day };
 })();
 
 </script>

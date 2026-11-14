@@ -402,6 +402,49 @@ GS.World = (function () {
     box(lid, 0.03, 0.34, 0.5, 0x2a2a2e, 0, 0, 0); box(lid, 0.012, 0.28, 0.44, 0x56d6ff, 0.02, 0.03, 0, { emissive: 0x2a8aa0 });
   }
 
+  // El local de al lado (la trama): pegado a la izquierda, con la persiana baja y un cartel inclinado en el techo
+  let nextSigns = null, xmasG = null;
+  function buildNext(root) {
+    const s = L.salon, zA = s.zMax, zB = L.galeria.zMax, x1 = s.xMin - 0.7, x0 = x1 - 5.6, cx = (x0 + x1) / 2, cz = (zA + zB) / 2, w = x1 - x0, h = 2.7;
+    box(root, w + 0.4, 0.5, zB - zA + 3.4, 0x18181b, cx, -0.52, cz + 1.5); box(root, w + 0.4, 0.04, 2.9, sky.side, cx, -0.03, zB + 1.5);
+    box(root, w, h, zB - zA, 0x8b8f98, cx, 0, cz); box(root, w + 0.2, 0.14, zB - zA + 0.2, 0x5b5f68, cx, h, cz);
+    const shut = canvasTex(256, 128, (g, cw, ch) => { for (let y = 0; y < ch; y += 8) { g.fillStyle = (y / 8) % 2 ? '#7f848d' : '#9aa0aa'; g.fillRect(0, y, cw, 8); } });
+    plane(root, w - 1.0, 2.0, new T.MeshLambertMaterial({ map: shut }), cx, 1.02, zB + 0.012); box(root, w - 0.6, 0.16, 0.2, 0x3a3d44, cx, 2.05, zB + 0.1);
+    const mk = (txt, bg, fg) => new T.MeshBasicMaterial({ map: textTex(txt, { bg, fg, w: 640, h: 190, font: '900 96px Impact, "Arial Black", sans-serif' }) });
+    const k = new T.Group(); k.position.set(cx, h + 0.14, cz + 0.6); root.add(k); box(k, 4.5, 0.08, 1.5, 0x1b1b1f, 0, 0.02, 0);
+    const a = plane(k, 4.3, 1.28, mk('SE VENDE', '#ffffff', '#e10600'), 0, 0.5, 0.1), b = plane(k, 4.3, 1.28, mk('GAMESHOP 2', '#e10600', '#ffffff'), 0, 0.5, 0.1);
+    a.rotation.x = b.rotation.x = -0.95; b.visible = false; nextSigns = [a, b];
+    box(k, 0.08, 0.6, 0.08, 0x1b1b1f, -1.9, 0, -0.45); box(k, 0.08, 0.6, 0.08, 0x1b1b1f, 1.9, 0, -0.45);
+  }
+  // Decoración de Navidad: árbol (a), guirnaldas (g) y lucecitas (l), según lo que eligió el jugador el día anterior
+  function setXmas(cfg) {
+    if (xmasG) { scene.remove(xmasG); xmasG = null; }
+    if (!cfg) return;
+    const g = xmasG = new T.Group(); scene.add(g);
+    const m = L.mostrador, c = L.caja, s = L.salon, basic = col => new T.MeshBasicMaterial({ color: col });
+    if (cfg.a != null) {
+      const cols = [[0x2f9a41, 0x3bb54a], [0xf4f4f6, 0xdfe6ee], [0x1a1a1e, 0xd81e2c]][cfg.a], tx = 0.7, tz = 5.35;
+      box(g, 0.16, 0.34, 0.16, 0x6b3e1e, tx, 0, tz);
+      [[0.62, 0.7, 0.3], [0.5, 0.62, 0.78], [0.36, 0.56, 1.2]].forEach((q, i) => { const cn = new T.Mesh(new T.ConeGeometry(q[0], q[1], 12), mat(cols[i % 2])); cn.position.set(tx, q[2] + q[1] / 2, tz); g.add(cn); });
+      const star = new T.Mesh(new T.OctahedronGeometry(0.13), basic(0xf5c518)); star.position.set(tx, 1.86, tz); g.add(star);
+      const orn = cfg.a === 2 ? [0xffffff, 0xf5c518] : [0xd81e2c, 0xf5c518];
+      for (let i = 0; i < 12; i++) { const an = i * 2.4, y = 0.45 + (i % 6) * 0.2, r = 0.56 - (y - 0.3) * 0.36, o = new T.Mesh(new T.SphereGeometry(0.055, 8, 6), basic(orn[i % 2])); o.position.set(tx + Math.cos(an) * r, y, tz + Math.sin(an) * r); g.add(o); }
+      box(g, 0.3, 0.22, 0.3, 0xd81e2c, tx - 0.55, 0, tz + 0.25); box(g, 0.32, 0.04, 0.06, 0xf5c518, tx - 0.55, 0.22, tz + 0.25); box(g, 0.24, 0.3, 0.24, 0x2d6cdf, tx + 0.5, 0, tz + 0.3); box(g, 0.26, 0.04, 0.06, 0xffffff, tx + 0.5, 0.3, tz + 0.3);
+    }
+    if (cfg.g != null) {                           // guirnaldas en ondas a lo largo del mostrador y de la pared del fondo
+      const gm = mat([0xd81e2c, 0xe9b500, 0x2f9a41][cfg.g]), geo = new T.SphereGeometry(0.075, 7, 6), xa = m.x - m.w / 2 + 0.1, xb = c.x + c.w / 2 - 0.1;
+      const run = (x0, x1, y, z) => { const n = Math.round((x1 - x0) / 0.14); for (let i = 0; i <= n; i++) { const t = i / n, b = new T.Mesh(geo, gm); b.position.set(x0 + (x1 - x0) * t, y - Math.abs(Math.sin(t * Math.PI * 6)) * 0.2, z); g.add(b); } };
+      run(xa, xb, m.h - 0.04, m.z + m.d / 2 + 0.07); run(s.xMin + 0.4, s.xMax - 0.4, s.wallH - 0.25, s.zMin + 0.1);
+      [xa, (xa + xb) / 2, xb].forEach(x => { box(g, 0.2, 0.14, 0.05, 0xd81e2c, x - 0.1, m.h - 0.12, m.z + m.d / 2 + 0.1); });
+    }
+    if (cfg.l != null) {                           // lucecitas sobre la pared izquierda, el fondo y el frente de las vidrieras
+      const pal = [[0xffd98a], [0xff3b3b, 0x3bd16f, 0x3b8bff, 0xffd23b], [0xe6f3ff]][cfg.l], mats = pal.map(basic), geo = new T.SphereGeometry(0.06, 7, 6); let k = 0;
+      const dot = (x, y, z) => { const b = new T.Mesh(geo, mats[k++ % mats.length]); b.position.set(x, y, z); g.add(b); };
+      for (let z = s.zMin + 0.3; z < s.zMax; z += 0.42) dot(s.xMin + 0.08, s.wallH - 0.5 - Math.abs(Math.sin(z * 2.2)) * 0.14, z);
+      for (let x = s.xMin + 0.3; x < s.xMax; x += 0.42) dot(x, s.wallH - 0.62 - Math.abs(Math.sin(x * 2.2)) * 0.14, s.zMin + 0.16);
+      [-1, 1].forEach(sd => { for (let x = L.galeria.pasillo + 0.2; x < s.xMax - 0.1; x += 0.4) dot(sd * x, 2.5 - Math.abs(Math.sin(x * 2.4)) * 0.12, L.galeria.zMax - 0.02); });
+    }
+  }
   // Marco de puerta sobre la pared derecha (que está "cortada"): postes rojos, dintel y cartel de los dos lados
   function sideDoor(root, z, text) {
     const x = L.salon.xMax + 0.1;
@@ -566,10 +609,10 @@ GS.World = (function () {
         if (st === 'corto' || st === 'largo' || st === 'rodete') cap();
         if (st === 'corto') tufts();
         if (st === 'largo') { const m = new T.Mesh(gMass, hm); m.scale.set(1.06, 1.3, 0.8); m.position.set(0, -0.2, -0.17); acc.add(m); }
-        if (st === 'rodete') { const b = new T.Mesh(gBun, hm); b.position.set(0, 0.42, -0.12); acc.add(b); }
+        if (st === 'rodete' && hat !== 'gorro') { const b = new T.Mesh(gBun, hm); b.position.set(0, 0.42, -0.12); acc.add(b); }
         if (st === 'rulos') { for (let i = 0; i < 9; i++) { const an = i / 9 * Math.PI * 2, c = new T.Mesh(gCurl, hm); c.scale.setScalar(1.25); c.position.set(Math.cos(an) * 0.27, 0.22, Math.sin(an) * 0.27 - 0.05); acc.add(c); }
           [[0, 0.39, -0.04], [0.15, 0.36, 0.06], [-0.15, 0.36, 0.06], [0, 0.35, -0.2]].forEach(q => { const c = new T.Mesh(gCurl, hm); c.scale.setScalar(1.3); c.position.set(q[0], q[1], q[2]); acc.add(c); }); }
-        if (st === 'mohicano') [[0.3, 0.2, 0.9], [0.4, 0.08, 1.15], [0.43, -0.06, 1.3], [0.38, -0.2, 1.15], [0.27, -0.31, 0.95]].forEach(q => { const m = new T.Mesh(gTuft, hm); m.scale.set(0.62, q[2] * 1.25, 1.05); m.position.set(0, q[0], q[1]); acc.add(m); });   // cresta de mechones, más alta en el medio
+        if (st === 'mohicano' && hat !== 'gorro') [[0.3, 0.2, 0.9], [0.4, 0.08, 1.15], [0.43, -0.06, 1.3], [0.38, -0.2, 1.15], [0.27, -0.31, 0.95]].forEach(q => { const m = new T.Mesh(gTuft, hm); m.scale.set(0.62, q[2] * 1.25, 1.05); m.position.set(0, q[0], q[1]); acc.add(m); });   // cresta de mechones, más alta en el medio
       }
       if (cur.beard) acc.add(new T.Mesh(gBeard, hm));
       const bm = mat(botC), tm = mat(topC);
@@ -578,6 +621,11 @@ GS.World = (function () {
       if (cur.lashes) [-1, 1].forEach(sd => { const l = box(acc, 0.1, 0.022, 0.03, hm, sd * 0.2, 0.04, HR - 0.07); l.rotation.z = sd * 0.5; });
       smile.visible = !cur.lips; if (cur.lips) box(acc, 0.13, 0.05, 0.05, tm, 0, -0.17, HR - 0.03);
       // sombreros de los disfraces (siempre con los colores del personaje)
+      if (hat === 'gorro') {                       // gorrito navideño (rojo y blanco, es un accesorio de la semana de Navidad)
+        const red = mat(0xd81e2c), wh = mat(0xffffff), band = new T.Mesh(new T.TorusGeometry(HR - 0.045, 0.06, 6, 18), wh); band.rotation.x = Math.PI / 2; band.position.y = 0.2; acc.add(band);
+        const cone = new T.Mesh(new T.ConeGeometry(0.31, 0.5, 14), red); cone.position.set(0.04, 0.47, -0.02); cone.rotation.z = -0.28; acc.add(cone);
+        const pom = new T.Mesh(gEar, wh); pom.scale.setScalar(1.15); pom.position.set(0.15, 0.72, -0.02); acc.add(pom);
+      }
       if (hat === 'orejas') { [-1, 1].forEach(sd => { const e = new T.Mesh(gTuft, hm); e.scale.set(0.9, 1, 0.5); e.position.set(sd * 0.22, 0.37, 0); acc.add(e); }); }
       if (hat === 'casco') { const h = new T.Mesh(gHelmet, tm); h.rotation.x = -0.5; acc.add(h); box(acc, 0.05, 0.2, 0.05, tm, 0.28, 0.42, -0.05); const b = new T.Mesh(gEar, hm); b.position.set(0.28, 0.64, -0.05); acc.add(b); }
       if (hat === 'corona') { for (let i = 0; i < 7; i++) { const an = i / 7 * Math.PI * 2; box(acc, 0.09, i % 2 ? 0.14 : 0.2, 0.05, tm, Math.cos(an) * 0.22, 0.33, Math.sin(an) * 0.22).rotation.y = -an + Math.PI / 2; } }
@@ -695,7 +743,7 @@ GS.World = (function () {
     // zócalos bajos donde la pared está "cortada"
     { const doors = [L.depoDoor.z, -0.3, L.tallerDoor.z]; let z0 = L.salon.zMin;          // zócalo con los huecos de las tres puertas
       doors.concat([null]).forEach(dz => { const z1 = dz == null ? L.salon.zMax : dz - 0.55; if (z1 - z0 > 0.05) box(root, 0.2, 0.3, z1 - z0, 0xdedede, L.salon.xMax + 0.1, 0, (z0 + z1) / 2); if (dz != null) z0 = dz + 0.55; }); }
-    buildCounter(root); buildCenter(root); buildWorkStations(root); buildDepot(root); sideDoor(root, L.depoDoor.z, 'DEPÓSITO'); buildOffice(root); buildTaller(root); sideDoor(root, L.tallerDoor.z, 'TALLER'); buildGallery(root); buildSign(root); buildExtras(root);
+    buildCounter(root); buildCenter(root); buildWorkStations(root); buildDepot(root); sideDoor(root, L.depoDoor.z, 'DEPÓSITO'); buildOffice(root); buildTaller(root); sideDoor(root, L.tallerDoor.z, 'TALLER'); buildGallery(root); buildSign(root); buildExtras(root); buildNext(root);
 
     // empleados (inventados): vos en el mostrador y Brian, pegado al celular, en la caja
     yo = makePerson({ shirt: 0xe10600, hair: 0x2b2b3a, skin: SKINS[1], speed: 7.5 }); yo.setPos(L.yoMostrador[0], L.yoMostrador[1]);
@@ -744,10 +792,13 @@ GS.World = (function () {
       const col = arr => { const q = at(arr); return new T.Color(q[0]).lerp(new T.Color(q[1]), q[2]); }, num = arr => { const q = at(arr); return q[0] + (q[1] - q[0]) * q[2]; };
       const wet = rain ? 0.68 : 1, n = U.clamp((f - 0.7) / 0.25, 0, 1);
       sky.side.color.copy(col([0x868d98, 0x9c9ca0, 0xb0977c, 0x86687a, 0x3d4058])).multiplyScalar(wet); sky.joint.color.copy(sky.side.color).multiplyScalar(0.82);
-      sky.hemi.color.copy(col([0xeaf2ff, 0xffffff, 0xfff0dc, 0xfff4ea, 0xfff6ec])); sky.hemi.intensity = num([0.66, 0.68, 0.67, 0.67, 0.68]);
-      sky.sun.color.copy(col([0xfff4e0, 0xffffff, 0xffdcb0, 0xffe2c0, 0xfff1dc])); sky.sun.intensity = num([0.32, 0.38, 0.36, 0.34, 0.34]) * (rain ? 0.85 : 1);   // adentro siempre a pleno: de noche lo que cambia es la vereda sky.sun.position.x = 9 - f * 11;
+      sky.hemi.color.copy(col([0xeaf2ff, 0xffffff, 0xfff0dc, 0xfff4ea, 0xfff6ec])); sky.hemi.intensity = num([0.66, 0.68, 0.67, 0.67, 0.68]) * (rain ? 0.9 : 1);
+      sky.sun.color.copy(col([0xfff4e0, 0xffffff, 0xffdcb0, 0xffe2c0, 0xfff1dc])); sky.sun.intensity = num([0.32, 0.38, 0.36, 0.34, 0.34]) * (rain ? 0.9 : 1);   // adentro siempre a pleno: de noche lo que cambia es la vereda sky.sun.position.x = 9 - f * 11;
       sky.spill.opacity = n * 0.34 + (rain ? 0.08 : 0); sky.halo.opacity = n * 0.42; sky.bulb.color.set(0x55555c).lerp(new T.Color(0xfff2c0), n);
     },
+    setXmas,
+    setHats(on) { [yo, lucho, brian, boss].forEach(p => { if (p) p.look({ hat: on ? 'gorro' : null }); }); },
+    setNext(mode) { if (nextSigns) { nextSigns[0].visible = mode !== 'gs2'; nextSigns[1].visible = mode === 'gs2'; } },
     boss: () => boss,
     staff: () => [lucho, brian],
     player: () => yo,

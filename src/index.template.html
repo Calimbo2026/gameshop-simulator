@@ -55,11 +55,9 @@
     </div>
     <div style="display:flex;flex-direction:column;gap:12px">
       <button class="btn" id="btnPlay"><span id="playT">Jugar la jornada 1</span><small id="playS">De 10 a 19 · en tandas, con respiros</small></button>
-      <div id="goalStart"></div>
-      <button class="plot" id="btnPlot" aria-label="El local de al lado: fondo y libreta"></button>
-      <button class="btn alt" id="btnShop">🛠 Mejorar el local<small>Gastá tus monedas en cartel, góndolas, arcade y más</small></button>
-      <button class="btn ghost" id="btnRelax" style="font-size:17px">Turno tranquilo · sin apuro</button>
-      <button class="btn ghost" id="btnArcade" style="font-size:18px">🕹️ Arcade · estaciones sueltas</button>
+      <div class="duo"><div id="goalStart"></div><button class="plot" id="btnPlot" aria-label="El local de al lado: fondo y libreta"></button></div>
+      <button class="btn alt" id="btnShop">🛠 Mejorar el local<small>Gastá tus monedas o aportá al fondo</small></button>
+      <div class="row"><button class="btn ghost" id="btnRelax">Turno tranquilo</button><button class="btn ghost" id="btnArcade">🕹️ Arcade</button></div>
       <div class="row">
         <button class="btn ghost" id="btnHow">Cómo se juega</button>
         <button class="btn ghost" id="btnRecs">Récords</button>
@@ -77,6 +75,9 @@
   <div class="shop-top"><b>Mejoras del local</b><span id="shopCoins">🪙 0</span><button class="btn ghost" id="shopDone">Listo</button></div>
   <div class="shop-panel"><div class="shop-nav"><button class="icon-btn" id="shopPrev" aria-label="Mejora anterior">‹</button><div class="shop-slots" id="shopSlots"></div><button class="icon-btn" id="shopNext" aria-label="Mejora siguiente">›</button></div><div class="shop-cards" id="shopCards"></div><div class="rule" id="shopHint"></div><div class="shop-fund" id="shopFund"></div></div>
 </div>
+
+<!-- Placas de presentación del modo carrera -->
+<div id="intro" hidden><div class="fin-card" id="introCard"></div></div>
 
 <!-- Escena final -->
 <div id="final" hidden><div class="confetti" id="confetti"></div><button class="btn ghost" id="finSkip">Saltar ›</button><div class="fin-card" id="finCard" hidden></div></div>
