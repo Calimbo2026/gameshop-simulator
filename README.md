@@ -174,3 +174,9 @@ Decisiones tomadas: tres métricas (estrellas, monedas y fondos; el arcade premi
 - El Dueño queda en Incas: llama cada dos jornadas y viene en persona si la reputación baja de 4.
 - Clientes con saludos de cada región. Prueba: `test/v15.py`.
 - Pendiente de esta etapa: plantas de local distintas por sucursal (taller, depósito y oficina siguen en el mismo lugar).
+
+### Etapa 5 · Historias y competencia (v0.17.0)
+
+- Cada sucursal nueva tiene **sus personajes** (2 clientes con historia y el **rival de la zona**, que hace guerra de precios, un sabotaje gracioso y un desafío final). Están en `GS.STORIES` con `reg`. Vienen al mostrador como un cliente más.
+- **Eventos sorpresa** (`GS.EVENTS`): corte de luz, promo relámpago, inspección, cliente famoso, stock que no llega. Uno por jornada como mucho; a veces la opción que parecía mala sale bien.
+- El avance de cada sucursal ahora cuenta mejoras (50%), reputación (30%) e historias cerradas (20%).

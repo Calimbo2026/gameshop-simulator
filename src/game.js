@@ -136,10 +136,17 @@ GS.Game = (function () {
   function spawnIntr() {
     if (MG.isOpen() || day.beat > 0 || day.intr) { day.queue.push({ kind: 'i', t: 2.5 }); day.queue.sort((a, b) => a.t - b.t); return; }
     if (!day.intrBag.length) day.intrBag = U.shuffle(GS.INTERRUPTS);
-    day.intr = { it: day.intrBag.pop(), left: CD.intrSeconds, flip: Math.random() < 0.5 }; day.jobSig = ''; A.play('intr');
+    const ev = !day.evDone && !day.relaxed && day.n >= 4 && Math.random() < 0.5 ? U.pick(GS.EVENTS) : null; if (ev) day.evDone = 1;      // evento sorpresa: uno por jornada como mucho
+    day.intr = { it: ev || day.intrBag.pop(), left: CD.intrSeconds, flip: Math.random() < 0.5 }; day.jobSig = ''; A.play('intr');
   }
   function answerIntr(ok) {
     const x = day && day.intr; if (!x || paused) return; day.intr = null; day.jobSig = ''; if (!day.moment) day.moment = x.it.who + '. ' + (ok ? x.it.r : x.it.rb);
+    if (x.it.gfx) {            // evento sorpresa: deja algo más que un "bien resuelto", y a veces lo que parecía mala idea sale bien
+      const tw = !ok && x.it.twist && Math.random() < 0.35, f = ok ? x.it.gfx : tw ? x.it.tfx : x.it.bfx, good = ok || tw;
+      if (f.rep) addRep(f.rep); if (f.coins) GS.Store.set('coins', coinsNow() + f.coins); if (f.fondo) addFondo(f.fondo);
+      fx((f.rep > 0 ? '+⭐ ' : f.rep < 0 ? '−⭐ ' : '') + (f.coins ? '+🪙' + f.coins + ' ' : '') + (f.fondo ? '+🗺️' + f.fondo : ''), good ? '' : 'bad'); A.play(good ? 'ok' : 'error'); if (good) { day.score += 60; day.intrOk++; }
+      day.moment = x.it.who + '. ' + (ok ? x.it.r : tw ? x.it.twist : x.it.rb); toast('<b>' + x.it.ic + ' ' + x.it.who + (tw ? ' · ¡salió bien igual!' : '') + '</b>' + (ok ? x.it.r : tw ? x.it.twist : x.it.rb), '', 4200); return;
+    }
     if (ok) { addCord(CD.intrOk * (x.it.mate ? 2 : 1)); day.score += 40; day.intrOk++; day.wv.intrOk = 1; A.play(x.it.mate ? 'mate' : 'ok'); addRep(0.04); fx('+⭐'); toast('<b>' + x.it.ic + ' Bien resuelto</b>' + x.it.r, '', 3200); }
     else { addRep(-0.03); fx('−⭐', 'bad'); A.play('error'); toast('<b>' + x.it.ic + ' Ups</b>' + x.it.rb, '', 3200); }
   }
@@ -345,7 +352,8 @@ GS.Game = (function () {
   function brProgress(id) {
     const b = brAll()[id]; if (!b || !b.open) return 0; const me = id === brId(), up = me ? upNow() : b.up || {}, r = me ? repNow() : (b.rep == null ? 3 : b.rep);
     let have = 0, tot = 0; GS.UPGRADES.forEach(g => { tot += g.levels.length; have += Math.min(g.levels.length, up[g.id] || 0); });
-    return Math.round((have / tot * 0.6 + Math.min(1, r / 4.8) * 0.4) * 100);
+    const ss = GS.STORIES.filter(S => !S.once && (S.reg || 'pampeana') === id), h = histAll(), sd = ss.filter(S => h[S.id] && h[S.id].done).length;
+    return Math.round((have / tot * 0.5 + Math.min(1, r / 4.8) * 0.3 + (ss.length ? sd / ss.length : 1) * 0.2) * 100);
   }
   const brStage = id => { const p = brProgress(id); return p < 45 ? 1 : p < 80 ? 2 : 3; }, STAGE = ['', 'Humilde', 'Mejorado', 'Estrella'];
   const brCrew = id => id === 'pampeana' ? ['Lucho', 'Brian'] : ((brAll()[id] || {}).staff || []).map(c => (RG(id).crew.find(x => x.id === c) || {}).name);
@@ -372,9 +380,9 @@ GS.Game = (function () {
       if (!open) return '<div class="suc lock"><b>' + r.name + ' · ' + r.city + '</b><small>' + r.why + '</small><small>Zona de <b>' + r.rival.name + '</b></small><button class="btn alt" data-open="' + r.id + '"' + (f < r.cost ? ' disabled' : '') + '>Abrir · 🗺️ ' + r.cost + '</button></div>';
       const rp = me ? repNow() : (b.rep == null ? 3 : b.rep), pr = brProgress(r.id), up = me ? upNow() : b.up || {}, pend = GS.UPGRADES.reduce((a, g) => a + g.levels.length - Math.min(g.levels.length, up[g.id] || 0), 0);
       return '<div class="suc' + (me ? ' me' : '') + '"><b>' + r.name + ' · ' + r.city + (pr >= 100 ? ' ✅' : '') + '</b><span class="pb"><i style="width:' + pr + '%"></i></span><small>⭐ ' + repTxt(rp) + ' · ' + STAGE[brStage(r.id)] + ' · ' + pr + '%' + (b.manager ? ' · encargado: ' + b.manager : '') + '</small>' +
-        (me ? '<small class="al">' + (pend ? '🛠 ' + pend + ' mejoras pendientes' : '🛠 mejoras completas') + (rp < 4.8 ? ' · ⭐ falta llegar a 5' : '') + ((up.flota || 0) < 3 ? ' · 🚚 falta el camión' : '') + '</small><button class="btn ghost" disabled>Estás acá</button>'
+        (me ? '<small class="al">' + (pend ? '🛠 ' + pend + ' mejoras pendientes' : '🛠 mejoras completas') + (rp < 4.8 ? ' · ⭐ falta llegar a 5' : '') + ((up.flota || 0) < 3 ? ' · 🚚 falta el camión' : '') + ' · 📖 historias ' + GS.STORIES.filter(S => !S.once && (S.reg || 'pampeana') === r.id && histAll()[S.id] && histAll()[S.id].done).length + ' de ' + GS.STORIES.filter(S => !S.once && (S.reg || 'pampeana') === r.id).length + '</small><button class="btn ghost" disabled>Estás acá</button>'
           : '<small><i>"' + LN.freeze + '"</i></small><button class="btn" data-go="' + r.id + '">Viajar</button>') + '</div>'; }).join('');
-    modal('<h2>🗺️ GameShop a todo el país</h2><p>Fondos de expansión: <b>🗺️ ' + f + '</b>. Desde cada región se envía más fácil a sus provincias. Una sucursal está completa con todas las mejoras, 5 estrellas y camión propio.</p>' + svg + '<div class="sucs">' + cards + '</div><div class="row"><button class="btn ghost" id="mapLib">📖 Libreta</button><button class="btn" data-close>Cerrar</button></div>', () => { if (wasDay) paused = false; });
+    modal('<h2>🗺️ GameShop a todo el país</h2><p>Fondos de expansión: <b>🗺️ ' + f + '</b>. Desde cada región se envía más fácil a sus provincias. Una sucursal está completa con todas las mejoras, 5 estrellas, camión propio y las historias de sus clientes cerradas.</p>' + svg + '<div class="sucs">' + cards + '</div><div class="row"><button class="btn ghost" id="mapLib">📖 Libreta</button><button class="btn" data-close>Cerrar</button></div>', () => { if (wasDay) paused = false; });
     $('mapLib').addEventListener('click', showLibreta);
     $('sheet').querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => leaveTo(b.dataset.go)));
     $('sheet').querySelectorAll('[data-open]').forEach(b => b.addEventListener('click', () => openRegion(b.dataset.open)));
@@ -407,8 +415,8 @@ GS.Game = (function () {
   function dueStories(n) {
     const h = histAll(), out = [];
     for (const S of GS.STORIES) {
-      const st = h[S.id]; if (st && st.done) continue;
-      if (n < S.from || (st && st.last && n < st.last + (S.gap || 1))) continue;
+      const st = h[S.id]; if (st && st.done) continue; if ((S.reg || 'pampeana') !== brId()) continue;
+      if ((S.reg ? (brNow().days || 0) + 1 : n) < S.from || (st && st.last && n < st.last + (S.gap || 1))) continue;
       if (S.once && Math.random() > 0.45) continue;
       out.push(S);
     }
@@ -428,7 +436,7 @@ GS.Game = (function () {
     const text = alt ? alt.t : step.t, mood = alt ? alt.m : step.m; let chosen = false;
     A.unlock(); A.play('click'); cu.st = 'inM'; paused = true; yoGo('most'); focusFor('mostrador'); A.babble(text, cu.person.voice);
     const faceBox = m => '<div class="st-face">' + avatarSvg(cu.look, m) + '</div>';
-    modal('<div class="story"><div class="st-head">' + faceBox(mood) + '<div><b>' + S.name + '</b><span>' + S.tag + (st.step ? ' · visita ' + (st.step + 1) : '') + '</span></div></div>' +
+    modal('<div class="story"><div class="st-head">' + faceBox(mood) + '<div><b>' + S.name + '</b><span>' + S.tag + (st.step ? ' · vez ' + (st.step + 1) : '') + '</span></div></div>' +
       '<div class="bubble">' + text + '</div>' + step.opts.map((o, i) => '<button class="btn ghost st-opt" data-o="' + i + '">' + o.b + '</button>').join('') + '</div>', () => {
       paused = false; W.focus(null);
       if (!chosen) { cu.st = 'waitM'; return; }
@@ -517,7 +525,7 @@ GS.Game = (function () {
   function pendingJobs() {
     const jobs = [];
     for (const c of day.customers) {
-      if (c.st === 'waitM' && c.story) jobs.push({ key: 'c' + c.id, type: 'historia', ref: c, pat: 1, icon: '📖', title: 'Visita', sub: c.arche.name + ' quiere hablar' });
+      if (c.st === 'waitM' && c.story) jobs.push({ key: 'c' + c.id, type: 'historia', ref: c, pat: 1, icon: '💬', title: 'Mostrador · ' + c.arche.name, sub: c.arche.tag });
       else if (c.st === 'waitM') jobs.push({ key: 'c' + c.id, type: 'mostrador', ref: c, pat: c.pat, icon: '🛎', title: 'Mostrador', sub: 'Atender a ' + c.arche.name });
       else if (c.st === 'waitC') jobs.push({ key: 'c' + c.id + 'k', type: 'caja', ref: c, pat: c.pat, icon: '💵', title: 'Caja', sub: 'Cobrar a ' + c.arche.name });
     }
