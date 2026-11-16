@@ -981,18 +981,27 @@ GS.Game = (function () {
   function closeShop() { $('shop').hidden = true; W.setUpgrades(upNow()); state = 'menu'; $('start').hidden = false; refreshStart(); W.showAll(); A.play('click'); }
   // Cara y busto de un personaje, en el mismo estilo que el muñeco 3D (4 colores: piel, pelo, remera y pantalón).
   // mood = la mueca: normal, talk (hablando), happy, angry, impatient, nervous, sad, surprised.
+  let avN = 0;
   function avatarSvg(a, mood) {
-    const hex = n => '#' + Number(n).toString(16).padStart(6, '0'), h = hex(a.hair == null ? 0x3a2a1a : a.hair), sk = hex(a.skin || 0xe0ac7e), top = hex(a.shirt || 0xe10600), ink = hex(a.pants || 0x23232b);
+    // Retrato tipo busto: cabeza, cuello y hombros con buzo, con volumen (luces y sombras suaves). Cada retrato usa sus propios degradados.
+    const hex = n => '#' + Number(n).toString(16).padStart(6, '0'), sh = (n, f) => { const c = [n >> 16 & 255, n >> 8 & 255, n & 255].map(x => Math.round(Math.max(0, Math.min(255, f > 0 ? x + (255 - x) * f : x * (1 + f))))); return 'rgb(' + c.join(',') + ')'; };
+    const nh = a.hair == null ? 0x3a2a1a : Number(a.hair), ns = Number(a.skin || 0xe0ac7e), nt = Number(a.shirt || 0xe10600), id = 'a' + (++avN);
+    const h = 'url(#h' + id + ')', sk = hex(ns), top = hex(nt), ink = hex(a.pants || 0x23232b), brow = sh(nh, nh > 0x909090 ? -0.35 : -0.3), FT = '<g transform="translate(50 44) scale(0.9) translate(-50 -48)">';
     const st = a.hairStyle || 'corto', m = mood || 'normal', hat = a.hat;
     const cap = '<path d="M21 50 A29 29 0 0 1 79 50 L75.500 50 Q73 33 50 33 Q27 33 24.500 50z" fill="' + h + '"/>';
-    let v = '<svg viewBox="0 0 100 124" width="120" height="149">';
-    if (st === 'largo' && hat !== 'casco') v += '<path d="M17.500 48 A32.500 32.500 0 0 1 82.500 48 V88 Q82.500 98 73 98 H27 Q17.500 98 17.500 88z" fill="' + h + '"/>';
-    v += '<path d="M24 124 Q24 100 41 97 H59 Q76 100 76 124z" fill="' + top + '"/><rect x="43" y="84" width="14" height="16" rx="6" fill="' + sk + '"/>';
-    v += '<circle cx="20.500" cy="53" r="7" fill="' + sk + '"/><circle cx="79.500" cy="53" r="7" fill="' + sk + '"/><circle cx="50" cy="48" r="29" fill="' + sk + '"/>';
+    let v = '<svg viewBox="0 0 100 124" width="120" height="149"><defs><radialGradient id="s' + id + '" cx="38%" cy="30%" r="80%"><stop offset="0" stop-color="' + sh(ns, 0.22) + '"/><stop offset=".55" stop-color="' + sk + '"/><stop offset="1" stop-color="' + sh(ns, -0.2) + '"/></radialGradient>' +
+      '<linearGradient id="h' + id + '" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="' + sh(nh, 0.22) + '"/><stop offset=".5" stop-color="' + hex(nh) + '"/><stop offset="1" stop-color="' + sh(nh, -0.3) + '"/></linearGradient>' +
+      '<linearGradient id="t' + id + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + sh(nt, 0.16) + '"/><stop offset="1" stop-color="' + sh(nt, -0.22) + '"/></linearGradient></defs>';
+    if (st === 'largo' && hat !== 'casco') v += FT + '<path d="M17.500 48 A32.500 32.500 0 0 1 82.500 48 V88 Q82.500 98 73 98 H27 Q17.500 98 17.500 88z" fill="' + h + '"/></g>';
+    v += '<rect x="42" y="56" width="16" height="30" rx="8" fill="' + sh(ns, -0.14) + '"/><g transform="translate(0 -8)"><path d="M6 134 Q6 94 32 87 L42 83 H58 L68 87 Q94 94 94 134z" fill="url(#t' + id + ')"/><path d="M29 89 Q50 75 71 89 Q64 101 50 101 Q36 101 29 89z" fill="' + sh(nt, -0.3) + '"/>';                                 // buzo y capucha
+    v += '<rect x="42" y="68" width="16" height="25" rx="8" fill="' + sh(ns, -0.14) + '"/><path d="M38 92 Q50 101 62 92 Q56 104 50 104 Q44 104 38 92z" fill="' + sh(nt, 0.1) + '"/>';
+    v += '<g stroke="' + sh(nt, 0.55) + '" stroke-width="1.700" stroke-linecap="round"><path d="M45.500 100 Q44 108 44.500 115"/><path d="M54.500 100 Q56 108 55.500 115"/></g></g>';                                                              // cordones
+    v += '<ellipse cx="22.500" cy="47" rx="5.800" ry="7.400" fill="' + sk + '"/><ellipse cx="77.500" cy="47" rx="5.800" ry="7.400" fill="' + sk + '"/><ellipse cx="23" cy="47.500" rx="2.600" ry="4" fill="' + sh(ns, -0.16) + '"/><ellipse cx="77" cy="47.500" rx="2.600" ry="4" fill="' + sh(ns, -0.16) + '"/>';
+    v += '<ellipse cx="50" cy="44" rx="26" ry="27" fill="url(#s' + id + ')"/>' + FT;
     v += '<circle cx="31" cy="59" r="5.500" fill="#ff6b6b" opacity=".2"/><circle cx="69" cy="59" r="5.500" fill="#ff6b6b" opacity=".2"/>';
     if (hat !== 'casco') {
       if (st === 'corto' || st === 'rodete' || st === 'largo') v += cap;
-      if (st === 'corto') v += '<path d="M33 31 Q38 15 52 19 Q47 12 58 13 Q68 16 70 32 Q58 24 50 30 Q42 25 33 31z" fill="' + h + '"/>';
+      if (st === 'corto') v += '<path d="M24 38 Q22 14 46 13 Q42 6 56 7 Q78 9 77 38 Q72 24 60 27 Q52 20 44 27 Q32 24 24 38z" fill="' + h + '"/><g fill="none" stroke="' + sh(nh, 0.3) + '" stroke-width="1.600" stroke-linecap="round" opacity=".7"><path d="M36 19 Q44 13 52 16"/><path d="M52 14 Q62 12 68 20"/></g>';
       if (st === 'cresta') v += cap + '<path d="M36 31 Q50 12 64 31 Q50 25 36 31z" fill="' + h + '"/>';
       if (st === 'rodete') v += '<circle cx="50" cy="15" r="10.500" fill="' + h + '"/>';
       if (st === 'rulos') { v += cap; for (let i = 0; i < 9; i++) { const an = Math.PI * (1.02 + i * 0.12); v += '<circle cx="' + (50 + Math.cos(an) * 29).toFixed(1) + '" cy="' + (48 + Math.sin(an) * 29).toFixed(1) + '" r="10" fill="' + h + '"/>'; } v += '<circle cx="39" cy="26" r="8.500" fill="' + h + '"/><circle cx="61" cy="26" r="8.500" fill="' + h + '"/><circle cx="50" cy="22" r="8.500" fill="' + h + '"/>'; }
@@ -1013,7 +1022,8 @@ GS.Game = (function () {
     if (m === 'impatient') v += '<path d="M33.500 47.200h11M55.500 47.200h11" stroke="' + sk + '" stroke-width="3"/>';
     const brows = { normal: 'M33 40 Q39 38 45 40M55 40 Q61 38 67 40', talk: 'M33 39.500 Q39 37 45 39.500M55 39.500 Q61 37 67 39.500', happy: 'M33 39 Q39 35.500 45 39M55 39 Q61 35.500 67 39', angry: 'M32 36.500 L45 41.500M68 36.500 L55 41.500',
       impatient: 'M33 41 H45M55 37.500 Q61 34.500 67 38', nervous: 'M33 41 L45 37M67 41 L55 37', sad: 'M33 41.500 L45 37.500M67 41.500 L55 37.500', surprised: 'M33 35 Q39 31.500 45 35M55 35 Q61 31.500 67 35' };
-    v += '<path d="' + (brows[m] || brows.normal) + '" fill="none" stroke="' + ink + '" stroke-width="2.800" stroke-linecap="round"/>';
+    v += '<path d="' + (brows[m] || brows.normal) + '" fill="none" stroke="' + brow + '" stroke-width="4" stroke-linecap="round"/>';
+    v += '<ellipse cx="50" cy="57.500" rx="4.400" ry="3.300" fill="' + sh(ns, -0.13) + '"/><ellipse cx="49" cy="56.400" rx="1.800" ry="1.100" fill="' + sh(ns, 0.3) + '" opacity=".8"/>';                                                    // nariz
     if (a.lashes) v += '<g stroke="' + h + '" stroke-width="1.800" stroke-linecap="round"><path d="M34 45.500l-3-2.500M66 45.500l3-2.500M36 43.500l-1.500-3M64 43.500l1.500-3"/></g>';
     if (a.glasses) v += '<g fill="rgba(255,255,255,.2)" stroke="' + ink + '" stroke-width="2.400"><circle cx="39" cy="50" r="9"/><circle cx="61" cy="50" r="9"/></g><path d="M48 50h4" stroke="' + ink + '" stroke-width="2.400"/>';
     const mc = a.beard ? '#fff' : ink;
@@ -1025,7 +1035,7 @@ GS.Game = (function () {
     v += mouths[m] || mouths.normal;
     if (m === 'nervous') v += '<path d="M80 30 q4 6 0 9 q-4-3 0-9z" fill="#57b8ff"/>';
     if (m === 'angry') v += '<g stroke="#e10600" stroke-width="2.200" stroke-linecap="round"><path d="M80 24l5-4M82 30h6M80 18l2-5"/></g>';
-    return v + '</svg>';
+    return v + '</g></svg>';
   }
   GS.faceSvg = avatarSvg;
   function showAvatar(then) {

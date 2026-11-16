@@ -464,7 +464,7 @@ GS.Minigames = (function () {
     intro(station, text, onOk) {
       close(); cur = { type: 'intro', cb: {}, keys: null, done: true, timer: null };
       root().hidden = false;
-      root().innerHTML = '<div class="mg-head"><div class="mg-face boss">🕴️</div><div class="mg-who"><b>El Dueño te explica</b><span>' + esc(station.icon + ' ' + station.name) + '</span></div><div class="mg-station">Inducción</div></div>' +
+      root().innerHTML = '<div class="mg-head"><div class="mg-face pic">' + GS.faceSvg({ shirt: 0x111111, hair: 0xb4b4bd, hairStyle: 'cresta', skin: 0xe0ac7e }, 'talk') + '</div><div class="mg-who"><b>El Dueño te explica</b><span>' + esc(station.icon + ' ' + station.name) + '</span></div><div class="mg-station">Inducción</div></div>' +
         '<div class="bubble">' + esc(text) + '</div><button class="btn" id="mgOk">Entendido</button>';
       const go = () => { document.removeEventListener('keydown', key); onOk(); };
       const key = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } };
