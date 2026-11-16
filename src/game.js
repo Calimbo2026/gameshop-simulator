@@ -360,7 +360,7 @@ GS.Game = (function () {
   const brCrew = id => id === 'pampeana' ? ['Lucho', 'Brian'] : ((brAll()[id] || {}).staff || []).map(c => (RG(id).crew.find(x => x.id === c) || {}).name);
   const bossHere = () => brId() === 'pampeana' || repNow() < 4;
   function applyBranch() {
-    const id = brId(), R = RG(id), ps = W.staff(); W.setRegion(R, brStage(id)); W.setUpgrades(upNow()); W.bossVisible(bossHere());
+    const id = brId(), R = RG(id), ps = W.staff(); W.setRegion(R, brStage(id)); skyKey = ''; setSky(0.3, false); W.setUpgrades(upNow()); W.bossVisible(bossHere());
     if (id === 'pampeana') { luchoLook(dayNumber()); ps[1].look({ skin: GS.SKINS[0], hair: 0x2d6cdf, hairStyle: 'corto', glasses: false }); }
     else (brNow().staff || []).forEach((c, i) => { const e = R.crew.find(x => x.id === c); if (e && ps[i]) ps[i].look(e.look); });
   }
@@ -369,25 +369,24 @@ GS.Game = (function () {
     GS.Store.set('up', Object.assign({}, b.up || {}, web ? { web } : {})); GS.Store.set('rep', b.rep == null ? 4 : b.rep);     // la marca (la web) vale en todas
     applyBranch(); refreshStart(); GS.track('sucursal', { id });
   }
+  // Mapa del país en 3D: se toca una región y abajo aparece su tarjeta (viajar, abrir o ver qué le falta)
+  const mapState = lit => { const all = brAll(), o = {}; GS.REGIONS.forEach(r => { const b = all[r.id], open = lit || !!(b && b.open); o[r.id] = { open, can: !open && fondoNow() >= r.cost, cur: !lit && r.id === brId(), stage: lit ? 3 : open ? brStage(r.id) : 0 }; }); return o; };
+  function mapCard(id) {
+    const all = brAll(), cur = brId(), f = fondoNow(), r = RG(id), b = all[id], open = b && b.open, me = id === cur, h = histAll(), ss = GS.STORIES.filter(S => !S.once && (S.reg || 'pampeana') === id);
+    if (!open) return '<div class="suc lock"><b>🔒 ' + r.name + ' · ' + r.city + '</b><small>' + r.why + '</small><small>Zona de <b>' + r.rival.name + '</b></small><button class="btn alt" data-open="' + id + '"' + (f < r.cost ? ' disabled' : '') + '>' + (f < r.cost ? 'Faltan ' + (r.cost - f) + ' fondos · cuesta 🗺️ ' + r.cost : 'Abrir sucursal · 🗺️ ' + r.cost) + '</button></div>';
+    const rp = me ? repNow() : (b.rep == null ? 3 : b.rep), pr = brProgress(id), up = me ? upNow() : b.up || {}, pend = GS.UPGRADES.reduce((a, g) => a + g.levels.length - Math.min(g.levels.length, up[g.id] || 0), 0);
+    return '<div class="suc' + (me ? ' me' : '') + '"><b>' + r.name + ' · ' + r.city + (pr >= 100 ? ' ✅' : '') + '</b><span class="pb"><i style="width:' + pr + '%"></i></span><small>⭐ ' + repTxt(rp) + ' · ' + STAGE[brStage(id)] + ' · ' + pr + '%' + (b.manager ? ' · encargado: ' + b.manager : '') + '</small>' +
+      (me ? '<small class="al">' + (pend ? '🛠 ' + pend + ' mejoras pendientes' : '🛠 mejoras completas') + (rp < 4.8 ? ' · ⭐ falta llegar a 5' : '') + ((up.flota || 0) < 3 ? ' · 🚚 falta el camión' : '') + ' · 📖 historias ' + ss.filter(S => h[S.id] && h[S.id].done).length + ' de ' + ss.length + '</small><button class="btn ghost" disabled>Estás acá</button>'
+        : '<small><i>"' + LN.freeze + '"</i></small><button class="btn" data-go="' + id + '">Viajar a ' + r.city + '</button>') + '</div>';
+  }
+  let mapWasDay = false;
+  function closeMap() { GS.Map3D.close(); $('map').hidden = true; if (mapWasDay) paused = false; mapWasDay = false; }
+  function mapPick(id) { GS.Map3D.select(id); $('mapCard').innerHTML = mapCard(id); A.play('click'); }
   function showMap() {
-    const all = brAll(), cur = brId(), f = fondoNow(), wasDay = state === 'day'; if (wasDay) paused = true;
-    const SH = { noa: '40,10 105,10 100,95 55,110 35,70', nea: '105,10 175,25 185,75 140,105 100,95', cuyo: '35,112 78,104 84,190 45,200 30,150', pampeana: '80,104 140,107 170,150 150,215 86,205 84,190', patagonia: '45,202 86,207 150,217 120,300 100,385 70,390 55,300' },
-      CT = { noa: [70, 58], nea: [142, 62], cuyo: [58, 152], pampeana: [122, 160], patagonia: [96, 270] };
-    const svg = '<svg viewBox="0 0 220 400" class="mapa">' + GS.REGIONS.map(r => { const b = all[r.id], open = b && b.open, can = !open && f >= r.cost, c = CT[r.id];
-      return '<g data-reg="' + r.id + '" class="' + (open ? 'open' : can ? 'can' : 'lock') + (r.id === cur ? ' cur' : '') + '"><polygon points="' + SH[r.id] + '"/>' +
-        (open ? '<rect x="' + (c[0] - 26) + '" y="' + (c[1] - 9) + '" width="52" height="13" rx="3" class="cartel"/><text x="' + c[0] + '" y="' + (c[1] + 1) + '" class="ct">GAMESHOP</text>' : '<text x="' + c[0] + '" y="' + c[1] + '" class="lk">' + (can ? '🔓' : '🔒') + '</text>') +
-        '<text x="' + c[0] + '" y="' + (c[1] + 17) + '" class="nm">' + r.name + '</text></g>'; }).join('') + '</svg>';
-    const cards = GS.REGIONS.map(r => { const b = all[r.id], open = b && b.open, me = r.id === cur;
-      if (!open) return '<div class="suc lock"><b>' + r.name + ' · ' + r.city + '</b><small>' + r.why + '</small><small>Zona de <b>' + r.rival.name + '</b></small><button class="btn alt" data-open="' + r.id + '"' + (f < r.cost ? ' disabled' : '') + '>Abrir · 🗺️ ' + r.cost + '</button></div>';
-      const rp = me ? repNow() : (b.rep == null ? 3 : b.rep), pr = brProgress(r.id), up = me ? upNow() : b.up || {}, pend = GS.UPGRADES.reduce((a, g) => a + g.levels.length - Math.min(g.levels.length, up[g.id] || 0), 0);
-      return '<div class="suc' + (me ? ' me' : '') + '"><b>' + r.name + ' · ' + r.city + (pr >= 100 ? ' ✅' : '') + '</b><span class="pb"><i style="width:' + pr + '%"></i></span><small>⭐ ' + repTxt(rp) + ' · ' + STAGE[brStage(r.id)] + ' · ' + pr + '%' + (b.manager ? ' · encargado: ' + b.manager : '') + '</small>' +
-        (me ? '<small class="al">' + (pend ? '🛠 ' + pend + ' mejoras pendientes' : '🛠 mejoras completas') + (rp < 4.8 ? ' · ⭐ falta llegar a 5' : '') + ((up.flota || 0) < 3 ? ' · 🚚 falta el camión' : '') + ' · 📖 historias ' + GS.STORIES.filter(S => !S.once && (S.reg || 'pampeana') === r.id && histAll()[S.id] && histAll()[S.id].done).length + ' de ' + GS.STORIES.filter(S => !S.once && (S.reg || 'pampeana') === r.id).length + '</small><button class="btn ghost" disabled>Estás acá</button>'
-          : '<small><i>"' + LN.freeze + '"</i></small><button class="btn" data-go="' + r.id + '">Viajar</button>') + '</div>'; }).join('');
-    modal('<h2>🗺️ GameShop a todo el país</h2><p>Fondos de expansión: <b>🗺️ ' + f + '</b>. Desde cada región se envía más fácil a sus provincias. Una sucursal está completa con todas las mejoras, 5 estrellas, camión propio y las historias de sus clientes cerradas.</p>' + svg + '<div class="sucs">' + cards + '</div><div class="row"><button class="btn ghost" id="mapLib">📖 Libreta</button><button class="btn" data-close>Cerrar</button></div>', () => { if (wasDay) paused = false; });
-    $('mapLib').addEventListener('click', showLibreta);
-    $('sheet').querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => leaveTo(b.dataset.go)));
-    $('sheet').querySelectorAll('[data-open]').forEach(b => b.addEventListener('click', () => openRegion(b.dataset.open)));
-    $('sheet').querySelectorAll('g[data-reg]').forEach(g => g.addEventListener('click', () => { const id = g.dataset.reg, b = all[id]; if (id === cur) return; if (b && b.open) leaveTo(id); else if (f >= RG(id).cost) openRegion(id); else toast('<b>🔒 ' + RG(id).name + '</b>Faltan ' + (RG(id).cost - f) + ' fondos de expansión.', '', 2400); }));
+    const all = brAll(), n = GS.REGIONS.filter(r => all[r.id] && all[r.id].open).length; mapWasDay = state === 'day'; if (mapWasDay) paused = true;
+    $('modal').hidden = true; $('map').hidden = false; $('mapSub').textContent = 'Sucursales ' + n + ' de 5 · fondos de expansión 🗺️ ' + fondoNow() + ' · tocá una región';
+    if (!GS.Map3D.open($('mapCv'), mapState(), mapPick)) { closeMap(); return toast('<b>Ups</b>No se pudo dibujar el mapa en este navegador.', '', 2600); }
+    GS.Map3D.select(brId()); $('mapCard').innerHTML = mapCard(brId());
   }
   // Antes de irse hay que dejar un encargado. La sucursal queda congelada tal como estaba.
   function pickManager(then) {
@@ -413,15 +412,17 @@ GS.Game = (function () {
   function showFinal(preview) {
     const st = statsNow(), d = GS.Store.get('days') || 0, F = GS.FINALS.find(f => f.test(st, d)), SH = ['40,10 105,10 100,95 55,110 35,70', '105,10 175,25 185,75 140,105 100,95', '35,112 78,104 84,190 45,200 30,150', '80,104 140,107 170,150 150,215 86,205 84,190', '45,202 86,207 150,217 120,300 100,385 70,390 55,300'], CT = [[70, 58], [142, 62], [58, 152], [122, 160], [96, 270]];
     A.play('fanfare'); GS.track('final', { tipo: F.id, jornadas: d });
-    modal('<div class="fin2"><h2>GameShop llegó a todo el país</h2><svg viewBox="0 0 220 400" class="mapa lit">' + SH.map((p, i) => '<g class="open"><polygon points="' + p + '"/><rect x="' + (CT[i][0] - 26) + '" y="' + (CT[i][1] - 9) + '" width="52" height="13" rx="3" class="cartel"/><text x="' + CT[i][0] + '" y="' + (CT[i][1] + 1) + '" class="ct">GAMESHOP</text></g>').join('') + '</svg>' +
+    modal('<div class="fin2"><h2>GameShop llegó a todo el país</h2><canvas id="finMap"></canvas>' +
       '<div class="quote"><b>' + F.ic + ' Final: ' + F.t + '</b>' + F.d + '</div>' + (preview ? '<p><small>Vista previa: el final real se abre al completar las 5 sucursales.</small></p>' : '') +
       '<p>' + d + ' jornadas · ' + st.c + ' clientes atendidos · ' + (GS.Store.get('ach') || []).length + ' logros</p>' +
       '<p class="cred">Un juego de GameShop · Av. de los Incas 4552, CABA<br>Personajes inventados. Los precios y el stock, también.</p>' +
       '<div class="cta"><b>Esto fue un juego. El local es real.</b><a class="btn alt" href="' + C.links.tienda + '" target="_blank" rel="noopener">Conocé www.gameshop.com.ar</a></div>' +
       '<div class="row"><button class="btn ghost" id="finShare">📸 Compartir</button><button class="btn" id="finNg">Nuevo Juego+</button></div><button class="btn ghost" data-close>Seguir en esta partida</button></div>');
+    GS.Map3D.open($('finMap'), mapState(true), null); modalOnClose = () => GS.Map3D.close();
     $('finShare').addEventListener('click', () => showCard()); $('finNg').addEventListener('click', showNgPlus);
   }
   function showNgPlus() {
+    GS.Map3D.close();
     modal('<h2>Nuevo Juego+</h2><p>Empezás de nuevo desde Incas, con tus logros, tus premios del Arcade y tu personaje. Elegí cómo:</p><div class="arc2">' + GS.MODS.map(m => '<button data-mod="' + m.id + '"><i>' + m.ic + '</i><b>' + m.name + '</b><small>' + m.d + '</small></button>').join('') + '</div><button class="btn ghost" data-close>Mejor no</button>');
     $('sheet').querySelectorAll('[data-mod]').forEach(b => b.addEventListener('click', () => {
       const keep = {}; ['ach', 'cos', 'arcBest', 'arcade', 'tutorial', 'seen'].forEach(k => { keep[k] = GS.Store.get(k); }); const ng = (GS.Store.get('ngp') || 0) + 1;
@@ -912,14 +913,15 @@ GS.Game = (function () {
     $('shopCoins').textContent = '🪙 ' + c;
     $('shopFund').innerHTML = '';
     $('shopSlots').innerHTML = GS.UPGRADES.map((x, i) => '<button class="slotb' + (i === shopSel ? ' on' : '') + ((u[x.id] || 0) >= x.levels.length ? ' full' : '') + '" data-i="' + i + '">' + x.icon + '<small>' + x.name + '</small></button>').join('');
+    const seeLv = preview == null ? Math.min(own + 1, g.levels.length) : preview;
     $('shopCards').innerHTML = g.levels.map((lv, i) => {
       const has = own > i, can = own === i && c >= lv.price, locked = own < i;
-      return '<div class="card' + (has ? ' has' : '') + '"><b>' + lv.n + '</b><span>' + lv.d + '</span><div class="row"><em>' + (has ? '✔ Ya lo tenés' : '🪙 ' + lv.price) + '</em>' +
+      return '<div class="card' + (has ? ' has' : '') + (i + 1 === seeLv ? ' sel' : '') + '" data-see="' + (i + 1) + '"><b>' + lv.n + '</b><span>' + lv.d + '</span><div class="row"><em>' + (has ? '✔ Ya lo tenés' : '🪙 ' + lv.price) + '</em>' +
         (has ? '' : '<button class="btn" data-buy="' + i + '"' + (can ? '' : ' disabled') + '>' + (locked ? 'Primero el anterior' : can ? 'Comprar' : 'Te faltan ' + (lv.price - c)) + '</button>') + '</div></div>';
     }).join('') + (g.levels.length > 1 ? '' : '');
-    const show = Object.assign({}, u); show[g.id] = Math.max(own, preview == null ? Math.min(own + 1, g.levels.length) : preview);   // vista previa del modelo en su lugar
+    const show = Object.assign({}, u); show[g.id] = seeLv;   // vista previa del modelo en su lugar
     W.setUpgrades(show); W.focusAt(g.pos[0], g.pos[1], g.zoom || 0.36, 0.2);
-    $('shopHint').textContent = (shopSel + 1) + ' de ' + GS.UPGRADES.length + ' · ' + (own >= g.levels.length ? 'Ya lo tenés en el local.' : 'Vista previa en el local');
+    $('shopHint').textContent = (shopSel + 1) + ' de ' + GS.UPGRADES.length + ' · ' + (g.levels.length > 1 ? 'Tocá un nivel para verlo en el local' : own >= g.levels.length ? 'Ya lo tenés en el local.' : 'Vista previa en el local');
   }
   function buy(i) {
     const u = upNow(), g = GS.UPGRADES[shopSel], lv = g.levels[i]; if ((u[g.id] || 0) !== i || coinsNow() < lv.price) return;
@@ -1211,11 +1213,12 @@ GS.Game = (function () {
   let fpsT = 0, fpsN = 0, autoQ = 'media', skyKey = '';
   // La vereda y el fondo acompañan la hora del juego: mañana fresca, mediodía claro, tarde dorada y anochecer con el farol prendido
   function setSky(f, rain) {
-    f = U.clamp(f, 0, 1); const key = Math.round(f * 60) + (rain ? 'r' : ''); if (key === skyKey) return; skyKey = key;
+    f = U.clamp(f, 0, 1); const reg = brId() !== 'pampeana', key = Math.round(f * 60) + (rain ? 'r' : '') + brId(); if (key === skyKey) return; skyKey = key;
     const stops = [[0, [34, 62, 92]], [0.35, [46, 86, 128]], [0.62, [118, 70, 34]], [0.85, [92, 40, 52]], [1, [22, 18, 52]]]; let c = stops[0][1];
     for (let i = 1; i < stops.length; i++) if (f <= stops[i][0]) { const a = stops[i - 1], b = stops[i], k = (f - a[0]) / (b[0] - a[0]); c = a[1].map((v, j) => Math.round(v + (b[1][j] - v) * k)); break; }
     if (rain) c = c.map(v => Math.round(v * 0.45 + 30));
-    document.body.style.background = 'radial-gradient(120% 90% at 50% 35%, rgb(' + c.join(',') + ') 0%, rgb(' + c.map(v => Math.round(v * 0.35)).join(',') + ') 50%, #000 100%)';
+    if (reg) document.body.style.background = 'linear-gradient(rgb(' + c.map(v => Math.min(255, Math.round(v * 1.5 + 70))).join(',') + ') 0%, rgb(' + c.map(v => Math.min(255, Math.round(v * 0.9 + 140))).join(',') + ') 60%)';     // en las sucursales hay cielo y horizonte
+    else document.body.style.background = 'radial-gradient(120% 90% at 50% 35%, rgb(' + c.join(',') + ') 0%, rgb(' + c.map(v => Math.round(v * 0.35)).join(',') + ') 50%, #000 100%)';
     W.setDayTime(f, rain);
   }
   function frame(t) {
@@ -1257,11 +1260,13 @@ GS.Game = (function () {
       const before = fondoNow() >= goalNow(); GS.Store.set('coins', c - v); addFondo(v); A.play('cash'); GS.track('aporte_fondo', { monto: v });
       toast(!before && fondoNow() >= goalNow() ? '<b>🏠 ¡Meta alcanzada!</b>Ya alcanza para el local de al lado. Lo que sumes de más mejora el final.' : '<b>🏠 Aportaste 🪙 ' + v + '</b>Fondo: ' + fondoNow() + ' de ' + goalNow() + '.', '', 2600); renderShop(); });
     $('btnPlot').addEventListener('click', () => { A.unlock(); A.play('click'); showMap(); });
+    $('mapX').addEventListener('click', () => { A.play('click'); closeMap(); }); $('mapLib').addEventListener('click', () => { closeMap(); showLibreta(); });
+    $('mapCard').addEventListener('click', e => { const g = e.target.closest('[data-go]'), o = e.target.closest('[data-open]'); if (g) { closeMap(); leaveTo(g.dataset.go); } else if (o && !o.disabled) { closeMap(); openRegion(o.dataset.open); } });
     const shopStep = k => { if (state !== 'shop') return; shopSel = (shopSel + k + GS.UPGRADES.length) % GS.UPGRADES.length; A.play('click'); renderShop(); const on = $('shopSlots').querySelector('.on'); if (on && on.scrollIntoView) on.scrollIntoView({ block: 'nearest', inline: 'center' }); };
     $('shopPrev').addEventListener('click', () => shopStep(-1)); $('shopNext').addEventListener('click', () => shopStep(1));
     $('shopSlots').addEventListener('wheel', e => { if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) { $('shopSlots').scrollLeft += e.deltaY; e.preventDefault(); } }, { passive: false });
     $('shopSlots').addEventListener('click', e => { const b = e.target.closest('.slotb'); if (b) { shopSel = Number(b.dataset.i); A.play('click'); renderShop(); } });
-    $('shopCards').addEventListener('click', e => { const b = e.target.closest('[data-buy]'); if (b) buy(Number(b.dataset.buy)); });
+    $('shopCards').addEventListener('click', e => { const b = e.target.closest('[data-buy]'), c = e.target.closest('[data-see]'); if (b && !b.disabled) return buy(Number(b.dataset.buy)); if (c) { const x = $('shopCards').scrollLeft; A.play('click'); renderShop(Number(c.dataset.see)); $('shopCards').scrollLeft = x; } });
     $('shopCards').addEventListener('scroll', () => { const el = $('shopCards'), i = Math.round(el.scrollLeft / Math.max(1, el.clientWidth * 0.86)); if (el._i !== i) { el._i = i; const u = upNow(), g = GS.UPGRADES[shopSel], sh = Object.assign({}, u); sh[g.id] = Math.max(u[g.id] || 0, i + 1); W.setUpgrades(sh); } });
     W.onTap(st => openStation(st));
     $('btnPlay').addEventListener('click', careerStart);

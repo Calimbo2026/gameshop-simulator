@@ -192,3 +192,10 @@ Tres juegos en `src/arcade.js`, que se ganan al terminar las jornadas 3, 8 y 14 
 - El enlace a la tienda aparece solo en el final ("Esto fue un juego. El local es real.").
 - **Lanzamiento**: poner `launched: true` en `src/data.js` y compilar. Eso quita el `noindex`, el cartel de etapas y el "en construcción". `og.png` es la imagen para compartir; la dirección pública está en `build.js` (`SITE`).
 - Prueba: `test/v18.py`.
+
+### Ajustes (v0.20.0)
+
+- **Mapa 3D** (`src/map3d.js`): Argentina con su contorno real y las Malvinas, en ángulo. Cada región abierta muestra una miniatura de su sucursal; las cerradas, un candado (dorado si ya alcanzan los fondos). Se toca una región y abajo aparece su tarjeta.
+- **Mejoras**: tocar cualquier nivel lo muestra en el local aunque no alcancen las monedas.
+- Se quitó el local de al lado.
+- **Paisajes regionales**: terreno, calle, cerros facetados con nieve o estratos de colores lejos del local, y vegetación suelta. Prueba: `test/v19.py`.

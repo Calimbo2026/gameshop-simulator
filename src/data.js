@@ -7,7 +7,7 @@
 const GS = {};
 
 GS.CONFIG = {
-  version: '0.19.0',
+  version: '0.20.0',
   phase: 8,
   phaseNote: 'Juego completo de punta a punta. Falta tu playtest con 5 personas y encender el lanzamiento (launched: true)',                       // fase actual del proyecto (1 a 5)
   links: { tienda: 'https://www.gameshop.com.ar', instagram: '' },   // botones del inicio y del cierre (vacío = no se muestra)
@@ -263,7 +263,7 @@ GS.UPGRADES = [
   { id: 'cafetera', name: 'Cafetera', icon: '☕', pos: [0.3, -5.6], zoom: 0.3, levels: [{ n: 'Cafetera detrás del mostrador', d: 'Café para el que espera: +10% de paciencia de los clientes.', price: 550 }] },
   { id: 'luces', name: 'Luces LED', icon: '💡', pos: [-1.5, -4.6], zoom: 0.5, levels: [{ n: 'Tiras LED en el salón', d: 'Todo se luce más: +10% de monedas por jornada.', price: 650 }] },
   { id: 'vidluz', name: 'Vidriera iluminada', icon: '🪟', pos: [3.6, 8.5], zoom: 0.45, levels: [{ n: 'Luces en la vidriera', d: 'Se ve desde la vereda de enfrente: +1 cliente y más gente que entra por la vidriera.', price: 1000 }] },
-  { id: 'flota', name: 'Flota de envíos', icon: '🛵', pos: [4.6, 13.2], zoom: 0.36, levels: [
+  { id: 'flota', name: 'Flota de envíos', icon: '🛵', pos: [4.2, 13.4], zoom: 0.46, levels: [
     { n: 'Moto de reparto', d: 'Envío propio en la ciudad: cada compra por la página deja 20% más y suma reputación.', price: 700 },
     { n: 'Camioneta', d: 'Llegás a toda la provincia: 40% más por cada compra por la página.', price: 1600 },
     { n: 'Camión GameShop', d: 'Cubrís toda la región con envío propio: 60% más por compra web. Hace falta para completar la sucursal.', price: 3200 }] },

@@ -424,6 +424,15 @@ body.calm .fx { animation-duration: .01s; }
 .fin2 { text-align: center; display: grid; gap: 8px; } .fin2 .quote { text-align: left; } .mapa.lit { width: 150px; height: 273px; } .mapa.lit polygon { fill: #e10600; animation: lit 1.4s ease-in-out infinite alternate; } .mapa.lit .cartel { stroke-width: 2; } @keyframes lit { to { fill: #ff3b30; } }
 .cred { font-size: 12.5px; color: var(--mute); margin: 0; } .cta { border: 1px solid #2c2c34; border-radius: 14px; padding: 12px; display: grid; gap: 8px; } .cta a { text-decoration: none; display: block; font-size: 15px; padding: 10px; }
 
+/* ---------- Mapa 3D del país ---------- */
+#map { position: fixed; inset: 0; z-index: 40; display: flex; flex-direction: column; background: linear-gradient(#0d2238, #12304f 60%, #0b1c30); } #map[hidden] { display: none; }
+.map-top { display: flex; gap: 8px; align-items: center; padding: 10px 12px; } .map-top > div { flex: 1; min-width: 0; } .map-top b { display: block; font-family: var(--display); font-size: 19px; text-transform: uppercase; } .map-top small { color: #b9c7d8; font-size: 12.5px; }
+#mapCv { flex: 1; min-height: 0; width: 100%; display: block; cursor: pointer; touch-action: manipulation; }
+#mapCard { padding: 0 12px 14px; width: min(100%, 520px); margin: 0 auto; box-sizing: border-box; } #mapCard .suc { background: rgba(16,16,20,.92); }
+#finMap { width: 100%; height: 300px; display: block; border-radius: 14px; background: #12304f; }
+.card { cursor: pointer; } .card.sel { outline: 2px solid var(--warn); outline-offset: -2px; }
+#finMap { flex: none; }
+
 </style>
 </head>
 <body>
@@ -449,6 +458,11 @@ body.calm .fx { animation-duration: .01s; }
 </div>
 <div id="toasts" aria-live="polite"></div>
 <div id="fxs" aria-hidden="true"></div>
+<div id="map" hidden>
+  <div class="map-top"><div><b>GameShop a todo el país</b><small id="mapSub"></small></div><button class="chip" id="mapLib">📖 Libreta</button><button class="chip" id="mapX">✕ Cerrar</button></div>
+  <canvas id="mapCv"></canvas>
+  <div id="mapCard"></div>
+</div>
 <div id="arc" hidden>
   <div class="arc-top"><span id="arcKeys"></span><button class="chip" id="arcX" aria-label="Salir del arcade">✕ Salir</button></div>
   <div class="arc-box"><canvas id="arcCv"></canvas><div id="arcEnd" hidden></div></div>
@@ -524,7 +538,7 @@ const GS = {};
 GS.LOGO = "data:image/png;base64,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";
 
 GS.CONFIG = {
-  version: '0.19.0',
+  version: '0.20.0',
   phase: 8,
   phaseNote: 'Juego completo de punta a punta. Falta tu playtest con 5 personas y encender el lanzamiento (launched: true)',                       // fase actual del proyecto (1 a 5)
   links: { tienda: 'https://www.gameshop.com.ar', instagram: '' },   // botones del inicio y del cierre (vacío = no se muestra)
@@ -780,7 +794,7 @@ GS.UPGRADES = [
   { id: 'cafetera', name: 'Cafetera', icon: '☕', pos: [0.3, -5.6], zoom: 0.3, levels: [{ n: 'Cafetera detrás del mostrador', d: 'Café para el que espera: +10% de paciencia de los clientes.', price: 550 }] },
   { id: 'luces', name: 'Luces LED', icon: '💡', pos: [-1.5, -4.6], zoom: 0.5, levels: [{ n: 'Tiras LED en el salón', d: 'Todo se luce más: +10% de monedas por jornada.', price: 650 }] },
   { id: 'vidluz', name: 'Vidriera iluminada', icon: '🪟', pos: [3.6, 8.5], zoom: 0.45, levels: [{ n: 'Luces en la vidriera', d: 'Se ve desde la vereda de enfrente: +1 cliente y más gente que entra por la vidriera.', price: 1000 }] },
-  { id: 'flota', name: 'Flota de envíos', icon: '🛵', pos: [4.6, 13.2], zoom: 0.36, levels: [
+  { id: 'flota', name: 'Flota de envíos', icon: '🛵', pos: [4.2, 13.4], zoom: 0.46, levels: [
     { n: 'Moto de reparto', d: 'Envío propio en la ciudad: cada compra por la página deja 20% más y suma reputación.', price: 700 },
     { n: 'Camioneta', d: 'Llegás a toda la provincia: 40% más por cada compra por la página.', price: 1600 },
     { n: 'Camión GameShop', d: 'Cubrís toda la región con envío propio: 60% más por compra web. Hace falta para completar la sucursal.', price: 3200 }] },
@@ -2014,14 +2028,43 @@ GS.World = (function () {
     const g = regG = new T.Group(), s = L.salon, zF = L.galeria.zMax + 2.3, zB = s.zMin - 3.4, xW = s.xMin - 3.6; scene.add(g);
     const cone = (r, h, c, x, y, z, seg) => { const m = new T.Mesh(new T.ConeGeometry(r, h, seg || 6), mat(c)); m.position.set(x, y + h / 2, z); g.add(m); return m; };
     const cyl = (r, h, c, x, y, z) => { const m = new T.Mesh(new T.CylinderGeometry(r, r, h, 8), mat(c)); m.position.set(x, y + h / 2, z); g.add(m); return m; };
-    const range = (cols, snow) => [[-7, 6.5], [-3.2, 8.2], [0.8, 6.8], [4.6, 8.6], [8.4, 6.2]].forEach((q, i) => { cone(3.4, q[1], cols[i % cols.length], q[0], -0.5, zB - (i % 2) * 1.2, 5); if (snow) cone(1.25, q[1] * 0.36, 0xffffff, q[0], -0.5 + q[1] * 0.65, zB - (i % 2) * 1.2, 5); cone(3.0, q[1] * 0.8, cols[(i + 1) % cols.length], xW - (i % 2), -0.5, -6 + i * 3.4, 5); if (snow) cone(1.1, q[1] * 0.29, 0xffffff, xW - (i % 2), -0.5 + q[1] * 0.52, -6 + i * 3.4, 5); });
+    // Paisaje: terreno que se pierde en la bruma, cordones de cerros lejos del local (dos filas, tamaños distintos) y vegetación suelta
+    let sd = R.id.length * 977 + 13; const rnd = () => (sd = (sd * 9301 + 49297) % 233280) / 233280, rr = (a, b) => a + rnd() * (b - a), GY = -0.3;
+    const LAND = { cuyo: { ground: 0xc9a777, haze: 0xe9dcc6, patch: 0xb08f5c, h: [6, 13], wide: 1, bands: [[0.2, 0x93905c], [0.48, 0x8a7a6a], [0.72, 0xa0948a], [1, 0xffffff]] },
+      noa: { ground: 0xd9a273, haze: 0xf1dcc4, patch: 0xc2875a, h: [4, 8.5], wide: 1.5, bands: [[0.15, 0xb5651d], [0.3, 0xc2452d], [0.44, 0xe08a3c], [0.58, 0xe3c34a], [0.72, 0x8e4a8f], [0.86, 0xd98a6a], [1, 0xf0d9c8]] },
+      nea: { ground: 0xb85a34, haze: 0xdcc9a6, patch: 0x3c9447, h: [1.6, 3.0], wide: 1.5, bands: [[0.5, 0x2b8039], [1, 0x48ac58]] },
+      patagonia: { ground: 0xa7b68e, haze: 0xe2ecf3, patch: 0xf2f6f8, h: [7, 14], wide: 1, bands: [[0.18, 0x2f6b45], [0.44, 0x6f7f95], [0.66, 0xa3b3c6], [1, 0xffffff]] } }[R.decor];
+    const free = (x, z) => !(x > -9.5 && x < 14 && z > -10.5 && z < zF + 6.5), col = new T.Color();
+    { const d = new T.Mesh(new T.CircleGeometry(42, 40), new T.MeshBasicMaterial({ color: LAND.ground })); d.rotation.x = -Math.PI / 2; d.position.y = GY; g.add(d);
+      const rg = new T.RingGeometry(41.8, 110, 40, 1), p = rg.attributes.position, cs = []; for (let i = 0; i < p.count; i++) { col.set(Math.hypot(p.getX(i), p.getY(i)) < 60 ? LAND.ground : LAND.haze); cs.push(col.r, col.g, col.b); }
+      rg.setAttribute('color', new T.Float32BufferAttribute(cs, 3)); const m = new T.Mesh(rg, new T.MeshBasicMaterial({ vertexColors: true })); m.rotation.x = -Math.PI / 2; m.position.y = GY; g.add(m);
+      for (let i = 0; i < 22; i++) { const a = rr(0, 6.28), r = rr(11, 38), x = Math.cos(a) * r, z = Math.sin(a) * r; if (!free(x, z)) continue; const c = new T.Mesh(new T.CircleGeometry(rr(1.2, 3.4), 9), new T.MeshBasicMaterial({ color: LAND.patch, transparent: true, opacity: 0.55, depthWrite: false })); c.rotation.x = -Math.PI / 2; c.scale.y = rr(0.5, 1); c.rotation.z = rr(0, 3); c.position.set(x, GY + 0.02, z); g.add(c); }
+      box(g, 230, 0.06, 3.4, 0x3c3c44, 0, GY, zF + 3.4); for (let x = -60; x < 60; x += 3) box(g, 1.2, 0.07, 0.14, 0xe8e8e8, x, GY, zF + 3.4); }      // la calle
+    const mtnMat = new T.MeshLambertMaterial({ vertexColors: true, flatShading: true });
+    const mountain = (x, z, r, h) => {
+      const geo = new T.ConeGeometry(r, h, 9, 6), p = geo.attributes.position, cs = [], seed = rr(0, 99);
+      for (let i = 0; i < p.count; i++) { const px = p.getX(i), py = p.getY(i), pz = p.getZ(i), t = (py + h / 2) / h, q = Math.sin(px * 12.9898 + pz * 78.233 + py * 37.719 + seed) * 43758.5453, j = q - Math.floor(q) - 0.5;
+        if (t > 0.02 && t < 0.98) { p.setX(i, px * (1 + j * 0.5)); p.setZ(i, pz * (1 + j * 0.5)); p.setY(i, py + j * h * 0.07); }
+        let b = LAND.bands[LAND.bands.length - 1]; for (const k of LAND.bands) if (t <= k[0] + j * 0.1) { b = k; break; } col.set(b[1]); col.offsetHSL(0, 0, j * 0.07); cs.push(col.r, col.g, col.b); }
+      geo.setAttribute('color', new T.Float32BufferAttribute(cs, 3)); geo.computeVertexNormals(); const m = new T.Mesh(geo, mtnMat); m.position.set(x, GY + h / 2 - 0.1, z); m.scale.z = rr(0.75, 1.25); m.rotation.y = rr(0, 6.28); g.add(m);
+    };
+    const land = () => {
+      [[17, 22, R.decor === 'nea' ? 3 : 4, 0.55, 0.75], [26, 36, R.decor === 'nea' ? 4 : 7, 0.85, 1.0]].forEach(row => { for (let i = 0; i < row[2]; i++) { const a = Math.PI * (0.9 + 0.78 * (i + rr(0.1, 0.9)) / row[2]), d = rr(row[0], row[1]), h = rr(LAND.h[0], LAND.h[1]) * rr(row[3], row[4]); mountain(Math.cos(a) * d, Math.sin(a) * d, h * rr(0.55, 0.8) * LAND.wide, h); } });
+      for (let i = 0; i < 3; i++) { const a = Math.PI * rr(0.95, 1.6), d = rr(13.5, 16.5), h = rr(1.0, 1.9); mountain(Math.cos(a) * d, Math.sin(a) * d, h * 1.5 * LAND.wide, h); }          // lomas cercanas
+    };
+    const scatter = (n, fn, r0, r1) => { for (let i = 0, k = 0; i < n && k < n * 6; k++) { const a = rr(0, 6.28), r = rr(r0 || 10.5, r1 || 30), x = Math.cos(a) * r, z = Math.sin(a) * r; if (!free(x, z)) continue; fn(x, z, rr(0.75, 1.3)); i++; } };
+    const cactus = (x, z, k) => { cyl(0.2 * k, 1.7 * k, 0x3f8f3a, x, GY, z); cyl(0.12 * k, 0.7 * k, 0x3f8f3a, x + 0.36 * k, GY + 0.8 * k, z); box(g, 0.3 * k, 0.12, 0.12, 0x3f8f3a, x + 0.2 * k, GY + 0.8 * k, z); cyl(0.12 * k, 0.55 * k, 0x3f8f3a, x - 0.36 * k, GY + 0.55 * k, z); box(g, 0.3 * k, 0.12, 0.12, 0x3f8f3a, x - 0.2 * k, GY + 0.55 * k, z); };
+    const pine = (x, z, k) => { cyl(0.12 * k, 0.5, 0x6b4a2a, x, GY, z); [0, 1, 2].forEach(i => cone((0.7 - i * 0.17) * k, 0.9 * k, i === 2 && R.decor === 'patagonia' ? 0xeaf2f4 : 0x1f6a3a, x, GY + 0.4 + i * 0.55 * k, z, 7)); };
+    const bush = (x, z, k, c) => { const m = new T.Mesh(new T.SphereGeometry(0.6 * k, 7, 5), mat(c || 0x4d9a4a, { flatShading: true })); m.position.set(x, GY + 0.3 * k, z); m.scale.y = 0.7; g.add(m); };
+    const tree = (x, z, k) => { cyl(0.16 * k, 1.4 * k, 0x6b4a2a, x, GY, z); const m = new T.Mesh(new T.SphereGeometry(0.95 * k, 7, 5), mat(rnd() < 0.5 ? 0x2b8039 : 0x3c9a48, { flatShading: true })); m.position.set(x, GY + 1.9 * k, z); g.add(m); };
+    const water = (x, z, w, d, ry) => { const m = new T.Mesh(new T.CircleGeometry(1, 20), new T.MeshBasicMaterial({ color: 0x4aa3d8 })); m.rotation.x = -Math.PI / 2; m.rotation.z = ry || 0; m.scale.set(w, d, 1); m.position.set(x, GY + 0.03, z); g.add(m); };
     box(g, 0.16, 2.1, 0.16, 0x0c0c0c, -4.9, 0, zF); sign(g, 'SUCURSAL ' + R.city.toUpperCase(), 2.9, 0.5, -4.9, 2.35, zF + 0.1);     // tótem de la sucursal
-    if (R.decor === 'cuyo') { range([0x8a7a6a, 0x9c8b78, 0x7b6c5e], true); [[-2.6, 0], [-1.9, 0.5]].forEach(q => { cyl(0.36, 0.8, 0x7a4a22, q[0], 0, zF + q[1]); cyl(0.38, 0.08, 0x2b2b2b, q[0], 0.2, zF + q[1]); cyl(0.38, 0.08, 0x2b2b2b, q[0], 0.55, zF + q[1]); });
+    if (R.decor === 'cuyo') { land(); scatter(16, (x, z, k) => bush(x, z, k, 0x8d9a4c)); for (let r = 0; r < 5; r++) for (let i = 0; i < 9; i++) { box(g, 0.7, 0.55, 0.3, 0x3f8f3a, -21 + i * 1.0, GY, 3 + r * 1.3); if (i % 3 === 0) box(g, 0.06, 0.8, 0.06, 0x6b4a2a, -21.4 + i * 1.0, GY, 3 + r * 1.3); }      // viñedo [[-2.6, 0], [-1.9, 0.5]].forEach(q => { cyl(0.36, 0.8, 0x7a4a22, q[0], 0, zF + q[1]); cyl(0.38, 0.08, 0x2b2b2b, q[0], 0.2, zF + q[1]); cyl(0.38, 0.08, 0x2b2b2b, q[0], 0.55, zF + q[1]); });
       [1.6, 2.4, 3.2].forEach(x => { box(g, 0.08, 1.2, 0.08, 0x6b4a2a, x, 0, zF + 0.6); box(g, 0.7, 0.5, 0.4, 0x3f8f3a, x, 0.9, zF + 0.6); box(g, 0.16, 0.2, 0.16, 0x6a2d7a, x + 0.1, 0.72, zF + 0.75); }); }
-    if (R.decor === 'noa') { range([0xc2452d, 0xe08a3c, 0x8e4a8f, 0xe3c34a, 0xb0563a]); [[-2.4, 0.2], [1.8, 0.6], [3.4, 0.1]].forEach(q => { cyl(0.2, 1.7, 0x3f8f3a, q[0], 0, zF + q[1]); cyl(0.12, 0.7, 0x3f8f3a, q[0] + 0.36, 0.8, zF + q[1]); box(g, 0.3, 0.12, 0.12, 0x3f8f3a, q[0] + 0.2, 0.8, zF + q[1]); cyl(0.12, 0.55, 0x3f8f3a, q[0] - 0.36, 0.55, zF + q[1]); box(g, 0.3, 0.12, 0.12, 0x3f8f3a, q[0] - 0.2, 0.55, zF + q[1]); }); }
-    if (R.decor === 'nea') { [[-7, -9], [-2, -10], [3, -9.5], [8, -10], [-9.5, -4], [-10, 1], [-9.5, 6]].forEach(q => { cyl(0.22, 3.4, 0x7a5a36, q[0], -0.5, q[1]); for (let k = 0; k < 6; k++) { const l = box(g, 1.7, 0.08, 0.42, 0x2f9a48, q[0] + Math.cos(k) * 0.7, 2.86, q[1] + Math.sin(k) * 0.7); l.rotation.y = -k; l.rotation.z = -0.35; } });
+    if (R.decor === 'noa') { land(); scatter(14, cactus); scatter(10, (x, z, k) => bush(x, z, k * 0.7, 0x9a8a4a)); [[-2.4, 0.2], [1.8, 0.6], [3.4, 0.1]].forEach(q => { cyl(0.2, 1.7, 0x3f8f3a, q[0], 0, zF + q[1]); cyl(0.12, 0.7, 0x3f8f3a, q[0] + 0.36, 0.8, zF + q[1]); box(g, 0.3, 0.12, 0.12, 0x3f8f3a, q[0] + 0.2, 0.8, zF + q[1]); cyl(0.12, 0.55, 0x3f8f3a, q[0] - 0.36, 0.55, zF + q[1]); box(g, 0.3, 0.12, 0.12, 0x3f8f3a, q[0] - 0.2, 0.55, zF + q[1]); }); }
+    if (R.decor === 'nea') { land(); water(-22, -17, 30, 2.2, 0.5); water(2, -24, 26, 2.6, -0.15); scatter(34, tree, 11, 34); scatter(12, (x, z, k) => bush(x, z, k)); [[-12, -12], [-15, -5], [-13, 3], [-8, -15], [-2, -13.5], [5, -13], [-18, -10]].forEach(q => { cyl(0.22, 3.4, 0x7a5a36, q[0], -0.5, q[1]); for (let k = 0; k < 6; k++) { const l = box(g, 1.7, 0.08, 0.42, 0x2f9a48, q[0] + Math.cos(k) * 0.7, 2.86, q[1] + Math.sin(k) * 0.7); l.rotation.y = -k; l.rotation.z = -0.35; } });
       [[-2.4, 0.2], [2.2, 0.5]].forEach(q => { cyl(0.16, 2.2, 0x7a5a36, q[0], 0, zF + q[1]); for (let k = 0; k < 6; k++) { const l = box(g, 1.2, 0.06, 0.32, 0x2f9a48, q[0] + Math.cos(k) * 0.5, 2.16, zF + q[1] + Math.sin(k) * 0.5); l.rotation.y = -k; l.rotation.z = -0.35; } }); }
-    if (R.decor === 'patagonia') { range([0x6f7f95, 0x8494a8, 0x5d6d83], true); [[-2.5, 0.3], [1.7, 0.6], [3.3, 0.1]].forEach(q => { cyl(0.12, 0.5, 0x6b4a2a, q[0], 0, zF + q[1]); [0, 1, 2].forEach(k => cone(0.62 - k * 0.15, 0.8, 0x1f6a3a, q[0], 0.4 + k * 0.5, zF + q[1], 7)); });
+    if (R.decor === 'patagonia') { land(); water(-17, -3, 5.5, 3.2, 0.3); scatter(26, pine, 11, 32); [[-2.5, 0.3], [1.7, 0.6], [3.3, 0.1]].forEach(q => { cyl(0.12, 0.5, 0x6b4a2a, q[0], 0, zF + q[1]); [0, 1, 2].forEach(k => cone(0.62 - k * 0.15, 0.8, 0x1f6a3a, q[0], 0.4 + k * 0.5, zF + q[1], 7)); });
       [[-1, 0.4], [0.6, 0.9], [2.6, 1.0], [-3.6, 0.8]].forEach(q => { const m = new T.Mesh(new T.CircleGeometry(0.6, 9), mat(0xffffff)); m.rotation.x = -Math.PI / 2; m.position.set(q[0], 0.02, zF + q[1]); g.add(m); }); }
     if (stage >= 2) [-1.25, 1.25].forEach(dx => { box(g, 0.5, 0.4, 0.5, 0xb5651d, L.puerta.x + dx, 0, zF - 1.1); box(g, 0.42, 0.34, 0.42, 0x3f8f3a, L.puerta.x + dx, 0.4, zF - 1.1); box(g, 0.14, 0.14, 0.14, 0xff5fa2, L.puerta.x + dx, 0.74, zF - 1.1); });   // mejorado: canteros
     if (stage >= 3) { box(g, 1.5, 0.03, 2.4, 0xb00000, L.puerta.x, 0, zF - 0.6); const st = new T.Mesh(new T.OctahedronGeometry(0.34), new T.MeshBasicMaterial({ color: 0xf5c518 })); st.position.set(-4.9, 2.95, zF); g.add(st); }   // estrella: alfombra roja y estrella en el tótem
@@ -2381,7 +2424,7 @@ GS.World = (function () {
     // zócalos bajos donde la pared está "cortada"
     { const doors = [L.depoDoor.z, -0.3, L.tallerDoor.z]; let z0 = L.salon.zMin;          // zócalo con los huecos de las tres puertas
       doors.concat([null]).forEach(dz => { const z1 = dz == null ? L.salon.zMax : dz - 0.55; if (z1 - z0 > 0.05) box(root, 0.2, 0.3, z1 - z0, 0xdedede, L.salon.xMax + 0.1, 0, (z0 + z1) / 2); if (dz != null) z0 = dz + 0.55; }); }
-    buildCounter(root); buildCenter(root); buildWorkStations(root); buildDepot(root); sideDoor(root, L.depoDoor.z, 'DEPÓSITO'); buildOffice(root); buildTaller(root); sideDoor(root, L.tallerDoor.z, 'TALLER'); buildGallery(root); buildSign(root); buildExtras(root); buildNext(root); buildFleet(root);
+    buildCounter(root); buildCenter(root); buildWorkStations(root); buildDepot(root); sideDoor(root, L.depoDoor.z, 'DEPÓSITO'); buildOffice(root); buildTaller(root); sideDoor(root, L.tallerDoor.z, 'TALLER'); buildGallery(root); buildSign(root); buildExtras(root); buildFleet(root);
 
     // empleados (inventados): vos en el mostrador y Brian, pegado al celular, en la caja
     yo = makePerson({ shirt: 0xe10600, hair: 0x2b2b3a, skin: SKINS[1], speed: 7.5 }); yo.setPos(L.yoMostrador[0], L.yoMostrador[1]);
@@ -3049,6 +3092,108 @@ GS.Arcade = (() => {
   return { open, close, bind, isOpen: () => !!G, debug: () => G };
 })();
 
+/* GameShop Simulator — Mapa 3D del país. Argentina con su forma real (Malvinas incluidas), dividida en las 5 regiones,
+   vista en ángulo como el local. Cada región abierta muestra una miniatura de su sucursal; las cerradas, un candado.
+   GS.Map3D.open(canvas, estado, onPick)   estado = { id: { open, can, cur, stage } }   ·   select(id)   ·   close() */
+GS.Map3D = (() => {
+  const T = THREE; let renderer = null, scene, camera, cv, raf = 0, onPick = null, tops = {}, bob = [], sel = null, cvOf = null;
+  // Fronteras (longitud, latitud). Se arman las regiones uniendo tramos, así los bordes internos coinciden.
+  const S = {
+    nNoa: [[-67.18, -22.82], [-66.3, -21.8], [-65.2, -22.1], [-64.4, -22.7], [-63.9, -22.0], [-62.8, -22.0], [-62.35, -22.45]],
+    nNea: [[-62.35, -22.45], [-61.0, -23.8], [-59.9, -24.1], [-58.8, -24.8], [-57.65, -25.3], [-58.2, -26.6], [-58.6, -27.3], [-57.5, -27.4], [-56.4, -27.5], [-55.9, -27.35], [-55.3, -26.9], [-54.7, -26.3], [-54.6, -25.6], [-54.1, -25.55], [-53.65, -26.25], [-53.8, -27.15], [-54.8, -27.6], [-55.8, -28.3], [-56.6, -29.0], [-57.3, -29.8], [-57.8, -30.6]],
+    ePam: [[-57.8, -30.6], [-58.0, -31.4], [-58.2, -32.4], [-58.5, -33.1], [-58.4, -34.0], [-58.35, -34.6], [-57.9, -34.85], [-57.2, -35.4], [-57.4, -36.0], [-56.7, -36.35], [-56.95, -37.25], [-57.55, -38.05], [-58.75, -38.6], [-60.0, -38.9], [-61.3, -39.0], [-62.2, -38.85], [-62.1, -39.6], [-62.2, -40.5], [-62.8, -41.15]],
+    ePat: [[-62.8, -41.15], [-63.8, -41.15], [-64.9, -40.75], [-65.15, -41.4], [-64.95, -42.0], [-64.4, -42.15], [-63.9, -42.1], [-63.6, -42.5], [-64.0, -42.85], [-64.4, -42.6], [-65.0, -42.75], [-64.4, -43.0], [-65.0, -43.3], [-65.3, -44.2], [-65.6, -45.0], [-66.5, -45.2], [-67.5, -45.9], [-67.6, -46.5], [-66.7, -47.0], [-65.8, -47.2], [-65.9, -47.9], [-67.0, -48.7], [-67.7, -49.3], [-68.3, -50.1], [-69.0, -50.9], [-68.9, -51.6], [-68.35, -52.35]],
+    wPat: [[-68.35, -52.35], [-69.5, -52.15], [-70.0, -52.0], [-71.9, -52.0], [-72.3, -51.0], [-73.1, -50.2], [-73.3, -49.5], [-72.6, -48.6], [-72.3, -47.6], [-71.8, -46.8], [-71.7, -45.8], [-71.4, -44.8], [-71.8, -43.9], [-71.75, -43.0], [-72.1, -42.2], [-71.85, -41.4], [-71.9, -40.6], [-71.7, -39.8], [-71.2, -39.0], [-70.9, -38.4], [-71.15, -37.6], [-71.1, -36.8], [-70.4, -36.2]],
+    wCuy: [[-70.4, -36.2], [-70.4, -35.3], [-69.8, -34.3], [-69.9, -33.3], [-70.1, -32.5], [-70.5, -31.5], [-69.9, -30.3], [-70.0, -29.3], [-69.7, -28.4]],
+    wNoa: [[-69.7, -28.4], [-69.1, -27.6], [-68.5, -27.1], [-68.5, -26.3], [-68.5, -25.2], [-68.4, -24.5], [-67.3, -24.0], [-67.0, -23.0], [-67.18, -22.82]],
+    noaNea: [[-62.35, -22.45], [-62.3, -24.1], [-61.7, -25.7], [-61.7, -28.0]],
+    neaPam: [[-61.7, -28.0], [-59.0, -28.0], [-59.2, -29.2], [-59.6, -30.35], [-57.8, -30.6]],
+    noaPam: [[-61.7, -28.0], [-61.8, -29.2], [-62.1, -30.2], [-63.4, -29.9], [-64.9, -29.5], [-65.4, -30.1], [-65.8, -31.9]],
+    noaCuy: [[-65.8, -31.9], [-67.0, -31.9], [-67.3, -31.0], [-67.9, -30.2], [-68.7, -29.4], [-69.7, -28.4]],
+    cuyPam: [[-65.8, -31.9], [-65.0, -32.6], [-64.9, -33.3], [-65.1, -34.2], [-65.1, -36.0], [-68.25, -36.0], [-68.25, -37.55]],
+    cuyPat: [[-68.25, -37.55], [-69.5, -37.1], [-70.4, -36.2]],
+    pamPat: [[-68.25, -37.55], [-67.5, -38.0], [-66.0, -38.6], [-64.5, -39.1], [-63.4, -39.2], [-63.4, -40.6], [-62.8, -41.15]]
+  };
+  const rv = a => a.slice().reverse(), join = (...a) => a.reduce((o, s) => o.concat(o.length ? s.slice(1) : s), []);
+  const REG = {
+    noa: { col: 0xd9683c, at: [-65.4, -26.2], polys: [join(S.nNoa, S.noaNea, S.noaPam, S.noaCuy, S.wNoa)] },
+    nea: { col: 0x3f9d4d, at: [-58.9, -26.6], polys: [join(S.nNea, rv(S.neaPam), rv(S.noaNea))] },
+    cuyo: { col: 0xc58a55, at: [-67.9, -33.6], polys: [join(S.cuyPam, S.cuyPat, S.wCuy, rv(S.noaCuy))] },
+    pampeana: { col: 0x8bbf4a, at: [-61.6, -35.0], polys: [join(S.neaPam, S.ePam, rv(S.pamPat), rv(S.cuyPam), rv(S.noaPam))] },
+    patagonia: { col: 0x8fb9dc, at: [-68.7, -43.6], polys: [join(S.pamPat, S.ePat, S.wPat, rv(S.cuyPat)),
+      [[-68.6, -52.65], [-68.1, -53.1], [-67.6, -53.9], [-66.6, -54.45], [-65.15, -54.65], [-66.4, -55.0], [-67.6, -54.9], [-68.6, -54.9]],                 // Tierra del Fuego
+      [[-64.7, -54.72], [-63.85, -54.72], [-64.2, -54.9]],                                                                                                    // Isla de los Estados
+      [[-61.3, -51.45], [-60.5, -51.3], [-59.75, -51.45], [-59.9, -52.0], [-60.6, -52.25], [-61.1, -51.95]],                                                  // Malvinas: Gran Malvina
+      [[-59.55, -51.4], [-58.6, -51.25], [-57.75, -51.55], [-58.3, -52.0], [-59.0, -52.35], [-59.6, -52.0]]] }                                                // Malvinas: Soledad
+  };
+  const X = lon => (lon + 64.6) * 0.8, Y = lat => lat + 38.6;              // proyección simple: 1 grado de latitud = 1 unidad
+  const M = (c, o) => new T.MeshLambertMaterial(Object.assign({ color: c }, o || {}));
+  function box(g, w, h, d, c, x, y, z) { const m = new T.Mesh(new T.BoxGeometry(w, h, d), c.isMaterial ? c : M(c)); m.position.set(x, y + h / 2, z); g.add(m); return m; }
+  function cone(g, r, h, c, x, y, z, seg) { const m = new T.Mesh(new T.ConeGeometry(r, h, seg || 6), M(c, { flatShading: true })); m.position.set(x, y + h / 2, z); g.add(m); return m; }
+  function label(text, sub, px) {
+    const c = document.createElement('canvas'); c.width = 384; c.height = 128; const g = c.getContext('2d');
+    g.font = '900 ' + (px || 54) + 'px Impact, "Arial Narrow", system-ui, sans-serif'; g.textAlign = 'center'; g.lineJoin = 'round'; g.lineWidth = 12; g.strokeStyle = '#0b0b0d'; g.strokeText(text, 192, 58); g.fillStyle = '#fff'; g.fillText(text, 192, 58);
+    if (sub) { g.font = '700 34px system-ui, sans-serif'; g.lineWidth = 9; g.strokeText(sub, 192, 106); g.fillStyle = '#f5c518'; g.fillText(sub, 192, 106); }
+    const s = new T.Sprite(new T.SpriteMaterial({ map: new T.CanvasTexture(c), depthTest: false, transparent: true })); s.scale.set(6, 2, 1); s.renderOrder = 9; return s;
+  }
+  // Miniatura caricaturizada de la sucursal, con algo típico de la región al lado
+  function miniShop(id, stage) {
+    const g = new T.Group(), k = 0.9 + stage * 0.1;
+    box(g, 2.2 * k, 1.3, 1.6, 0xf4f4f2, 0, 0, 0); box(g, 2.4 * k, 0.2, 1.8, 0x1b1b1f, 0, 1.3, 0); box(g, 2.3 * k, 0.5, 0.14, 0xe10600, 0, 0.82, 0.86); box(g, 0.5, 0.7, 0.1, 0x23232b, 0, 0, 0.84);
+    box(g, 0.55, 0.45, 0.1, 0x7fd4ff, -0.68 * k, 0.22, 0.84); box(g, 0.55, 0.45, 0.1, 0x7fd4ff, 0.68 * k, 0.22, 0.84); box(g, 1.0, 0.12, 0.12, 0xffffff, 0, 1.0, 0.94);
+    if (stage >= 2) box(g, 2.3 * k, 0.1, 0.5, 0xf5c518, 0, 0.62, 1.1); if (stage >= 3) { const st = new T.Mesh(new T.OctahedronGeometry(0.42), new T.MeshBasicMaterial({ color: 0xf5c518 })); st.position.set(0, 2.2, 0); g.add(st); bob.push({ o: st, y: 2.2, a: 0.18, spin: 1 }); }
+    if (id === 'pampeana') { box(g, 0.34, 2.4, 0.34, 0xffffff, 1.9, 0, 0.2); cone(g, 0.26, 0.5, 0xffffff, 1.9, 2.4, 0.2, 4).rotation.y = Math.PI / 4; }                                    // obelisco
+    if (id === 'cuyo') { cone(g, 1.3, 2.4, 0x8a7a6a, -1.9, 0, -0.5, 6); cone(g, 0.5, 0.9, 0xffffff, -1.9, 1.52, -0.5, 6); box(g, 0.4, 0.5, 0.4, 0x7a4a22, 1.7, 0, 0.5); box(g, 0.3, 0.3, 0.3, 0x6a2d7a, 1.7, 0.5, 0.5); }   // cordillera, barrica y uvas
+    if (id === 'noa') { cone(g, 1.4, 1.8, 0xc2452d, -1.9, 0, -0.5, 7); cone(g, 1.0, 1.3, 0xe3c34a, -1.9, 0.52, -0.5, 7); cone(g, 0.55, 0.75, 0x8e4a8f, -1.9, 1.08, -0.5, 7); box(g, 0.22, 1.3, 0.22, 0x2f8f3a, 1.7, 0, 0.4); box(g, 0.6, 0.18, 0.18, 0x2f8f3a, 1.7, 0.6, 0.4); box(g, 0.18, 0.4, 0.18, 0x2f8f3a, 1.98, 0.6, 0.4); box(g, 0.18, 0.5, 0.18, 0x2f8f3a, 1.42, 0.6, 0.4); }   // cerro de colores y cardón
+    if (id === 'nea') { [[-1.8, 0], [1.8, 0.3]].forEach(q => { box(g, 0.2, 1.8, 0.2, 0x7a5a36, q[0], 0, q[1]); for (let i = 0; i < 5; i++) { const l = box(g, 1.1, 0.08, 0.3, 0x1f7a34, q[0] + Math.cos(i * 1.26) * 0.45, 1.75, q[1] + Math.sin(i * 1.26) * 0.45); l.rotation.y = -i * 1.26; l.rotation.z = -0.4; } }); }   // palmeras
+    if (id === 'patagonia') { cone(g, 1.4, 2.6, 0x6f7f95, -2.0, 0, -0.5, 6); cone(g, 0.6, 1.1, 0xffffff, -2.0, 1.52, -0.5, 6); [0, 1, 2].forEach(i => cone(g, 0.6 - i * 0.14, 0.8, 0x1f6a3a, 1.8, 0.25 + i * 0.5, 0.4, 7)); box(g, 0.16, 0.3, 0.16, 0x6b4a2a, 1.8, 0, 0.4); }   // cerro nevado y pino
+    return g;
+  }
+  function padlock(can) {
+    const g = new T.Group(), m = M(can ? 0xf5c518 : 0x9a9aa6); box(g, 1.5, 1.2, 0.6, m, 0, 0, 0);
+    const sh = new T.Mesh(new T.TorusGeometry(0.48, 0.14, 8, 14, Math.PI), M(0xd7d7de)); sh.position.set(0, 1.2, 0); g.add(sh); box(g, 0.22, 0.4, 0.1, 0x23232b, 0, 0.4, 0.32); return g;
+  }
+  function build(state) {
+    scene = new T.Scene(); tops = {}; bob = [];
+    scene.add(new T.HemisphereLight(0xffffff, 0x5a6a80, 0.62)); const d = new T.DirectionalLight(0xffffff, 0.42); d.position.set(8, 20, 12); scene.add(d);
+    const sea = new T.Mesh(new T.PlaneGeometry(200, 200), new T.MeshBasicMaterial({ color: 0x12304f })); sea.rotation.x = -Math.PI / 2; sea.position.y = -0.05; scene.add(sea);
+    for (const id in REG) {
+      const R = REG[id], st = state[id] || {}, h = st.open ? (st.cur ? 1.25 : 0.9) : 0.45, top = M(st.open ? R.col : 0x565a66), side = M(st.open ? new T.Color(R.col).multiplyScalar(0.62) : 0x363944), grp = new T.Group(); grp.userData.h = h; scene.add(grp); tops[id] = { grp, top, base: top.color.clone(), meshes: [] };
+      R.polys.forEach(poly => { const sh = new T.Shape(); poly.forEach((p, i) => i ? sh.lineTo(X(p[0]), Y(p[1])) : sh.moveTo(X(p[0]), Y(p[1])));
+        const geo = new T.ExtrudeGeometry(sh, { depth: h, bevelEnabled: false }); geo.rotateX(-Math.PI / 2); const m = new T.Mesh(geo, [top, side]); m.userData.reg = id; grp.add(m); tops[id].meshes.push(m); });
+      const px = X(R.at[0]), pz = -Y(R.at[1]), it = st.open ? miniShop(id, st.stage || 1) : padlock(st.can); it.position.set(px, h, pz); it.traverse(o => { o.userData.reg = id; }); grp.add(it); tops[id].meshes.push(it);
+      if (!st.open) bob.push({ o: it, y: h + 0.3, a: st.can ? 0.35 : 0.08, sp: st.can ? 4 : 1.5 });
+      if (st.cur) { const pin = cone(grp, 0.5, 1.0, 0xf5c518, px, 0, pz, 4); pin.rotation.x = Math.PI; bob.push({ o: pin, y: h + 4.1, a: 0.3, sp: 3, spin: 2 }); }
+      const g = (GS.REGIONS.find(r => r.id === id) || {}), lb = label((g.name || id).toUpperCase(), st.open ? g.city : st.can ? '¡Se puede abrir!' : ''); lb.position.set(px, h + (st.open ? 3.3 : 2.6), pz + 0.2); grp.add(lb);
+    }
+    const mv = label('ISLAS MALVINAS', '', 40); mv.scale.set(4.5, 1.5, 1); mv.position.set(X(-59.5), 1.6, -Y(-51.0)); scene.add(mv);
+  }
+  function fit() {
+    const w = cv.clientWidth || 300, h = cv.clientHeight || 400, a = w / h, half = Math.max(14.6, 10.2 / a);       // el país entra entero, parado o apaisado
+    renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1)); renderer.setSize(w, h, false);
+    camera.left = -half * a; camera.right = half * a; camera.top = half; camera.bottom = -half; camera.updateProjectionMatrix();
+  }
+  function frame(t) {
+    raf = requestAnimationFrame(frame); const s = t / 1000;
+    bob.forEach(b => { b.o.position.y = b.y + Math.sin(s * (b.sp || 2)) * b.a; if (b.spin) b.o.rotation.y = s * b.spin; });
+    for (const id in tops) { const k = id === sel ? 0.1 + Math.sin(s * 5) * 0.05 : 0; tops[id].top.emissive.setScalar(k); }
+    renderer.render(scene, camera);
+  }
+  function pick(e) {
+    const r = cv.getBoundingClientRect(), v = new T.Vector2((e.clientX - r.left) / r.width * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1), rc = new T.Raycaster(); rc.setFromCamera(v, camera);
+    const hit = rc.intersectObjects(scene.children, true).find(h => h.object.userData.reg); if (hit && onPick) onPick(hit.object.userData.reg);
+  }
+  function open(canvas, state, cb) {
+    close(); cv = canvas; onPick = cb; sel = null;
+    try { renderer = new T.WebGLRenderer({ canvas, antialias: true, alpha: true }); } catch (e) { renderer = null; return false; }
+    camera = new T.OrthographicCamera(-10, 10, 10, -10, 0.1, 400); const c = new T.Vector3(0.9, 0, 0.4), el = 48 * Math.PI / 180, az = -6 * Math.PI / 180, D = 120;
+    camera.position.set(c.x + Math.sin(az) * Math.cos(el) * D, Math.sin(el) * D, c.z + Math.cos(az) * Math.cos(el) * D); camera.lookAt(c);
+    build(state); fit(); cvOf = pick; canvas.addEventListener('click', pick); window.addEventListener('resize', fit); raf = requestAnimationFrame(frame); return true;
+  }
+  function close() { if (raf) cancelAnimationFrame(raf); raf = 0; if (cv && cvOf) cv.removeEventListener('click', cvOf); window.removeEventListener('resize', fit); if (renderer) { renderer.dispose(); renderer = null; } cv = null; }
+  return { open, close, select(id) { sel = id; }, isOpen: () => !!renderer };
+})();
+
 /* =====================================================================
    JUEGO — jornada, clientes, tareas de las estaciones, Arcade, puntaje,
    HUD, pantallas y bucle principal.
@@ -3411,7 +3556,7 @@ GS.Game = (function () {
   const brCrew = id => id === 'pampeana' ? ['Lucho', 'Brian'] : ((brAll()[id] || {}).staff || []).map(c => (RG(id).crew.find(x => x.id === c) || {}).name);
   const bossHere = () => brId() === 'pampeana' || repNow() < 4;
   function applyBranch() {
-    const id = brId(), R = RG(id), ps = W.staff(); W.setRegion(R, brStage(id)); W.setUpgrades(upNow()); W.bossVisible(bossHere());
+    const id = brId(), R = RG(id), ps = W.staff(); W.setRegion(R, brStage(id)); skyKey = ''; setSky(0.3, false); W.setUpgrades(upNow()); W.bossVisible(bossHere());
     if (id === 'pampeana') { luchoLook(dayNumber()); ps[1].look({ skin: GS.SKINS[0], hair: 0x2d6cdf, hairStyle: 'corto', glasses: false }); }
     else (brNow().staff || []).forEach((c, i) => { const e = R.crew.find(x => x.id === c); if (e && ps[i]) ps[i].look(e.look); });
   }
@@ -3420,25 +3565,24 @@ GS.Game = (function () {
     GS.Store.set('up', Object.assign({}, b.up || {}, web ? { web } : {})); GS.Store.set('rep', b.rep == null ? 4 : b.rep);     // la marca (la web) vale en todas
     applyBranch(); refreshStart(); GS.track('sucursal', { id });
   }
+  // Mapa del país en 3D: se toca una región y abajo aparece su tarjeta (viajar, abrir o ver qué le falta)
+  const mapState = lit => { const all = brAll(), o = {}; GS.REGIONS.forEach(r => { const b = all[r.id], open = lit || !!(b && b.open); o[r.id] = { open, can: !open && fondoNow() >= r.cost, cur: !lit && r.id === brId(), stage: lit ? 3 : open ? brStage(r.id) : 0 }; }); return o; };
+  function mapCard(id) {
+    const all = brAll(), cur = brId(), f = fondoNow(), r = RG(id), b = all[id], open = b && b.open, me = id === cur, h = histAll(), ss = GS.STORIES.filter(S => !S.once && (S.reg || 'pampeana') === id);
+    if (!open) return '<div class="suc lock"><b>🔒 ' + r.name + ' · ' + r.city + '</b><small>' + r.why + '</small><small>Zona de <b>' + r.rival.name + '</b></small><button class="btn alt" data-open="' + id + '"' + (f < r.cost ? ' disabled' : '') + '>' + (f < r.cost ? 'Faltan ' + (r.cost - f) + ' fondos · cuesta 🗺️ ' + r.cost : 'Abrir sucursal · 🗺️ ' + r.cost) + '</button></div>';
+    const rp = me ? repNow() : (b.rep == null ? 3 : b.rep), pr = brProgress(id), up = me ? upNow() : b.up || {}, pend = GS.UPGRADES.reduce((a, g) => a + g.levels.length - Math.min(g.levels.length, up[g.id] || 0), 0);
+    return '<div class="suc' + (me ? ' me' : '') + '"><b>' + r.name + ' · ' + r.city + (pr >= 100 ? ' ✅' : '') + '</b><span class="pb"><i style="width:' + pr + '%"></i></span><small>⭐ ' + repTxt(rp) + ' · ' + STAGE[brStage(id)] + ' · ' + pr + '%' + (b.manager ? ' · encargado: ' + b.manager : '') + '</small>' +
+      (me ? '<small class="al">' + (pend ? '🛠 ' + pend + ' mejoras pendientes' : '🛠 mejoras completas') + (rp < 4.8 ? ' · ⭐ falta llegar a 5' : '') + ((up.flota || 0) < 3 ? ' · 🚚 falta el camión' : '') + ' · 📖 historias ' + ss.filter(S => h[S.id] && h[S.id].done).length + ' de ' + ss.length + '</small><button class="btn ghost" disabled>Estás acá</button>'
+        : '<small><i>"' + LN.freeze + '"</i></small><button class="btn" data-go="' + id + '">Viajar a ' + r.city + '</button>') + '</div>';
+  }
+  let mapWasDay = false;
+  function closeMap() { GS.Map3D.close(); $('map').hidden = true; if (mapWasDay) paused = false; mapWasDay = false; }
+  function mapPick(id) { GS.Map3D.select(id); $('mapCard').innerHTML = mapCard(id); A.play('click'); }
   function showMap() {
-    const all = brAll(), cur = brId(), f = fondoNow(), wasDay = state === 'day'; if (wasDay) paused = true;
-    const SH = { noa: '40,10 105,10 100,95 55,110 35,70', nea: '105,10 175,25 185,75 140,105 100,95', cuyo: '35,112 78,104 84,190 45,200 30,150', pampeana: '80,104 140,107 170,150 150,215 86,205 84,190', patagonia: '45,202 86,207 150,217 120,300 100,385 70,390 55,300' },
-      CT = { noa: [70, 58], nea: [142, 62], cuyo: [58, 152], pampeana: [122, 160], patagonia: [96, 270] };
-    const svg = '<svg viewBox="0 0 220 400" class="mapa">' + GS.REGIONS.map(r => { const b = all[r.id], open = b && b.open, can = !open && f >= r.cost, c = CT[r.id];
-      return '<g data-reg="' + r.id + '" class="' + (open ? 'open' : can ? 'can' : 'lock') + (r.id === cur ? ' cur' : '') + '"><polygon points="' + SH[r.id] + '"/>' +
-        (open ? '<rect x="' + (c[0] - 26) + '" y="' + (c[1] - 9) + '" width="52" height="13" rx="3" class="cartel"/><text x="' + c[0] + '" y="' + (c[1] + 1) + '" class="ct">GAMESHOP</text>' : '<text x="' + c[0] + '" y="' + c[1] + '" class="lk">' + (can ? '🔓' : '🔒') + '</text>') +
-        '<text x="' + c[0] + '" y="' + (c[1] + 17) + '" class="nm">' + r.name + '</text></g>'; }).join('') + '</svg>';
-    const cards = GS.REGIONS.map(r => { const b = all[r.id], open = b && b.open, me = r.id === cur;
-      if (!open) return '<div class="suc lock"><b>' + r.name + ' · ' + r.city + '</b><small>' + r.why + '</small><small>Zona de <b>' + r.rival.name + '</b></small><button class="btn alt" data-open="' + r.id + '"' + (f < r.cost ? ' disabled' : '') + '>Abrir · 🗺️ ' + r.cost + '</button></div>';
-      const rp = me ? repNow() : (b.rep == null ? 3 : b.rep), pr = brProgress(r.id), up = me ? upNow() : b.up || {}, pend = GS.UPGRADES.reduce((a, g) => a + g.levels.length - Math.min(g.levels.length, up[g.id] || 0), 0);
-      return '<div class="suc' + (me ? ' me' : '') + '"><b>' + r.name + ' · ' + r.city + (pr >= 100 ? ' ✅' : '') + '</b><span class="pb"><i style="width:' + pr + '%"></i></span><small>⭐ ' + repTxt(rp) + ' · ' + STAGE[brStage(r.id)] + ' · ' + pr + '%' + (b.manager ? ' · encargado: ' + b.manager : '') + '</small>' +
-        (me ? '<small class="al">' + (pend ? '🛠 ' + pend + ' mejoras pendientes' : '🛠 mejoras completas') + (rp < 4.8 ? ' · ⭐ falta llegar a 5' : '') + ((up.flota || 0) < 3 ? ' · 🚚 falta el camión' : '') + ' · 📖 historias ' + GS.STORIES.filter(S => !S.once && (S.reg || 'pampeana') === r.id && histAll()[S.id] && histAll()[S.id].done).length + ' de ' + GS.STORIES.filter(S => !S.once && (S.reg || 'pampeana') === r.id).length + '</small><button class="btn ghost" disabled>Estás acá</button>'
-          : '<small><i>"' + LN.freeze + '"</i></small><button class="btn" data-go="' + r.id + '">Viajar</button>') + '</div>'; }).join('');
-    modal('<h2>🗺️ GameShop a todo el país</h2><p>Fondos de expansión: <b>🗺️ ' + f + '</b>. Desde cada región se envía más fácil a sus provincias. Una sucursal está completa con todas las mejoras, 5 estrellas, camión propio y las historias de sus clientes cerradas.</p>' + svg + '<div class="sucs">' + cards + '</div><div class="row"><button class="btn ghost" id="mapLib">📖 Libreta</button><button class="btn" data-close>Cerrar</button></div>', () => { if (wasDay) paused = false; });
-    $('mapLib').addEventListener('click', showLibreta);
-    $('sheet').querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => leaveTo(b.dataset.go)));
-    $('sheet').querySelectorAll('[data-open]').forEach(b => b.addEventListener('click', () => openRegion(b.dataset.open)));
-    $('sheet').querySelectorAll('g[data-reg]').forEach(g => g.addEventListener('click', () => { const id = g.dataset.reg, b = all[id]; if (id === cur) return; if (b && b.open) leaveTo(id); else if (f >= RG(id).cost) openRegion(id); else toast('<b>🔒 ' + RG(id).name + '</b>Faltan ' + (RG(id).cost - f) + ' fondos de expansión.', '', 2400); }));
+    const all = brAll(), n = GS.REGIONS.filter(r => all[r.id] && all[r.id].open).length; mapWasDay = state === 'day'; if (mapWasDay) paused = true;
+    $('modal').hidden = true; $('map').hidden = false; $('mapSub').textContent = 'Sucursales ' + n + ' de 5 · fondos de expansión 🗺️ ' + fondoNow() + ' · tocá una región';
+    if (!GS.Map3D.open($('mapCv'), mapState(), mapPick)) { closeMap(); return toast('<b>Ups</b>No se pudo dibujar el mapa en este navegador.', '', 2600); }
+    GS.Map3D.select(brId()); $('mapCard').innerHTML = mapCard(brId());
   }
   // Antes de irse hay que dejar un encargado. La sucursal queda congelada tal como estaba.
   function pickManager(then) {
@@ -3464,15 +3608,17 @@ GS.Game = (function () {
   function showFinal(preview) {
     const st = statsNow(), d = GS.Store.get('days') || 0, F = GS.FINALS.find(f => f.test(st, d)), SH = ['40,10 105,10 100,95 55,110 35,70', '105,10 175,25 185,75 140,105 100,95', '35,112 78,104 84,190 45,200 30,150', '80,104 140,107 170,150 150,215 86,205 84,190', '45,202 86,207 150,217 120,300 100,385 70,390 55,300'], CT = [[70, 58], [142, 62], [58, 152], [122, 160], [96, 270]];
     A.play('fanfare'); GS.track('final', { tipo: F.id, jornadas: d });
-    modal('<div class="fin2"><h2>GameShop llegó a todo el país</h2><svg viewBox="0 0 220 400" class="mapa lit">' + SH.map((p, i) => '<g class="open"><polygon points="' + p + '"/><rect x="' + (CT[i][0] - 26) + '" y="' + (CT[i][1] - 9) + '" width="52" height="13" rx="3" class="cartel"/><text x="' + CT[i][0] + '" y="' + (CT[i][1] + 1) + '" class="ct">GAMESHOP</text></g>').join('') + '</svg>' +
+    modal('<div class="fin2"><h2>GameShop llegó a todo el país</h2><canvas id="finMap"></canvas>' +
       '<div class="quote"><b>' + F.ic + ' Final: ' + F.t + '</b>' + F.d + '</div>' + (preview ? '<p><small>Vista previa: el final real se abre al completar las 5 sucursales.</small></p>' : '') +
       '<p>' + d + ' jornadas · ' + st.c + ' clientes atendidos · ' + (GS.Store.get('ach') || []).length + ' logros</p>' +
       '<p class="cred">Un juego de GameShop · Av. de los Incas 4552, CABA<br>Personajes inventados. Los precios y el stock, también.</p>' +
       '<div class="cta"><b>Esto fue un juego. El local es real.</b><a class="btn alt" href="' + C.links.tienda + '" target="_blank" rel="noopener">Conocé www.gameshop.com.ar</a></div>' +
       '<div class="row"><button class="btn ghost" id="finShare">📸 Compartir</button><button class="btn" id="finNg">Nuevo Juego+</button></div><button class="btn ghost" data-close>Seguir en esta partida</button></div>');
+    GS.Map3D.open($('finMap'), mapState(true), null); modalOnClose = () => GS.Map3D.close();
     $('finShare').addEventListener('click', () => showCard()); $('finNg').addEventListener('click', showNgPlus);
   }
   function showNgPlus() {
+    GS.Map3D.close();
     modal('<h2>Nuevo Juego+</h2><p>Empezás de nuevo desde Incas, con tus logros, tus premios del Arcade y tu personaje. Elegí cómo:</p><div class="arc2">' + GS.MODS.map(m => '<button data-mod="' + m.id + '"><i>' + m.ic + '</i><b>' + m.name + '</b><small>' + m.d + '</small></button>').join('') + '</div><button class="btn ghost" data-close>Mejor no</button>');
     $('sheet').querySelectorAll('[data-mod]').forEach(b => b.addEventListener('click', () => {
       const keep = {}; ['ach', 'cos', 'arcBest', 'arcade', 'tutorial', 'seen'].forEach(k => { keep[k] = GS.Store.get(k); }); const ng = (GS.Store.get('ngp') || 0) + 1;
@@ -3963,14 +4109,15 @@ GS.Game = (function () {
     $('shopCoins').textContent = '🪙 ' + c;
     $('shopFund').innerHTML = '';
     $('shopSlots').innerHTML = GS.UPGRADES.map((x, i) => '<button class="slotb' + (i === shopSel ? ' on' : '') + ((u[x.id] || 0) >= x.levels.length ? ' full' : '') + '" data-i="' + i + '">' + x.icon + '<small>' + x.name + '</small></button>').join('');
+    const seeLv = preview == null ? Math.min(own + 1, g.levels.length) : preview;
     $('shopCards').innerHTML = g.levels.map((lv, i) => {
       const has = own > i, can = own === i && c >= lv.price, locked = own < i;
-      return '<div class="card' + (has ? ' has' : '') + '"><b>' + lv.n + '</b><span>' + lv.d + '</span><div class="row"><em>' + (has ? '✔ Ya lo tenés' : '🪙 ' + lv.price) + '</em>' +
+      return '<div class="card' + (has ? ' has' : '') + (i + 1 === seeLv ? ' sel' : '') + '" data-see="' + (i + 1) + '"><b>' + lv.n + '</b><span>' + lv.d + '</span><div class="row"><em>' + (has ? '✔ Ya lo tenés' : '🪙 ' + lv.price) + '</em>' +
         (has ? '' : '<button class="btn" data-buy="' + i + '"' + (can ? '' : ' disabled') + '>' + (locked ? 'Primero el anterior' : can ? 'Comprar' : 'Te faltan ' + (lv.price - c)) + '</button>') + '</div></div>';
     }).join('') + (g.levels.length > 1 ? '' : '');
-    const show = Object.assign({}, u); show[g.id] = Math.max(own, preview == null ? Math.min(own + 1, g.levels.length) : preview);   // vista previa del modelo en su lugar
+    const show = Object.assign({}, u); show[g.id] = seeLv;   // vista previa del modelo en su lugar
     W.setUpgrades(show); W.focusAt(g.pos[0], g.pos[1], g.zoom || 0.36, 0.2);
-    $('shopHint').textContent = (shopSel + 1) + ' de ' + GS.UPGRADES.length + ' · ' + (own >= g.levels.length ? 'Ya lo tenés en el local.' : 'Vista previa en el local');
+    $('shopHint').textContent = (shopSel + 1) + ' de ' + GS.UPGRADES.length + ' · ' + (g.levels.length > 1 ? 'Tocá un nivel para verlo en el local' : own >= g.levels.length ? 'Ya lo tenés en el local.' : 'Vista previa en el local');
   }
   function buy(i) {
     const u = upNow(), g = GS.UPGRADES[shopSel], lv = g.levels[i]; if ((u[g.id] || 0) !== i || coinsNow() < lv.price) return;
@@ -4262,11 +4409,12 @@ GS.Game = (function () {
   let fpsT = 0, fpsN = 0, autoQ = 'media', skyKey = '';
   // La vereda y el fondo acompañan la hora del juego: mañana fresca, mediodía claro, tarde dorada y anochecer con el farol prendido
   function setSky(f, rain) {
-    f = U.clamp(f, 0, 1); const key = Math.round(f * 60) + (rain ? 'r' : ''); if (key === skyKey) return; skyKey = key;
+    f = U.clamp(f, 0, 1); const reg = brId() !== 'pampeana', key = Math.round(f * 60) + (rain ? 'r' : '') + brId(); if (key === skyKey) return; skyKey = key;
     const stops = [[0, [34, 62, 92]], [0.35, [46, 86, 128]], [0.62, [118, 70, 34]], [0.85, [92, 40, 52]], [1, [22, 18, 52]]]; let c = stops[0][1];
     for (let i = 1; i < stops.length; i++) if (f <= stops[i][0]) { const a = stops[i - 1], b = stops[i], k = (f - a[0]) / (b[0] - a[0]); c = a[1].map((v, j) => Math.round(v + (b[1][j] - v) * k)); break; }
     if (rain) c = c.map(v => Math.round(v * 0.45 + 30));
-    document.body.style.background = 'radial-gradient(120% 90% at 50% 35%, rgb(' + c.join(',') + ') 0%, rgb(' + c.map(v => Math.round(v * 0.35)).join(',') + ') 50%, #000 100%)';
+    if (reg) document.body.style.background = 'linear-gradient(rgb(' + c.map(v => Math.min(255, Math.round(v * 1.5 + 70))).join(',') + ') 0%, rgb(' + c.map(v => Math.min(255, Math.round(v * 0.9 + 140))).join(',') + ') 60%)';     // en las sucursales hay cielo y horizonte
+    else document.body.style.background = 'radial-gradient(120% 90% at 50% 35%, rgb(' + c.join(',') + ') 0%, rgb(' + c.map(v => Math.round(v * 0.35)).join(',') + ') 50%, #000 100%)';
     W.setDayTime(f, rain);
   }
   function frame(t) {
@@ -4308,11 +4456,13 @@ GS.Game = (function () {
       const before = fondoNow() >= goalNow(); GS.Store.set('coins', c - v); addFondo(v); A.play('cash'); GS.track('aporte_fondo', { monto: v });
       toast(!before && fondoNow() >= goalNow() ? '<b>🏠 ¡Meta alcanzada!</b>Ya alcanza para el local de al lado. Lo que sumes de más mejora el final.' : '<b>🏠 Aportaste 🪙 ' + v + '</b>Fondo: ' + fondoNow() + ' de ' + goalNow() + '.', '', 2600); renderShop(); });
     $('btnPlot').addEventListener('click', () => { A.unlock(); A.play('click'); showMap(); });
+    $('mapX').addEventListener('click', () => { A.play('click'); closeMap(); }); $('mapLib').addEventListener('click', () => { closeMap(); showLibreta(); });
+    $('mapCard').addEventListener('click', e => { const g = e.target.closest('[data-go]'), o = e.target.closest('[data-open]'); if (g) { closeMap(); leaveTo(g.dataset.go); } else if (o && !o.disabled) { closeMap(); openRegion(o.dataset.open); } });
     const shopStep = k => { if (state !== 'shop') return; shopSel = (shopSel + k + GS.UPGRADES.length) % GS.UPGRADES.length; A.play('click'); renderShop(); const on = $('shopSlots').querySelector('.on'); if (on && on.scrollIntoView) on.scrollIntoView({ block: 'nearest', inline: 'center' }); };
     $('shopPrev').addEventListener('click', () => shopStep(-1)); $('shopNext').addEventListener('click', () => shopStep(1));
     $('shopSlots').addEventListener('wheel', e => { if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) { $('shopSlots').scrollLeft += e.deltaY; e.preventDefault(); } }, { passive: false });
     $('shopSlots').addEventListener('click', e => { const b = e.target.closest('.slotb'); if (b) { shopSel = Number(b.dataset.i); A.play('click'); renderShop(); } });
-    $('shopCards').addEventListener('click', e => { const b = e.target.closest('[data-buy]'); if (b) buy(Number(b.dataset.buy)); });
+    $('shopCards').addEventListener('click', e => { const b = e.target.closest('[data-buy]'), c = e.target.closest('[data-see]'); if (b && !b.disabled) return buy(Number(b.dataset.buy)); if (c) { const x = $('shopCards').scrollLeft; A.play('click'); renderShop(Number(c.dataset.see)); $('shopCards').scrollLeft = x; } });
     $('shopCards').addEventListener('scroll', () => { const el = $('shopCards'), i = Math.round(el.scrollLeft / Math.max(1, el.clientWidth * 0.86)); if (el._i !== i) { el._i = i; const u = upNow(), g = GS.UPGRADES[shopSel], sh = Object.assign({}, u); sh[g.id] = Math.max(u[g.id] || 0, i + 1); W.setUpgrades(sh); } });
     W.onTap(st => openStation(st));
     $('btnPlay').addEventListener('click', careerStart);
