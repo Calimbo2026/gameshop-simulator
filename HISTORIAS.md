@@ -1,6 +1,6 @@
 # GameShop Simulator · Historias de cada sucursal
 
-Generado desde `src/data.js` (versión 0.34.0). Cada personaje viene al mostrador; en cada visita dice algo y el jugador elige una respuesta. Entre paréntesis, lo que deja cada respuesta (⭐ reputación, 🗺️ fondos de expansión).
+Generado desde `src/data.js` (versión 0.38.0). Cada personaje viene al mostrador; en cada visita dice algo y el jugador elige una respuesta. Entre paréntesis, lo que deja cada respuesta (⭐ reputación, 🗺️ fondos de expansión).
 
 ---
 
@@ -255,6 +255,56 @@ Desde la jornada 3 en esa sucursal.
 
 *En la libreta:* Desafío final de Zonda Gamer: armar una PC contra reloj.
 
+### La seño Rosa — Maestra de una escuela rural
+
+Desde la jornada 4 en esa sucursal.
+
+**Visita 1.** «La cooperadora juntó plata con rifas y empanadas. Queremos tablets para la escuela: somos veinte chicos y un solo enchufe.»
+
+- **Tres tablets, en 3 cuotas sin interés** → «¡Tres! Con las cuotas llegamos. Vuelvo cuando cobremos la rifa del lechón.» (+0.1 ⭐)
+- **Mejor una sola, la más completa** → «Una sola... Bueno. Van a tener que turnarse. Vuelvo con la plata.»
+
+*En la libreta:* La cooperadora de una escuela rural quiere tablets.
+
+**Visita 2.** «Cobramos la rifa. Ganó el intendente y donó el lechón de nuevo, así que la rifamos dos veces. Vengo por las tres tablets.»
+
+*Si antes pasó otra cosa:* «Compré la tablet. Hicimos una lista de turnos: el último la usa en marzo. ¿Me arma el presupuesto de dos más?»
+
+- **Acá están, con funda y garantía** → «Con funda: usted conoce a los chicos. Le traigo novedades.» (+0.15 ⭐, +200 🗺️)
+
+*En la libreta:* Volvió con la plata de la rifa (rifada dos veces).
+
+**Visita 3 (cierre).** «Los chicos le mandan esto: un dibujo de usted atendiendo. Le pusieron capa. Y el más chico pregunta si los juegos también son tarea.»
+
+- **Decile que los de pensar, sí** → «Se lo voy a decir. Va a ser el primero en hacer la tarea.» (+0.2 ⭐, +100 🗺️)
+
+*En la libreta:* Los chicos de la escuela mandaron un dibujo.
+
+### Facu — Sommelier que quiere hacer catas en vivo
+
+Desde la jornada 5 en esa sucursal.
+
+**Visita 1.** «Quiero transmitir catas de vino en vivo. Necesito que se escuche el descorche. El descorche es todo.»
+
+- **Un buen micrófono y una cámara sencilla** → «Claro: primero el sonido. Lo pruebo esta noche con un malbec.» (+0.1 ⭐, +120 🗺️)
+- **La cámara más cara y el micrófono del celular** → «Mmm, bueno. Si usted dice que se ve mejor...» (+150 🗺️)
+
+*En la libreta:* Quiere transmitir catas en vivo: lo importante es el descorche.
+
+**Visita 2.** «Se veía hermoso. Pero el descorche sonó como una puerta. Tuve doce espectadores y once eran mi tía con distintas cuentas.»
+
+*Si antes pasó otra cosa:* «¡Se escuchó el descorche! Un señor de Japón escribió "POP" en mayúsculas. Tengo cuarenta espectadores y solo una es mi tía.»
+
+- **Sumemos el micrófono, con 10% en efectivo** → «Trato. Y perdón por dudar: esta vez le hago caso.» (+0.1 ⭐, +100 🗺️)
+
+*En la libreta:* La primera cata se vio bien pero se escuchó mal.
+
+**Visita 3 (cierre).** «Me llamó una bodega para que les haga las transmisiones. Vengo a equiparme en serio. Y traje una botella: es para después de las 19.»
+
+- **Después de las 19, brindamos** → «A las 19:01. No antes, que el Dueño tiene oído de sommelier.» (+0.2 ⭐, +300 🗺️)
+
+*En la libreta:* Una bodega lo contrató. Volvió a equiparse.
+
 ---
 
 ## NOA · Salta
@@ -320,6 +370,56 @@ Desde la jornada 3 en esa sucursal.
 - **Se la arreglamos, con garantía** → «Anda mejor que nueva. La receta es secreta, pero les traigo una docena por semana.» (+0.25 ⭐, +300 🗺️)
 
 *En la libreta:* Desafío final: arreglar la notebook de Doña Ramona.
+
+### Doña Eulogia — Tejedora de ponchos
+
+Desde la jornada 4 en esa sucursal.
+
+**Visita 1.** «Mi nieto dice que mis ponchos se venden solos si les saco buena foto. Yo los tejo, pero de fotos no sé nada, changuito.»
+
+- **Este celular, y le enseño a sacar la foto** → «A ver... ¡Ah! Sale el poncho y salgo yo. Quedé linda. Vuelvo cuando venda el primero.» (+0.15 ⭐)
+- **Este celular. Viene con manual** → «Manual... Bueno. Mi nieto me lo va a leer.» (+80 🗺️)
+
+*En la libreta:* Teje ponchos y quiere venderlos con buenas fotos.
+
+**Visita 2.** «¡Vendí un poncho a Alemania! El señor preguntó si pica. Le dije que es lana de llama, que pica lo justo.»
+
+*Si antes pasó otra cosa:* «¡Vendí tres ponchos! Las fotos salen tan bien que una señora de Buenos Aires quiso comprarme a mí también.»
+
+- **¿Lo mandamos con seguimiento?** → «Eso. Que no se me pierda en el cerro.» (+0.15 ⭐, +150 🗺️)
+
+*En la libreta:* Vendió su primer poncho a Alemania.
+
+**Visita 3 (cierre).** «Ahora teje toda la familia. Le traje uno a usted: rojo, como el local. Póngaselo cuando refresque, que acá a la noche hace frío de verdad.»
+
+- **Es el mejor uniforme que tuvimos** → «Y no destiñe. Bueno, un poquito.» (+0.25 ⭐, +150 🗺️)
+
+*En la libreta:* Toda la familia teje. Trajo un poncho rojo de regalo.
+
+### El Pulga — Charanguista de peña
+
+Desde la jornada 5 en esa sucursal.
+
+**Visita 1.** «Toco el charango en la peña y al fondo no me escuchan. Necesito un parlante. Que aguante una zamba, una chacarera y un cumpleaños.»
+
+- **Este grande, con batería para toda la noche** → «Toda la noche. Usted sí conoce las peñas.» (+0.1 ⭐, +150 🗺️)
+- **Este chiquito, es más barato** → «Mmm. Bueno, si alcanza para la zamba...» (+60 🗺️)
+
+*En la libreta:* Toca en una peña y al fondo no lo escuchan.
+
+**Visita 2.** «Se apagó en la mitad de la zamba. Justo en el pañuelo. La gente siguió revoleando en silencio. Fue muy triste y muy lindo.»
+
+*Si antes pasó otra cosa:* «¡Aguantó hasta las seis de la mañana! Tocamos tanto que el dueño de la peña nos pidió por favor que nos fuéramos.»
+
+- **Llevate el grande, te tomo el otro** → «Gracias, hermano. La próxima zamba va completa.» (+0.15 ⭐, +100 🗺️)
+
+*En la libreta:* El parlante chico se apagó en plena zamba.
+
+**Visita 3 (cierre).** «Sábado, peña en la plaza, dedicada al local. Ya le compuse una copla: "En GameShop me atendieron, me dieron lo que pedí, / no me cobraron de más... ¡y encima me sonreí!"»
+
+- **Esa va al cartel de la entrada** → «¡Aro, aro, aro! Diga que sí.» (+0.3 ⭐)
+
+*En la libreta:* Le compuso una copla al local.
 
 ---
 
@@ -387,6 +487,56 @@ Desde la jornada 3 en esa sucursal.
 
 *En la libreta:* Desafío final: torneo de truco contra el Tío Chelo.
 
+### Don Wenceslao — De la cooperativa yerbatera
+
+Desde la jornada 4 en esa sucursal.
+
+**Visita 1.** «En la cooperativa llevamos las cuentas en un cuaderno que ya tiene olor a yerba. Queremos una computadora. Que no se asuste con la humedad.»
+
+- **Una notebook, y se la dejo configurada** → «¿Configurada? ¿Eso muerde? Bueno, confío. Vuelvo con los socios.» (+0.15 ⭐)
+- **Una notebook. Se configura sola** → «Sola... Como el mate, que se ceba solo. Ya veremos.» (+100 🗺️)
+
+*En la libreta:* La cooperativa yerbatera quiere dejar el cuaderno.
+
+**Visita 2.** «Chamigo, la prendimos y nos pidió una contraseña. Pusimos "yerba". Después "Yerba". Después "YERBA1". Ahora dice que esperemos una hora.»
+
+*Si antes pasó otra cosa:* «Anda una maravilla. Los socios se pelean por cargar las planillas. Nunca vi a tanta gente con ganas de hacer cuentas.»
+
+- **Tráigala: el servicio técnico la deja lista** → «Menos mal. Ya estábamos por volver al cuaderno.» (+0.15 ⭐, +80 🗺️)
+
+*En la libreta:* Se bloqueó la notebook: probaron "yerba" de todas las formas.
+
+**Visita 3 (cierre).** «Cerramos el año con los números claros por primera vez. Sobró plata y nadie sabe qué hacer. Yo propuse otra computadora. Y traje yerba: de la buena, la que no sale.»
+
+- **Otra notebook, y gracias por la yerba** → «Y un tereré para usted, que con este calor no se toma otra cosa.» (+0.2 ⭐, +300 🗺️)
+
+*En la libreta:* La cooperativa cerró el año con las cuentas claras.
+
+### Las Carpinchas — Equipo de juegos del club del barrio
+
+Desde la jornada 5 en esa sucursal.
+
+**Visita 1.** «Somos Las Carpinchas, el equipo del club. El sábado es el torneo provincial y tenemos cuatro jugadoras y tres joysticks. La cuarta juega con el teclado de la secretaría.»
+
+- **Les presto el de exhibición para el torneo** → «¿En serio? ¡Lo cuidamos como al trofeo! Bueno, como al trofeo que todavía no tenemos.» (+0.2 ⭐)
+- **Hay 3 cuotas sin interés** → «Lo hablamos con la comisión del club. Se reúne los jueves. A veces.» (+0.05 ⭐)
+
+*En la libreta:* Un equipo del club necesita un joystick para el torneo.
+
+**Visita 2.** «Perdimos la final por un punto. La del teclado jugó bárbaro, pero se le trabó la barra espaciadora en el momento clave. Igual salimos segundas.»
+
+*Si antes pasó otra cosa:* «¡GANAMOS! Con su joystick hicimos el último punto. Lo devolvemos lustrado. Bueno, casi: tiene un poco de chipá.»
+
+- **El año que viene, con cuatro joysticks** → «Ya juntamos para el cuarto. ¿Sigue lo de las cuotas?» (+0.1 ⭐, +120 🗺️)
+
+*En la libreta:* Salieron segundas: se trabó una tecla en la final.
+
+**Visita 3 (cierre).** «Ahora hay lista de espera para entrar al equipo. Armamos Las Carpinchitas, las de ocho años. Ya le ganan a los padres. Vinimos todas a comprar.»
+
+- **Pasen, que hay joysticks para todas** → «¡Y pusimos el logo del local en la camiseta! Al lado del carpincho.» (+0.3 ⭐, +300 🗺️)
+
+*En la libreta:* El equipo creció: ahora hay hasta categoría infantil.
+
 ---
 
 ## Patagonia · Bariloche
@@ -453,6 +603,56 @@ Desde la jornada 3 en esa sucursal.
 
 *En la libreta:* El desafío más grande: un envío a Ushuaia contra el Ruso Iván.
 
+### Doña Frida — Chocolatera de la calle principal
+
+Desde la jornada 4 en esa sucursal.
+
+**Visita 1.** «En temporada vendo dos mil cajas de bombones y anoto todo en un papelito. El año pasado perdí el papelito. Fue un invierno muy largo.»
+
+- **Una PC con impresora de etiquetas** → «Etiquetas... ¿Y si las hago con forma de corazón? Vuelvo antes de la nieve.» (+0.1 ⭐, +150 🗺️)
+- **Una libreta más grande** → «Ja. Muy gracioso. Pero no tan mala idea.» (+0.05 ⭐)
+
+*En la libreta:* Vende miles de cajas y anota todo en un papelito.
+
+**Visita 2.** «Compré la libreta grande. La perdí igual. Era grande, pero se ve que no lo suficiente. Ahora sí: quiero la PC y la impresora.»
+
+*Si antes pasó otra cosa:* «¡Dos mil cajas etiquetadas! Los turistas piden la etiqueta sin el chocolate. No sé si ofenderme.»
+
+- **Se la dejamos instalada y con garantía** → «Y átenmela al mostrador, por las dudas.» (+0.15 ⭐, +200 🗺️)
+
+*En la libreta:* Perdió también la libreta grande.
+
+**Visita 3 (cierre).** «Cerré la mejor temporada de mi vida. Les traje una caja a cada uno. Y una grande para el que duerme: me dijeron que en todas las sucursales hay uno.»
+
+- **Hay uno en todas, es cierto** → «Es tradición, como el chocolate caliente.» (+0.25 ⭐, +150 🗺️)
+
+*En la libreta:* Tuvo su mejor temporada. Trajo chocolate para todos.
+
+### Nahuel — Instructor de esquí
+
+Desde la jornada 5 en esa sucursal.
+
+**Visita 1.** «Quiero filmar a mis alumnos bajando para mostrarles qué hacen mal. Spoiler: todo. Necesito una cámara que aguante golpes, frío y vergüenza ajena.»
+
+- **Esta cámara, con funda y correa** → «Correa, sí. En la montaña todo lo que no está atado, baja solo.» (+0.1 ⭐, +150 🗺️)
+- **Esta cámara. La funda es aparte** → «Aparte... Bueno, tengo guantes. La agarro fuerte.» (+100 🗺️)
+
+*En la libreta:* Quiere filmar a sus alumnos de esquí.
+
+**Visita 2.** «Se me resbaló en la aerosilla. Cayó cuarenta metros. La encontró un perro de rescate, que ahora la considera suya. Negociamos: me la devolvió por un sándwich.»
+
+*Si antes pasó otra cosa:* «Se me cayó de la aerosilla y quedó colgando de la correa. Filmó toda la caída: es mi video más visto. Diez mil personas me vieron gritar.»
+
+- **Ahora sí, con funda y correa** → «Con correa. Y un sándwich de repuesto.» (+0.1 ⭐, +80 🗺️)
+
+*En la libreta:* La cámara se cayó de la aerosilla y la rescató un perro.
+
+**Visita 3 (cierre).** «Los alumnos mejoraron viendo los videos. Uno ya baja sin gritar. La escuela quiere cámaras para todos los instructores: somos doce.»
+
+- **Doce cámaras, doce correas** → «Y doce sándwiches, por el perro.» (+0.2 ⭐, +400 🗺️)
+
+*En la libreta:* La escuela de esquí quiere cámaras para todos.
+
 ---
 
 ## Malvinas · Puerto Argentino (final oculto)
@@ -460,6 +660,31 @@ Desde la jornada 3 en esa sucursal.
 - **Provincias:** Islas Malvinas
 - **Clima:** Frío oceánico, viento casi todos los días y llovizna. Todo el mundo abrigado.
 - **Competencia:** Pirata Gaming, de El Capitán Tormenta. Dice que las islas son suyas porque llegó en barco. Te "toma prestados" los carteles, los toldos y a veces los pedidos.
+
+### La doctora Alma — Bióloga que cuenta pingüinos
+
+Desde la jornada 3 en esa sucursal.
+
+**Visita 1.** «Cuento pingüinos. Hay muchos y se mueven. Necesito una tablet que aguante viento, sal y picotazos: los pingüinos son muy curiosos y nada respetuosos.»
+
+- **Esta, con funda reforzada** → «Reforzada. Perfecto: ya me comieron dos lapiceras.» (+0.15 ⭐, +120 🗺️)
+- **Esta, que es más liviana** → «Liviana... Con este viento, no sé si eso es bueno.» (+80 🗺️)
+
+*En la libreta:* Cuenta pingüinos y necesita una tablet resistente.
+
+**Visita 2.** «Un pingüino se la llevó. No sé cómo. La encontré en su nido, prendida. Tenía abierto un juego. Iba por el nivel cuatro.»
+
+*Si antes pasó otra cosa:* «La picotearon cuarenta veces y ni un rayón. Conté ocho mil doscientos. Bueno, ocho mil doscientos uno: uno se me subió a la mochila.»
+
+- **Le ponemos funda con correa** → «Con correa. Y le dejo una vieja al pingüino, que se lo ganó.» (+0.15 ⭐, +100 🗺️)
+
+*En la libreta:* Un pingüino se llevó la tablet y la usó.
+
+**Visita 3 (cierre).** «Terminé el censo: hay más pingüinos que nunca. Y pasa algo raro: de tarde se juntan frente a su vidriera. Lo anoté en el informe como "conducta nueva".»
+
+- **Son nuestros clientes más fieles** → «Y los únicos que vienen de traje.» (+0.25 ⭐, +200 🗺️)
+
+*En la libreta:* Terminó el censo. Los pingüinos miran la vidriera.
 
 ### El Capitán Tormenta — Dueño de Pirata Gaming
 
