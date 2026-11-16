@@ -1010,6 +1010,9 @@ GS.Game = (function () {
     v += '<rect x="42" y="56" width="16" height="30" rx="8" fill="' + sh(ns, -0.14) + '"/><g transform="translate(0 -8)"><path d="M6 134 Q6 94 32 87 L42 83 H58 L68 87 Q94 94 94 134z" fill="url(#t' + id + ')"/><path d="M29 89 Q50 75 71 89 Q64 101 50 101 Q36 101 29 89z" fill="' + sh(nt, -0.3) + '"/>';                                 // buzo y capucha
     v += '<rect x="42" y="68" width="16" height="25" rx="8" fill="' + sh(ns, -0.14) + '"/><path d="M38 92 Q50 101 62 92 Q56 104 50 104 Q44 104 38 92z" fill="' + sh(nt, 0.1) + '"/>';
     v += '<g stroke="' + sh(nt, 0.55) + '" stroke-width="1.700" stroke-linecap="round"><path d="M45.500 100 Q44 108 44.500 115"/><path d="M54.500 100 Q56 108 55.500 115"/></g></g>';                                                              // cordones
+    if (a.uniform) v += '<path d="M39 76 H61 V88 Q50 93 39 88z" fill="' + sh(nt, -0.35) + '"/><path d="M39 78 H61" stroke="#f5c518" stroke-width="1.800"/><g fill="#f5c518"><ellipse cx="15" cy="84" rx="11" ry="4.600"/><ellipse cx="85" cy="84" rx="11" ry="4.600"/><circle cx="50" cy="96" r="2"/><circle cx="50" cy="104" r="2"/><circle cx="50" cy="112" r="2"/><circle cx="50" cy="120" r="2"/></g>' +
+      '<g stroke="#c9a013" stroke-width="1.300"><path d="M7 86v5M11 87v5M15 88v5M19 87v5M23 86v5M77 86v5M81 87v5M85 88v5M89 87v5M93 86v5"/></g><path d="M22 92 L70 124 H58 L16 96z" fill="#d81e2c"/>' +
+      '<g><rect x="27" y="97" width="4" height="6" fill="#2d6cdf"/><circle cx="29" cy="105.500" r="2.800" fill="#f5c518"/><rect x="34" y="97" width="4" height="6" fill="#3bb54a"/><circle cx="36" cy="105.500" r="2.800" fill="#d7d7de"/></g>';      // uniforme de gala: cuello alto, charreteras, banda, botones y medallas
     v += '<ellipse cx="22.500" cy="47" rx="5.800" ry="7.400" fill="' + sk + '"/><ellipse cx="77.500" cy="47" rx="5.800" ry="7.400" fill="' + sk + '"/><ellipse cx="23" cy="47.500" rx="2.600" ry="4" fill="' + sh(ns, -0.16) + '"/><ellipse cx="77" cy="47.500" rx="2.600" ry="4" fill="' + sh(ns, -0.16) + '"/>';
     v += '<ellipse cx="50" cy="44" rx="26" ry="27" fill="url(#s' + id + ')"/>' + FT;
     v += '<circle cx="31" cy="59" r="5.500" fill="#ff6b6b" opacity=".2"/><circle cx="69" cy="59" r="5.500" fill="#ff6b6b" opacity=".2"/>';
@@ -1023,6 +1026,7 @@ GS.Game = (function () {
     }
     if (a.beard) v += '<path d="M21.500 52 A28.500 28.500 0 0 0 78.500 52 Q73 62 61 59 Q50 54 39 59 Q27 62 21.500 52z" fill="' + h + '"/>';
     // sombreros de los disfraces
+    if (hat === 'bicornio') v += '<path d="M5 39 Q18 5 50 3 Q82 5 95 39 Q72 30 50 30 Q28 30 5 39z" fill="#1b2340"/><path d="M8 36 Q20 8 50 6 Q80 8 92 36" fill="none" stroke="#f5c518" stroke-width="2.400"/><circle cx="50" cy="18" r="5" fill="#f5c518"/><circle cx="50" cy="18" r="2.200" fill="#d81e2c"/>';
     if (hat === 'lana') v += '<path d="M21 46 Q22 15 50 14 Q78 15 79 46z" fill="' + top + '"/><path d="M19 44 Q50 32 81 44 L80 53 Q50 41 20 53z" fill="' + ink + '"/><circle cx="50" cy="12" r="6" fill="' + ink + '"/>';
     if (hat === 'gorro') v += '<path d="M20 44 Q22 14 52 12 Q76 12 84 30 L78 34 Q70 24 62 30 Q76 36 80 46z" fill="#d81e2c"/><path d="M18 46 Q50 30 82 46 L81 54 Q50 39 19 54z" fill="#fff"/><circle cx="84" cy="31" r="6" fill="#fff"/>';
     if (hat === 'orejas') v += '<ellipse cx="29" cy="22" rx="8" ry="9" fill="' + h + '"/><ellipse cx="71" cy="22" rx="8" ry="9" fill="' + h + '"/>';

@@ -1,6 +1,6 @@
 # GameShop Simulator · Historias de cada sucursal
 
-Generado desde `src/data.js` (versión 0.30.0). Cada personaje viene al mostrador; en cada visita dice algo y el jugador elige una respuesta. Entre paréntesis, lo que deja cada respuesta (⭐ reputación, 🗺️ fondos de expansión).
+Generado desde `src/data.js` (versión 0.34.0). Cada personaje viene al mostrador; en cada visita dice algo y el jugador elige una respuesta. Entre paréntesis, lo que deja cada respuesta (⭐ reputación, 🗺️ fondos de expansión).
 
 ---
 

@@ -835,6 +835,7 @@ GS.World = (function () {
       if (hat === 'corona') { for (let i = 0; i < 7; i++) { const an = i / 7 * Math.PI * 2; box(acc, 0.09, i % 2 ? 0.14 : 0.2, 0.05, tm, Math.cos(an) * 0.22, 0.33, Math.sin(an) * 0.22).rotation.y = -an + Math.PI / 2; } }
       if (hat === 'lana') { const dome = new T.Mesh(gHelmet, tm); dome.scale.setScalar(0.95); dome.position.y = 0.03; acc.add(dome); const band = new T.Mesh(new T.TorusGeometry(HR - 0.005, 0.07, 8, 20), bm); band.rotation.x = Math.PI / 2; band.position.y = 0.15; acc.add(band); const pom = new T.Mesh(gEar, bm); pom.scale.setScalar(1.1); pom.position.set(0, HR + 0.1, 0); acc.add(pom); }      // gorro de lana
       if (cur.scarf) { const sc = new T.Mesh(new T.TorusGeometry(HR * 0.6, 0.1, 8, 16), bm); sc.rotation.x = Math.PI / 2; sc.position.y = -HR * 0.93; acc.add(sc); box(acc, 0.16, 0.34, 0.08, bm, 0.14, -HR - 0.42, HR * 0.55); }      // bufanda
+      if (hat === 'bicornio') { const nv = mat(0x1b2340), gd = mat(0xf5c518); box(acc, HR * 3.0, 0.3, 0.34, nv, 0, HR * 0.62, 0); box(acc, HR * 2.0, 0.22, 0.36, nv, 0, HR * 0.62 + 0.26, 0); box(acc, HR * 3.04, 0.05, 0.38, gd, 0, HR * 0.62 + 0.28, 0); box(acc, 0.14, 0.14, 0.4, gd, 0, HR * 0.62 + 0.12, 0); }      // bicornio de almirante
       if (hat === 'vincha') { const r = new T.Mesh(new T.TorusGeometry(HR - 0.022, 0.045, 6, 20), tm); r.rotation.x = Math.PI / 2 - 0.12; r.position.y = 0.15; acc.add(r); box(acc, 0.06, 0.22, 0.03, tm, 0.12, -0.02, -HR - 0.02).rotation.z = 0.3; }
     }
     style(o);
