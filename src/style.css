@@ -454,3 +454,6 @@ body.snow #rain { background-color: rgba(220, 235, 250, .06); background-image: 
 .ep-faces .pf svg { width: 100%; height: auto; display: block; } .ep-faces figcaption { font-size: 12.5px; font-weight: 700; margin-top: 4px; } .ep-faces.vs { background: linear-gradient(100deg, #e10600 0 50%, #1b2340 50% 100%); } .ep-faces.vs b { font-family: var(--display); font-size: 44px; color: #f5c518; text-shadow: 0 3px 0 #000; }
 .conf { position: absolute; inset: 0; pointer-events: none; overflow: hidden; } .conf i { position: absolute; top: -12px; width: 9px; height: 14px; animation: conf linear infinite; } @keyframes conf { to { transform: translateY(620px) rotate(540deg); } }
 .wave { transform-origin: left center; animation: wave 1.6s ease-in-out infinite alternate; } @keyframes wave { from { transform: skewY(-3deg); } to { transform: skewY(3deg); } } .sail { animation: sail 7s linear forwards; } @keyframes sail { to { transform: translateX(150px) scale(.8); } } .bobs { animation: bobs 2s ease-in-out infinite alternate; } @keyframes bobs { to { transform: translateY(4px); } }
+
+.wv1 { animation: wv 5s linear infinite; } .wv2 { animation: wv 7s linear infinite reverse; } @keyframes wv { to { transform: translateX(60px); } }
+.sail { animation: sail 14s ease-in forwards; } @keyframes sail { to { transform: translate(34px, -10px) scale(.72); } }

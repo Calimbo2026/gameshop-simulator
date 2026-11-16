@@ -2,7 +2,7 @@
    vista en ángulo como el local. Cada región abierta muestra una miniatura de su sucursal; las cerradas, un candado.
    GS.Map3D.open(canvas, estado, onPick)   estado = { id: { open, can, cur, stage } }   ·   select(id)   ·   close() */
 GS.Map3D = (() => {
-  const T = THREE; let renderer = null, scene, camera, cv, raf = 0, onPick = null, tops = {}, bob = [], sel = null, cvOf = null, zc = null;
+  const T = THREE; let renderer = null, scene, camera, cv, raf = 0, onPick = null, tops = {}, bob = [], sel = null, cvOf = null, zc = null, ro = null;
   // Fronteras (longitud, latitud). Se arman las regiones uniendo tramos, así los bordes internos coinciden.
   const S = {
     nNoa: [[-67.18, -22.82], [-66.3, -21.8], [-65.2, -22.1], [-64.4, -22.7], [-63.9, -22.0], [-62.8, -22.0], [-62.35, -22.45]],
@@ -78,7 +78,7 @@ GS.Map3D = (() => {
     if ((state.malvinas || {}).hidden) { const mv = label('ISLAS MALVINAS', '', 40); mv.scale.set(4.5, 1.5, 1); mv.position.set(X(-59.5), 1.6, -Y(-51.0)); scene.add(mv); }
   }
   function fit() {
-    const w = cv.clientWidth || 300, h = cv.clientHeight || 400, a = w / h, half = zc ? 4.2 : Math.max(14.6, 10.2 / a);       // el país entra entero, parado o apaisado
+    const w = cv.clientWidth || 300, h = cv.clientHeight || 400, a = w / h, half = zc ? Math.max(6.4, 5.2 / a) : Math.max(14.6, 10.2 / a);       // el país entra entero, parado o apaisado
     renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1)); renderer.setSize(w, h, false);
     camera.left = -half * a; camera.right = half * a; camera.top = half; camera.bottom = -half; camera.updateProjectionMatrix();
   }
@@ -97,9 +97,9 @@ GS.Map3D = (() => {
     try { renderer = new T.WebGLRenderer({ canvas, antialias: true, alpha: true }); } catch (e) { renderer = null; return false; }
     camera = new T.OrthographicCamera(-10, 10, 10, -10, 0.1, 400); const c = new T.Vector3(0.9, 0, 0.4), el = 48 * Math.PI / 180, az = -6 * Math.PI / 180, D = 120;
     camera.position.set(c.x + Math.sin(az) * Math.cos(el) * D, Math.sin(el) * D, c.z + Math.cos(az) * Math.cos(el) * D); camera.lookAt(c);
-    if (zoomTo && REG[zoomTo]) { zc = [X(REG[zoomTo].at[0]), -Y(REG[zoomTo].at[1])]; camera.position.x += zc[0] - c.x; camera.position.z += zc[1] - c.z; } else zc = null;
-    build(state); fit(); cvOf = pick; canvas.addEventListener('click', pick); window.addEventListener('resize', fit); raf = requestAnimationFrame(frame); return true;
+    if (zoomTo && REG[zoomTo]) { zc = [X(REG[zoomTo].at[0]), -Y(REG[zoomTo].at[1])]; camera.position.x += zc[0] - c.x; camera.position.z += zc[1] - 1.6 - c.z; } else zc = null;
+    build(state); fit(); cvOf = pick; canvas.addEventListener('click', pick); window.addEventListener('resize', fit); if (window.ResizeObserver) { ro = new ResizeObserver(() => { if (renderer) fit(); }); ro.observe(canvas); } raf = requestAnimationFrame(frame); return true;
   }
-  function close() { if (raf) cancelAnimationFrame(raf); raf = 0; if (cv && cvOf) cv.removeEventListener('click', cvOf); window.removeEventListener('resize', fit); if (renderer) { renderer.dispose(); renderer = null; } cv = null; }
+  function close() { if (raf) cancelAnimationFrame(raf); raf = 0; if (cv && cvOf) cv.removeEventListener('click', cvOf); window.removeEventListener('resize', fit); if (ro) { ro.disconnect(); ro = null; } if (renderer) { renderer.dispose(); renderer = null; } cv = null; }
   return { open, close, select(id) { sel = id; }, isOpen: () => !!renderer };
 })();
