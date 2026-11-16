@@ -137,6 +137,7 @@ GS.World = (function () {
   const pc = () => U.pick(PRODUCT_COLORS);
 
   /* ---------- Muebles ---------- */
+  const BLOCK = { x0: -11.5, x1: 14.6, z0: -10.2 }; let lotMat = null;      // la manzana del local
   function buildFloor(root) {
     const s = L.salon, zMax = L.galeria.zMax;
     const tile = canvasTex(128, 128, (g) => {
@@ -149,12 +150,25 @@ GS.World = (function () {
     // base de maqueta + vereda
     box(root, fw + 1.2, 0.5, fd + 4.2, 0x18181b, 0, -0.52, (s.zMin + zMax) / 2 + 1.5);
     sky.side = new T.MeshLambertMaterial({ color: 0x8d8d92 }); sky.joint = new T.MeshLambertMaterial({ color: 0x77777c });
-    box(root, 230, 0.32, 3.9, sky.side, 0, -0.31, zMax + 2.05); box(root, 230, 0.26, 0.16, 0xc9c9ce, 0, -0.3, zMax + 4.06);       // la vereda sigue a lo largo de toda la cuadra, con su cordón
-    box(root, 230, 0.06, 3.4, 0x3c3c44, 0, -0.3, zMax + 5.8); for (let x = -90; x < 90; x += 3) box(root, 1.2, 0.07, 0.14, 0xe8e8e8, x, -0.3, zMax + 5.8);      // y la calle
-    for (let x = -57; x <= 57; x += 1.9) box(root, 0.04, 0.012, 3.8, sky.joint, x, 0.005, zMax + 2.1);                                   // juntas de las baldosas, parejas en toda la cuadra
-    box(root, 230, 0.012, 0.04, sky.joint, 0, 0.005, zMax + 2.1);
-    [-34, -26, -18, -13, 15, 23, 31, 39].forEach((x, i) => { box(root, 1.1, 0.14, 1.1, 0x5a4634, x, 0.0, zMax + 3.1); const tr = new T.Mesh(new T.CylinderGeometry(0.13, 0.17, 1.9, 7), mat(0x6b4a2a)); tr.position.set(x, 1.0, zMax + 3.1); root.add(tr);
-      const top = new T.Mesh(new T.SphereGeometry(1.0, 7, 5), mat(i % 2 ? 0x3c9a48 : 0x2f8a3f, { flatShading: true })); top.scale.y = 0.85; top.position.set(x, 2.5, zMax + 3.1); root.add(top); });      // árboles de vereda
+    // La manzana: GameShop queda solo, entre cuatro calles. Vereda al frente, veredas más angostas a los costados y atrás, y un terreno prolijo alrededor del local.
+    const B = BLOCK, bw = B.x1 - B.x0, bcx = (B.x0 + B.x1) / 2, zS = zMax + 4.05, sw = 1.9; lotMat = new T.MeshLambertMaterial({ color: 0x9a9da6 });
+    box(root, bw, 0.295, zMax + 0.2 - B.z0, lotMat, bcx, -0.31, (B.z0 + zMax + 0.2) / 2);                                                   // terreno
+    box(root, bw, 0.32, 3.9, sky.side, bcx, -0.31, zMax + 2.05);                                                                             // vereda del frente
+    box(root, bw, 0.3, sw, sky.side, bcx, -0.31, B.z0 + sw / 2); box(root, sw, 0.3, zMax - B.z0, sky.side, B.x0 + sw / 2, -0.31, (B.z0 + zMax) / 2); box(root, sw, 0.3, zMax - B.z0, sky.side, B.x1 - sw / 2, -0.31, (B.z0 + zMax) / 2);
+    for (let x = B.x0 + 1.9; x < B.x1 - 0.5; x += 1.9) { box(root, 0.04, 0.012, 3.8, sky.joint, x, 0.005, zMax + 2.1); box(root, 0.04, 0.012, sw, sky.joint, x, -0.014, B.z0 + sw / 2); }
+    for (let z = B.z0 + 1.9; z < zMax; z += 1.9) { box(root, sw, 0.012, 0.04, sky.joint, B.x0 + sw / 2, -0.014, z); box(root, sw, 0.012, 0.04, sky.joint, B.x1 - sw / 2, -0.014, z); }
+    box(root, bw + 0.3, 0.26, 0.16, 0xc9c9ce, bcx, -0.3, zS + 0.01); box(root, bw + 0.3, 0.26, 0.16, 0xc9c9ce, bcx, -0.3, B.z0 - 0.08); box(root, 0.16, 0.26, zS - B.z0, 0xc9c9ce, B.x0 - 0.08, -0.3, (B.z0 + zS) / 2); box(root, 0.16, 0.26, zS - B.z0, 0xc9c9ce, B.x1 + 0.08, -0.3, (B.z0 + zS) / 2);    // cordón
+    box(root, 230, 0.06, 3.4, 0x3c3c44, 0, -0.3, zMax + 5.8); for (let x = -90; x < 90; x += 3) box(root, 1.2, 0.07, 0.14, 0xe8e8e8, x, -0.3, zMax + 5.8);                 // calle del frente
+    { const zb = B.z0 - 1.95, xw = B.x0 - 1.95, xe = B.x1 + 1.95, d = zMax + 4.1 - (zb - 1.7), zc = (zMax + 4.1 + zb - 1.7) / 2;                                             // y las otras tres
+      box(root, xe - xw + 3.4, 0.06, 3.4, 0x3c3c44, (xw + xe) / 2, -0.3, zb); box(root, 3.4, 0.06, d, 0x3c3c44, xw, -0.3, zc); box(root, 3.4, 0.06, d, 0x3c3c44, xe, -0.3, zc);
+      for (let x = xw + 3; x < xe - 2; x += 3) box(root, 1.2, 0.07, 0.14, 0xe8e8e8, x, -0.3, zb); for (let z = zb + 3; z < zMax + 3; z += 3) { box(root, 0.14, 0.07, 1.2, 0xe8e8e8, xw, -0.3, z); box(root, 0.14, 0.07, 1.2, 0xe8e8e8, xe, -0.3, z); } }
+    // perímetro del local: cerco verde contra las paredes de atrás y del costado, estacionamiento y contenedores
+    for (let z = s.zMin + 0.4; z < zMax - 0.5; z += 1.05) box(root, 0.55, 0.5, 0.95, 0x3f8f3a, s.xMin - 1.05, -0.015, z);
+    for (let x = s.xMin - 0.5; x < 11.4; x += 1.05) box(root, 0.95, 0.5, 0.55, 0x3f8f3a, x, -0.015, s.zMin - 1.05);
+    for (let z = -6; z <= 6.5; z += 2.5) box(root, 0.9, 0.012, 0.08, 0xf2f2f2, 12.25, -0.014, z); box(root, 0.08, 0.012, 12.6, 0xf2f2f2, 11.85, -0.014, 0.2);
+    box(root, 1.3, 0.9, 0.8, 0x2f6b45, 9.6, -0.015, 9.6); box(root, 1.34, 0.08, 0.84, 0x1f4a30, 9.6, 0.885, 9.6); box(root, 1.3, 0.9, 0.8, 0x2d6cdf, 11.2, -0.015, 9.6); box(root, 1.34, 0.08, 0.84, 0x1f4a8f, 11.2, 0.885, 9.6);
+    [[13.5, zMax + 3.1], [-10.4, -3], [-10.4, 3.5], [-6, -9.3], [0, -9.3], [6, -9.3], [12, -9.3], [13.6, -9.3]].forEach((q, i) => { box(root, 1.1, 0.14, 1.1, 0x5a4634, q[0], 0.0, q[1]); const tr = new T.Mesh(new T.CylinderGeometry(0.13, 0.17, 1.9, 7), mat(0x6b4a2a)); tr.position.set(q[0], 1.0, q[1]); root.add(tr);
+      const top = new T.Mesh(new T.SphereGeometry(1.0, 7, 5), mat(i % 2 ? 0x3c9a48 : 0x2f8a3f, { flatShading: true })); top.scale.y = 0.85; top.position.set(q[0], 2.5, q[1]); root.add(top); });
     // luz del local que sale a la vereda y dos faroles en las esquinas: se prenden cuando cae la tarde
     sky.spill = new T.MeshBasicMaterial({ color: 0xffe2a0, transparent: true, opacity: 0, depthWrite: false }); plane(root, fw - 0.6, 1.5, sky.spill, 0, 0.022, zMax + 0.85, 0, -Math.PI / 2);
     sky.bulb = new T.MeshBasicMaterial({ color: 0x55555c }); sky.halo = new T.MeshBasicMaterial({ color: 0xffd98a, transparent: true, opacity: 0, depthWrite: false });
@@ -449,6 +463,7 @@ GS.World = (function () {
   }
   function setRegion(R, stage, flag) {
     if (regG) { scene.remove(regG); regG = null; } critters = [];
+    lotMat.color.set({ ciudad: 0x9a9da6, cuyo: 0xbdb072, noa: 0xcfa678, nea: 0x5aa052, patagonia: 0x97b47e, malvinas: 0x88aa64 }[R && R.decor] || 0x9a9da6);
     floorMat.color.set(R && R.floor || 0xffffff); mat(0xf4f4f2).color.set(R && R.wall || 0xf4f4f2);
     if (!R || !R.decor) return;
     const g = regG = new T.Group(), s = L.salon, zF = L.galeria.zMax + 2.3, zB = s.zMin - 3.4, xW = s.xMin - 3.6; scene.add(g);
@@ -462,7 +477,7 @@ GS.World = (function () {
       ciudad: { ground: 0x7b7e86, haze: 0x9fb0c2, patch: 0x6f727a, h: [1, 2], wide: 1, bands: [[1, 0x777777]] },
       malvinas: { ground: 0x93ad6e, haze: 0xcfe0ea, patch: 0xb7c59a, h: [1.4, 2.8], wide: 1.9, bands: [[0.55, 0x7f9a5c], [0.85, 0x8c8f88], [1, 0xa9aca6]] },
       patagonia: { ground: 0xa7b68e, haze: 0xe2ecf3, patch: 0xf2f6f8, h: [7, 14], wide: 1, bands: [[0.18, 0x2f6b45], [0.44, 0x6f7f95], [0.66, 0xa3b3c6], [1, 0xffffff]] } }[R.decor];
-    const free = (x, z) => !(x > -9.5 && x < 14 && z > -10.5 && z < zF + 6.5) && !(z > zF - 2.8 && z < zF + 6), col = new T.Color();
+    const free = (x, z) => !(x > -16 && x < 19 && z > -14.8 && z < zF + 6.5) && !(z > zF - 2.8 && z < zF + 6), col = new T.Color();
     { const d = new T.Mesh(new T.CircleGeometry(42, 40), new T.MeshBasicMaterial({ color: LAND.ground })); d.rotation.x = -Math.PI / 2; d.position.y = GY; g.add(d);
       const rg = new T.RingGeometry(41.8, 110, 40, 1), p = rg.attributes.position, cs = []; for (let i = 0; i < p.count; i++) { col.set(Math.hypot(p.getX(i), p.getY(i)) < 60 ? LAND.ground : LAND.haze); cs.push(col.r, col.g, col.b); }
       rg.setAttribute('color', new T.Float32BufferAttribute(cs, 3)); const m = new T.Mesh(rg, new T.MeshBasicMaterial({ vertexColors: true })); m.rotation.x = -Math.PI / 2; m.position.y = GY; g.add(m);
@@ -477,8 +492,8 @@ GS.World = (function () {
       geo.setAttribute('color', new T.Float32BufferAttribute(cs, 3)); geo.computeVertexNormals(); const m = new T.Mesh(geo, mtnMat); m.position.set(x, GY + h / 2 - 0.1, z); m.scale.z = rr(0.75, 1.25); m.rotation.y = rr(0, 6.28); g.add(m);
     };
     const land = () => {
-      [[17, 22, R.decor === 'nea' ? 3 : 4, 0.55, 0.75], [26, 36, R.decor === 'nea' ? 4 : 7, 0.85, 1.0]].forEach(row => { for (let i = 0; i < row[2]; i++) { const a = Math.PI * (0.9 + 0.78 * (i + rr(0.1, 0.9)) / row[2]), d = rr(row[0], row[1]), h = rr(LAND.h[0], LAND.h[1]) * rr(row[3], row[4]); mountain(Math.cos(a) * d, Math.sin(a) * d, h * rr(0.55, 0.8) * LAND.wide, h); } });
-      for (let i = 0; i < 3; i++) { const a = Math.PI * rr(0.95, 1.6), d = rr(13.5, 16.5), h = rr(1.0, 1.9); mountain(Math.cos(a) * d, Math.sin(a) * d, h * 1.5 * LAND.wide, h); }          // lomas cercanas
+      [[21, 25, R.decor === 'nea' ? 3 : 4, 0.55, 0.75], [29, 38, R.decor === 'nea' ? 4 : 7, 0.85, 1.0]].forEach(row => { for (let i = 0; i < row[2]; i++) { const a = Math.PI * (0.9 + 0.78 * (i + rr(0.1, 0.9)) / row[2]), d = rr(row[0], row[1]), h = rr(LAND.h[0], LAND.h[1]) * rr(row[3], row[4]); mountain(Math.cos(a) * d, Math.sin(a) * d, h * rr(0.55, 0.8) * LAND.wide, h); } });
+      for (let i = 0; i < 3; i++) { const a = Math.PI * rr(0.95, 1.6), d = rr(18.5, 20.5), h = rr(1.0, 1.9); mountain(Math.cos(a) * d, Math.sin(a) * d, h * 1.5 * LAND.wide, h); }          // lomas cercanas
     };
     const scatter = (n, fn, r0, r1) => { for (let i = 0, k = 0; i < n && k < n * 6; k++) { const a = rr(0, 6.28), r = rr(r0 || 10.5, r1 || 30), x = Math.cos(a) * r, z = Math.sin(a) * r; if (!free(x, z)) continue; fn(x, z, rr(0.75, 1.3)); i++; } };
     const cactus = (x, z, k) => { cyl(0.2 * k, 1.7 * k, 0x3f8f3a, x, GY, z); cyl(0.12 * k, 0.7 * k, 0x3f8f3a, x + 0.36 * k, GY + 0.8 * k, z); box(g, 0.3 * k, 0.12, 0.12, 0x3f8f3a, x + 0.2 * k, GY + 0.8 * k, z); cyl(0.12 * k, 0.55 * k, 0x3f8f3a, x - 0.36 * k, GY + 0.55 * k, z); box(g, 0.3 * k, 0.12, 0.12, 0x3f8f3a, x - 0.2 * k, GY + 0.55 * k, z); };
@@ -494,23 +509,25 @@ GS.World = (function () {
         c.font = '900 112px Impact, "Arial Narrow", sans-serif'; c.fillText(R.city.toUpperCase(), W / 2, 178, W - 50); c.font = '700 34px system-ui, sans-serif'; c.fillStyle = '#f5c518'; c.fillText('www.gameshop.com.ar', W / 2, 272);
         c.strokeStyle = '#f5c518'; c.lineWidth = 8; c.strokeRect(4, 4, W - 8, H - 8); }), tm = new T.MeshBasicMaterial({ map: tx });
       plane(totem, 3.4, 1.6, tm, 0, 2.53, 0.1); plane(totem, 3.4, 1.6, tm, 0, 2.53, -0.1, Math.PI); }
-    if (R.decor === 'cuyo') { land(); scatter(16, (x, z, k) => bush(x, z, k, 0x8d9a4c)); for (let r = 0; r < 5; r++) for (let i = 0; i < 9; i++) { box(g, 0.7, 0.55, 0.3, 0x3f8f3a, -21 + i * 1.0, GY, 3 + r * 1.3); if (i % 3 === 0) box(g, 0.06, 0.8, 0.06, 0x6b4a2a, -21.4 + i * 1.0, GY, 3 + r * 1.3); }      // viñedo [[-2.6, 0], [-1.9, 0.5]].forEach(q => { cyl(0.36, 0.8, 0x7a4a22, q[0], 0, zF + q[1]); cyl(0.38, 0.08, 0x2b2b2b, q[0], 0.2, zF + q[1]); cyl(0.38, 0.08, 0x2b2b2b, q[0], 0.55, zF + q[1]); });
+    if (R.decor === 'cuyo') { land(); scatter(16, (x, z, k) => bush(x, z, k, 0x8d9a4c)); for (let r = 0; r < 5; r++) for (let i = 0; i < 9; i++) { box(g, 0.7, 0.55, 0.3, 0x3f8f3a, -27 + i * 1.0, GY, 3 + r * 1.3); if (i % 3 === 0) box(g, 0.06, 0.8, 0.06, 0x6b4a2a, -27.4 + i * 1.0, GY, 3 + r * 1.3); }      // viñedo [[-2.6, 0], [-1.9, 0.5]].forEach(q => { cyl(0.36, 0.8, 0x7a4a22, q[0], 0, zF + q[1]); cyl(0.38, 0.08, 0x2b2b2b, q[0], 0.2, zF + q[1]); cyl(0.38, 0.08, 0x2b2b2b, q[0], 0.55, zF + q[1]); });
       [1.6, 2.4, 3.2].forEach(x => { box(g, 0.08, 1.2, 0.08, 0x6b4a2a, x, 0, zF + 0.6); box(g, 0.7, 0.5, 0.4, 0x3f8f3a, x, 0.9, zF + 0.6); box(g, 0.16, 0.2, 0.16, 0x6a2d7a, x + 0.1, 0.72, zF + 0.75); }); }
     if (R.decor === 'noa') { land(); scatter(14, cactus); scatter(10, (x, z, k) => bush(x, z, k * 0.7, 0x9a8a4a)); [[-2.4, 0.2], [1.8, 0.6], [3.4, 0.1]].forEach(q => { cyl(0.2, 1.7, 0x3f8f3a, q[0], 0, zF + q[1]); cyl(0.12, 0.7, 0x3f8f3a, q[0] + 0.36, 0.8, zF + q[1]); box(g, 0.3, 0.12, 0.12, 0x3f8f3a, q[0] + 0.2, 0.8, zF + q[1]); cyl(0.12, 0.55, 0x3f8f3a, q[0] - 0.36, 0.55, zF + q[1]); box(g, 0.3, 0.12, 0.12, 0x3f8f3a, q[0] - 0.2, 0.55, zF + q[1]); }); }
-    if (R.decor === 'nea') { land(); water(-22, -17, 30, 2.2, 0.5); water(2, -24, 26, 2.6, -0.15); scatter(34, tree, 11, 34); scatter(12, (x, z, k) => bush(x, z, k)); [[-12, -12], [-15, -5], [-13, 3], [-8, -15], [-2, -13.5], [5, -13], [-18, -10]].forEach(q => { cyl(0.22, 3.4, 0x7a5a36, q[0], -0.5, q[1]); for (let k = 0; k < 6; k++) { const l = box(g, 1.7, 0.08, 0.42, 0x2f9a48, q[0] + Math.cos(k) * 0.7, 2.86, q[1] + Math.sin(k) * 0.7); l.rotation.y = -k; l.rotation.z = -0.35; } });
+    if (R.decor === 'nea') { land(); water(-22, -17, 30, 2.2, 0.5); water(2, -24, 26, 2.6, -0.15); scatter(34, tree, 11, 34); scatter(12, (x, z, k) => bush(x, z, k)); [[-19, -17], [-21, -6], [-20, 4], [-10, -19], [-2, -18], [7, -18], [-24, -12]].forEach(q => { cyl(0.22, 3.4, 0x7a5a36, q[0], -0.5, q[1]); for (let k = 0; k < 6; k++) { const l = box(g, 1.7, 0.08, 0.42, 0x2f9a48, q[0] + Math.cos(k) * 0.7, 2.86, q[1] + Math.sin(k) * 0.7); l.rotation.y = -k; l.rotation.z = -0.35; } });
       [[-2.4, 0.2], [2.2, 0.5]].forEach(q => { cyl(0.16, 2.2, 0x7a5a36, q[0], 0, zF + q[1]); for (let k = 0; k < 6; k++) { const l = box(g, 1.2, 0.06, 0.32, 0x2f9a48, q[0] + Math.cos(k) * 0.5, 2.16, zF + q[1] + Math.sin(k) * 0.5); l.rotation.y = -k; l.rotation.z = -0.35; } }); }
     if (R.decor === 'ciudad') {                       // Buenos Aires: manzanas con edificios hacia el fondo, calles que cruzan, el Obelisco a lo lejos y una plaza enfrente
       const wt = [4, 7, 11].map((rows, i) => canvasTex(96, 32 * rows, (c, W, H) => { c.fillStyle = '#ffffff'; c.fillRect(0, 0, W, H); for (let y = 0; y < rows; y++) for (let x = 0; x < 4; x++) { c.fillStyle = rnd() < 0.28 ? '#ffe9a8' : '#3a4656'; c.fillRect(8 + x * 22, 8 + y * 32, 14, 18); } }));
       const cols = [0xb9a58c, 0x9aa3ad, 0xc9b9a3, 0x8f9aa8, 0xb38a72, 0xd6cfc2, 0x7f8c99], bm = {};
       const building = (x, z, w, d, h) => { const k = h < 5 ? 0 : h < 9 ? 1 : 2, c = cols[Math.floor(rnd() * cols.length)], key = k + '_' + c; bm[key] = bm[key] || new T.MeshLambertMaterial({ map: wt[k], color: c }); box(g, w, h, d, bm[key], x, GY, z); box(g, w + 0.25, 0.22, d + 0.25, 0x3a3d45, x, GY + h, z); if (rnd() < 0.6) box(g, 0.9, 0.7, 0.9, 0x8d9199, x + rr(-0.8, 0.8), GY + h + 0.22, z + rr(-0.8, 0.8)); };
       const street = (x, z, w, d) => { box(g, w, 0.05, d, 0x3c3c44, x, GY, z); const n = Math.floor(Math.max(w, d) / 3); for (let i = 0; i < n; i++) box(g, w > d ? 1.2 : 0.14, 0.06, w > d ? 0.14 : 1.2, 0xe8e8e8, w > d ? x - w / 2 + 1.5 + i * 3 : x, GY, w > d ? z : z - d / 2 + 1.5 + i * 3); };
-      street(0, -14.5, 230, 3.2); street(0, -33, 230, 3.2); street(-14.5, -25, 3.2, 110); street(-33, -25, 3.2, 110); street(19, -40, 3.2, 54);
-      for (let bx = -52; bx <= 40; bx += 5.6) for (let bz = -19.5; bz >= -52; bz -= 5.8) { if (Math.abs(bx + 14.5) < 3.4 || Math.abs(bx + 33) < 3.4 || Math.abs(bx - 19) < 3.4 || Math.abs(bz + 33) < 3.6 || rnd() < 0.1) continue; if (Math.hypot(bx + 24, bz + 25) < 5) continue; building(bx + rr(-0.3, 0.3), bz, rr(3.6, 4.6), rr(3.6, 4.6), rr(3, 6) + (-bz - 19) * rr(0.15, 0.32)); }
-      for (let bx = -19.5; bx >= -52; bx -= 5.6) for (let bz = -9; bz <= zF - 4.5; bz += 5.8) { if (Math.abs(bx + 33) < 3.4 || rnd() < 0.12) continue; building(bx, bz + rr(-0.3, 0.3), rr(3.6, 4.6), rr(3.6, 4.6), rr(3, 6) + (-bx - 19) * rr(0.12, 0.26)); }
+      const XW = BLOCK.x0 - 1.95, XE = BLOCK.x1 + 1.95, ZB = BLOCK.z0 - 1.95;
+      street(0, ZB, 230, 3.4); street(0, -33, 230, 3.2); street(XW, -25, 3.4, 150); street(-33, -25, 3.2, 150); street(XE, -25, 3.4, 150);
+      box(g, 100, 0.3, 3.9, sky.side, XW - 1.9 - 50, -0.31, L.galeria.zMax + 2.05); box(g, 100, 0.3, 3.9, sky.side, XE + 1.9 + 50, -0.31, L.galeria.zMax + 2.05);           // veredas de las manzanas vecinas
+      for (let bx = -52; bx <= 40; bx += 5.6) for (let bz = -17.2; bz >= -52; bz -= 5.8) { if (Math.abs(bx - XW) < 3.9 || Math.abs(bx + 33) < 3.4 || Math.abs(bx - XE) < 3.9 || Math.abs(bz + 33) < 3.6 || rnd() < 0.1) continue; if (Math.hypot(bx + 24, bz + 25) < 5) continue; building(bx + rr(-0.3, 0.3), bz, rr(3.6, 4.6), rr(3.6, 4.6), rr(3, 6) + (-bz - 19) * rr(0.15, 0.32)); }
+      for (let bx = -18.6; bx >= -52; bx -= 5.6) for (let bz = -9; bz <= zF - 4.5; bz += 5.8) { if (Math.abs(bx + 33) < 3.4 || rnd() < 0.12) continue; building(bx, bz + rr(-0.3, 0.3), rr(3.6, 4.6), rr(3.6, 4.6), rr(3, 6) + (-bx - 19) * rr(0.12, 0.26)); }
       { const ox = -24, oz = -25; const pl = new T.Mesh(new T.CircleGeometry(4.2, 20), new T.MeshBasicMaterial({ color: 0xb9bcc4 })); pl.rotation.x = -Math.PI / 2; pl.position.set(ox, GY + 0.04, oz); g.add(pl); box(g, 1.5, 13, 1.5, 0xf4f4f2, ox, GY, oz); const tip = cone(1.06, 1.8, 0xf4f4f2, ox, GY + 13, oz, 4); tip.rotation.y = Math.PI / 4; }                 // el Obelisco
       { const pz = zF + 13, px = -2; const gr = new T.Mesh(new T.CircleGeometry(7.5, 24), new T.MeshBasicMaterial({ color: 0x5f9e55 })); gr.rotation.x = -Math.PI / 2; gr.scale.y = 0.6; gr.position.set(px, GY + 0.03, pz); g.add(gr);
         [[-5, 0], [-2.5, 2.2], [2, 2.6], [4.8, 0.4], [0, -2.4], [-3.6, -2.2], [3.4, -2.4]].forEach(q => tree(px + q[0], pz + q[1], rr(0.8, 1.15))); cyl(0.9, 0.3, 0xb9bcc4, px, GY, pz); cyl(0.7, 0.34, 0x4aa3d8, px, GY, pz); cyl(0.1, 0.9, 0xb9bcc4, px, GY, pz); }                                                                        // la plaza de enfrente, con fuente
-      [[-13, 0x2d6cdf], [-22, 0xf5c518], [16, 0xd7d9de], [27, 0x3bb54a]].forEach(q => { const z = zF + 4.3; box(g, 1.9, 0.5, 0.9, q[1], q[0], GY + 0.16, z); box(g, 1.0, 0.4, 0.84, 0x26262c, q[0] - 0.1, GY + 0.66, z); [-0.6, 0.6].forEach(dx => box(g, 0.36, 0.32, 0.96, 0x111111, q[0] + dx, GY, z)); });          // autos en el carril de enfrente
+      [[-20, 0x2d6cdf], [-28, 0xf5c518], [23, 0xd7d9de], [31, 0x3bb54a]].forEach(q => { const z = zF + 4.3; box(g, 1.9, 0.5, 0.9, q[1], q[0], GY + 0.16, z); box(g, 1.0, 0.4, 0.84, 0x26262c, q[0] - 0.1, GY + 0.66, z); [-0.6, 0.6].forEach(dx => box(g, 0.36, 0.32, 0.96, 0x111111, q[0] + dx, GY, z)); });          // autos en el carril de enfrente
     }
     if (R.decor === 'malvinas') { land(); water(-30, -22, 34, 16, 0.4); water(8, -38, 40, 12, -0.1); scatter(12, (x, z, k) => bush(x, z, k * 0.6, 0xa9b56a));
       const critter = (kind, x, z, k) => { const o = new T.Group(); if (kind === 'p') { const b = new T.Mesh(new T.SphereGeometry(0.26 * k, 7, 6), mat(0x16161a)); b.scale.y = 1.6; b.position.y = 0.42 * k; o.add(b); const p = new T.Mesh(new T.SphereGeometry(0.19 * k, 7, 6), mat(0xffffff)); p.scale.y = 1.4; p.position.set(0, 0.38 * k, 0.13 * k); o.add(p); box(o, 0.1, 0.06, 0.14, 0xf5a623, 0, 0.62 * k, 0.26 * k); }
@@ -518,7 +535,7 @@ GS.World = (function () {
         o.position.set(x, GY, z); g.add(o); critters.push({ o, kind, tx: x, tz: z, wait: rr(0, 4), sp: kind === 'p' ? 0.7 : 0.45, ph: rr(0, 6), free }); };
       scatter(10, (x, z, k) => critter('p', x, z, k), 10.5, 22); scatter(8, (x, z, k) => critter('s', x, z, k), 11, 26); }      // pingüinos y ovejas que deambulan
     if (flag) { const fx = L.puerta.x + 3.4, fz = zF - 0.6; box(g, 0.1, 4.6, 0.1, 0xe8e8e8, fx, 0, fz); [0x74acdf, 0xffffff, 0x74acdf].forEach((c, i) => box(g, 2.0, 0.4, 0.05, new T.MeshBasicMaterial({ color: c }), fx + 1.05, 4.2 - i * 0.4, fz)); const sun = new T.Mesh(new T.CircleGeometry(0.14, 12), new T.MeshBasicMaterial({ color: 0xf5c518 })); sun.position.set(fx + 1.05, 4.0, fz + 0.04); g.add(sun); }      // la bandera, al completar la sucursal
-    if (R.decor === 'patagonia') { land(); water(-17, -3, 5.5, 3.2, 0.3); scatter(26, pine, 11, 32); [[-2.5, 0.3], [1.7, 0.6], [3.3, 0.1]].forEach(q => { cyl(0.12, 0.5, 0x6b4a2a, q[0], 0, zF + q[1]); [0, 1, 2].forEach(k => cone(0.62 - k * 0.15, 0.8, 0x1f6a3a, q[0], 0.4 + k * 0.5, zF + q[1], 7)); });
+    if (R.decor === 'patagonia') { land(); water(-24, -3, 5.5, 3.2, 0.3); scatter(26, pine, 11, 32); [[-2.5, 0.3], [1.7, 0.6], [3.3, 0.1]].forEach(q => { cyl(0.12, 0.5, 0x6b4a2a, q[0], 0, zF + q[1]); [0, 1, 2].forEach(k => cone(0.62 - k * 0.15, 0.8, 0x1f6a3a, q[0], 0.4 + k * 0.5, zF + q[1], 7)); });
       [[-1, 0.4], [0.6, 0.9], [2.6, 1.0], [-3.6, 0.8]].forEach(q => { const m = new T.Mesh(new T.CircleGeometry(0.6, 9), mat(0xffffff)); m.rotation.x = -Math.PI / 2; m.position.set(q[0], 0.02, zF + q[1]); g.add(m); }); }
     if (stage >= 2) [-1.25, 1.25].forEach(dx => { box(g, 0.5, 0.4, 0.5, 0xb5651d, L.puerta.x + dx, 0, zF - 1.1); box(g, 0.42, 0.34, 0.42, 0x3f8f3a, L.puerta.x + dx, 0.4, zF - 1.1); box(g, 0.14, 0.14, 0.14, 0xff5fa2, L.puerta.x + dx, 0.74, zF - 1.1); });   // mejorado: canteros
     if (stage >= 3) { box(g, 1.5, 0.03, 2.4, 0xb00000, L.puerta.x, 0, zF - 0.6); const st = new T.Mesh(new T.OctahedronGeometry(0.34), new T.MeshBasicMaterial({ color: 0xf5c518 })); st.position.set(0, 3.85, 0); totem.add(st); }   // estrella: alfombra roja y estrella en el tótem
