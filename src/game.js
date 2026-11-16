@@ -53,7 +53,7 @@ GS.Game = (function () {
       relaxed: false, arcade: null, t: 0, dur: C.day.seconds, score: 0, combo: 0, bestCombo: 0, sales: 0, served: 0, lost: 0, cajaErr: 0, otherErr: 0,
       tasksDone: 0, tasksLate: 0, customers: [], tasks: [], spawned: 0, tasksSpawned: 0,
       extras: [], n: 1, unlocked: unlockedFor(1), plan: planDay(1), rep0: repNow(), dueno: null, wave: -1, stage: 'rest', rest: 0.6, queue: [], says: [], sayQ: [], sayGap: 0, beat: 0, wv: { done: {} }, ev: {},
-      cajaCount: 0, closing: false, jobSig: '', visits: [], cord: CD.start, mate: false, lookers: [], lookT: 4, spots: {}, helper: null, intr: null, intrN: 0, intrOk: 0, intrBag: [], reqBag: U.shuffle(GS.REQUESTS), archBag: U.shuffle(GS.CUSTOMERS), taskBag: []
+      cajaCount: 0, closing: false, jobSig: '', visits: [], dirt: 0, cleaned: 0, cord: CD.start, mate: false, lookers: [], lookT: 4, spots: {}, helper: null, intr: null, intrN: 0, intrOk: 0, intrBag: [], reqBag: U.shuffle(GS.REQUESTS), archBag: U.shuffle(GS.CUSTOMERS), taskBag: []
     }, extra || {});
   }
   // Arma la jornada: cuántos clientes y tareas trae cada tanda. Va de menos a más.
@@ -64,19 +64,20 @@ GS.Game = (function () {
   function unlockedFor(n) { return GS.UNLOCKS.slice(0, n).reduce((a, b) => a.concat(b), []); }
   const upNow = () => GS.Store.get('up') || {};
   const coinsNow = () => GS.Store.get('coins') || 0;
-  const coinMult = () => { const u = upNow(); return 1 + 0.1 * ((u.mesa || 0) + (u.isla || 0) + (u.gondola || 0) + (u.luces || 0)); };
-  const patMult = () => { const u = upNow(); return 1 + 0.15 * (u.escritorio || 0) + 0.1 * (u.sillas || 0); };
+  const monthOf = n => GS.MONTHS[(n - 1) % 12] + ', año ' + (Math.floor((n - 1) / 12) + 1);
+  const coinMult = () => { const u = upNow(); return 1 + 0.1 * ((u.mesa || 0) + (u.isla || 0) + (u.gondola || 0) + (u.luces || 0) + (u.web >= 3 ? 1 : 0)); };
+  const patMult = () => { const u = upNow(); return 1 + 0.15 * (u.escritorio || 0) + 0.1 * (u.sillas || 0) + 0.1 * (u.cafetera || 0); };
   function conditionFor(n) {
     const forced = GS.Store.get('testCond'); if (forced) return forced === 'ninguna' ? null : forced;             // fechas especiales fijas y lluvia al azar (nunca en las primeras jornadas)
-    if (n >= 5 && n % 10 === 5) return 'blackfriday';
-    if (n >= 10 && n % 10 === 0) return 'navidad';
-    return n >= 3 && Math.random() < 0.3 ? 'lluvia' : null;
+    if (n % 12 === 11) return 'blackfriday';             // noviembre
+    if (n % 12 === 0) return 'navidad';                   // diciembre
+    return n >= 3 && Math.random() < 0.25 ? 'lluvia' : null;
   }
   function planDay(n, cond) {
     const un = unlockedFor(n), pool = TASK_STATIONS.filter(s => un.indexOf(s.id) >= 0), u = upNow(), c = cond ? GS.CONDITIONS[cond] : null, r = repNow();
-    let cust = Math.min(3 + n, 7) + (u.cartel || 0) + (u.arcade || 0) + (u.vidluz || 0) + (r >= 4 ? 1 : r < 2 ? -1 : 0) + (c ? c.cust : 0);   // cartel, arcade y reputación traen gente
+    let cust = Math.min(3 + n, 7) + (u.cartel || 0) + (u.arcade || 0) + (u.vidluz || 0) + (u.web >= 2 ? 1 : 0) + (r >= 4 ? 1 : r < 2 ? -1 : 0) + (c ? c.cust : 0);   // cartel, arcade y reputación traen gente
     const want = U.clamp(cust, 3, 12); cust = Math.min(want, C.day.maxDayCustomers);       // la jornada dura siempre unos 3 minutos: lo que el cartel y las mejoras traen de más se cobra como tickets más altos
-    const tasks = pool.length ? Math.min(n - 1, C.day.maxDayTasks) : 0, extraMl = c && un.indexOf('ml') >= 0 ? c.ml : 0, nw = cust <= 5 ? 3 : 4;
+    const tasks = pool.length ? Math.min(n - 1, C.day.maxDayTasks) : 0, extraMl = (un.indexOf('ml') >= 0 && u.web >= 1 ? 1 : 0) + (c && un.indexOf('ml') >= 0 ? c.ml : 0), nw = cust <= 5 ? 3 : 4;
     const plan = Array.from({ length: nw }, () => ({ c: 0, t: 0, ml: 0 }));
     for (let i = 0; i < cust; i++) plan[nw - 1 - (i % nw)].c++;
     for (let i = 0; i < tasks; i++) plan[nw - 1 - (i % (nw - 1))].t++;
@@ -117,7 +118,7 @@ GS.Game = (function () {
     return line.replace('{quien}', sl === 0 ? 'Lucho' : 'Brian');
   }
   /* ---------------- Cordura: nunca hay Game Over, solo un mate a tiempo ---------------- */
-  function addCord(v) { if (day && !day.arcade) day.cord = U.clamp(day.cord + v, 0, 100); }
+  function addCord() {}                     // la cordura se retiró: las métricas son estrellas, monedas y fondos
   function mateRescue() {
     day.mate = true; addCord(CD.mateBoost); A.play('mate');
     day.customers.forEach(c => { c.pat = Math.min(1, c.pat + 0.25); }); day.tasks.forEach(t => { t.pat = Math.min(1, t.pat + 0.25); });
@@ -137,9 +138,9 @@ GS.Game = (function () {
     day.intr = { it: day.intrBag.pop(), left: CD.intrSeconds, flip: Math.random() < 0.5 }; day.jobSig = ''; A.play('intr');
   }
   function answerIntr(ok) {
-    const x = day && day.intr; if (!x || paused) return; day.intr = null; day.jobSig = '';
-    if (ok) { addCord(CD.intrOk * (x.it.mate ? 2 : 1)); day.score += 40; day.intrOk++; day.wv.intrOk = 1; A.play(x.it.mate ? 'mate' : 'ok'); toast('<b>' + x.it.ic + ' Bien resuelto · sube la cordura</b>' + x.it.r, '', 3200); }
-    else { addCord(-CD.intrBad); A.play('error'); toast('<b>' + x.it.ic + ' Ups</b>' + x.it.rb, '', 3200); }
+    const x = day && day.intr; if (!x || paused) return; day.intr = null; day.jobSig = ''; if (!day.moment) day.moment = x.it.who + '. ' + (ok ? x.it.r : x.it.rb);
+    if (ok) { addCord(CD.intrOk * (x.it.mate ? 2 : 1)); day.score += 40; day.intrOk++; day.wv.intrOk = 1; A.play(x.it.mate ? 'mate' : 'ok'); addRep(0.04); fx('+⭐'); toast('<b>' + x.it.ic + ' Bien resuelto</b>' + x.it.r, '', 3200); }
+    else { addRep(-0.03); fx('−⭐', 'bad'); A.play('error'); toast('<b>' + x.it.ic + ' Ups</b>' + x.it.rb, '', 3200); }
   }
   function planTotals(plan) { return plan.reduce((a, w) => ({ c: a.c + w.c, t: a.t + w.t + (w.ml || 0) }), { c: 0, t: 0 }); }
   function startWave() {
@@ -148,7 +149,7 @@ GS.Game = (function () {
     for (let i = 0; i < w.c; i++) day.queue.push({ kind: 'c', t: 0.3 + i * C.day.customerGap });
     for (let i = 0; i < w.t; i++) day.queue.push({ kind: w.final ? 'f' : 't', t: (w.final ? 0.6 : 5) + i * C.day.taskGap });
     for (let i = 0; i < (w.ml || 0); i++) day.queue.push({ kind: 'm', t: 3 + i * C.day.taskGap });
-    if (!day.arcade && !day.relaxed && day.n % 10 === 9 && !day.xq && (day.wave >= 1 || day.plan.filter(w => !w.final).length < 2) && !w.final) { day.xq = 1; day.queue.push({ kind: 'x', t: 5 }); }    // víspera de la semana de Navidad
+    if (!day.arcade && !day.relaxed && day.n % 12 === 11 && !day.xq && (day.wave >= 1 || day.plan.filter(w => !w.final).length < 2) && !w.final) { day.xq = 1; day.queue.push({ kind: 'x', t: 5 }); }    // víspera de la semana de Navidad
     day.visits.forEach(v => { if (v.wave === day.wave && !v.sent) { v.sent = 1; day.queue.push({ kind: 'v', v: v.S, t: U.rnd(3, 8) }); } });
     if (GS.DEBUG_INTR || (day.n >= CD.intrFromDay && !w.final && day.wave >= 1 && day.intrN < (day.n >= 6 ? 3 : 2) && Math.random() < 0.6)) { day.queue.push({ kind: 'i', t: U.rnd(5, 11) }); day.intrN++; }
     day.queue.sort((a, b) => a.t - b.t);
@@ -156,7 +157,6 @@ GS.Game = (function () {
   function endWave() {
     if (day.wave >= day.plan.length - 1) { day.closing = true; setTimeout(endDay, 2800); return; }
     day.stage = 'rest'; day.rest = C.day.restSeconds; W.focus(null); W.home();
-    { const seen = GS.Store.get('seen') || {}; if (!seen.cord) { seen.cord = 1; GS.Store.set('seen', seen); toast('<b>🧠 Cordura</b>Sube en los respiros y con las rachas. Si baja mucho, Brian te ceba un mate.', 'dueno', 5200); } }
     const d = day;
     setTimeout(() => {                       // en el respiro habla el Dueño, sin nada tapando el local
       if (day !== d || state !== 'day' || d.stage !== 'rest') return;
@@ -212,7 +212,7 @@ GS.Game = (function () {
   }
   function clearDay() {
     if (day) { day.customers.forEach(c => { if (c.person) c.person.remove(); c.label.remove(); }); day.tasks.forEach(t => { t.label.remove(); if (t.boxes) t.boxes.remove(); }); day.says.forEach(x => x.el.remove()); day.extras.forEach(x => x.remove()); }
-    MG.close(); W.focus(null); W.bossHome();
+    MG.close(); W.focus(null); W.bossHome(); W.clearDirt();
     { const yo = W.player(); if (yo) { yo.stop(); yo.setPos(L.yoMostrador[0], L.yoMostrador[1]); yo.face(0); yoAt = 'most'; yoRoute = []; } const b = STAFF[1]; if (b && b.busy) { b.busy = false; b.q = [['go', [[4.0, -5.0], [4.6, -4.4], [4.5, -1.2], b.hub]]]; } }
   }
   function makeLabel(icon) {
@@ -229,7 +229,7 @@ GS.Game = (function () {
     const slot = freeSlot('slotM', L.colaMostrador.length); if (slot < 0) return;
     if (!day.reqBag.length) day.reqBag = U.shuffle(GS.REQUESTS);
     if (!day.archBag.length) day.archBag = U.shuffle(GS.CUSTOMERS);
-    const req = day.reqBag.pop(), arche = day.archBag.pop(), product = GS.CATALOG.find(p => p.id === req.p);
+    const req = day.reqBag.pop(), arche = day.cond === 'navidad' && !day.santa && day.spawned >= 2 ? (day.santa = 1, GS.SANTA) : day.archBag.pop(), product = GS.CATALOG.find(p => p.id === req.p);
     const k = arche.id.charCodeAt(0) + arche.id.length * 7;   // cada personaje mantiene su look
     const look = lookOf(arche), person = W.makePerson(look);
     const dx = L.puerta.x; person.setPos(dx + U.rnd(-0.5, 0.5), day.spawned === 0 ? L.salon.zMax + 1 : L.galeria.zMax + 2.4);
@@ -334,9 +334,8 @@ GS.Game = (function () {
   const daysLeft = () => Math.max(0, C.finalDay - dayNumber() + 1);
   function addFondo(v) { GS.Store.set('fondo', Math.max(0, fondoNow() + v)); }
   function plotHtml() {
-    const f = fondoNow(), g = goalNow(), left = daysLeft();
-    return '<b>🏠 ' + PL.name + '</b><span class="pb"><i style="width:' + Math.min(100, f / g * 100).toFixed(0) + '%"></i></span><small>Fondo: 🪙 ' + f + ' de ' + g +
-      (GS.Store.get('final2Seen') ? ' · temporada cerrada: ' + tierNow().title : left ? ' · ' + (left === 1 ? 'última jornada' : 'quedan ' + left + ' jornadas') : '') + '</small>';
+    const f = fondoNow(), g = goalNow();
+    return '<b>🗺️ ' + PL.name + '</b><span class="pb"><i style="width:' + Math.min(100, f / g * 100).toFixed(0) + '%"></i></span><small>Sucursales: 1 de 5 · fondos de expansión ' + f + ' de ' + g + ' para abrir Cuyo</small>';
   }
   /* ---------------- VISITAS CON HISTORIA: clientes que vuelven, con decisiones chiquitas que dejan marca ---------------- */
   const histAll = () => GS.Store.get('hist') || {};
@@ -378,7 +377,7 @@ GS.Game = (function () {
       if (fx.goal) { GS.Store.set('goalAdj', (GS.Store.get('goalAdj') || 0) + fx.goal); chips.push(fx.goal < 0 ? '🏠 El local de al lado sale más barato' : '🏠 El local de al lado se encarece'); }
       if (fx.flag) st.flags[fx.flag] = 1;
       if (fx.gflag) { gf[fx.gflag] = 1; GS.Store.set('gflags', gf); }
-      st.last = day.n;
+      st.last = day.n; day.moment = S.name + ': "' + o.r + '"';
       if (waiting) st.waits = (st.waits || 0) + 1;                 // todavía falta algo que depende de otra historia: vuelve más adelante
       else if (!o.stay) { st.step++; st.notes.push(o.note || step.note); if (step.end || st.step >= S.steps.length) st.done = true; }
       h[S.id] = st; GS.Store.set('hist', h); GS.track('visita', { quien: S.id, paso: st.step }); A.play(fx.rep < 0 || fx.fondo < 0 ? 'error' : 'ok'); A.babble(o.r, cu.person.voice);
@@ -417,7 +416,16 @@ GS.Game = (function () {
     for (let i = 0; i < n; i++) if (!day.customers.some(c => c[key] === i && c.st !== 'leaving')) return i;
     return -1;
   }
+  // Limpieza: los clientes dejan manchas; se limpian en los ratos libres. Terminar con el piso sucio baja la reputación.
+  function dropDirt() {
+    if (!day || day.arcade || day.dirt >= 5 || Math.random() > (upNow().plantas ? 0.22 : 0.45)) return;
+    day.dirt++; day.jobSig = ''; W.addDirt(U.rnd(-3.6, 0.6), U.rnd(-2.0, 4.6));
+  }
+  function cleanUp() {
+    const n = day.dirt; if (!n) return; day.dirt = 0; day.cleaned += n; day.jobSig = ''; W.clearDirt(); day.score += 25 * n; addRep(0.015 * n); A.play('ok'); fx('🧹 +' + 25 * n); yoGo('H'); day.beat = 0.7;
+  }
   function leave(cu, withBag) {
+    if (!cu.story && cu.st !== 'entering') dropDirt();
     cu.st = 'leaving'; cu.slotM = -1; cu.slotC = -1; cu.label.hidden = true; cu.person.bag(!!withBag);
     const dx = L.puerta.x, d = day;
     cu.person.walk([[dx, -1.2], [dx, L.salon.zMax + 0.2], [dx + U.rnd(-2, 2), L.galeria.zMax + 3]], () => {
@@ -426,11 +434,16 @@ GS.Game = (function () {
   }
   function removeTask(task) { task.label.remove(); if (task.boxes) task.boxes.remove(); const i = day.tasks.indexOf(task); if (i >= 0) day.tasks.splice(i, 1); }
 
+  // Números que suben: respuesta inmediata a cada cosa que pasa
+  function fx(text, cls) {
+    const el = document.createElement('div'); el.className = 'fx ' + (cls || ''); el.textContent = text; el.style.left = (38 + Math.random() * 24) + '%';
+    $('fxs').appendChild(el); setTimeout(() => el.remove(), 1300);
+  }
   function addScore(base, pat) {
     const mult = (1 + Math.min(day.combo, 8) * 0.25) * (!day.arcade && day.cord >= CD.focus ? 1.1 : 1), pts = Math.round((base + Math.max(0, pat) * 100) * mult);
     addCord(day.combo >= 2 ? 0.6 + CD.streak : 0.6);
     day.score += pts; day.combo++; day.bestCombo = Math.max(day.bestCombo, day.combo);
-    toast('+' + pts + (day.combo > 1 ? ' · racha x' + day.combo : ''), 'pts', 1100);
+    fx('+' + pts + (day.combo > 1 ? '  x' + day.combo : ''));
     if (day.combo > 1) A.play('combo', day.combo);
   }
   function breakCombo() { day.combo = 0; }
@@ -444,6 +457,7 @@ GS.Game = (function () {
       else if (c.st === 'waitC') jobs.push({ key: 'c' + c.id + 'k', type: 'caja', ref: c, pat: c.pat, icon: '💵', title: 'Caja', sub: 'Cobrar a ' + c.arche.name });
     }
     for (const t of day.tasks) if (t.st === 'wait') jobs.push({ key: 't' + t.id, type: t.station.id, ref: t, pat: t.pat, icon: t.station.icon, title: t.station.short || t.station.name, sub: t.station.task.name });
+    if (day.dirt && !day.arcade && (day.stage === 'rest' || !jobs.length || day.dirt >= 3)) jobs.push({ key: 'dirt' + day.dirt, type: 'limpiar', ref: null, pat: 1, icon: '🧹', title: 'Limpiar el piso', sub: day.dirt + (day.dirt === 1 ? ' mancha' : ' manchas') + ' · un toque y listo' });
     return jobs.sort((a, b) => a.pat - b.pat);
   }
   /* ---------------- Tu personaje camina solo hasta cada tarea, por los pasillos y las puertas ----------------
@@ -479,6 +493,7 @@ GS.Game = (function () {
   function openJob(job) {
     if (state !== 'day' || paused || MG.isOpen() || day.closing || day.beat > 0) return;
     if (job.type === 'historia') return openStory(job.ref);
+    if (job.type === 'limpiar') return cleanUp();
     A.unlock(); A.play('click');
     const ref = job.ref, isCust = job.type === 'mostrador' || job.type === 'caja';
     ref.st = isCust ? (job.type === 'mostrador' ? 'inM' : 'inC') : 'in'; ref.pat = Math.max(ref.pat, 0.55);
@@ -486,10 +501,13 @@ GS.Game = (function () {
     yoGo(NODE_OF[job.type]);
     const mt = day.mt = day.mt || {}, m0 = day.tt || 0, me = mt[job.type] = mt[job.type] || { n: 0, s: 0, e: 0 }; me.n++;
     const cb = {
-      onMistake(kind) { me.e++; day.wv.mistakes = (day.wv.mistakes || 0) + 1; breakCombo(); addRep(-0.02); addCord(-CD.mistake); if (kind === 'caja') day.cajaErr++; else day.otherErr++; if (!day.relaxed) ref.pat = Math.max(0.05, ref.pat - C.day.mistakeCost); },
+      onMistake(kind) { me.e++; day.wv.mistakes = (day.wv.mistakes || 0) + 1; breakCombo(); addRep(kind === 'caja' ? -0.07 : -0.03); fx(kind === 'caja' ? '−⭐  −🪙' : '−⭐', 'bad'); if (kind === 'caja') { day.cajaErr++; day.coinLoss = (day.coinLoss || 0) + 15; } else day.otherErr++; if (!day.relaxed) ref.pat = Math.max(0.05, ref.pat - C.day.mistakeCost); },
       onEnd(ok, info) {
         me.s += (day.tt || 0) - m0;
         if (job.type !== 'caja') W.focus(null);
+        if (job.type === 'mostrador' && !ok) {            // producto equivocado: se va y se pierde la venta
+          day.lostSale = (day.lostSale || 0) + 1; day.wv.lost = 1; addRep(-0.1); ref.slotM = -1; sayAt(ref.person, U.pick(LN.lostSale), 0); day.beat = 1.2; leave(ref, false); return;
+        }
         if (job.type === 'mostrador') {
           addScore(100, ref.pat); addRep(0.02); { const v = GS.Store.get('vid') || 0, saw = Math.random() < v * 0.7 + (upNow().vidluz ? 0.15 : 0); if (saw) addRep(0.02); sayAt(ref.person, saw ? U.pick(LN.sawWindow) : '¡Eso! Voy a la caja.', saw ? 3000 : 1900); } ref.st = 'toCaja'; ref.slotM = -1; ref.pat = Math.max(ref.pat, 0.8);
           ref.slotC = Math.max(0, freeSlot('slotC', L.colaCaja.length));
@@ -497,7 +515,8 @@ GS.Game = (function () {
         } else if (job.type === 'caja') {
           day.served++; day.wv.served = (day.wv.served || 0) + 1;
           if (info.total) day.sales += info.total;
-          if (info.cajaError) { day.score = Math.max(0, day.score - 100); addRep(-0.25); }
+          if (info.cajaError) { day.score = Math.max(0, day.score - 100); addRep(-0.25); day.vueltoMal = 1; day.coinLoss = (day.coinLoss || 0) + 40; fx('−🪙 vuelto de más', 'bad'); }
+          if (ref.arche.id === 'santa') day.santaSold = 1;
           if (ok) { addScore(150, ref.pat); addRep(info.caught ? 0.05 : 0.04); }
           if (info.caught) {                 // comprobante trucho bien rechazado: se va renegando y sin el producto
             day.caught = (day.caught || 0) + 1; day.wv.caught = 1; sayAt(ref.person, U.pick(LN.caught), 3600); day.beat = 1.5;
@@ -508,7 +527,7 @@ GS.Game = (function () {
           sayAt(ref.person, ref.arche.bye, 3600); day.beat = 1.5;
           const d = day; setTimeout(() => { if (day === d && !MG.isOpen()) W.focus(null); }, 2300);
           leave(ref, !!info.total);
-        } else { day.tasksDone++; day.wv.done[job.type] = 1; addScore(130, ref.pat); addRep(job.type === 'whatsapp' ? 0.05 : 0.03); if (job.type === 'vidriera') { GS.Store.set('vid', info.quality || 0); addRep((info.quality - 0.5) * 0.12); } removeTask(ref); }
+        } else { day.tasksDone++; day.wv.done[job.type] = 1; day.okBy = day.okBy || {}; day.okBy[job.type] = (day.okBy[job.type] || 0) + 1; addScore(job.type === 'ml' ? 130 * (1 + 0.2 * (upNow().flota || 0)) : 130, ref.pat); if (job.type === 'ml' && upNow().flota) addRep(0.015 * upNow().flota); addRep(job.type === 'whatsapp' ? 0.05 : 0.03); if (job.type === 'vidriera') { GS.Store.set('vid', info.quality || 0); addRep((info.quality - 0.5) * 0.12); } removeTask(ref); }
       }
     };
     const seen = GS.Store.get('seen') || {};
@@ -542,7 +561,6 @@ GS.Game = (function () {
     { const u = upNow();
       if (day.stage === 'rest' && day.wave >= 0 && !day.closing) addCord(CD.rest * (u.cafetera ? 1.6 : 1) * dt);
       else if (!day.relaxed && pendingJobs().length >= CD.busyFrom) addCord(-CD.busy * (u.plantas ? 0.6 : 1) * dt);
-      if (day.cord < CD.burnt && !day.mate && !day.closing) mateRescue();
       if (day.intr && !open) { day.intr.left -= dt; if (day.intr.left <= 0) { day.intr = null; day.jobSig = ''; toast('Se resolvió solo. A veces pasa.', '', 1700); } } }
     // paciencia (en el turno tranquilo no baja)
     if (!day.relaxed) {
@@ -588,7 +606,6 @@ GS.Game = (function () {
     $('scoreV').textContent = day.score.toLocaleString('es-AR');
     $('chipSales').hidden = !!day.arcade; $('chipRep').hidden = !!day.arcade; $('chipRep').textContent = '⭐ ' + repTxt(repNow());
     $('chipSales').textContent = '🪙 ' + (coinsNow() + Math.round(day.score / 20 * coinMult()));
-    { const k = Math.round(day.cord), el = $('chipCord'); el.hidden = !!day.arcade || !!day.fin; el.textContent = (k < CD.burnt ? '😵 ' : '🧠 ') + k + (k >= CD.focus ? ' · enfocado' : ''); el.className = 'chip cord' + (k >= CD.focus ? ' hi' : k < CD.burnt ? ' lo' : ''); }
     $('chipCombo').hidden = day.combo < 2; $('chipCombo').textContent = '🔥 racha x' + day.combo;
   }
   // Tarjetas de pendientes (abajo): hasta 4, primero lo más urgente
@@ -697,7 +714,6 @@ GS.Game = (function () {
     if (!day || state !== 'day' || day.arcade) return;
     state = 'end'; MG.close(); W.focus(null); W.showAll(); A.play('endDay'); A.setMood('menu'); $('rain').hidden = true;
     const d = day; d.intr = null;
-    const cordEnd = Math.round(d.cord), cordPts = cordEnd * CD.bonus; d.score += cordPts;
     d.customers.slice().forEach(c => { if (c.st !== 'leaving') leave(c, false); }); d.lookers.slice().forEach(lk => { if (lk.st !== 'out') { lk.p.stop(); lookerOut(lk); } });
     d.tasks.slice().forEach(removeTask); d.says.forEach(x => x.el.remove()); d.says = [];
     $('hud').hidden = true; $('jobs').hidden = true;
@@ -706,45 +722,56 @@ GS.Game = (function () {
     if (d.relaxed) stars = errs === 0 ? 3 : errs <= 4 ? 2 : 1;
     else { if (missed <= 2) stars = 2; if (missed === 0 && errs <= 3) stars = 3; }
     const comment = U.pick(stars === 3 ? LN.duenoEndGood : stars === 2 ? LN.duenoEndMid : LN.duenoEndBad);
-    const human = U.pick(LN.human).replace('{n}', d.served);
-    const entry = { score: d.score, served: done, sales: d.sales, mode: d.relaxed ? 'Tranquilo' : 'Normal', date: new Date().toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit' }) };
-    const pos = d.score > 0 ? GS.Store.addScore(entry) : -1;
     if (!GS.Store.get('testDay')) GS.Store.set('days', Math.max(GS.Store.get('days') || 0, d.n));
-    { const tot = GS.Store.get('tot') || { c: 0, d: 0 }; tot.c += d.served; tot.d++; GS.Store.set('tot', tot); }
-    const isFinal = d.n === C.finalDay && !GS.Store.get('testDay') && !GS.Store.get('final2Seen');
-    lastCard = { n: d.n, score: d.score, stars, cord: cordEnd };
-    const earned = Math.round(d.score / 20 * coinMult() * (d.plan.bonus || 1)); GS.Store.set('coins', coinsNow() + earned);
+    const lostSale = d.lostSale || 0, ask = d.served + d.lost + lostSale, perfect = !errs && !d.lost && !lostSale && !d.tasksLate && !d.relaxed, dirty = d.dirt >= 3;
+    if (dirty) addRep(-0.1);                                                        // cerrar con el piso sucio se nota
+    const earned = Math.max(0, Math.round(d.score / 20 * coinMult() * (d.plan.bonus || 1)) - (d.coinLoss || 0)); GS.Store.set('coins', coinsNow() + earned);
+    const fEarn = d.relaxed ? 0 : Math.round(d.sales / 6500 * (0.5 + repNow() / 5)); addFondo(fEarn);     // fondos de expansión: salen de la facturación y la reputación
+    { const t = statsNow(); delete t.rep; delete t.flota; t.c += d.served; t.d++; t.caught += d.caught || 0; t.web += (d.okBy && d.okBy.ml) || 0; t.clean += d.cleaned; t.sales += d.sales;
+      if (perfect) { t.perfect++; t.streak++; } else if (!d.relaxed) t.streak = 0; if (d.vueltoMal) t.vueltoMal++; if (!d.dirt && !d.relaxed) t.limpio++; if (dirty) t.sucio++; if (d.santaSold) t.santa++; GS.Store.set('tot', t); }
+    const fresh = checkLogros(), mode = d.relaxed ? 'Tranquilo' : 'Normal';
+    lastCard = { n: d.n, score: d.score, stars, cord: 0 };
     const rv = repNow(), rd = rv - d.rep0; refreshStart();
-    GS.track('fin_jornada', { puntaje: d.score, atendidos: d.served, tareas: d.tasksDone, perdidos: missed, estrellas: stars, modo: entry.mode, segundos: Math.round(d.tt || 0), monedas: earned });
-    { const ms = GS.Store.get('metrics') || []; ms.push({ n: d.n, modo: entry.mode, seg: Math.round(d.tt || 0), mg: Math.round(d.tj || 0), monedas: earned, at: d.served, per: d.lost, tar: d.tasksDone, tarde: d.tasksLate, err: d.cajaErr + d.otherErr, rep: Math.round(repNow() * 10) / 10, mt: d.mt || {} }); GS.Store.set('metrics', ms.slice(-40)); }
+    GS.track('fin_jornada', { puntaje: d.score, atendidos: d.served, tareas: d.tasksDone, perdidos: missed + lostSale, modo: mode, segundos: Math.round(d.tt || 0), monedas: earned, fondos: fEarn });
+    { const ms = GS.Store.get('metrics') || []; ms.push({ n: d.n, modo: mode, seg: Math.round(d.tt || 0), mg: Math.round(d.tj || 0), monedas: earned, at: d.served, per: d.lost + lostSale, tar: d.tasksDone, tarde: d.tasksLate, err: errs, rep: Math.round(rv * 10) / 10, mt: d.mt || {} }); GS.Store.set('metrics', ms.slice(-40)); }
+    const hook = nextHook(d.n + 1), ob = d.okBy || {}, row = (ok, label, val) => '<p class="' + (ok ? 'ok' : 'no') + '"><span>' + (ok ? '✔' : '✖') + ' ' + label + '</span><b>' + val + '</b></p>';
     $('endCol').innerHTML =
-      '<div><div class="ticket"><h3>CIERRE DE CAJA</h3><div class="c">Jornada ' + d.n + ' · ' + rankOf(d.n) + (d.cond ? ' · ' + GS.CONDITIONS[d.cond].name : '') + (d.relaxed ? ' · turno tranquilo' : '') + '</div>' +
-      '<p><span>Clientes atendidos</span><b>' + d.served + '</b></p><p><span>Tareas del local hechas</span><b>' + d.tasksDone + '</b></p>' +
-      '<p><span>Se fueron sin comprar</span><b>' + d.lost + '</b></p><p><span>Tareas que se pasaron</span><b>' + d.tasksLate + '</b></p>' +
-      '<p><span>Errores (con chiste)</span><b>' + errs + '</b></p>' +
-      (d.caught ? '<p><span>Comprobantes truchos frenados</span><b>' + d.caught + '</b></p>' : '') +
-      (d.intrOk ? '<p><span>Interrupciones bien resueltas</span><b>' + d.intrOk + '</b></p>' : '') +
-      '<p><span>🏠 Fondo del local de al lado</span><b>🪙 ' + fondoNow() + ' / ' + goalNow() + '</b></p>' +
-      '<p><span>Cordura al cierre</span><b>🧠 ' + cordEnd + ' (+' + cordPts + ' pts)</b></p>' +
-      '<p><span>Mejor racha</span><b>x' + d.bestCombo + '</b></p><p><span>Ventas (ficticias)</span><b>' + U.money(d.sales) + '</b></p>' +
-      '<p><span>Monedas ganadas hoy</span><b>🪙 ' + earned + '</b></p><p><span>Reputación del local</span><b>⭐ ' + repTxt(rv) + ' (' + (rd >= 0 ? '+' : '−') + repTxt(Math.abs(rd)) + ')</b></p><hr>' +
-      '<p class="tot"><span>PUNTAJE</span><b>' + d.score.toLocaleString('es-AR') + '</b></p><div class="stars">' + '★'.repeat(stars) + '<span style="opacity:.25">' + '★'.repeat(3 - stars) + '</span></div></div></div>' +
-      '<div style="display:flex;flex-direction:column;gap:12px;margin-top:8px">' +
-      (rankOf(d.n + 1) !== rankOf(d.n) && !GS.Store.get('testDay') ? '<div class="promo">🎖 ¡Ascenso!<b>Ahora sos ' + rankOf(d.n + 1) + '</b></div>' : '') +
-      (pos === 0 ? '<div class="newrec">🏆 ¡Nuevo récord personal!</div>' : '') +
-      '<div class="quote"><b>El Dueño opina</b>' + comment + '</div><p class="humanline">' + human + '</p>' +
-      goalHtml() + '<button class="btn alt" id="endShop">🛠 Mejorar el local</button>' +
-      (isFinal ? '<button class="btn gold" id="endFinal">🎬 Ver el final de la temporada</button>' : '') +
-      '<button class="btn' + (isFinal ? ' ghost' : '') + '" id="endAgain">Siguiente jornada</button><button class="btn ghost" id="endCard">📸 Tarjeta para compartir</button><button class="btn ghost" id="endLib">📖 Libreta y fondo</button>' +
-      '<div class="row"><button class="btn ghost" id="endHome">Inicio</button><button class="btn ghost" id="endRecs">Récords</button></div>' +
-      (C.links.tienda ? '<a class="btn ghost" id="endStore" target="_blank" rel="noopener" href="' + C.links.tienda + '">🛒 Ver la tienda de verdad</a>' : '') +
+      '<div><div class="ticket"><h3>RESUMEN DE LA JORNADA</h3><div class="c">Jornada ' + d.n + ' · ' + monthOf(d.n) + (d.cond ? ' · ' + GS.CONDITIONS[d.cond].name : '') + (d.relaxed ? ' · turno tranquilo' : '') + '</div>' +
+      row(ask > 0 && d.served === ask, 'Ventas concretadas', d.served + ' de ' + ask) +
+      (lostSale ? row(false, 'Se fueron por producto equivocado', lostSale) : '') + (d.lost ? row(false, 'Se cansaron de esperar', d.lost) : '') +
+      row(!d.cajaErr, 'Cobros sin error', d.cajaErr ? d.cajaErr + (d.cajaErr === 1 ? ' error' : ' errores') : 'todos') +
+      (ob.ml ? row(true, 'Compras por la página despachadas', ob.ml) : '') + (ob.stock ? row(true, 'Controles de stock bien hechos', ob.stock) : '') +
+      (d.tasksDone + d.tasksLate ? row(!d.tasksLate, 'Tareas del local a tiempo', d.tasksDone + ' de ' + (d.tasksDone + d.tasksLate)) : '') +
+      (d.caught ? row(true, 'Comprobantes truchos frenados', d.caught) : '') +
+      row(!dirty, 'Limpieza', dirty ? 'piso sucio' : d.cleaned ? d.cleaned + (d.cleaned === 1 ? ' mancha limpiada' : ' manchas limpiadas') : 'impecable') +
+      '<hr><p class="tot"><span>🪙 Monedas</span><b id="sumCoins">+0</b></p>' + (d.coinLoss ? '<p class="no"><span>Se fue en errores de caja</span><b>−🪙 ' + d.coinLoss + '</b></p>' : '') +
+      '<p><span>🗺️ Fondos de expansión</span><b>+' + fEarn + '</b></p><p><span>⭐ Reputación</span><b>' + repTxt(rv) + ' (' + (rd >= 0 ? '+' : '−') + repTxt(Math.abs(rd)) + ')</b></p>' +
+      '<p><span>Facturación (ficticia)</span><b>' + U.money(d.sales) + '</b></p></div></div>' +
+      '<div style="display:flex;flex-direction:column;gap:10px;margin-top:8px">' +
+      fresh.map(a => '<div class="newrec">' + a.ic + ' Logro: <b>' + a.name + '</b><small>' + a.d + '</small></div>').join('') +
+      '<div class="quote"><b>' + (d.moment ? 'El momento del día' : 'El Dueño opina') + '</b>' + (d.moment || comment) + '</div>' +
+      '<div class="hook"><i>' + hook[0] + '</i><span><b>Lo que viene</b>' + hook[1] + '</span></div>' +
+      '<button class="btn" id="endAgain">Siguiente jornada</button>' +
+      '<div class="row"><button class="btn alt" id="endShop" style="font-size:16px">🛠 Mejorar</button><button class="btn ghost" id="endRecs">🏅 Logros</button></div>' +
+      '<div class="row"><button class="btn ghost" id="endCard">📸 Compartir</button><button class="btn ghost" id="endLib">📖 Libreta</button><button class="btn ghost" id="endHome">Inicio</button></div>' +
       '<button class="phases" id="phasesEnd"' + (C.launched ? ' hidden' : '') + '></button></div>';
     $('phasesEnd').innerHTML = phasesCompact(); $('phasesEnd').addEventListener('click', showPhases);
-    if ($('endStore')) $('endStore').addEventListener('click', () => GS.track('click_tienda', { desde: 'cierre' }));
-    $('endCard').addEventListener('click', () => showCard()); $('endLib').addEventListener('click', showLibreta); if (isFinal) $('endFinal').addEventListener('click', () => startFinal());
+    $('endCard').addEventListener('click', () => showCard()); $('endLib').addEventListener('click', showLibreta);
     $('endAgain').addEventListener('click', () => startDay(d.relaxed));
-    $('endHome').addEventListener('click', goHome); $('endRecs').addEventListener('click', showRecords); $('endShop').addEventListener('click', openShop);
+    $('endHome').addEventListener('click', goHome); $('endRecs').addEventListener('click', showLogros); $('endShop').addEventListener('click', openShop);
     $('end').hidden = false; $('end').scrollTop = 0;
+    { const el = $('sumCoins'), t0 = performance.now(); (function tick(t) { const k = Math.min(1, (t - t0) / 900); if (!el.isConnected) return; el.textContent = '+' + Math.round(earned * k); if (k < 1) requestAnimationFrame(tick); else { el.classList.add('pop'); if (earned) A.play('cash'); } })(t0); }   // las monedas suben
+  }
+  // Gancho para la jornada siguiente: lo próximo que vale la pena esperar
+  function nextHook(n) {
+    const m = n % 12; if (m === 11) return ['🛍️', 'La próxima jornada es noviembre: Black Friday. Viene más gente, y además hay que decorar para Navidad.'];
+    if (m === 0) return ['🎄', 'La próxima es diciembre: semana de Navidad. Dicen que viene alguien de rojo a comprar.'];
+    const h = histAll(), back = GS.STORIES.filter(S => h[S.id] && !h[S.id].done && n >= h[S.id].last + (S.gap || 1));
+    if (back.length) return ['📖', back[0].name + ' dijo que volvía. Puede aparecer en la próxima jornada.'];
+    const f = goalNow() - fondoNow(); if (f <= 0) return ['🗺️', 'Ya están los fondos para abrir la sucursal de Cuyo. El mapa del país llega en la próxima etapa del juego.'];
+    if (f < 1000) return ['🗺️', 'Faltan ' + f + ' fondos de expansión para abrir la sucursal de Cuyo.'];
+    const t = nextGoal(); if (t) return [t.g.icon, (coinsNow() >= t.lv.price ? 'Ya te alcanza para: ' : 'Te faltan 🪙 ' + (t.lv.price - coinsNow()) + ' para: ') + t.lv.n + '.'];
+    return ['☕', 'Mañana abrimos de 10 a 19, como siempre.'];
   }
   /* ---------------- Mejoras del local (la recompensa por seguir jugando) ---------------- */
   function nextGoal() {                 // lo más barato que todavía no tiene
@@ -767,7 +794,7 @@ GS.Game = (function () {
   function renderShop(preview) {
     const u = upNow(), c = coinsNow(), g = GS.UPGRADES[shopSel], own = u[g.id] || 0;
     $('shopCoins').textContent = '🪙 ' + c;
-    $('shopFund').innerHTML = '<div class="plot">' + plotHtml() + '</div><div class="row">' + [100, 500, 0].map(v => '<button class="btn ghost" data-fund="' + v + '"' + (c < (v || 1) ? ' disabled' : '') + '>' + (v ? 'Aportar 🪙 ' + v : 'Aportar todo') + '</button>').join('') + '</div>';
+    $('shopFund').innerHTML = '';
     $('shopSlots').innerHTML = GS.UPGRADES.map((x, i) => '<button class="slotb' + (i === shopSel ? ' on' : '') + ((u[x.id] || 0) >= x.levels.length ? ' full' : '') + '" data-i="' + i + '">' + x.icon + '<small>' + x.name + '</small></button>').join('');
     $('shopCards').innerHTML = g.levels.map((lv, i) => {
       const has = own > i, can = own === i && c >= lv.price, locked = own < i;
@@ -797,12 +824,14 @@ GS.Game = (function () {
     if (hat !== 'casco') {
       if (st === 'corto' || st === 'rodete' || st === 'largo') v += cap;
       if (st === 'corto') v += '<path d="M33 31 Q38 15 52 19 Q47 12 58 13 Q68 16 70 32 Q58 24 50 30 Q42 25 33 31z" fill="' + h + '"/>';
+      if (st === 'cresta') v += cap + '<path d="M36 31 Q50 12 64 31 Q50 25 36 31z" fill="' + h + '"/>';
       if (st === 'rodete') v += '<circle cx="50" cy="15" r="10.500" fill="' + h + '"/>';
       if (st === 'rulos') { v += cap; for (let i = 0; i < 9; i++) { const an = Math.PI * (1.02 + i * 0.12); v += '<circle cx="' + (50 + Math.cos(an) * 29).toFixed(1) + '" cy="' + (48 + Math.sin(an) * 29).toFixed(1) + '" r="10" fill="' + h + '"/>'; } v += '<circle cx="39" cy="26" r="8.500" fill="' + h + '"/><circle cx="61" cy="26" r="8.500" fill="' + h + '"/><circle cx="50" cy="22" r="8.500" fill="' + h + '"/>'; }
       if (st === 'mohicano') v += '<path d="M42 32 L44 5 L50 14 L56 3 L58 32 Q50 27 42 32z" fill="' + h + '"/>';
     }
     if (a.beard) v += '<path d="M21.500 52 A28.500 28.500 0 0 0 78.500 52 Q73 62 61 59 Q50 54 39 59 Q27 62 21.500 52z" fill="' + h + '"/>';
     // sombreros de los disfraces
+    if (hat === 'gorro') v += '<path d="M20 44 Q22 14 52 12 Q76 12 84 30 L78 34 Q70 24 62 30 Q76 36 80 46z" fill="#d81e2c"/><path d="M18 46 Q50 30 82 46 L81 54 Q50 39 19 54z" fill="#fff"/><circle cx="84" cy="31" r="6" fill="#fff"/>';
     if (hat === 'orejas') v += '<ellipse cx="29" cy="22" rx="8" ry="9" fill="' + h + '"/><ellipse cx="71" cy="22" rx="8" ry="9" fill="' + h + '"/>';
     if (hat === 'casco') v += '<path d="M17 52 A33 33 0 0 1 83 52 L78 52 Q76 36 50 36 Q24 36 22 52z" fill="' + top + '"/><rect x="76" y="14" width="3.500" height="16" fill="' + top + '"/><circle cx="77.700" cy="12" r="4.200" fill="' + h + '"/>';
     if (hat === 'corona') v += '<path d="M29 30 L27 9 L38 20 L50 5 L62 20 L73 9 L71 30 Q50 22 29 30z" fill="' + top + '"/>';
@@ -846,8 +875,8 @@ GS.Game = (function () {
   function refreshStart() {
     const n = dayNumber(), fresh = n <= GS.UNLOCKS.length ? GS.UNLOCKS[n - 1] : [];
     $('playT').textContent = n === 1 && !GS.Store.get('introSeen') ? 'Iniciar modo carrera' : 'Seguir modo carrera'; W.setNext(GS.Store.get('final2Seen') && tierNow().at >= 1 ? 'gs2' : 'venta'); $('goalStart').innerHTML = goalHtml(); $('btnPlot').innerHTML = plotHtml();
-    $('rankT').textContent = '🎖 ' + rankOf(n) + ' · ⭐ ' + repTxt(repNow()) + ' · 🪙 ' + coinsNow();
-    $('playS').textContent = n === 1 ? (GS.Store.get('introSeen') ? 'Jornada 1 · inducción: mostrador y caja' : 'Conocé el local, al Dueño y a tus compañeros') : 'Jornada ' + n + (fresh.length ? ' · se suma: ' + fresh.map(id => ST(id).name).join(' y ') : ' · de 10 a 19 · ⭐ ' + repTxt(repNow()));
+    $('rankT').textContent = '⭐ ' + repTxt(repNow()) + ' · 🪙 ' + coinsNow() + ' · 🗺️ ' + fondoNow();
+    $('playS').textContent = n === 1 && GS.Store.get('introSeen') ? 'Jornada 1 · ' + monthOf(1) + ' · inducción' : n > 1 ? 'Jornada ' + n + ' · ' + monthOf(n) + (fresh.length ? ' · se suma: ' + fresh.map(id => ST(id).name).join(' y ') : '') : n === 1 ? (GS.Store.get('introSeen') ? 'Jornada 1 · inducción: mostrador y caja' : 'Conocé el local, al Dueño y a tus compañeros') : 'Jornada ' + n + (fresh.length ? ' · se suma: ' + fresh.map(id => ST(id).name).join(' y ') : ' · de 10 a 19 · ⭐ ' + repTxt(repNow()));
   }
   function goHome() {
     A.play('click'); A.setMood('menu'); clearDay(); $('rain').hidden = true; $('final').hidden = true; $('intro').hidden = true; setSky(0.3, false);
@@ -918,7 +947,7 @@ GS.Game = (function () {
       if (im[1]) { g.save(); g.beginPath(); g.arc(W_ / 2, 560, 204, 0, 7); g.clip(); try { g.drawImage(im[1], W_ / 2 - 190, 372, 380, 472); } catch (e) {} g.restore(); }
       g.lineWidth = 10; g.strokeStyle = '#ff0000'; g.beginPath(); g.arc(W_ / 2, 560, 223, 0, 7); g.stroke();
       // rango
-      const rk = (GS.Store.get('final2Seen') ? tierNow().title : rankOf(n + 1)).toUpperCase(); g.font = F(64); const rw = Math.min(940, g.measureText(rk).width + 90);
+      const rk = ('Jornada ' + n + ' · ' + repTxt(repNow()) + ' estrellas').toUpperCase(); g.font = F(64); const rw = Math.min(940, g.measureText(rk).width + 90);
       g.fillStyle = '#f5c518'; g.beginPath(); g.moveTo(W_ / 2 - rw / 2 + 24, 770); g.lineTo(W_ / 2 + rw / 2, 770); g.lineTo(W_ / 2 + rw / 2 - 24, 868); g.lineTo(W_ / 2 - rw / 2, 868); g.fill();
       g.fillStyle = '#000'; g.fillText(rk, W_ / 2, 843, 860);
       g.fillStyle = '#fff'; g.font = F(50, '700'); g.fillText(GS.FINAL.card[0].replace('{n}', n), W_ / 2, 946, 980);
@@ -992,9 +1021,17 @@ GS.Game = (function () {
       '<li><i>💵</i><span>Al cobrar acordate: 10% OFF en efectivo o transferencia, 3 cuotas sin interés con tarjeta.</span></li>' +
       '<li><i>🔥</i><span>Encadená aciertos para armar <b>racha</b>. Si te equivocás no perdés nada: solo hay un chiste.</span></li>' +
       '<li><i>🚶</i><span>No hace falta caminar: <b>tocá el pedido</b> y tu personaje va solo hasta ahí.</span></li>' +
-      '<li><i>🧠</i><span>Tu <b>cordura</b> sube en los respiros y baja si se junta mucho. A veces hay <b>interrupciones</b>: se contestan con un toque, y si no, se resuelven solas.</span></li>' +
+      '<li><i>⚠️</i><span>Equivocarse cuesta: con el <b>producto equivocado</b> el cliente se va, y <b>cobrar mal</b> baja la reputación y la recaudación.</span></li>' +
+      '<li><i>🧹</i><span>En los ratos libres <b>limpiá</b> las manchas del piso. A veces hay <b>interrupciones</b>: se contestan con un toque.</span></li>' +
       '<li><i>🔎</i><span>Arrastrá para mover el local y pellizcá (o usá la rueda) para acercar.</span></li></ul>' +
       '<button class="btn" data-close>¡A laburar!</button>', () => { if (fromDay) paused = false; });
+  }
+  function statsNow() { const t = Object.assign({ c: 0, d: 0, caught: 0, web: 0, clean: 0, sales: 0, perfect: 0, streak: 0, vueltoMal: 0, limpio: 0, sucio: 0, santa: 0 }, GS.Store.get('tot') || {}); t.rep = repNow(); t.flota = upNow().flota || 0; return t; }
+  function checkLogros() { const st = statsNow(), have = GS.Store.get('ach') || [], fresh = GS.ACHIEVEMENTS.filter(a => have.indexOf(a.id) < 0 && a.test(st)); if (fresh.length) GS.Store.set('ach', have.concat(fresh.map(a => a.id))); return fresh; }
+  function showLogros() {
+    const have = GS.Store.get('ach') || [];
+    modal('<h2>🏅 Logros</h2><p>' + have.length + ' de ' + GS.ACHIEVEMENTS.length + '. Algunos están escondidos: aparecen cuando los conseguís.</p><div class="ach">' + GS.ACHIEVEMENTS.map(a => { const ok = have.indexOf(a.id) >= 0;
+      return '<div class="' + (ok ? 'on' : '') + '"><i>' + (ok ? a.ic : a.hidden ? '❔' : '🔒') + '</i><span><b>' + (ok || !a.hidden ? a.name : '???') + '</b><small>' + (ok || !a.hidden ? a.d : 'Logro oculto') + '</small></span></div>'; }).join('') + '</div><button class="btn" data-close>Cerrar</button>');
   }
   function showRecords() {
     const best = GS.Store.get('best') || [];
@@ -1114,11 +1151,11 @@ GS.Game = (function () {
     $('btnRelax').addEventListener('click', () => startDay(true));
     $('btnArcade').addEventListener('click', () => { A.unlock(); A.play('click'); showArcade(); });
     $('btnHow').addEventListener('click', () => { A.unlock(); A.play('click'); showHow(false); });
-    $('btnRecs').addEventListener('click', () => { A.unlock(); A.play('click'); showRecords(); });
+    $('btnRecs').addEventListener('click', () => { A.unlock(); A.play('click'); showLogros(); });
     $('btnOpts').addEventListener('click', () => { A.unlock(); A.play('click'); showOptions(false); });
     $('phasesStart').addEventListener('click', showPhases);
     $('chipPhase').addEventListener('click', () => { paused = true; showPhases(); modalOnClose = () => { paused = false; }; });
-    $('chipCord').addEventListener('click', showCord); $('finSkip').addEventListener('click', finishFinal);
+    $('finSkip').addEventListener('click', finishFinal);
     $('jobs').addEventListener('click', e => { const ib = e.target.closest('[data-intr]'); if (ib) return answerIntr(ib.dataset.intr === '1'); const b = e.target.closest('.job[data-i]'); if (b && jobList[b.dataset.i]) openJob(jobList[b.dataset.i]); });
     $('btnPause').addEventListener('click', showPause);
     $('btnMute').addEventListener('click', () => { A.unlock(); A.setMuted(!A.isMuted()); syncMute(); A.play('click'); });

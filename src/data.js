@@ -7,9 +7,9 @@
 const GS = {};
 
 GS.CONFIG = {
-  version: '0.14.0',
-  phase: 1,
-  phaseNote: 'Midiendo cuánto dura cada jornada y cuántas monedas deja, para ajustar a unos 3 minutos',                       // fase actual del proyecto (1 a 5)
+  version: '0.15.0',
+  phase: 4,
+  phaseNote: 'Listas para probar: resumen de jornada, dos recursos, flota, web, limpieza, logros y calendario. Sigue el mapa del país',                       // fase actual del proyecto (1 a 5)
   links: { tienda: 'https://www.gameshop.com.ar', instagram: '' },   // botones del inicio y del cierre (vacío = no se muestra)
   // Analítica: pegá acá el ID de medición de Google Analytics 4 (G-XXXXXXXXXX) y el juego empieza a contar jugadores. Vacío = no se envía nada.
   analytics: { ga4: '' },
@@ -259,10 +259,18 @@ GS.UPGRADES = [
   { id: 'gondola', name: 'Góndola de periféricos', icon: '🎧', pos: [5.0, 2.7], levels: [{ n: 'Góndola de periféricos gamer', d: 'Más para vender: +10% de monedas por jornada.', price: 600 }] },
   { id: 'arcade', name: 'Arcade en la entrada', icon: '🕹️', pos: [0.7, 8.3], levels: [{ n: 'Arcade en la galería', d: 'Llama la atención desde la vereda: +1 cliente por jornada.', price: 700 }] },
   { id: 'escritorio', name: 'Escritorio gamer', icon: '🖥️', pos: [2.0, 4.6], levels: [{ n: 'Escritorio gamer para probar', d: 'Los clientes se entretienen: +15% de paciencia.', price: 900 }] },
-  { id: 'plantas', name: 'Plantas y alfombra', icon: '🪴', pos: [-3.4, 5.0], levels: [{ n: 'Plantas y alfombra de entrada', d: 'El local respira: la cordura baja más despacio.', price: 450 }] },
-  { id: 'cafetera', name: 'Cafetera', icon: '☕', pos: [0.3, -5.6], zoom: 0.3, levels: [{ n: 'Cafetera detrás del mostrador', d: 'Respiros que rinden: recuperás cordura más rápido.', price: 550 }] },
+  { id: 'plantas', name: 'Plantas y alfombra', icon: '🪴', pos: [-3.4, 5.0], levels: [{ n: 'Plantas y alfombra de entrada', d: 'El local se ve cuidado: se ensucia la mitad.', price: 450 }] },
+  { id: 'cafetera', name: 'Cafetera', icon: '☕', pos: [0.3, -5.6], zoom: 0.3, levels: [{ n: 'Cafetera detrás del mostrador', d: 'Café para el que espera: +10% de paciencia de los clientes.', price: 550 }] },
   { id: 'luces', name: 'Luces LED', icon: '💡', pos: [-1.5, -4.6], zoom: 0.5, levels: [{ n: 'Tiras LED en el salón', d: 'Todo se luce más: +10% de monedas por jornada.', price: 650 }] },
   { id: 'vidluz', name: 'Vidriera iluminada', icon: '🪟', pos: [3.6, 8.5], zoom: 0.45, levels: [{ n: 'Luces en la vidriera', d: 'Se ve desde la vereda de enfrente: +1 cliente y más gente que entra por la vidriera.', price: 1000 }] },
+  { id: 'flota', name: 'Flota de envíos', icon: '🛵', pos: [4.6, 13.2], zoom: 0.36, levels: [
+    { n: 'Moto de reparto', d: 'Envío propio en la ciudad: cada compra por la página deja 20% más y suma reputación.', price: 700 },
+    { n: 'Camioneta', d: 'Llegás a toda la provincia: 40% más por cada compra por la página.', price: 1600 },
+    { n: 'Camión GameShop', d: 'Cubrís toda la región con envío propio: 60% más por compra web. Hace falta para completar la sucursal.', price: 3200 }] },
+  { id: 'web', name: 'Página web', icon: '🌐', pos: [-3.4, -4.0], zoom: 0.3, levels: [
+    { n: 'Web con buscador', d: 'www.gameshop.com.ar se encuentra fácil: entra una compra por la página más por jornada.', price: 600 },
+    { n: 'Web con retiro en el local', d: 'Compran desde casa y pasan a buscar: más clientes (tickets más altos).', price: 1400 },
+    { n: 'Web con seguimiento de envíos', d: 'Saben dónde está su paquete: 10% más de monedas y mejor reputación.', price: 2600 }] },
   { id: 'caja2', name: 'Segunda caja', icon: '🧾', pos: [2.6, -3.6], zoom: 0.3, levels: [{ n: 'Segunda caja con Brian', d: 'Si estás ocupado con otra tarea o se juntan clientes para pagar, Brian va a la caja y les cobra por vos. No perdés ventas por la cola.', price: 1200 }] }
 ];
 GS.RANKS = [[1, 'Vendedor nuevo'], [3, 'Vendedor'], [5, 'Vendedor senior'], [8, 'Encargado'], [11, 'Mano derecha del Dueño']];
@@ -295,6 +303,27 @@ GS.EXPLAIN = {
 };
 
 /* Clientes: arquetipos inventados (ninguno es una persona real) */
+GS.MONTHS = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];   // 1 jornada = 1 mes
+GS.SANTA = { id: 'santa', name: 'Papá Noel', face: '🎅', shirt: 0xd81e2c, hair: 0xffffff, tag: 'Compras de último momento',
+  look: { hairStyle: 'corto', beard: true, glasses: true, lips: false, lashes: false, hat: 'gorro', pants: 0x23232b, skin: 0xf2c9a0 },
+  bye: 'Jo, jo, jo. El trineo no tiene baúl: ¿hacen envíos al Polo?', lost: 'Me voy, que los renos están en doble fila.' };
+/* Logros: st = totales de toda la partida (se guardan solos). hidden = no se ve el nombre hasta conseguirlo. */
+GS.ACHIEVEMENTS = [
+  { id: 'primera', ic: '🛍️', name: 'Primera venta', d: 'Concretá tu primera venta.', test: st => st.c >= 1 },
+  { id: 'cien', ic: '💯', name: 'Cien clientes', d: 'Atendé a 100 clientes.', test: st => st.c >= 100 },
+  { id: 'impecable', ic: '✨', name: 'Jornada impecable', d: 'Terminá una jornada sin errores ni ventas perdidas.', test: st => st.perfect >= 1 },
+  { id: 'tres', ic: '🔥', name: 'Tres al hilo', d: 'Tres jornadas impecables seguidas.', test: st => st.streak >= 3 },
+  { id: 'halcon', ic: '🦅', name: 'Ojo de halcón', d: 'Frená 5 comprobantes truchos.', test: st => st.caught >= 5 },
+  { id: 'cinta', ic: '📦', name: 'Cinta, caja y etiqueta', d: 'Despachá 10 compras por la página.', test: st => st.web >= 10 },
+  { id: 'escoba', ic: '🧹', name: 'Escoba nueva barre bien', d: 'Limpiá 20 manchas.', test: st => st.clean >= 20 },
+  { id: 'palos', ic: '💰', name: 'Diez palos', d: 'Facturá 10 millones (ficticios) en total.', test: st => st.sales >= 10000000 },
+  { id: 'cinco', ic: '⭐', name: 'Cinco estrellas', d: 'Llevá la reputación a 4,8 o más.', test: st => st.rep >= 4.8 },
+  { id: 'camion', ic: '🚚', name: 'Con camión propio', d: 'Llevá la flota de envíos hasta el camión.', test: st => st.flota >= 3 },
+  { id: 'generoso', ic: '💸', name: 'Generoso sin querer', d: 'Diste vuelto de más.', hidden: true, test: st => st.vueltoMal >= 1 },
+  { id: 'piso', ic: '🍽️', name: 'Se puede comer en el piso', d: 'Cinco jornadas terminadas sin una mancha.', hidden: true, test: st => st.limpio >= 5 },
+  { id: 'noel', ic: '🎅', name: 'Lista de regalos', d: 'Le vendiste a Papá Noel.', hidden: true, test: st => st.santa >= 1 },
+  { id: 'chiquero', ic: '🐷', name: 'Esto es un chiquero', d: 'Cerraste una jornada con el piso lleno de manchas.', hidden: true, test: st => st.sucio >= 1 }
+];
 GS.CUSTOMERS = [
   { id: 'cosCarpi', name: 'Capitán Carpincho', face: '🦫', shirt: 0x2d6cdf, hair: 0x8a5a2b, hat: 'orejas', tag: 'Disfrazado del héroe de Carpincho Kart',
     bye: '¡A fondo y con mate! Perdón, es la frase del personaje.', lost: 'Un capitán nunca espera. Bueno, sí, pero no tanto.' },
@@ -325,6 +354,10 @@ GS.CUSTOMERS = [
 ];
 
 GS.LINES = {
+  /* Producto equivocado: el cliente se va y se pierde la venta (desde la jornada 2) */
+  lostSale: ['Eso no es lo que pedí. Voy a ver a otro lado.', 'No, no era eso. Dejá, lo busco por la página.', 'Me parece que no me escuchaste. Chau.', 'Eso no. Y ya se me fueron las ganas.', 'Casi. Pero casi no juega. Me voy.'],
+  dirtEnd: ['El Dueño pisó algo pegajoso al cerrar. Te miró. No dijo nada.', 'Un cliente dijo "qué lindo local" mirando para otro lado del piso.'],
+  hookRain: 'Mañana puede llover: menos gente en el local, más compras por la página.',
   wrongProduct: [
     'Eso no. Pero gracias por participar.',
     'No, eso es otra cosa. Creo. Vos sos el que sabe.',
@@ -555,6 +588,9 @@ GS.THEMES = [
 /* Interrupciones suaves: aparecen de a una, se contestan con un toque y si no las contestás se resuelven solas (sin castigo).
    ok = la respuesta con criterio (suma cordura); bad = la otra (resta un poquito y trae un chiste). r = remate. mate = recupera más. */
 GS.INTERRUPTS = [
+  // guiños del barrio
+  { ic: '🚇', who: 'Una chica con mochila', t: '"Perdón, ¿la estación Incas del subte B queda por acá?"', ok: 'Sí, por Triunvirato, ahí nomás', bad: 'Ni idea, yo vengo en joystick', r: 'Llegó al subte. Dijo que a la vuelta pasa a mirar auriculares.', rb: 'Se fue caminando para el otro lado.' },
+  { ic: '🚌', who: 'Un señor apurado', t: '"¿La parada del 80 dónde es?"', ok: 'En la esquina, sobre la avenida', bad: 'El 80 no existe, es un mito', r: 'Lo alcanzó justo. Saludó desde la ventanilla.', rb: 'El 80 pasó por la puerta mientras discutían.' },
   // inspiradas en noticias insólitas de la Ciudad
   { ic: '🦫', who: 'En la vereda', t: 'Un carpincho pasa caminando lo más tranquilo.', ok: 'Avisar al 103 y dejarlo en paz', bad: 'Ofrecerle 3 cuotas sin interés', r: 'Vinieron a buscarlo para llevarlo a un lugar seguro. Se fue mirando la vidriera.', rb: 'No tiene bolsillos ni pulgares. Igual miró los joysticks.' },
   { ic: '🚌', who: 'Un colectivero', t: '"Jefe, el colectivo hace un ruido raro en el motor. ¿Ustedes arreglan?"', ok: 'Notebooks y PC sí; motores no', bad: 'Tráigalo, lo abrimos en el taller', r: 'Se fue a un mecánico. Dejó dicho que vuelve por un cargador.', rb: 'El colectivo no pasa por la puerta del taller.' },
@@ -588,8 +624,8 @@ GS.INTERRUPTS = [
 /* TRAMA CENTRAL: "El local de al lado". El dueño del edificio vende el local pegado. Si para la jornada final se juntó el fondo,
    se abre GameShop 2. Las monedas se aportan desde "Mejorar el local" y algunas visitas suman (o complican).
    tiers: desde cuánto fondo (en proporción a la meta) se llega a cada final. */
-GS.PLOT = { goal: 6000, name: 'El local de al lado',
-  intro: 'Te cuento un secreto: se vende el local de al lado. Si para la jornada {n} juntamos el fondo, abrimos GameShop 2. Aportá monedas desde "Mejorar el local".',
+GS.PLOT = { goal: 3000, name: 'GameShop a todo el país',
+  intro: 'Te contraté para algo grande: llevar GameShop a todo el país. Con los fondos de expansión que deja cada jornada vamos a abrir una sucursal en cada región. La primera, Cuyo.',
   tiers: [
     { at: 0,    key: 'chico',   title: 'Mano derecha del Dueño',      line: 'No llegamos al local de al lado. Pero el nuestro quedó hecho un lujo, y eso también es tuyo.' },
     { at: 0.5,  key: 'medio',   title: 'Jefe del punto de retiro',    line: 'No alcanzó para todo el local, pero alquilamos la mitad: ahí va el punto de retiro de las compras por la página. Y lo manejás vos.' },
@@ -685,8 +721,8 @@ GS.INTRO = [
   { t: 'Tu primer día', d: 'Entrás a trabajar en GameShop: consolas, juegos, notebooks y accesorios. Abrimos de 10 a 19.', cam: null, who: ['yo'] },
   { t: 'El Dueño', d: 'Vive en su oficina y sale a opinar de todo. Tiene un mohicano gris y una frase para cada cosa.', cam: [9.0, 1.3, 0.36], who: ['boss'] },
   { t: 'Lucho y Brian', d: 'Tus compañeros. Lucho repone y cambia el color del mohicano cada día. Brian vive pegado al celular. Los dos duermen la siesta en el depósito.', cam: [4.0, 1.2, 0.3], who: ['lucho', 'brian'] },
-  { t: 'El local de al lado', d: 'Está en venta. Si juntan el fondo antes de la jornada 20, abre GameShop 2. Cuánto aportar, lo decidís vos.', cam: [-7.0, 10.2, 0.5], who: [] },
-  { t: 'Cómo se juega', d: 'Tocá los pedidos de abajo y tu personaje va solo. Hay respiros entre tandas y nunca se pierde: se aprende.', cam: [-0.6, -3.2, 0.5], who: ['yo'] }
+  { t: 'La misión', d: 'Llevar GameShop a todo el país: una sucursal en cada región. Desde cada una se envía más fácil a sus provincias. Cada jornada deja fondos de expansión para abrir la siguiente.', cam: null, who: [], sign: '5 REGIONES' },
+  { t: 'Cómo se juega', d: 'Tocá los pedidos de abajo y tu personaje va solo. Ojo: si le das otro producto, el cliente se va; y cobrar mal baja la reputación.', cam: [-0.6, -3.2, 0.5], who: ['yo'] }
 ];
 GS.FINAL = {
   boss: [

@@ -151,3 +151,15 @@ Decisiones tomadas: tres métricas (estrellas, monedas y fondos; el arcade premi
 - **Tope por jornada** (`GS.CONFIG.day.maxDayCustomers` = 6, `maxDayTasks` = 2): con eso una jornada dura unos 3 minutos sin importar el día. Lo que el cartel y las mejoras traerían de más se paga como tickets más altos (+7% de monedas por cliente que no entra en el tope).
 - **Ritmo:** respiros de 7 s, llegadas cada 5,5 s (clientes) y 7 s (tareas).
 - **Cómo medir:** `python3 test/v8.py <jornada> 4` juega sola esa jornada a velocidad x4 (`GS.DEBUG_SPEED`) e imprime la medida. Con el bot: jornada 6 = 3:02, jornada 9 = 3:02, jornada 14 = 2:45; monedas entre 370 y 600.
+
+### Etapas 2 y 3 · Feedback, resumen, economía y mostrador (v0.15.0)
+
+- **Resumen de la jornada** en lugar del cierre de caja con ranking: ventas concretadas, cobros sin error, compras web, stock, tareas a tiempo, limpieza; monedas que suben, momento del día y un gancho de "lo que viene". Se quitaron ranking, récords y rangos.
+- **Tres métricas**: ⭐ reputación, 🪙 monedas y 🗺️ fondos de expansión (los deja cada jornada según facturación y reputación; solo sirven para abrir sucursales). Se retiró la cordura.
+- **Equivocarse cuesta**: producto equivocado = el cliente se va (desde la jornada 2); cobrar mal baja reputación y monedas.
+- **Mejoras nuevas**: flota de envíos (moto → camioneta → camión, se ve en la vereda) y página web (3 niveles).
+- **Limpieza**: los clientes dejan manchas; se limpian con un toque en los ratos libres. Cerrar con el piso sucio baja la reputación.
+- **Logros** (14, cuatro ocultos) en lugar de Récords.
+- **Calendario**: 1 jornada = 1 mes. Black Friday en noviembre (jornada 11), Navidad en diciembre (12, 24, 36) con Papá Noel de cliente. Gorros navideños por encima del pelo.
+- El Dueño cambió el mohicano por pelo corto con una franja apenas más larga al medio. Preguntas del barrio: estación Incas del subte B y la parada del 80.
+- Pruebas: `test/v8.py` (jornada completa), `test/v13.py` (capturas).

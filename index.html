@@ -388,6 +388,16 @@ button.plot { cursor: pointer; } .plot.big b { font-size: 17px; }
 
 .mtable { max-height: 38vh; overflow: auto; border: 1px solid var(--line); border-radius: 10px; } .mtable table { width: 100%; border-collapse: collapse; font-size: 13.5px; } .mtable th, .mtable td { padding: 5px 6px; text-align: right; border-bottom: 1px solid #2a2a30; } .mtable th { position: sticky; top: 0; background: #1b1b20; font-weight: 700; } .mtable td:first-child, .mtable th:first-child { text-align: left; }
 
+/* ---------- Expansión, etapas 2 y 3: feedback, resumen y logros ---------- */
+#fxs { position: fixed; inset: 0; pointer-events: none; z-index: 22; } .fx { position: absolute; top: 46%; transform: translateX(-50%); font-family: var(--display); font-size: 30px; color: var(--warn); text-shadow: 0 2px 0 #000, 0 0 12px rgba(0,0,0,.8); animation: fxup 1.25s ease-out forwards; white-space: nowrap; }
+.fx.bad { color: #ff6b6b; animation-name: fxshake; } @keyframes fxup { 0% { opacity: 0; transform: translate(-50%, 16px) scale(.7); } 15% { opacity: 1; transform: translate(-50%, 0) scale(1.15); } 100% { opacity: 0; transform: translate(-50%, -90px) scale(1); } }
+@keyframes fxshake { 0% { opacity: 0; transform: translate(-50%, 0); } 10% { opacity: 1; transform: translate(-56%, 0); } 20% { transform: translate(-44%, 0); } 30% { transform: translate(-54%, 0); } 40% { transform: translate(-50%, 0); } 100% { opacity: 0; transform: translate(-50%, 40px); } }
+body.calm .fx { animation-duration: .01s; }
+.ticket p.ok span { color: #0a7a3d; } .ticket p.no span, .ticket p.no b { color: #c40000; } #sumCoins.pop { animation: pop .35s ease-out; display: inline-block; } @keyframes pop { 50% { transform: scale(1.35); } }
+.hook { display: flex; gap: 10px; align-items: center; background: rgba(245,197,24,.1); border: 2px dashed var(--warn); border-radius: 14px; padding: 10px 12px; } .hook i { font-size: 28px; font-style: normal; } .hook b { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .6px; color: var(--warn); } .hook span { font-size: 14.5px; line-height: 1.3; }
+.newrec small { display: block; font-weight: 400; font-size: 12.5px; opacity: .85; }
+.ach { display: grid; gap: 6px; } .ach > div { display: flex; gap: 10px; align-items: center; background: #1b1b20; border-radius: 12px; padding: 8px 10px; opacity: .55; } .ach > div.on { opacity: 1; border: 1px solid var(--warn); } .ach i { font-size: 24px; font-style: normal; } .ach b { display: block; font-size: 14.5px; } .ach small { font-size: 12.5px; color: var(--mute); }
+
 </style>
 </head>
 <body>
@@ -407,12 +417,12 @@ button.plot { cursor: pointer; } .plot.big b { font-size: 17px; }
     <button class="chip phase" id="chipPhase">Fase 1 de 5</button>
     <span class="chip" id="chipSales">💰 $0</span>
     <span class="chip" id="chipRep">⭐ 3,0</span>
-    <button class="chip cord" id="chipCord">🧠 75</button>
     <span class="chip rep" id="chipCond" hidden></span>
     <span class="chip combo" id="chipCombo" hidden>🔥 x2</span>
   </div>
 </div>
 <div id="toasts" aria-live="polite"></div>
+<div id="fxs" aria-hidden="true"></div>
 <div id="jobs" hidden></div>
 
 <!-- Panel de minijuego -->
@@ -434,7 +444,7 @@ button.plot { cursor: pointer; } .plot.big b { font-size: 17px; }
       <div class="row"><button class="btn ghost" id="btnRelax">Turno tranquilo</button><button class="btn ghost" id="btnArcade">🕹️ Arcade</button></div>
       <div class="row">
         <button class="btn ghost" id="btnHow">Cómo se juega</button>
-        <button class="btn ghost" id="btnRecs">Récords</button>
+        <button class="btn ghost" id="btnRecs">🏅 Logros</button>
         <button class="btn ghost" id="btnOpts">Opciones</button>
       </div>
       <a class="btn ghost" id="btnStore" target="_blank" rel="noopener" hidden>🛒 Ir a la tienda de verdad</a>
@@ -483,9 +493,9 @@ const GS = {};
 GS.LOGO = "data:image/png;base64,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";
 
 GS.CONFIG = {
-  version: '0.14.0',
-  phase: 1,
-  phaseNote: 'Midiendo cuánto dura cada jornada y cuántas monedas deja, para ajustar a unos 3 minutos',                       // fase actual del proyecto (1 a 5)
+  version: '0.15.0',
+  phase: 4,
+  phaseNote: 'Listas para probar: resumen de jornada, dos recursos, flota, web, limpieza, logros y calendario. Sigue el mapa del país',                       // fase actual del proyecto (1 a 5)
   links: { tienda: 'https://www.gameshop.com.ar', instagram: '' },   // botones del inicio y del cierre (vacío = no se muestra)
   // Analítica: pegá acá el ID de medición de Google Analytics 4 (G-XXXXXXXXXX) y el juego empieza a contar jugadores. Vacío = no se envía nada.
   analytics: { ga4: '' },
@@ -735,10 +745,18 @@ GS.UPGRADES = [
   { id: 'gondola', name: 'Góndola de periféricos', icon: '🎧', pos: [5.0, 2.7], levels: [{ n: 'Góndola de periféricos gamer', d: 'Más para vender: +10% de monedas por jornada.', price: 600 }] },
   { id: 'arcade', name: 'Arcade en la entrada', icon: '🕹️', pos: [0.7, 8.3], levels: [{ n: 'Arcade en la galería', d: 'Llama la atención desde la vereda: +1 cliente por jornada.', price: 700 }] },
   { id: 'escritorio', name: 'Escritorio gamer', icon: '🖥️', pos: [2.0, 4.6], levels: [{ n: 'Escritorio gamer para probar', d: 'Los clientes se entretienen: +15% de paciencia.', price: 900 }] },
-  { id: 'plantas', name: 'Plantas y alfombra', icon: '🪴', pos: [-3.4, 5.0], levels: [{ n: 'Plantas y alfombra de entrada', d: 'El local respira: la cordura baja más despacio.', price: 450 }] },
-  { id: 'cafetera', name: 'Cafetera', icon: '☕', pos: [0.3, -5.6], zoom: 0.3, levels: [{ n: 'Cafetera detrás del mostrador', d: 'Respiros que rinden: recuperás cordura más rápido.', price: 550 }] },
+  { id: 'plantas', name: 'Plantas y alfombra', icon: '🪴', pos: [-3.4, 5.0], levels: [{ n: 'Plantas y alfombra de entrada', d: 'El local se ve cuidado: se ensucia la mitad.', price: 450 }] },
+  { id: 'cafetera', name: 'Cafetera', icon: '☕', pos: [0.3, -5.6], zoom: 0.3, levels: [{ n: 'Cafetera detrás del mostrador', d: 'Café para el que espera: +10% de paciencia de los clientes.', price: 550 }] },
   { id: 'luces', name: 'Luces LED', icon: '💡', pos: [-1.5, -4.6], zoom: 0.5, levels: [{ n: 'Tiras LED en el salón', d: 'Todo se luce más: +10% de monedas por jornada.', price: 650 }] },
   { id: 'vidluz', name: 'Vidriera iluminada', icon: '🪟', pos: [3.6, 8.5], zoom: 0.45, levels: [{ n: 'Luces en la vidriera', d: 'Se ve desde la vereda de enfrente: +1 cliente y más gente que entra por la vidriera.', price: 1000 }] },
+  { id: 'flota', name: 'Flota de envíos', icon: '🛵', pos: [4.6, 13.2], zoom: 0.36, levels: [
+    { n: 'Moto de reparto', d: 'Envío propio en la ciudad: cada compra por la página deja 20% más y suma reputación.', price: 700 },
+    { n: 'Camioneta', d: 'Llegás a toda la provincia: 40% más por cada compra por la página.', price: 1600 },
+    { n: 'Camión GameShop', d: 'Cubrís toda la región con envío propio: 60% más por compra web. Hace falta para completar la sucursal.', price: 3200 }] },
+  { id: 'web', name: 'Página web', icon: '🌐', pos: [-3.4, -4.0], zoom: 0.3, levels: [
+    { n: 'Web con buscador', d: 'www.gameshop.com.ar se encuentra fácil: entra una compra por la página más por jornada.', price: 600 },
+    { n: 'Web con retiro en el local', d: 'Compran desde casa y pasan a buscar: más clientes (tickets más altos).', price: 1400 },
+    { n: 'Web con seguimiento de envíos', d: 'Saben dónde está su paquete: 10% más de monedas y mejor reputación.', price: 2600 }] },
   { id: 'caja2', name: 'Segunda caja', icon: '🧾', pos: [2.6, -3.6], zoom: 0.3, levels: [{ n: 'Segunda caja con Brian', d: 'Si estás ocupado con otra tarea o se juntan clientes para pagar, Brian va a la caja y les cobra por vos. No perdés ventas por la cola.', price: 1200 }] }
 ];
 GS.RANKS = [[1, 'Vendedor nuevo'], [3, 'Vendedor'], [5, 'Vendedor senior'], [8, 'Encargado'], [11, 'Mano derecha del Dueño']];
@@ -771,6 +789,27 @@ GS.EXPLAIN = {
 };
 
 /* Clientes: arquetipos inventados (ninguno es una persona real) */
+GS.MONTHS = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];   // 1 jornada = 1 mes
+GS.SANTA = { id: 'santa', name: 'Papá Noel', face: '🎅', shirt: 0xd81e2c, hair: 0xffffff, tag: 'Compras de último momento',
+  look: { hairStyle: 'corto', beard: true, glasses: true, lips: false, lashes: false, hat: 'gorro', pants: 0x23232b, skin: 0xf2c9a0 },
+  bye: 'Jo, jo, jo. El trineo no tiene baúl: ¿hacen envíos al Polo?', lost: 'Me voy, que los renos están en doble fila.' };
+/* Logros: st = totales de toda la partida (se guardan solos). hidden = no se ve el nombre hasta conseguirlo. */
+GS.ACHIEVEMENTS = [
+  { id: 'primera', ic: '🛍️', name: 'Primera venta', d: 'Concretá tu primera venta.', test: st => st.c >= 1 },
+  { id: 'cien', ic: '💯', name: 'Cien clientes', d: 'Atendé a 100 clientes.', test: st => st.c >= 100 },
+  { id: 'impecable', ic: '✨', name: 'Jornada impecable', d: 'Terminá una jornada sin errores ni ventas perdidas.', test: st => st.perfect >= 1 },
+  { id: 'tres', ic: '🔥', name: 'Tres al hilo', d: 'Tres jornadas impecables seguidas.', test: st => st.streak >= 3 },
+  { id: 'halcon', ic: '🦅', name: 'Ojo de halcón', d: 'Frená 5 comprobantes truchos.', test: st => st.caught >= 5 },
+  { id: 'cinta', ic: '📦', name: 'Cinta, caja y etiqueta', d: 'Despachá 10 compras por la página.', test: st => st.web >= 10 },
+  { id: 'escoba', ic: '🧹', name: 'Escoba nueva barre bien', d: 'Limpiá 20 manchas.', test: st => st.clean >= 20 },
+  { id: 'palos', ic: '💰', name: 'Diez palos', d: 'Facturá 10 millones (ficticios) en total.', test: st => st.sales >= 10000000 },
+  { id: 'cinco', ic: '⭐', name: 'Cinco estrellas', d: 'Llevá la reputación a 4,8 o más.', test: st => st.rep >= 4.8 },
+  { id: 'camion', ic: '🚚', name: 'Con camión propio', d: 'Llevá la flota de envíos hasta el camión.', test: st => st.flota >= 3 },
+  { id: 'generoso', ic: '💸', name: 'Generoso sin querer', d: 'Diste vuelto de más.', hidden: true, test: st => st.vueltoMal >= 1 },
+  { id: 'piso', ic: '🍽️', name: 'Se puede comer en el piso', d: 'Cinco jornadas terminadas sin una mancha.', hidden: true, test: st => st.limpio >= 5 },
+  { id: 'noel', ic: '🎅', name: 'Lista de regalos', d: 'Le vendiste a Papá Noel.', hidden: true, test: st => st.santa >= 1 },
+  { id: 'chiquero', ic: '🐷', name: 'Esto es un chiquero', d: 'Cerraste una jornada con el piso lleno de manchas.', hidden: true, test: st => st.sucio >= 1 }
+];
 GS.CUSTOMERS = [
   { id: 'cosCarpi', name: 'Capitán Carpincho', face: '🦫', shirt: 0x2d6cdf, hair: 0x8a5a2b, hat: 'orejas', tag: 'Disfrazado del héroe de Carpincho Kart',
     bye: '¡A fondo y con mate! Perdón, es la frase del personaje.', lost: 'Un capitán nunca espera. Bueno, sí, pero no tanto.' },
@@ -801,6 +840,10 @@ GS.CUSTOMERS = [
 ];
 
 GS.LINES = {
+  /* Producto equivocado: el cliente se va y se pierde la venta (desde la jornada 2) */
+  lostSale: ['Eso no es lo que pedí. Voy a ver a otro lado.', 'No, no era eso. Dejá, lo busco por la página.', 'Me parece que no me escuchaste. Chau.', 'Eso no. Y ya se me fueron las ganas.', 'Casi. Pero casi no juega. Me voy.'],
+  dirtEnd: ['El Dueño pisó algo pegajoso al cerrar. Te miró. No dijo nada.', 'Un cliente dijo "qué lindo local" mirando para otro lado del piso.'],
+  hookRain: 'Mañana puede llover: menos gente en el local, más compras por la página.',
   wrongProduct: [
     'Eso no. Pero gracias por participar.',
     'No, eso es otra cosa. Creo. Vos sos el que sabe.',
@@ -1031,6 +1074,9 @@ GS.THEMES = [
 /* Interrupciones suaves: aparecen de a una, se contestan con un toque y si no las contestás se resuelven solas (sin castigo).
    ok = la respuesta con criterio (suma cordura); bad = la otra (resta un poquito y trae un chiste). r = remate. mate = recupera más. */
 GS.INTERRUPTS = [
+  // guiños del barrio
+  { ic: '🚇', who: 'Una chica con mochila', t: '"Perdón, ¿la estación Incas del subte B queda por acá?"', ok: 'Sí, por Triunvirato, ahí nomás', bad: 'Ni idea, yo vengo en joystick', r: 'Llegó al subte. Dijo que a la vuelta pasa a mirar auriculares.', rb: 'Se fue caminando para el otro lado.' },
+  { ic: '🚌', who: 'Un señor apurado', t: '"¿La parada del 80 dónde es?"', ok: 'En la esquina, sobre la avenida', bad: 'El 80 no existe, es un mito', r: 'Lo alcanzó justo. Saludó desde la ventanilla.', rb: 'El 80 pasó por la puerta mientras discutían.' },
   // inspiradas en noticias insólitas de la Ciudad
   { ic: '🦫', who: 'En la vereda', t: 'Un carpincho pasa caminando lo más tranquilo.', ok: 'Avisar al 103 y dejarlo en paz', bad: 'Ofrecerle 3 cuotas sin interés', r: 'Vinieron a buscarlo para llevarlo a un lugar seguro. Se fue mirando la vidriera.', rb: 'No tiene bolsillos ni pulgares. Igual miró los joysticks.' },
   { ic: '🚌', who: 'Un colectivero', t: '"Jefe, el colectivo hace un ruido raro en el motor. ¿Ustedes arreglan?"', ok: 'Notebooks y PC sí; motores no', bad: 'Tráigalo, lo abrimos en el taller', r: 'Se fue a un mecánico. Dejó dicho que vuelve por un cargador.', rb: 'El colectivo no pasa por la puerta del taller.' },
@@ -1064,8 +1110,8 @@ GS.INTERRUPTS = [
 /* TRAMA CENTRAL: "El local de al lado". El dueño del edificio vende el local pegado. Si para la jornada final se juntó el fondo,
    se abre GameShop 2. Las monedas se aportan desde "Mejorar el local" y algunas visitas suman (o complican).
    tiers: desde cuánto fondo (en proporción a la meta) se llega a cada final. */
-GS.PLOT = { goal: 6000, name: 'El local de al lado',
-  intro: 'Te cuento un secreto: se vende el local de al lado. Si para la jornada {n} juntamos el fondo, abrimos GameShop 2. Aportá monedas desde "Mejorar el local".',
+GS.PLOT = { goal: 3000, name: 'GameShop a todo el país',
+  intro: 'Te contraté para algo grande: llevar GameShop a todo el país. Con los fondos de expansión que deja cada jornada vamos a abrir una sucursal en cada región. La primera, Cuyo.',
   tiers: [
     { at: 0,    key: 'chico',   title: 'Mano derecha del Dueño',      line: 'No llegamos al local de al lado. Pero el nuestro quedó hecho un lujo, y eso también es tuyo.' },
     { at: 0.5,  key: 'medio',   title: 'Jefe del punto de retiro',    line: 'No alcanzó para todo el local, pero alquilamos la mitad: ahí va el punto de retiro de las compras por la página. Y lo manejás vos.' },
@@ -1161,8 +1207,8 @@ GS.INTRO = [
   { t: 'Tu primer día', d: 'Entrás a trabajar en GameShop: consolas, juegos, notebooks y accesorios. Abrimos de 10 a 19.', cam: null, who: ['yo'] },
   { t: 'El Dueño', d: 'Vive en su oficina y sale a opinar de todo. Tiene un mohicano gris y una frase para cada cosa.', cam: [9.0, 1.3, 0.36], who: ['boss'] },
   { t: 'Lucho y Brian', d: 'Tus compañeros. Lucho repone y cambia el color del mohicano cada día. Brian vive pegado al celular. Los dos duermen la siesta en el depósito.', cam: [4.0, 1.2, 0.3], who: ['lucho', 'brian'] },
-  { t: 'El local de al lado', d: 'Está en venta. Si juntan el fondo antes de la jornada 20, abre GameShop 2. Cuánto aportar, lo decidís vos.', cam: [-7.0, 10.2, 0.5], who: [] },
-  { t: 'Cómo se juega', d: 'Tocá los pedidos de abajo y tu personaje va solo. Hay respiros entre tandas y nunca se pierde: se aprende.', cam: [-0.6, -3.2, 0.5], who: ['yo'] }
+  { t: 'La misión', d: 'Llevar GameShop a todo el país: una sucursal en cada región. Desde cada una se envía más fácil a sus provincias. Cada jornada deja fondos de expansión para abrir la siguiente.', cam: null, who: [], sign: '5 REGIONES' },
+  { t: 'Cómo se juega', d: 'Tocá los pedidos de abajo y tu personaje va solo. Ojo: si le das otro producto, el cliente se va; y cobrar mal baja la reputación.', cam: [-0.6, -3.2, 0.5], who: ['yo'] }
 ];
 GS.FINAL = {
   boss: [
@@ -1679,7 +1725,7 @@ GS.World = (function () {
   const ups = {};
   function upGroup(root, id, lvl) { const g = new T.Group(); root.add(g); (ups[id] = ups[id] || {})[lvl] = g; return g; }
   function applyUpgrades(state) {
-    for (const id in ups) for (const lvl in ups[id]) ups[id][lvl].visible = id === 'cartel' ? (state[id] || 0) === Number(lvl) : (state[id] || 0) >= Number(lvl);
+    for (const id in ups) for (const lvl in ups[id]) ups[id][lvl].visible = id === 'cartel' || id === 'flota' ? (state[id] || 0) === Number(lvl) : (state[id] || 0) >= Number(lvl);
   }
   const glowMat = c => new T.MeshBasicMaterial({ color: c });
   const gPot = new T.CylinderGeometry(0.17, 0.12, 0.3, 8), gLeaf = new T.SphereGeometry(0.2, 8, 6);
@@ -1836,6 +1882,17 @@ GS.World = (function () {
     box(lid, 0.03, 0.34, 0.5, 0x2a2a2e, 0, 0, 0); box(lid, 0.012, 0.28, 0.44, 0x56d6ff, 0.02, 0.03, 0, { emissive: 0x2a8aa0 });
   }
 
+  // Flota de envíos, estacionada sobre la vereda: moto, camioneta o camión (se ve solo el nivel actual)
+  function buildFleet(root) {
+    const z = L.galeria.zMax + 2.1, x = 4.6, wheel = (g, wx, wz, r) => { const w = new T.Mesh(new T.CylinderGeometry(r, r, 0.12, 12), mat(0x111111)); w.rotation.x = Math.PI / 2; w.position.set(wx, r, wz); g.add(w); };
+    { const g = upGroup(root, 'flota', 1); box(g, 0.9, 0.16, 0.22, 0xe10600, x, 0.3, z); box(g, 0.34, 0.3, 0.3, 0x111111, x - 0.2, 0.46, z); box(g, 0.44, 0.4, 0.42, 0xe10600, x - 0.5, 0.42, z); box(g, 0.06, 0.4, 0.06, 0x8d9199, x + 0.36, 0.44, z); box(g, 0.06, 0.06, 0.5, 0x111111, x + 0.36, 0.84, z); wheel(g, x + 0.42, z, 0.2); wheel(g, x - 0.4, z, 0.2); }
+    { const g = upGroup(root, 'flota', 2); box(g, 2.2, 0.7, 1.0, 0xffffff, x, 0.26, z); box(g, 0.9, 0.5, 0.96, 0xe10600, x + 0.6, 0.96, z); box(g, 0.5, 0.36, 0.98, 0x56d6ff, x + 0.84, 1.0, z); box(g, 1.1, 0.34, 1.02, 0xe10600, x - 0.5, 0.5, z); sign(g, 'GAMESHOP', 1.0, 0.24, x - 0.5, 0.68, z + 0.52); [-0.7, 0.7].forEach(dx => { wheel(g, x + dx, z + 0.46, 0.24); wheel(g, x + dx, z - 0.46, 0.24); }); }
+    { const g = upGroup(root, 'flota', 3); box(g, 2.3, 1.5, 1.2, 0xffffff, x - 0.5, 0.36, z); box(g, 0.9, 1.0, 1.16, 0xe10600, x + 1.2, 0.36, z); box(g, 0.3, 0.4, 1.18, 0x56d6ff, x + 1.52, 0.86, z); box(g, 3.3, 0.14, 1.1, 0x1b1b1f, x, 0.26, z); box(g, 2.3, 0.2, 1.22, 0xe10600, x - 0.5, 0.36, z); sign(g, 'GAMESHOP · ENVÍOS', 2.0, 0.44, x - 0.5, 1.1, z + 0.615); [-1.2, -0.4, 1.2].forEach(dx => { wheel(g, x + dx, z + 0.52, 0.28); wheel(g, x + dx, z - 0.52, 0.28); }); }
+  }
+  // Manchas en el piso (limpieza): aparecen de a poco y se limpian todas juntas
+  const dirtGeo = new T.CircleGeometry(0.34, 9), dirtMat = new T.MeshBasicMaterial({ color: 0x4a3a2a, transparent: true, opacity: 0.55, depthWrite: false }); let dirt = [];
+  function addDirt(x, z) { const m = new T.Mesh(dirtGeo, dirtMat); m.rotation.x = -Math.PI / 2; m.rotation.z = Math.random() * 6; m.scale.set(0.7 + Math.random() * 0.6, 0.6 + Math.random() * 0.5, 1); m.position.set(x, 0.016, z); scene.add(m); dirt.push(m); }
+  function clearDirt() { dirt.forEach(m => scene.remove(m)); dirt = []; }
   // El local de al lado (la trama): pegado a la izquierda, con la persiana baja y un cartel inclinado en el techo
   let nextSigns = null, xmasG = null;
   function buildNext(root) {
@@ -1847,7 +1904,7 @@ GS.World = (function () {
     const mk = (txt, bg, fg) => new T.MeshBasicMaterial({ map: textTex(txt, { bg, fg, w: 640, h: 190, font: '900 96px Impact, "Arial Black", sans-serif' }) });
     const k = new T.Group(); k.position.set(cx, h + 0.14, cz + 0.6); root.add(k); box(k, 4.5, 0.08, 1.5, 0x1b1b1f, 0, 0.02, 0);
     const a = plane(k, 4.3, 1.28, mk('SE VENDE', '#ffffff', '#e10600'), 0, 0.5, 0.1), b = plane(k, 4.3, 1.28, mk('GAMESHOP 2', '#e10600', '#ffffff'), 0, 0.5, 0.1);
-    a.rotation.x = b.rotation.x = -0.95; b.visible = false; nextSigns = [a, b];
+    a.rotation.x = b.rotation.x = -0.95; a.visible = b.visible = false; k.visible = false; nextSigns = [a, b];     // el vecino queda como un local más de la cuadra
     box(k, 0.08, 0.6, 0.08, 0x1b1b1f, -1.9, 0, -0.45); box(k, 0.08, 0.6, 0.08, 0x1b1b1f, 1.9, 0, -0.45);
   }
   // Decoración de Navidad: árbol (a), guirnaldas (g) y lucecitas (l), según lo que eligió el jugador el día anterior
@@ -2040,11 +2097,13 @@ GS.World = (function () {
       const cap = () => { const m = new T.Mesh(gCap, hm); m.rotation.x = -0.42; acc.add(m); };                    // casquete que deja la frente libre
       const tufts = () => [[0.02, 0.36, 0.1, 1], [-0.14, 0.34, 0.14, 0.85], [0.17, 0.33, 0.1, 0.8], [0, 0.3, 0.22, 0.7]].forEach(q => { const m = new T.Mesh(gTuft, hm); m.scale.set(q[3] * 1.3, q[3] * 0.8, q[3] * 1.3); m.position.set(q[0], q[1], q[2]); acc.add(m); });   // jopo despeinado
       if (hat !== 'casco') {
-        if (st === 'corto' || st === 'largo' || st === 'rodete') cap();
-        if (st === 'corto') tufts();
+        if (st === 'corto' || st === 'largo' || st === 'rodete' || st === 'cresta') cap();
+        if (st === 'cresta' && hat !== 'gorro') [[0.33, 0.17, 1], [0.38, 0.03, 1.1], [0.37, -0.12, 1.05], [0.3, -0.25, 0.95]].forEach(q => { const m = new T.Mesh(gTuft, hm); m.scale.set(1.5, 0.62 * q[2], 1.25); m.position.set(0, q[0], q[1]); acc.add(m); });
+        if (st === 'corto' && hat !== 'gorro') tufts();
         if (st === 'largo') { const m = new T.Mesh(gMass, hm); m.scale.set(1.06, 1.3, 0.8); m.position.set(0, -0.2, -0.17); acc.add(m); }
         if (st === 'rodete' && hat !== 'gorro') { const b = new T.Mesh(gBun, hm); b.position.set(0, 0.42, -0.12); acc.add(b); }
-        if (st === 'rulos') { for (let i = 0; i < 9; i++) { const an = i / 9 * Math.PI * 2, c = new T.Mesh(gCurl, hm); c.scale.setScalar(1.25); c.position.set(Math.cos(an) * 0.27, 0.22, Math.sin(an) * 0.27 - 0.05); acc.add(c); }
+        if (st === 'rulos' && hat === 'gorro') cap();
+        if (st === 'rulos' && hat !== 'gorro') { for (let i = 0; i < 9; i++) { const an = i / 9 * Math.PI * 2, c = new T.Mesh(gCurl, hm); c.scale.setScalar(1.25); c.position.set(Math.cos(an) * 0.27, 0.22, Math.sin(an) * 0.27 - 0.05); acc.add(c); }
           [[0, 0.39, -0.04], [0.15, 0.36, 0.06], [-0.15, 0.36, 0.06], [0, 0.35, -0.2]].forEach(q => { const c = new T.Mesh(gCurl, hm); c.scale.setScalar(1.3); c.position.set(q[0], q[1], q[2]); acc.add(c); }); }
         if (st === 'mohicano' && hat !== 'gorro') [[0.3, 0.2, 0.9], [0.4, 0.08, 1.15], [0.43, -0.06, 1.3], [0.38, -0.2, 1.15], [0.27, -0.31, 0.95]].forEach(q => { const m = new T.Mesh(gTuft, hm); m.scale.set(0.62, q[2] * 1.25, 1.05); m.position.set(0, q[0], q[1]); acc.add(m); });   // cresta de mechones, más alta en el medio
       }
@@ -2056,9 +2115,10 @@ GS.World = (function () {
       smile.visible = !cur.lips; if (cur.lips) box(acc, 0.13, 0.05, 0.05, tm, 0, -0.17, HR - 0.03);
       // sombreros de los disfraces (siempre con los colores del personaje)
       if (hat === 'gorro') {                       // gorrito navideño (rojo y blanco, es un accesorio de la semana de Navidad)
-        const red = mat(0xd81e2c), wh = mat(0xffffff), band = new T.Mesh(new T.TorusGeometry(HR - 0.045, 0.06, 6, 18), wh); band.rotation.x = Math.PI / 2; band.position.y = 0.2; acc.add(band);
-        const cone = new T.Mesh(new T.ConeGeometry(0.31, 0.5, 14), red); cone.position.set(0.04, 0.47, -0.02); cone.rotation.z = -0.28; acc.add(cone);
-        const pom = new T.Mesh(gEar, wh); pom.scale.setScalar(1.15); pom.position.set(0.15, 0.72, -0.02); acc.add(pom);
+        const red = mat(0xd81e2c), wh = mat(0xffffff), band = new T.Mesh(new T.TorusGeometry(HR - 0.005, 0.075, 8, 20), wh); band.rotation.x = Math.PI / 2; band.position.y = 0.17; acc.add(band);
+        const dome = new T.Mesh(gHelmet, red); dome.scale.setScalar(0.94); dome.position.y = 0.03; acc.add(dome);
+        const cone = new T.Mesh(new T.ConeGeometry(0.3, 0.5, 14), red); cone.position.set(0.05, 0.54, -0.02); cone.rotation.z = -0.28; acc.add(cone);
+        const pom = new T.Mesh(gEar, wh); pom.scale.setScalar(1.15); pom.position.set(0.17, 0.8, -0.02); acc.add(pom);
       }
       if (hat === 'orejas') { [-1, 1].forEach(sd => { const e = new T.Mesh(gTuft, hm); e.scale.set(0.9, 1, 0.5); e.position.set(sd * 0.22, 0.37, 0); acc.add(e); }); }
       if (hat === 'casco') { const h = new T.Mesh(gHelmet, tm); h.rotation.x = -0.5; acc.add(h); box(acc, 0.05, 0.2, 0.05, tm, 0.28, 0.42, -0.05); const b = new T.Mesh(gEar, hm); b.position.set(0.28, 0.64, -0.05); acc.add(b); }
@@ -2177,14 +2237,14 @@ GS.World = (function () {
     // zócalos bajos donde la pared está "cortada"
     { const doors = [L.depoDoor.z, -0.3, L.tallerDoor.z]; let z0 = L.salon.zMin;          // zócalo con los huecos de las tres puertas
       doors.concat([null]).forEach(dz => { const z1 = dz == null ? L.salon.zMax : dz - 0.55; if (z1 - z0 > 0.05) box(root, 0.2, 0.3, z1 - z0, 0xdedede, L.salon.xMax + 0.1, 0, (z0 + z1) / 2); if (dz != null) z0 = dz + 0.55; }); }
-    buildCounter(root); buildCenter(root); buildWorkStations(root); buildDepot(root); sideDoor(root, L.depoDoor.z, 'DEPÓSITO'); buildOffice(root); buildTaller(root); sideDoor(root, L.tallerDoor.z, 'TALLER'); buildGallery(root); buildSign(root); buildExtras(root); buildNext(root);
+    buildCounter(root); buildCenter(root); buildWorkStations(root); buildDepot(root); sideDoor(root, L.depoDoor.z, 'DEPÓSITO'); buildOffice(root); buildTaller(root); sideDoor(root, L.tallerDoor.z, 'TALLER'); buildGallery(root); buildSign(root); buildExtras(root); buildNext(root); buildFleet(root);
 
     // empleados (inventados): vos en el mostrador y Brian, pegado al celular, en la caja
     yo = makePerson({ shirt: 0xe10600, hair: 0x2b2b3a, skin: SKINS[1], speed: 7.5 }); yo.setPos(L.yoMostrador[0], L.yoMostrador[1]);
     // compañeros (inventados): andan por el local haciendo sus cosas. Lucho, de mohicano y anteojos, y Brian, pegado al celular.
     lucho = makePerson({ shirt: 0xe10600, hair: 0xff5fa2, hairStyle: 'mohicano', skin: GS.SKINS[3], glasses: true, speed: 2.6 }); lucho.setPos(4.0, 0.8);
     brian = makePerson({ shirt: 0xe10600, hair: 0x2d6cdf, skin: SKINS[0], phone: true, speed: 2.3 }); brian.setPos(4.5, -1.2); brian.face(-0.6);
-    boss = makePerson({ shirt: 0x111111, hair: 0xb4b4bd, hairStyle: 'mohicano', skin: 0xe0ac7e, scale: 1.18, speed: 3.4 }); boss.setPos(BOSS_HOME[0], BOSS_HOME[1]);
+    boss = makePerson({ shirt: 0x111111, hair: 0xb4b4bd, hairStyle: 'cresta', skin: 0xe0ac7e, scale: 1.18, speed: 3.4 }); boss.setPos(BOSS_HOME[0], BOSS_HOME[1]);
 
     setupInput(); resize(true); updateWalls(); ok = true; return true;
   }
@@ -2232,7 +2292,8 @@ GS.World = (function () {
     },
     setXmas,
     setHats(on) { [yo, lucho, brian, boss].forEach(p => { if (p) p.look({ hat: on ? 'gorro' : null }); }); },
-    setNext(mode) { if (nextSigns) { nextSigns[0].visible = mode !== 'gs2'; nextSigns[1].visible = mode === 'gs2'; } },
+    setNext() {},
+    addDirt, clearDirt,
     boss: () => boss,
     staff: () => [lucho, brian],
     player: () => yo,
@@ -2334,7 +2395,8 @@ GS.Minigames = (function () {
     function choose(b) {
       if (!cur || cur.done || b.classList.contains('bad')) return;
       if (b.dataset.id === prod.id) { b.classList.add('good'); GS.Audio.play('ok'); finish(true, '¡Era eso!', prod.name + ' · pasa por caja', {}); }
-      else { b.classList.add('bad'); mistake('mostrador', U.pick(LN.wrongProduct)); }
+      else if ((GS.Store.get('days') || 0) < 1) { b.classList.add('bad'); mistake('mostrador', U.pick(LN.wrongProduct)); }      // el primer día se puede reintentar
+      else { b.classList.add('bad'); GS.Audio.play('lost'); cur.cb.onMistake('mostrador'); finish(false, 'Venta perdida', U.pick(LN.lostSale), { lostSale: true }); }   // producto equivocado: el cliente se va
     }
     btns.forEach(b => b.addEventListener('click', () => choose(b)));
     cur.keys = e => { const n = parseInt(e.key, 10); if (n >= 1 && n <= btns.length) choose(btns[n - 1]); };
@@ -2812,7 +2874,7 @@ GS.Game = (function () {
       relaxed: false, arcade: null, t: 0, dur: C.day.seconds, score: 0, combo: 0, bestCombo: 0, sales: 0, served: 0, lost: 0, cajaErr: 0, otherErr: 0,
       tasksDone: 0, tasksLate: 0, customers: [], tasks: [], spawned: 0, tasksSpawned: 0,
       extras: [], n: 1, unlocked: unlockedFor(1), plan: planDay(1), rep0: repNow(), dueno: null, wave: -1, stage: 'rest', rest: 0.6, queue: [], says: [], sayQ: [], sayGap: 0, beat: 0, wv: { done: {} }, ev: {},
-      cajaCount: 0, closing: false, jobSig: '', visits: [], cord: CD.start, mate: false, lookers: [], lookT: 4, spots: {}, helper: null, intr: null, intrN: 0, intrOk: 0, intrBag: [], reqBag: U.shuffle(GS.REQUESTS), archBag: U.shuffle(GS.CUSTOMERS), taskBag: []
+      cajaCount: 0, closing: false, jobSig: '', visits: [], dirt: 0, cleaned: 0, cord: CD.start, mate: false, lookers: [], lookT: 4, spots: {}, helper: null, intr: null, intrN: 0, intrOk: 0, intrBag: [], reqBag: U.shuffle(GS.REQUESTS), archBag: U.shuffle(GS.CUSTOMERS), taskBag: []
     }, extra || {});
   }
   // Arma la jornada: cuántos clientes y tareas trae cada tanda. Va de menos a más.
@@ -2823,19 +2885,20 @@ GS.Game = (function () {
   function unlockedFor(n) { return GS.UNLOCKS.slice(0, n).reduce((a, b) => a.concat(b), []); }
   const upNow = () => GS.Store.get('up') || {};
   const coinsNow = () => GS.Store.get('coins') || 0;
-  const coinMult = () => { const u = upNow(); return 1 + 0.1 * ((u.mesa || 0) + (u.isla || 0) + (u.gondola || 0) + (u.luces || 0)); };
-  const patMult = () => { const u = upNow(); return 1 + 0.15 * (u.escritorio || 0) + 0.1 * (u.sillas || 0); };
+  const monthOf = n => GS.MONTHS[(n - 1) % 12] + ', año ' + (Math.floor((n - 1) / 12) + 1);
+  const coinMult = () => { const u = upNow(); return 1 + 0.1 * ((u.mesa || 0) + (u.isla || 0) + (u.gondola || 0) + (u.luces || 0) + (u.web >= 3 ? 1 : 0)); };
+  const patMult = () => { const u = upNow(); return 1 + 0.15 * (u.escritorio || 0) + 0.1 * (u.sillas || 0) + 0.1 * (u.cafetera || 0); };
   function conditionFor(n) {
     const forced = GS.Store.get('testCond'); if (forced) return forced === 'ninguna' ? null : forced;             // fechas especiales fijas y lluvia al azar (nunca en las primeras jornadas)
-    if (n >= 5 && n % 10 === 5) return 'blackfriday';
-    if (n >= 10 && n % 10 === 0) return 'navidad';
-    return n >= 3 && Math.random() < 0.3 ? 'lluvia' : null;
+    if (n % 12 === 11) return 'blackfriday';             // noviembre
+    if (n % 12 === 0) return 'navidad';                   // diciembre
+    return n >= 3 && Math.random() < 0.25 ? 'lluvia' : null;
   }
   function planDay(n, cond) {
     const un = unlockedFor(n), pool = TASK_STATIONS.filter(s => un.indexOf(s.id) >= 0), u = upNow(), c = cond ? GS.CONDITIONS[cond] : null, r = repNow();
-    let cust = Math.min(3 + n, 7) + (u.cartel || 0) + (u.arcade || 0) + (u.vidluz || 0) + (r >= 4 ? 1 : r < 2 ? -1 : 0) + (c ? c.cust : 0);   // cartel, arcade y reputación traen gente
+    let cust = Math.min(3 + n, 7) + (u.cartel || 0) + (u.arcade || 0) + (u.vidluz || 0) + (u.web >= 2 ? 1 : 0) + (r >= 4 ? 1 : r < 2 ? -1 : 0) + (c ? c.cust : 0);   // cartel, arcade y reputación traen gente
     const want = U.clamp(cust, 3, 12); cust = Math.min(want, C.day.maxDayCustomers);       // la jornada dura siempre unos 3 minutos: lo que el cartel y las mejoras traen de más se cobra como tickets más altos
-    const tasks = pool.length ? Math.min(n - 1, C.day.maxDayTasks) : 0, extraMl = c && un.indexOf('ml') >= 0 ? c.ml : 0, nw = cust <= 5 ? 3 : 4;
+    const tasks = pool.length ? Math.min(n - 1, C.day.maxDayTasks) : 0, extraMl = (un.indexOf('ml') >= 0 && u.web >= 1 ? 1 : 0) + (c && un.indexOf('ml') >= 0 ? c.ml : 0), nw = cust <= 5 ? 3 : 4;
     const plan = Array.from({ length: nw }, () => ({ c: 0, t: 0, ml: 0 }));
     for (let i = 0; i < cust; i++) plan[nw - 1 - (i % nw)].c++;
     for (let i = 0; i < tasks; i++) plan[nw - 1 - (i % (nw - 1))].t++;
@@ -2876,7 +2939,7 @@ GS.Game = (function () {
     return line.replace('{quien}', sl === 0 ? 'Lucho' : 'Brian');
   }
   /* ---------------- Cordura: nunca hay Game Over, solo un mate a tiempo ---------------- */
-  function addCord(v) { if (day && !day.arcade) day.cord = U.clamp(day.cord + v, 0, 100); }
+  function addCord() {}                     // la cordura se retiró: las métricas son estrellas, monedas y fondos
   function mateRescue() {
     day.mate = true; addCord(CD.mateBoost); A.play('mate');
     day.customers.forEach(c => { c.pat = Math.min(1, c.pat + 0.25); }); day.tasks.forEach(t => { t.pat = Math.min(1, t.pat + 0.25); });
@@ -2896,9 +2959,9 @@ GS.Game = (function () {
     day.intr = { it: day.intrBag.pop(), left: CD.intrSeconds, flip: Math.random() < 0.5 }; day.jobSig = ''; A.play('intr');
   }
   function answerIntr(ok) {
-    const x = day && day.intr; if (!x || paused) return; day.intr = null; day.jobSig = '';
-    if (ok) { addCord(CD.intrOk * (x.it.mate ? 2 : 1)); day.score += 40; day.intrOk++; day.wv.intrOk = 1; A.play(x.it.mate ? 'mate' : 'ok'); toast('<b>' + x.it.ic + ' Bien resuelto · sube la cordura</b>' + x.it.r, '', 3200); }
-    else { addCord(-CD.intrBad); A.play('error'); toast('<b>' + x.it.ic + ' Ups</b>' + x.it.rb, '', 3200); }
+    const x = day && day.intr; if (!x || paused) return; day.intr = null; day.jobSig = ''; if (!day.moment) day.moment = x.it.who + '. ' + (ok ? x.it.r : x.it.rb);
+    if (ok) { addCord(CD.intrOk * (x.it.mate ? 2 : 1)); day.score += 40; day.intrOk++; day.wv.intrOk = 1; A.play(x.it.mate ? 'mate' : 'ok'); addRep(0.04); fx('+⭐'); toast('<b>' + x.it.ic + ' Bien resuelto</b>' + x.it.r, '', 3200); }
+    else { addRep(-0.03); fx('−⭐', 'bad'); A.play('error'); toast('<b>' + x.it.ic + ' Ups</b>' + x.it.rb, '', 3200); }
   }
   function planTotals(plan) { return plan.reduce((a, w) => ({ c: a.c + w.c, t: a.t + w.t + (w.ml || 0) }), { c: 0, t: 0 }); }
   function startWave() {
@@ -2907,7 +2970,7 @@ GS.Game = (function () {
     for (let i = 0; i < w.c; i++) day.queue.push({ kind: 'c', t: 0.3 + i * C.day.customerGap });
     for (let i = 0; i < w.t; i++) day.queue.push({ kind: w.final ? 'f' : 't', t: (w.final ? 0.6 : 5) + i * C.day.taskGap });
     for (let i = 0; i < (w.ml || 0); i++) day.queue.push({ kind: 'm', t: 3 + i * C.day.taskGap });
-    if (!day.arcade && !day.relaxed && day.n % 10 === 9 && !day.xq && (day.wave >= 1 || day.plan.filter(w => !w.final).length < 2) && !w.final) { day.xq = 1; day.queue.push({ kind: 'x', t: 5 }); }    // víspera de la semana de Navidad
+    if (!day.arcade && !day.relaxed && day.n % 12 === 11 && !day.xq && (day.wave >= 1 || day.plan.filter(w => !w.final).length < 2) && !w.final) { day.xq = 1; day.queue.push({ kind: 'x', t: 5 }); }    // víspera de la semana de Navidad
     day.visits.forEach(v => { if (v.wave === day.wave && !v.sent) { v.sent = 1; day.queue.push({ kind: 'v', v: v.S, t: U.rnd(3, 8) }); } });
     if (GS.DEBUG_INTR || (day.n >= CD.intrFromDay && !w.final && day.wave >= 1 && day.intrN < (day.n >= 6 ? 3 : 2) && Math.random() < 0.6)) { day.queue.push({ kind: 'i', t: U.rnd(5, 11) }); day.intrN++; }
     day.queue.sort((a, b) => a.t - b.t);
@@ -2915,7 +2978,6 @@ GS.Game = (function () {
   function endWave() {
     if (day.wave >= day.plan.length - 1) { day.closing = true; setTimeout(endDay, 2800); return; }
     day.stage = 'rest'; day.rest = C.day.restSeconds; W.focus(null); W.home();
-    { const seen = GS.Store.get('seen') || {}; if (!seen.cord) { seen.cord = 1; GS.Store.set('seen', seen); toast('<b>🧠 Cordura</b>Sube en los respiros y con las rachas. Si baja mucho, Brian te ceba un mate.', 'dueno', 5200); } }
     const d = day;
     setTimeout(() => {                       // en el respiro habla el Dueño, sin nada tapando el local
       if (day !== d || state !== 'day' || d.stage !== 'rest') return;
@@ -2971,7 +3033,7 @@ GS.Game = (function () {
   }
   function clearDay() {
     if (day) { day.customers.forEach(c => { if (c.person) c.person.remove(); c.label.remove(); }); day.tasks.forEach(t => { t.label.remove(); if (t.boxes) t.boxes.remove(); }); day.says.forEach(x => x.el.remove()); day.extras.forEach(x => x.remove()); }
-    MG.close(); W.focus(null); W.bossHome();
+    MG.close(); W.focus(null); W.bossHome(); W.clearDirt();
     { const yo = W.player(); if (yo) { yo.stop(); yo.setPos(L.yoMostrador[0], L.yoMostrador[1]); yo.face(0); yoAt = 'most'; yoRoute = []; } const b = STAFF[1]; if (b && b.busy) { b.busy = false; b.q = [['go', [[4.0, -5.0], [4.6, -4.4], [4.5, -1.2], b.hub]]]; } }
   }
   function makeLabel(icon) {
@@ -2988,7 +3050,7 @@ GS.Game = (function () {
     const slot = freeSlot('slotM', L.colaMostrador.length); if (slot < 0) return;
     if (!day.reqBag.length) day.reqBag = U.shuffle(GS.REQUESTS);
     if (!day.archBag.length) day.archBag = U.shuffle(GS.CUSTOMERS);
-    const req = day.reqBag.pop(), arche = day.archBag.pop(), product = GS.CATALOG.find(p => p.id === req.p);
+    const req = day.reqBag.pop(), arche = day.cond === 'navidad' && !day.santa && day.spawned >= 2 ? (day.santa = 1, GS.SANTA) : day.archBag.pop(), product = GS.CATALOG.find(p => p.id === req.p);
     const k = arche.id.charCodeAt(0) + arche.id.length * 7;   // cada personaje mantiene su look
     const look = lookOf(arche), person = W.makePerson(look);
     const dx = L.puerta.x; person.setPos(dx + U.rnd(-0.5, 0.5), day.spawned === 0 ? L.salon.zMax + 1 : L.galeria.zMax + 2.4);
@@ -3093,9 +3155,8 @@ GS.Game = (function () {
   const daysLeft = () => Math.max(0, C.finalDay - dayNumber() + 1);
   function addFondo(v) { GS.Store.set('fondo', Math.max(0, fondoNow() + v)); }
   function plotHtml() {
-    const f = fondoNow(), g = goalNow(), left = daysLeft();
-    return '<b>🏠 ' + PL.name + '</b><span class="pb"><i style="width:' + Math.min(100, f / g * 100).toFixed(0) + '%"></i></span><small>Fondo: 🪙 ' + f + ' de ' + g +
-      (GS.Store.get('final2Seen') ? ' · temporada cerrada: ' + tierNow().title : left ? ' · ' + (left === 1 ? 'última jornada' : 'quedan ' + left + ' jornadas') : '') + '</small>';
+    const f = fondoNow(), g = goalNow();
+    return '<b>🗺️ ' + PL.name + '</b><span class="pb"><i style="width:' + Math.min(100, f / g * 100).toFixed(0) + '%"></i></span><small>Sucursales: 1 de 5 · fondos de expansión ' + f + ' de ' + g + ' para abrir Cuyo</small>';
   }
   /* ---------------- VISITAS CON HISTORIA: clientes que vuelven, con decisiones chiquitas que dejan marca ---------------- */
   const histAll = () => GS.Store.get('hist') || {};
@@ -3137,7 +3198,7 @@ GS.Game = (function () {
       if (fx.goal) { GS.Store.set('goalAdj', (GS.Store.get('goalAdj') || 0) + fx.goal); chips.push(fx.goal < 0 ? '🏠 El local de al lado sale más barato' : '🏠 El local de al lado se encarece'); }
       if (fx.flag) st.flags[fx.flag] = 1;
       if (fx.gflag) { gf[fx.gflag] = 1; GS.Store.set('gflags', gf); }
-      st.last = day.n;
+      st.last = day.n; day.moment = S.name + ': "' + o.r + '"';
       if (waiting) st.waits = (st.waits || 0) + 1;                 // todavía falta algo que depende de otra historia: vuelve más adelante
       else if (!o.stay) { st.step++; st.notes.push(o.note || step.note); if (step.end || st.step >= S.steps.length) st.done = true; }
       h[S.id] = st; GS.Store.set('hist', h); GS.track('visita', { quien: S.id, paso: st.step }); A.play(fx.rep < 0 || fx.fondo < 0 ? 'error' : 'ok'); A.babble(o.r, cu.person.voice);
@@ -3176,7 +3237,16 @@ GS.Game = (function () {
     for (let i = 0; i < n; i++) if (!day.customers.some(c => c[key] === i && c.st !== 'leaving')) return i;
     return -1;
   }
+  // Limpieza: los clientes dejan manchas; se limpian en los ratos libres. Terminar con el piso sucio baja la reputación.
+  function dropDirt() {
+    if (!day || day.arcade || day.dirt >= 5 || Math.random() > (upNow().plantas ? 0.22 : 0.45)) return;
+    day.dirt++; day.jobSig = ''; W.addDirt(U.rnd(-3.6, 0.6), U.rnd(-2.0, 4.6));
+  }
+  function cleanUp() {
+    const n = day.dirt; if (!n) return; day.dirt = 0; day.cleaned += n; day.jobSig = ''; W.clearDirt(); day.score += 25 * n; addRep(0.015 * n); A.play('ok'); fx('🧹 +' + 25 * n); yoGo('H'); day.beat = 0.7;
+  }
   function leave(cu, withBag) {
+    if (!cu.story && cu.st !== 'entering') dropDirt();
     cu.st = 'leaving'; cu.slotM = -1; cu.slotC = -1; cu.label.hidden = true; cu.person.bag(!!withBag);
     const dx = L.puerta.x, d = day;
     cu.person.walk([[dx, -1.2], [dx, L.salon.zMax + 0.2], [dx + U.rnd(-2, 2), L.galeria.zMax + 3]], () => {
@@ -3185,11 +3255,16 @@ GS.Game = (function () {
   }
   function removeTask(task) { task.label.remove(); if (task.boxes) task.boxes.remove(); const i = day.tasks.indexOf(task); if (i >= 0) day.tasks.splice(i, 1); }
 
+  // Números que suben: respuesta inmediata a cada cosa que pasa
+  function fx(text, cls) {
+    const el = document.createElement('div'); el.className = 'fx ' + (cls || ''); el.textContent = text; el.style.left = (38 + Math.random() * 24) + '%';
+    $('fxs').appendChild(el); setTimeout(() => el.remove(), 1300);
+  }
   function addScore(base, pat) {
     const mult = (1 + Math.min(day.combo, 8) * 0.25) * (!day.arcade && day.cord >= CD.focus ? 1.1 : 1), pts = Math.round((base + Math.max(0, pat) * 100) * mult);
     addCord(day.combo >= 2 ? 0.6 + CD.streak : 0.6);
     day.score += pts; day.combo++; day.bestCombo = Math.max(day.bestCombo, day.combo);
-    toast('+' + pts + (day.combo > 1 ? ' · racha x' + day.combo : ''), 'pts', 1100);
+    fx('+' + pts + (day.combo > 1 ? '  x' + day.combo : ''));
     if (day.combo > 1) A.play('combo', day.combo);
   }
   function breakCombo() { day.combo = 0; }
@@ -3203,6 +3278,7 @@ GS.Game = (function () {
       else if (c.st === 'waitC') jobs.push({ key: 'c' + c.id + 'k', type: 'caja', ref: c, pat: c.pat, icon: '💵', title: 'Caja', sub: 'Cobrar a ' + c.arche.name });
     }
     for (const t of day.tasks) if (t.st === 'wait') jobs.push({ key: 't' + t.id, type: t.station.id, ref: t, pat: t.pat, icon: t.station.icon, title: t.station.short || t.station.name, sub: t.station.task.name });
+    if (day.dirt && !day.arcade && (day.stage === 'rest' || !jobs.length || day.dirt >= 3)) jobs.push({ key: 'dirt' + day.dirt, type: 'limpiar', ref: null, pat: 1, icon: '🧹', title: 'Limpiar el piso', sub: day.dirt + (day.dirt === 1 ? ' mancha' : ' manchas') + ' · un toque y listo' });
     return jobs.sort((a, b) => a.pat - b.pat);
   }
   /* ---------------- Tu personaje camina solo hasta cada tarea, por los pasillos y las puertas ----------------
@@ -3238,6 +3314,7 @@ GS.Game = (function () {
   function openJob(job) {
     if (state !== 'day' || paused || MG.isOpen() || day.closing || day.beat > 0) return;
     if (job.type === 'historia') return openStory(job.ref);
+    if (job.type === 'limpiar') return cleanUp();
     A.unlock(); A.play('click');
     const ref = job.ref, isCust = job.type === 'mostrador' || job.type === 'caja';
     ref.st = isCust ? (job.type === 'mostrador' ? 'inM' : 'inC') : 'in'; ref.pat = Math.max(ref.pat, 0.55);
@@ -3245,10 +3322,13 @@ GS.Game = (function () {
     yoGo(NODE_OF[job.type]);
     const mt = day.mt = day.mt || {}, m0 = day.tt || 0, me = mt[job.type] = mt[job.type] || { n: 0, s: 0, e: 0 }; me.n++;
     const cb = {
-      onMistake(kind) { me.e++; day.wv.mistakes = (day.wv.mistakes || 0) + 1; breakCombo(); addRep(-0.02); addCord(-CD.mistake); if (kind === 'caja') day.cajaErr++; else day.otherErr++; if (!day.relaxed) ref.pat = Math.max(0.05, ref.pat - C.day.mistakeCost); },
+      onMistake(kind) { me.e++; day.wv.mistakes = (day.wv.mistakes || 0) + 1; breakCombo(); addRep(kind === 'caja' ? -0.07 : -0.03); fx(kind === 'caja' ? '−⭐  −🪙' : '−⭐', 'bad'); if (kind === 'caja') { day.cajaErr++; day.coinLoss = (day.coinLoss || 0) + 15; } else day.otherErr++; if (!day.relaxed) ref.pat = Math.max(0.05, ref.pat - C.day.mistakeCost); },
       onEnd(ok, info) {
         me.s += (day.tt || 0) - m0;
         if (job.type !== 'caja') W.focus(null);
+        if (job.type === 'mostrador' && !ok) {            // producto equivocado: se va y se pierde la venta
+          day.lostSale = (day.lostSale || 0) + 1; day.wv.lost = 1; addRep(-0.1); ref.slotM = -1; sayAt(ref.person, U.pick(LN.lostSale), 0); day.beat = 1.2; leave(ref, false); return;
+        }
         if (job.type === 'mostrador') {
           addScore(100, ref.pat); addRep(0.02); { const v = GS.Store.get('vid') || 0, saw = Math.random() < v * 0.7 + (upNow().vidluz ? 0.15 : 0); if (saw) addRep(0.02); sayAt(ref.person, saw ? U.pick(LN.sawWindow) : '¡Eso! Voy a la caja.', saw ? 3000 : 1900); } ref.st = 'toCaja'; ref.slotM = -1; ref.pat = Math.max(ref.pat, 0.8);
           ref.slotC = Math.max(0, freeSlot('slotC', L.colaCaja.length));
@@ -3256,7 +3336,8 @@ GS.Game = (function () {
         } else if (job.type === 'caja') {
           day.served++; day.wv.served = (day.wv.served || 0) + 1;
           if (info.total) day.sales += info.total;
-          if (info.cajaError) { day.score = Math.max(0, day.score - 100); addRep(-0.25); }
+          if (info.cajaError) { day.score = Math.max(0, day.score - 100); addRep(-0.25); day.vueltoMal = 1; day.coinLoss = (day.coinLoss || 0) + 40; fx('−🪙 vuelto de más', 'bad'); }
+          if (ref.arche.id === 'santa') day.santaSold = 1;
           if (ok) { addScore(150, ref.pat); addRep(info.caught ? 0.05 : 0.04); }
           if (info.caught) {                 // comprobante trucho bien rechazado: se va renegando y sin el producto
             day.caught = (day.caught || 0) + 1; day.wv.caught = 1; sayAt(ref.person, U.pick(LN.caught), 3600); day.beat = 1.5;
@@ -3267,7 +3348,7 @@ GS.Game = (function () {
           sayAt(ref.person, ref.arche.bye, 3600); day.beat = 1.5;
           const d = day; setTimeout(() => { if (day === d && !MG.isOpen()) W.focus(null); }, 2300);
           leave(ref, !!info.total);
-        } else { day.tasksDone++; day.wv.done[job.type] = 1; addScore(130, ref.pat); addRep(job.type === 'whatsapp' ? 0.05 : 0.03); if (job.type === 'vidriera') { GS.Store.set('vid', info.quality || 0); addRep((info.quality - 0.5) * 0.12); } removeTask(ref); }
+        } else { day.tasksDone++; day.wv.done[job.type] = 1; day.okBy = day.okBy || {}; day.okBy[job.type] = (day.okBy[job.type] || 0) + 1; addScore(job.type === 'ml' ? 130 * (1 + 0.2 * (upNow().flota || 0)) : 130, ref.pat); if (job.type === 'ml' && upNow().flota) addRep(0.015 * upNow().flota); addRep(job.type === 'whatsapp' ? 0.05 : 0.03); if (job.type === 'vidriera') { GS.Store.set('vid', info.quality || 0); addRep((info.quality - 0.5) * 0.12); } removeTask(ref); }
       }
     };
     const seen = GS.Store.get('seen') || {};
@@ -3301,7 +3382,6 @@ GS.Game = (function () {
     { const u = upNow();
       if (day.stage === 'rest' && day.wave >= 0 && !day.closing) addCord(CD.rest * (u.cafetera ? 1.6 : 1) * dt);
       else if (!day.relaxed && pendingJobs().length >= CD.busyFrom) addCord(-CD.busy * (u.plantas ? 0.6 : 1) * dt);
-      if (day.cord < CD.burnt && !day.mate && !day.closing) mateRescue();
       if (day.intr && !open) { day.intr.left -= dt; if (day.intr.left <= 0) { day.intr = null; day.jobSig = ''; toast('Se resolvió solo. A veces pasa.', '', 1700); } } }
     // paciencia (en el turno tranquilo no baja)
     if (!day.relaxed) {
@@ -3347,7 +3427,6 @@ GS.Game = (function () {
     $('scoreV').textContent = day.score.toLocaleString('es-AR');
     $('chipSales').hidden = !!day.arcade; $('chipRep').hidden = !!day.arcade; $('chipRep').textContent = '⭐ ' + repTxt(repNow());
     $('chipSales').textContent = '🪙 ' + (coinsNow() + Math.round(day.score / 20 * coinMult()));
-    { const k = Math.round(day.cord), el = $('chipCord'); el.hidden = !!day.arcade || !!day.fin; el.textContent = (k < CD.burnt ? '😵 ' : '🧠 ') + k + (k >= CD.focus ? ' · enfocado' : ''); el.className = 'chip cord' + (k >= CD.focus ? ' hi' : k < CD.burnt ? ' lo' : ''); }
     $('chipCombo').hidden = day.combo < 2; $('chipCombo').textContent = '🔥 racha x' + day.combo;
   }
   // Tarjetas de pendientes (abajo): hasta 4, primero lo más urgente
@@ -3456,7 +3535,6 @@ GS.Game = (function () {
     if (!day || state !== 'day' || day.arcade) return;
     state = 'end'; MG.close(); W.focus(null); W.showAll(); A.play('endDay'); A.setMood('menu'); $('rain').hidden = true;
     const d = day; d.intr = null;
-    const cordEnd = Math.round(d.cord), cordPts = cordEnd * CD.bonus; d.score += cordPts;
     d.customers.slice().forEach(c => { if (c.st !== 'leaving') leave(c, false); }); d.lookers.slice().forEach(lk => { if (lk.st !== 'out') { lk.p.stop(); lookerOut(lk); } });
     d.tasks.slice().forEach(removeTask); d.says.forEach(x => x.el.remove()); d.says = [];
     $('hud').hidden = true; $('jobs').hidden = true;
@@ -3465,45 +3543,56 @@ GS.Game = (function () {
     if (d.relaxed) stars = errs === 0 ? 3 : errs <= 4 ? 2 : 1;
     else { if (missed <= 2) stars = 2; if (missed === 0 && errs <= 3) stars = 3; }
     const comment = U.pick(stars === 3 ? LN.duenoEndGood : stars === 2 ? LN.duenoEndMid : LN.duenoEndBad);
-    const human = U.pick(LN.human).replace('{n}', d.served);
-    const entry = { score: d.score, served: done, sales: d.sales, mode: d.relaxed ? 'Tranquilo' : 'Normal', date: new Date().toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit' }) };
-    const pos = d.score > 0 ? GS.Store.addScore(entry) : -1;
     if (!GS.Store.get('testDay')) GS.Store.set('days', Math.max(GS.Store.get('days') || 0, d.n));
-    { const tot = GS.Store.get('tot') || { c: 0, d: 0 }; tot.c += d.served; tot.d++; GS.Store.set('tot', tot); }
-    const isFinal = d.n === C.finalDay && !GS.Store.get('testDay') && !GS.Store.get('final2Seen');
-    lastCard = { n: d.n, score: d.score, stars, cord: cordEnd };
-    const earned = Math.round(d.score / 20 * coinMult() * (d.plan.bonus || 1)); GS.Store.set('coins', coinsNow() + earned);
+    const lostSale = d.lostSale || 0, ask = d.served + d.lost + lostSale, perfect = !errs && !d.lost && !lostSale && !d.tasksLate && !d.relaxed, dirty = d.dirt >= 3;
+    if (dirty) addRep(-0.1);                                                        // cerrar con el piso sucio se nota
+    const earned = Math.max(0, Math.round(d.score / 20 * coinMult() * (d.plan.bonus || 1)) - (d.coinLoss || 0)); GS.Store.set('coins', coinsNow() + earned);
+    const fEarn = d.relaxed ? 0 : Math.round(d.sales / 6500 * (0.5 + repNow() / 5)); addFondo(fEarn);     // fondos de expansión: salen de la facturación y la reputación
+    { const t = statsNow(); delete t.rep; delete t.flota; t.c += d.served; t.d++; t.caught += d.caught || 0; t.web += (d.okBy && d.okBy.ml) || 0; t.clean += d.cleaned; t.sales += d.sales;
+      if (perfect) { t.perfect++; t.streak++; } else if (!d.relaxed) t.streak = 0; if (d.vueltoMal) t.vueltoMal++; if (!d.dirt && !d.relaxed) t.limpio++; if (dirty) t.sucio++; if (d.santaSold) t.santa++; GS.Store.set('tot', t); }
+    const fresh = checkLogros(), mode = d.relaxed ? 'Tranquilo' : 'Normal';
+    lastCard = { n: d.n, score: d.score, stars, cord: 0 };
     const rv = repNow(), rd = rv - d.rep0; refreshStart();
-    GS.track('fin_jornada', { puntaje: d.score, atendidos: d.served, tareas: d.tasksDone, perdidos: missed, estrellas: stars, modo: entry.mode, segundos: Math.round(d.tt || 0), monedas: earned });
-    { const ms = GS.Store.get('metrics') || []; ms.push({ n: d.n, modo: entry.mode, seg: Math.round(d.tt || 0), mg: Math.round(d.tj || 0), monedas: earned, at: d.served, per: d.lost, tar: d.tasksDone, tarde: d.tasksLate, err: d.cajaErr + d.otherErr, rep: Math.round(repNow() * 10) / 10, mt: d.mt || {} }); GS.Store.set('metrics', ms.slice(-40)); }
+    GS.track('fin_jornada', { puntaje: d.score, atendidos: d.served, tareas: d.tasksDone, perdidos: missed + lostSale, modo: mode, segundos: Math.round(d.tt || 0), monedas: earned, fondos: fEarn });
+    { const ms = GS.Store.get('metrics') || []; ms.push({ n: d.n, modo: mode, seg: Math.round(d.tt || 0), mg: Math.round(d.tj || 0), monedas: earned, at: d.served, per: d.lost + lostSale, tar: d.tasksDone, tarde: d.tasksLate, err: errs, rep: Math.round(rv * 10) / 10, mt: d.mt || {} }); GS.Store.set('metrics', ms.slice(-40)); }
+    const hook = nextHook(d.n + 1), ob = d.okBy || {}, row = (ok, label, val) => '<p class="' + (ok ? 'ok' : 'no') + '"><span>' + (ok ? '✔' : '✖') + ' ' + label + '</span><b>' + val + '</b></p>';
     $('endCol').innerHTML =
-      '<div><div class="ticket"><h3>CIERRE DE CAJA</h3><div class="c">Jornada ' + d.n + ' · ' + rankOf(d.n) + (d.cond ? ' · ' + GS.CONDITIONS[d.cond].name : '') + (d.relaxed ? ' · turno tranquilo' : '') + '</div>' +
-      '<p><span>Clientes atendidos</span><b>' + d.served + '</b></p><p><span>Tareas del local hechas</span><b>' + d.tasksDone + '</b></p>' +
-      '<p><span>Se fueron sin comprar</span><b>' + d.lost + '</b></p><p><span>Tareas que se pasaron</span><b>' + d.tasksLate + '</b></p>' +
-      '<p><span>Errores (con chiste)</span><b>' + errs + '</b></p>' +
-      (d.caught ? '<p><span>Comprobantes truchos frenados</span><b>' + d.caught + '</b></p>' : '') +
-      (d.intrOk ? '<p><span>Interrupciones bien resueltas</span><b>' + d.intrOk + '</b></p>' : '') +
-      '<p><span>🏠 Fondo del local de al lado</span><b>🪙 ' + fondoNow() + ' / ' + goalNow() + '</b></p>' +
-      '<p><span>Cordura al cierre</span><b>🧠 ' + cordEnd + ' (+' + cordPts + ' pts)</b></p>' +
-      '<p><span>Mejor racha</span><b>x' + d.bestCombo + '</b></p><p><span>Ventas (ficticias)</span><b>' + U.money(d.sales) + '</b></p>' +
-      '<p><span>Monedas ganadas hoy</span><b>🪙 ' + earned + '</b></p><p><span>Reputación del local</span><b>⭐ ' + repTxt(rv) + ' (' + (rd >= 0 ? '+' : '−') + repTxt(Math.abs(rd)) + ')</b></p><hr>' +
-      '<p class="tot"><span>PUNTAJE</span><b>' + d.score.toLocaleString('es-AR') + '</b></p><div class="stars">' + '★'.repeat(stars) + '<span style="opacity:.25">' + '★'.repeat(3 - stars) + '</span></div></div></div>' +
-      '<div style="display:flex;flex-direction:column;gap:12px;margin-top:8px">' +
-      (rankOf(d.n + 1) !== rankOf(d.n) && !GS.Store.get('testDay') ? '<div class="promo">🎖 ¡Ascenso!<b>Ahora sos ' + rankOf(d.n + 1) + '</b></div>' : '') +
-      (pos === 0 ? '<div class="newrec">🏆 ¡Nuevo récord personal!</div>' : '') +
-      '<div class="quote"><b>El Dueño opina</b>' + comment + '</div><p class="humanline">' + human + '</p>' +
-      goalHtml() + '<button class="btn alt" id="endShop">🛠 Mejorar el local</button>' +
-      (isFinal ? '<button class="btn gold" id="endFinal">🎬 Ver el final de la temporada</button>' : '') +
-      '<button class="btn' + (isFinal ? ' ghost' : '') + '" id="endAgain">Siguiente jornada</button><button class="btn ghost" id="endCard">📸 Tarjeta para compartir</button><button class="btn ghost" id="endLib">📖 Libreta y fondo</button>' +
-      '<div class="row"><button class="btn ghost" id="endHome">Inicio</button><button class="btn ghost" id="endRecs">Récords</button></div>' +
-      (C.links.tienda ? '<a class="btn ghost" id="endStore" target="_blank" rel="noopener" href="' + C.links.tienda + '">🛒 Ver la tienda de verdad</a>' : '') +
+      '<div><div class="ticket"><h3>RESUMEN DE LA JORNADA</h3><div class="c">Jornada ' + d.n + ' · ' + monthOf(d.n) + (d.cond ? ' · ' + GS.CONDITIONS[d.cond].name : '') + (d.relaxed ? ' · turno tranquilo' : '') + '</div>' +
+      row(ask > 0 && d.served === ask, 'Ventas concretadas', d.served + ' de ' + ask) +
+      (lostSale ? row(false, 'Se fueron por producto equivocado', lostSale) : '') + (d.lost ? row(false, 'Se cansaron de esperar', d.lost) : '') +
+      row(!d.cajaErr, 'Cobros sin error', d.cajaErr ? d.cajaErr + (d.cajaErr === 1 ? ' error' : ' errores') : 'todos') +
+      (ob.ml ? row(true, 'Compras por la página despachadas', ob.ml) : '') + (ob.stock ? row(true, 'Controles de stock bien hechos', ob.stock) : '') +
+      (d.tasksDone + d.tasksLate ? row(!d.tasksLate, 'Tareas del local a tiempo', d.tasksDone + ' de ' + (d.tasksDone + d.tasksLate)) : '') +
+      (d.caught ? row(true, 'Comprobantes truchos frenados', d.caught) : '') +
+      row(!dirty, 'Limpieza', dirty ? 'piso sucio' : d.cleaned ? d.cleaned + (d.cleaned === 1 ? ' mancha limpiada' : ' manchas limpiadas') : 'impecable') +
+      '<hr><p class="tot"><span>🪙 Monedas</span><b id="sumCoins">+0</b></p>' + (d.coinLoss ? '<p class="no"><span>Se fue en errores de caja</span><b>−🪙 ' + d.coinLoss + '</b></p>' : '') +
+      '<p><span>🗺️ Fondos de expansión</span><b>+' + fEarn + '</b></p><p><span>⭐ Reputación</span><b>' + repTxt(rv) + ' (' + (rd >= 0 ? '+' : '−') + repTxt(Math.abs(rd)) + ')</b></p>' +
+      '<p><span>Facturación (ficticia)</span><b>' + U.money(d.sales) + '</b></p></div></div>' +
+      '<div style="display:flex;flex-direction:column;gap:10px;margin-top:8px">' +
+      fresh.map(a => '<div class="newrec">' + a.ic + ' Logro: <b>' + a.name + '</b><small>' + a.d + '</small></div>').join('') +
+      '<div class="quote"><b>' + (d.moment ? 'El momento del día' : 'El Dueño opina') + '</b>' + (d.moment || comment) + '</div>' +
+      '<div class="hook"><i>' + hook[0] + '</i><span><b>Lo que viene</b>' + hook[1] + '</span></div>' +
+      '<button class="btn" id="endAgain">Siguiente jornada</button>' +
+      '<div class="row"><button class="btn alt" id="endShop" style="font-size:16px">🛠 Mejorar</button><button class="btn ghost" id="endRecs">🏅 Logros</button></div>' +
+      '<div class="row"><button class="btn ghost" id="endCard">📸 Compartir</button><button class="btn ghost" id="endLib">📖 Libreta</button><button class="btn ghost" id="endHome">Inicio</button></div>' +
       '<button class="phases" id="phasesEnd"' + (C.launched ? ' hidden' : '') + '></button></div>';
     $('phasesEnd').innerHTML = phasesCompact(); $('phasesEnd').addEventListener('click', showPhases);
-    if ($('endStore')) $('endStore').addEventListener('click', () => GS.track('click_tienda', { desde: 'cierre' }));
-    $('endCard').addEventListener('click', () => showCard()); $('endLib').addEventListener('click', showLibreta); if (isFinal) $('endFinal').addEventListener('click', () => startFinal());
+    $('endCard').addEventListener('click', () => showCard()); $('endLib').addEventListener('click', showLibreta);
     $('endAgain').addEventListener('click', () => startDay(d.relaxed));
-    $('endHome').addEventListener('click', goHome); $('endRecs').addEventListener('click', showRecords); $('endShop').addEventListener('click', openShop);
+    $('endHome').addEventListener('click', goHome); $('endRecs').addEventListener('click', showLogros); $('endShop').addEventListener('click', openShop);
     $('end').hidden = false; $('end').scrollTop = 0;
+    { const el = $('sumCoins'), t0 = performance.now(); (function tick(t) { const k = Math.min(1, (t - t0) / 900); if (!el.isConnected) return; el.textContent = '+' + Math.round(earned * k); if (k < 1) requestAnimationFrame(tick); else { el.classList.add('pop'); if (earned) A.play('cash'); } })(t0); }   // las monedas suben
+  }
+  // Gancho para la jornada siguiente: lo próximo que vale la pena esperar
+  function nextHook(n) {
+    const m = n % 12; if (m === 11) return ['🛍️', 'La próxima jornada es noviembre: Black Friday. Viene más gente, y además hay que decorar para Navidad.'];
+    if (m === 0) return ['🎄', 'La próxima es diciembre: semana de Navidad. Dicen que viene alguien de rojo a comprar.'];
+    const h = histAll(), back = GS.STORIES.filter(S => h[S.id] && !h[S.id].done && n >= h[S.id].last + (S.gap || 1));
+    if (back.length) return ['📖', back[0].name + ' dijo que volvía. Puede aparecer en la próxima jornada.'];
+    const f = goalNow() - fondoNow(); if (f <= 0) return ['🗺️', 'Ya están los fondos para abrir la sucursal de Cuyo. El mapa del país llega en la próxima etapa del juego.'];
+    if (f < 1000) return ['🗺️', 'Faltan ' + f + ' fondos de expansión para abrir la sucursal de Cuyo.'];
+    const t = nextGoal(); if (t) return [t.g.icon, (coinsNow() >= t.lv.price ? 'Ya te alcanza para: ' : 'Te faltan 🪙 ' + (t.lv.price - coinsNow()) + ' para: ') + t.lv.n + '.'];
+    return ['☕', 'Mañana abrimos de 10 a 19, como siempre.'];
   }
   /* ---------------- Mejoras del local (la recompensa por seguir jugando) ---------------- */
   function nextGoal() {                 // lo más barato que todavía no tiene
@@ -3526,7 +3615,7 @@ GS.Game = (function () {
   function renderShop(preview) {
     const u = upNow(), c = coinsNow(), g = GS.UPGRADES[shopSel], own = u[g.id] || 0;
     $('shopCoins').textContent = '🪙 ' + c;
-    $('shopFund').innerHTML = '<div class="plot">' + plotHtml() + '</div><div class="row">' + [100, 500, 0].map(v => '<button class="btn ghost" data-fund="' + v + '"' + (c < (v || 1) ? ' disabled' : '') + '>' + (v ? 'Aportar 🪙 ' + v : 'Aportar todo') + '</button>').join('') + '</div>';
+    $('shopFund').innerHTML = '';
     $('shopSlots').innerHTML = GS.UPGRADES.map((x, i) => '<button class="slotb' + (i === shopSel ? ' on' : '') + ((u[x.id] || 0) >= x.levels.length ? ' full' : '') + '" data-i="' + i + '">' + x.icon + '<small>' + x.name + '</small></button>').join('');
     $('shopCards').innerHTML = g.levels.map((lv, i) => {
       const has = own > i, can = own === i && c >= lv.price, locked = own < i;
@@ -3556,12 +3645,14 @@ GS.Game = (function () {
     if (hat !== 'casco') {
       if (st === 'corto' || st === 'rodete' || st === 'largo') v += cap;
       if (st === 'corto') v += '<path d="M33 31 Q38 15 52 19 Q47 12 58 13 Q68 16 70 32 Q58 24 50 30 Q42 25 33 31z" fill="' + h + '"/>';
+      if (st === 'cresta') v += cap + '<path d="M36 31 Q50 12 64 31 Q50 25 36 31z" fill="' + h + '"/>';
       if (st === 'rodete') v += '<circle cx="50" cy="15" r="10.500" fill="' + h + '"/>';
       if (st === 'rulos') { v += cap; for (let i = 0; i < 9; i++) { const an = Math.PI * (1.02 + i * 0.12); v += '<circle cx="' + (50 + Math.cos(an) * 29).toFixed(1) + '" cy="' + (48 + Math.sin(an) * 29).toFixed(1) + '" r="10" fill="' + h + '"/>'; } v += '<circle cx="39" cy="26" r="8.500" fill="' + h + '"/><circle cx="61" cy="26" r="8.500" fill="' + h + '"/><circle cx="50" cy="22" r="8.500" fill="' + h + '"/>'; }
       if (st === 'mohicano') v += '<path d="M42 32 L44 5 L50 14 L56 3 L58 32 Q50 27 42 32z" fill="' + h + '"/>';
     }
     if (a.beard) v += '<path d="M21.500 52 A28.500 28.500 0 0 0 78.500 52 Q73 62 61 59 Q50 54 39 59 Q27 62 21.500 52z" fill="' + h + '"/>';
     // sombreros de los disfraces
+    if (hat === 'gorro') v += '<path d="M20 44 Q22 14 52 12 Q76 12 84 30 L78 34 Q70 24 62 30 Q76 36 80 46z" fill="#d81e2c"/><path d="M18 46 Q50 30 82 46 L81 54 Q50 39 19 54z" fill="#fff"/><circle cx="84" cy="31" r="6" fill="#fff"/>';
     if (hat === 'orejas') v += '<ellipse cx="29" cy="22" rx="8" ry="9" fill="' + h + '"/><ellipse cx="71" cy="22" rx="8" ry="9" fill="' + h + '"/>';
     if (hat === 'casco') v += '<path d="M17 52 A33 33 0 0 1 83 52 L78 52 Q76 36 50 36 Q24 36 22 52z" fill="' + top + '"/><rect x="76" y="14" width="3.500" height="16" fill="' + top + '"/><circle cx="77.700" cy="12" r="4.200" fill="' + h + '"/>';
     if (hat === 'corona') v += '<path d="M29 30 L27 9 L38 20 L50 5 L62 20 L73 9 L71 30 Q50 22 29 30z" fill="' + top + '"/>';
@@ -3605,8 +3696,8 @@ GS.Game = (function () {
   function refreshStart() {
     const n = dayNumber(), fresh = n <= GS.UNLOCKS.length ? GS.UNLOCKS[n - 1] : [];
     $('playT').textContent = n === 1 && !GS.Store.get('introSeen') ? 'Iniciar modo carrera' : 'Seguir modo carrera'; W.setNext(GS.Store.get('final2Seen') && tierNow().at >= 1 ? 'gs2' : 'venta'); $('goalStart').innerHTML = goalHtml(); $('btnPlot').innerHTML = plotHtml();
-    $('rankT').textContent = '🎖 ' + rankOf(n) + ' · ⭐ ' + repTxt(repNow()) + ' · 🪙 ' + coinsNow();
-    $('playS').textContent = n === 1 ? (GS.Store.get('introSeen') ? 'Jornada 1 · inducción: mostrador y caja' : 'Conocé el local, al Dueño y a tus compañeros') : 'Jornada ' + n + (fresh.length ? ' · se suma: ' + fresh.map(id => ST(id).name).join(' y ') : ' · de 10 a 19 · ⭐ ' + repTxt(repNow()));
+    $('rankT').textContent = '⭐ ' + repTxt(repNow()) + ' · 🪙 ' + coinsNow() + ' · 🗺️ ' + fondoNow();
+    $('playS').textContent = n === 1 && GS.Store.get('introSeen') ? 'Jornada 1 · ' + monthOf(1) + ' · inducción' : n > 1 ? 'Jornada ' + n + ' · ' + monthOf(n) + (fresh.length ? ' · se suma: ' + fresh.map(id => ST(id).name).join(' y ') : '') : n === 1 ? (GS.Store.get('introSeen') ? 'Jornada 1 · inducción: mostrador y caja' : 'Conocé el local, al Dueño y a tus compañeros') : 'Jornada ' + n + (fresh.length ? ' · se suma: ' + fresh.map(id => ST(id).name).join(' y ') : ' · de 10 a 19 · ⭐ ' + repTxt(repNow()));
   }
   function goHome() {
     A.play('click'); A.setMood('menu'); clearDay(); $('rain').hidden = true; $('final').hidden = true; $('intro').hidden = true; setSky(0.3, false);
@@ -3677,7 +3768,7 @@ GS.Game = (function () {
       if (im[1]) { g.save(); g.beginPath(); g.arc(W_ / 2, 560, 204, 0, 7); g.clip(); try { g.drawImage(im[1], W_ / 2 - 190, 372, 380, 472); } catch (e) {} g.restore(); }
       g.lineWidth = 10; g.strokeStyle = '#ff0000'; g.beginPath(); g.arc(W_ / 2, 560, 223, 0, 7); g.stroke();
       // rango
-      const rk = (GS.Store.get('final2Seen') ? tierNow().title : rankOf(n + 1)).toUpperCase(); g.font = F(64); const rw = Math.min(940, g.measureText(rk).width + 90);
+      const rk = ('Jornada ' + n + ' · ' + repTxt(repNow()) + ' estrellas').toUpperCase(); g.font = F(64); const rw = Math.min(940, g.measureText(rk).width + 90);
       g.fillStyle = '#f5c518'; g.beginPath(); g.moveTo(W_ / 2 - rw / 2 + 24, 770); g.lineTo(W_ / 2 + rw / 2, 770); g.lineTo(W_ / 2 + rw / 2 - 24, 868); g.lineTo(W_ / 2 - rw / 2, 868); g.fill();
       g.fillStyle = '#000'; g.fillText(rk, W_ / 2, 843, 860);
       g.fillStyle = '#fff'; g.font = F(50, '700'); g.fillText(GS.FINAL.card[0].replace('{n}', n), W_ / 2, 946, 980);
@@ -3751,9 +3842,17 @@ GS.Game = (function () {
       '<li><i>💵</i><span>Al cobrar acordate: 10% OFF en efectivo o transferencia, 3 cuotas sin interés con tarjeta.</span></li>' +
       '<li><i>🔥</i><span>Encadená aciertos para armar <b>racha</b>. Si te equivocás no perdés nada: solo hay un chiste.</span></li>' +
       '<li><i>🚶</i><span>No hace falta caminar: <b>tocá el pedido</b> y tu personaje va solo hasta ahí.</span></li>' +
-      '<li><i>🧠</i><span>Tu <b>cordura</b> sube en los respiros y baja si se junta mucho. A veces hay <b>interrupciones</b>: se contestan con un toque, y si no, se resuelven solas.</span></li>' +
+      '<li><i>⚠️</i><span>Equivocarse cuesta: con el <b>producto equivocado</b> el cliente se va, y <b>cobrar mal</b> baja la reputación y la recaudación.</span></li>' +
+      '<li><i>🧹</i><span>En los ratos libres <b>limpiá</b> las manchas del piso. A veces hay <b>interrupciones</b>: se contestan con un toque.</span></li>' +
       '<li><i>🔎</i><span>Arrastrá para mover el local y pellizcá (o usá la rueda) para acercar.</span></li></ul>' +
       '<button class="btn" data-close>¡A laburar!</button>', () => { if (fromDay) paused = false; });
+  }
+  function statsNow() { const t = Object.assign({ c: 0, d: 0, caught: 0, web: 0, clean: 0, sales: 0, perfect: 0, streak: 0, vueltoMal: 0, limpio: 0, sucio: 0, santa: 0 }, GS.Store.get('tot') || {}); t.rep = repNow(); t.flota = upNow().flota || 0; return t; }
+  function checkLogros() { const st = statsNow(), have = GS.Store.get('ach') || [], fresh = GS.ACHIEVEMENTS.filter(a => have.indexOf(a.id) < 0 && a.test(st)); if (fresh.length) GS.Store.set('ach', have.concat(fresh.map(a => a.id))); return fresh; }
+  function showLogros() {
+    const have = GS.Store.get('ach') || [];
+    modal('<h2>🏅 Logros</h2><p>' + have.length + ' de ' + GS.ACHIEVEMENTS.length + '. Algunos están escondidos: aparecen cuando los conseguís.</p><div class="ach">' + GS.ACHIEVEMENTS.map(a => { const ok = have.indexOf(a.id) >= 0;
+      return '<div class="' + (ok ? 'on' : '') + '"><i>' + (ok ? a.ic : a.hidden ? '❔' : '🔒') + '</i><span><b>' + (ok || !a.hidden ? a.name : '???') + '</b><small>' + (ok || !a.hidden ? a.d : 'Logro oculto') + '</small></span></div>'; }).join('') + '</div><button class="btn" data-close>Cerrar</button>');
   }
   function showRecords() {
     const best = GS.Store.get('best') || [];
@@ -3873,11 +3972,11 @@ GS.Game = (function () {
     $('btnRelax').addEventListener('click', () => startDay(true));
     $('btnArcade').addEventListener('click', () => { A.unlock(); A.play('click'); showArcade(); });
     $('btnHow').addEventListener('click', () => { A.unlock(); A.play('click'); showHow(false); });
-    $('btnRecs').addEventListener('click', () => { A.unlock(); A.play('click'); showRecords(); });
+    $('btnRecs').addEventListener('click', () => { A.unlock(); A.play('click'); showLogros(); });
     $('btnOpts').addEventListener('click', () => { A.unlock(); A.play('click'); showOptions(false); });
     $('phasesStart').addEventListener('click', showPhases);
     $('chipPhase').addEventListener('click', () => { paused = true; showPhases(); modalOnClose = () => { paused = false; }; });
-    $('chipCord').addEventListener('click', showCord); $('finSkip').addEventListener('click', finishFinal);
+    $('finSkip').addEventListener('click', finishFinal);
     $('jobs').addEventListener('click', e => { const ib = e.target.closest('[data-intr]'); if (ib) return answerIntr(ib.dataset.intr === '1'); const b = e.target.closest('.job[data-i]'); if (b && jobList[b.dataset.i]) openJob(jobList[b.dataset.i]); });
     $('btnPause').addEventListener('click', showPause);
     $('btnMute').addEventListener('click', () => { A.unlock(); A.setMuted(!A.isMuted()); syncMute(); A.play('click'); });

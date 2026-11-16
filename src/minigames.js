@@ -57,7 +57,8 @@ GS.Minigames = (function () {
     function choose(b) {
       if (!cur || cur.done || b.classList.contains('bad')) return;
       if (b.dataset.id === prod.id) { b.classList.add('good'); GS.Audio.play('ok'); finish(true, '¡Era eso!', prod.name + ' · pasa por caja', {}); }
-      else { b.classList.add('bad'); mistake('mostrador', U.pick(LN.wrongProduct)); }
+      else if ((GS.Store.get('days') || 0) < 1) { b.classList.add('bad'); mistake('mostrador', U.pick(LN.wrongProduct)); }      // el primer día se puede reintentar
+      else { b.classList.add('bad'); GS.Audio.play('lost'); cur.cb.onMistake('mostrador'); finish(false, 'Venta perdida', U.pick(LN.lostSale), { lostSale: true }); }   // producto equivocado: el cliente se va
     }
     btns.forEach(b => b.addEventListener('click', () => choose(b)));
     cur.keys = e => { const n = parseInt(e.key, 10); if (n >= 1 && n <= btns.length) choose(btns[n - 1]); };

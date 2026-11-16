@@ -245,7 +245,7 @@ GS.World = (function () {
   const ups = {};
   function upGroup(root, id, lvl) { const g = new T.Group(); root.add(g); (ups[id] = ups[id] || {})[lvl] = g; return g; }
   function applyUpgrades(state) {
-    for (const id in ups) for (const lvl in ups[id]) ups[id][lvl].visible = id === 'cartel' ? (state[id] || 0) === Number(lvl) : (state[id] || 0) >= Number(lvl);
+    for (const id in ups) for (const lvl in ups[id]) ups[id][lvl].visible = id === 'cartel' || id === 'flota' ? (state[id] || 0) === Number(lvl) : (state[id] || 0) >= Number(lvl);
   }
   const glowMat = c => new T.MeshBasicMaterial({ color: c });
   const gPot = new T.CylinderGeometry(0.17, 0.12, 0.3, 8), gLeaf = new T.SphereGeometry(0.2, 8, 6);
@@ -402,6 +402,17 @@ GS.World = (function () {
     box(lid, 0.03, 0.34, 0.5, 0x2a2a2e, 0, 0, 0); box(lid, 0.012, 0.28, 0.44, 0x56d6ff, 0.02, 0.03, 0, { emissive: 0x2a8aa0 });
   }
 
+  // Flota de envíos, estacionada sobre la vereda: moto, camioneta o camión (se ve solo el nivel actual)
+  function buildFleet(root) {
+    const z = L.galeria.zMax + 2.1, x = 4.6, wheel = (g, wx, wz, r) => { const w = new T.Mesh(new T.CylinderGeometry(r, r, 0.12, 12), mat(0x111111)); w.rotation.x = Math.PI / 2; w.position.set(wx, r, wz); g.add(w); };
+    { const g = upGroup(root, 'flota', 1); box(g, 0.9, 0.16, 0.22, 0xe10600, x, 0.3, z); box(g, 0.34, 0.3, 0.3, 0x111111, x - 0.2, 0.46, z); box(g, 0.44, 0.4, 0.42, 0xe10600, x - 0.5, 0.42, z); box(g, 0.06, 0.4, 0.06, 0x8d9199, x + 0.36, 0.44, z); box(g, 0.06, 0.06, 0.5, 0x111111, x + 0.36, 0.84, z); wheel(g, x + 0.42, z, 0.2); wheel(g, x - 0.4, z, 0.2); }
+    { const g = upGroup(root, 'flota', 2); box(g, 2.2, 0.7, 1.0, 0xffffff, x, 0.26, z); box(g, 0.9, 0.5, 0.96, 0xe10600, x + 0.6, 0.96, z); box(g, 0.5, 0.36, 0.98, 0x56d6ff, x + 0.84, 1.0, z); box(g, 1.1, 0.34, 1.02, 0xe10600, x - 0.5, 0.5, z); sign(g, 'GAMESHOP', 1.0, 0.24, x - 0.5, 0.68, z + 0.52); [-0.7, 0.7].forEach(dx => { wheel(g, x + dx, z + 0.46, 0.24); wheel(g, x + dx, z - 0.46, 0.24); }); }
+    { const g = upGroup(root, 'flota', 3); box(g, 2.3, 1.5, 1.2, 0xffffff, x - 0.5, 0.36, z); box(g, 0.9, 1.0, 1.16, 0xe10600, x + 1.2, 0.36, z); box(g, 0.3, 0.4, 1.18, 0x56d6ff, x + 1.52, 0.86, z); box(g, 3.3, 0.14, 1.1, 0x1b1b1f, x, 0.26, z); box(g, 2.3, 0.2, 1.22, 0xe10600, x - 0.5, 0.36, z); sign(g, 'GAMESHOP · ENVÍOS', 2.0, 0.44, x - 0.5, 1.1, z + 0.615); [-1.2, -0.4, 1.2].forEach(dx => { wheel(g, x + dx, z + 0.52, 0.28); wheel(g, x + dx, z - 0.52, 0.28); }); }
+  }
+  // Manchas en el piso (limpieza): aparecen de a poco y se limpian todas juntas
+  const dirtGeo = new T.CircleGeometry(0.34, 9), dirtMat = new T.MeshBasicMaterial({ color: 0x4a3a2a, transparent: true, opacity: 0.55, depthWrite: false }); let dirt = [];
+  function addDirt(x, z) { const m = new T.Mesh(dirtGeo, dirtMat); m.rotation.x = -Math.PI / 2; m.rotation.z = Math.random() * 6; m.scale.set(0.7 + Math.random() * 0.6, 0.6 + Math.random() * 0.5, 1); m.position.set(x, 0.016, z); scene.add(m); dirt.push(m); }
+  function clearDirt() { dirt.forEach(m => scene.remove(m)); dirt = []; }
   // El local de al lado (la trama): pegado a la izquierda, con la persiana baja y un cartel inclinado en el techo
   let nextSigns = null, xmasG = null;
   function buildNext(root) {
@@ -413,7 +424,7 @@ GS.World = (function () {
     const mk = (txt, bg, fg) => new T.MeshBasicMaterial({ map: textTex(txt, { bg, fg, w: 640, h: 190, font: '900 96px Impact, "Arial Black", sans-serif' }) });
     const k = new T.Group(); k.position.set(cx, h + 0.14, cz + 0.6); root.add(k); box(k, 4.5, 0.08, 1.5, 0x1b1b1f, 0, 0.02, 0);
     const a = plane(k, 4.3, 1.28, mk('SE VENDE', '#ffffff', '#e10600'), 0, 0.5, 0.1), b = plane(k, 4.3, 1.28, mk('GAMESHOP 2', '#e10600', '#ffffff'), 0, 0.5, 0.1);
-    a.rotation.x = b.rotation.x = -0.95; b.visible = false; nextSigns = [a, b];
+    a.rotation.x = b.rotation.x = -0.95; a.visible = b.visible = false; k.visible = false; nextSigns = [a, b];     // el vecino queda como un local más de la cuadra
     box(k, 0.08, 0.6, 0.08, 0x1b1b1f, -1.9, 0, -0.45); box(k, 0.08, 0.6, 0.08, 0x1b1b1f, 1.9, 0, -0.45);
   }
   // Decoración de Navidad: árbol (a), guirnaldas (g) y lucecitas (l), según lo que eligió el jugador el día anterior
@@ -606,11 +617,13 @@ GS.World = (function () {
       const cap = () => { const m = new T.Mesh(gCap, hm); m.rotation.x = -0.42; acc.add(m); };                    // casquete que deja la frente libre
       const tufts = () => [[0.02, 0.36, 0.1, 1], [-0.14, 0.34, 0.14, 0.85], [0.17, 0.33, 0.1, 0.8], [0, 0.3, 0.22, 0.7]].forEach(q => { const m = new T.Mesh(gTuft, hm); m.scale.set(q[3] * 1.3, q[3] * 0.8, q[3] * 1.3); m.position.set(q[0], q[1], q[2]); acc.add(m); });   // jopo despeinado
       if (hat !== 'casco') {
-        if (st === 'corto' || st === 'largo' || st === 'rodete') cap();
-        if (st === 'corto') tufts();
+        if (st === 'corto' || st === 'largo' || st === 'rodete' || st === 'cresta') cap();
+        if (st === 'cresta' && hat !== 'gorro') [[0.33, 0.17, 1], [0.38, 0.03, 1.1], [0.37, -0.12, 1.05], [0.3, -0.25, 0.95]].forEach(q => { const m = new T.Mesh(gTuft, hm); m.scale.set(1.5, 0.62 * q[2], 1.25); m.position.set(0, q[0], q[1]); acc.add(m); });
+        if (st === 'corto' && hat !== 'gorro') tufts();
         if (st === 'largo') { const m = new T.Mesh(gMass, hm); m.scale.set(1.06, 1.3, 0.8); m.position.set(0, -0.2, -0.17); acc.add(m); }
         if (st === 'rodete' && hat !== 'gorro') { const b = new T.Mesh(gBun, hm); b.position.set(0, 0.42, -0.12); acc.add(b); }
-        if (st === 'rulos') { for (let i = 0; i < 9; i++) { const an = i / 9 * Math.PI * 2, c = new T.Mesh(gCurl, hm); c.scale.setScalar(1.25); c.position.set(Math.cos(an) * 0.27, 0.22, Math.sin(an) * 0.27 - 0.05); acc.add(c); }
+        if (st === 'rulos' && hat === 'gorro') cap();
+        if (st === 'rulos' && hat !== 'gorro') { for (let i = 0; i < 9; i++) { const an = i / 9 * Math.PI * 2, c = new T.Mesh(gCurl, hm); c.scale.setScalar(1.25); c.position.set(Math.cos(an) * 0.27, 0.22, Math.sin(an) * 0.27 - 0.05); acc.add(c); }
           [[0, 0.39, -0.04], [0.15, 0.36, 0.06], [-0.15, 0.36, 0.06], [0, 0.35, -0.2]].forEach(q => { const c = new T.Mesh(gCurl, hm); c.scale.setScalar(1.3); c.position.set(q[0], q[1], q[2]); acc.add(c); }); }
         if (st === 'mohicano' && hat !== 'gorro') [[0.3, 0.2, 0.9], [0.4, 0.08, 1.15], [0.43, -0.06, 1.3], [0.38, -0.2, 1.15], [0.27, -0.31, 0.95]].forEach(q => { const m = new T.Mesh(gTuft, hm); m.scale.set(0.62, q[2] * 1.25, 1.05); m.position.set(0, q[0], q[1]); acc.add(m); });   // cresta de mechones, más alta en el medio
       }
@@ -622,9 +635,10 @@ GS.World = (function () {
       smile.visible = !cur.lips; if (cur.lips) box(acc, 0.13, 0.05, 0.05, tm, 0, -0.17, HR - 0.03);
       // sombreros de los disfraces (siempre con los colores del personaje)
       if (hat === 'gorro') {                       // gorrito navideño (rojo y blanco, es un accesorio de la semana de Navidad)
-        const red = mat(0xd81e2c), wh = mat(0xffffff), band = new T.Mesh(new T.TorusGeometry(HR - 0.045, 0.06, 6, 18), wh); band.rotation.x = Math.PI / 2; band.position.y = 0.2; acc.add(band);
-        const cone = new T.Mesh(new T.ConeGeometry(0.31, 0.5, 14), red); cone.position.set(0.04, 0.47, -0.02); cone.rotation.z = -0.28; acc.add(cone);
-        const pom = new T.Mesh(gEar, wh); pom.scale.setScalar(1.15); pom.position.set(0.15, 0.72, -0.02); acc.add(pom);
+        const red = mat(0xd81e2c), wh = mat(0xffffff), band = new T.Mesh(new T.TorusGeometry(HR - 0.005, 0.075, 8, 20), wh); band.rotation.x = Math.PI / 2; band.position.y = 0.17; acc.add(band);
+        const dome = new T.Mesh(gHelmet, red); dome.scale.setScalar(0.94); dome.position.y = 0.03; acc.add(dome);
+        const cone = new T.Mesh(new T.ConeGeometry(0.3, 0.5, 14), red); cone.position.set(0.05, 0.54, -0.02); cone.rotation.z = -0.28; acc.add(cone);
+        const pom = new T.Mesh(gEar, wh); pom.scale.setScalar(1.15); pom.position.set(0.17, 0.8, -0.02); acc.add(pom);
       }
       if (hat === 'orejas') { [-1, 1].forEach(sd => { const e = new T.Mesh(gTuft, hm); e.scale.set(0.9, 1, 0.5); e.position.set(sd * 0.22, 0.37, 0); acc.add(e); }); }
       if (hat === 'casco') { const h = new T.Mesh(gHelmet, tm); h.rotation.x = -0.5; acc.add(h); box(acc, 0.05, 0.2, 0.05, tm, 0.28, 0.42, -0.05); const b = new T.Mesh(gEar, hm); b.position.set(0.28, 0.64, -0.05); acc.add(b); }
@@ -743,14 +757,14 @@ GS.World = (function () {
     // zócalos bajos donde la pared está "cortada"
     { const doors = [L.depoDoor.z, -0.3, L.tallerDoor.z]; let z0 = L.salon.zMin;          // zócalo con los huecos de las tres puertas
       doors.concat([null]).forEach(dz => { const z1 = dz == null ? L.salon.zMax : dz - 0.55; if (z1 - z0 > 0.05) box(root, 0.2, 0.3, z1 - z0, 0xdedede, L.salon.xMax + 0.1, 0, (z0 + z1) / 2); if (dz != null) z0 = dz + 0.55; }); }
-    buildCounter(root); buildCenter(root); buildWorkStations(root); buildDepot(root); sideDoor(root, L.depoDoor.z, 'DEPÓSITO'); buildOffice(root); buildTaller(root); sideDoor(root, L.tallerDoor.z, 'TALLER'); buildGallery(root); buildSign(root); buildExtras(root); buildNext(root);
+    buildCounter(root); buildCenter(root); buildWorkStations(root); buildDepot(root); sideDoor(root, L.depoDoor.z, 'DEPÓSITO'); buildOffice(root); buildTaller(root); sideDoor(root, L.tallerDoor.z, 'TALLER'); buildGallery(root); buildSign(root); buildExtras(root); buildNext(root); buildFleet(root);
 
     // empleados (inventados): vos en el mostrador y Brian, pegado al celular, en la caja
     yo = makePerson({ shirt: 0xe10600, hair: 0x2b2b3a, skin: SKINS[1], speed: 7.5 }); yo.setPos(L.yoMostrador[0], L.yoMostrador[1]);
     // compañeros (inventados): andan por el local haciendo sus cosas. Lucho, de mohicano y anteojos, y Brian, pegado al celular.
     lucho = makePerson({ shirt: 0xe10600, hair: 0xff5fa2, hairStyle: 'mohicano', skin: GS.SKINS[3], glasses: true, speed: 2.6 }); lucho.setPos(4.0, 0.8);
     brian = makePerson({ shirt: 0xe10600, hair: 0x2d6cdf, skin: SKINS[0], phone: true, speed: 2.3 }); brian.setPos(4.5, -1.2); brian.face(-0.6);
-    boss = makePerson({ shirt: 0x111111, hair: 0xb4b4bd, hairStyle: 'mohicano', skin: 0xe0ac7e, scale: 1.18, speed: 3.4 }); boss.setPos(BOSS_HOME[0], BOSS_HOME[1]);
+    boss = makePerson({ shirt: 0x111111, hair: 0xb4b4bd, hairStyle: 'cresta', skin: 0xe0ac7e, scale: 1.18, speed: 3.4 }); boss.setPos(BOSS_HOME[0], BOSS_HOME[1]);
 
     setupInput(); resize(true); updateWalls(); ok = true; return true;
   }
@@ -798,7 +812,8 @@ GS.World = (function () {
     },
     setXmas,
     setHats(on) { [yo, lucho, brian, boss].forEach(p => { if (p) p.look({ hat: on ? 'gorro' : null }); }); },
-    setNext(mode) { if (nextSigns) { nextSigns[0].visible = mode !== 'gs2'; nextSigns[1].visible = mode === 'gs2'; } },
+    setNext() {},
+    addDirt, clearDirt,
     boss: () => boss,
     staff: () => [lucho, brian],
     player: () => yo,
