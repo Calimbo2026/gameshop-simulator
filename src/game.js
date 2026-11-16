@@ -66,7 +66,8 @@ GS.Game = (function () {
   const coinsNow = () => GS.Store.get('coins') || 0;
   const monthOf = n => GS.MONTHS[(n - 1) % 12] + ', año ' + (Math.floor((n - 1) / 12) + 1);
   const coinMult = () => { const u = upNow(); return 1 + 0.1 * ((u.mesa || 0) + (u.isla || 0) + (u.gondola || 0) + (u.luces || 0) + (u.web >= 3 ? 1 : 0)); };
-  const patMult = () => { const u = upNow(); return 1 + 0.15 * (u.escritorio || 0) + 0.1 * (u.sillas || 0) + 0.1 * (u.cafetera || 0); };
+  const patMult = () => { const u = upNow(); return (1 + 0.15 * (u.escritorio || 0) + 0.1 * (u.sillas || 0) + 0.1 * (u.cafetera || 0)) * (modNow() === 'apuro' ? 0.75 : 1); };
+  const modNow = () => GS.Store.get('mod') || '';
   function conditionFor(n) {
     const forced = GS.Store.get('testCond'); if (forced) return forced === 'ninguna' ? null : forced;             // fechas especiales fijas y lluvia al azar (nunca en las primeras jornadas)
     if (n % 12 === 11) return 'blackfriday';             // noviembre
@@ -164,7 +165,7 @@ GS.Game = (function () {
   }
   function endWave() {
     if (day.wave >= day.plan.length - 1) { day.closing = true; setTimeout(endDay, 2800); return; }
-    day.stage = 'rest'; day.rest = C.day.restSeconds; W.focus(null); W.home();
+    day.stage = 'rest'; day.rest = C.day.restSeconds * (modNow() === 'sinrespiro' ? 0.5 : 1); W.focus(null); W.home();
     const d = day;
     setTimeout(() => {                       // en el respiro habla el Dueño, sin nada tapando el local
       if (day !== d || state !== 'day' || d.stage !== 'rest') return;
@@ -405,6 +406,27 @@ GS.Game = (function () {
       addFondo(-R.cost); const all = brAll(); all[id] = { open: 1, staff: sel.slice(), up: {}, rep: 4, train: 0, days: 0 }; GS.Store.set('branches', all); switchBranch(id); if (state === 'end') goHome();
       A.play('fanfare'); W.showAll(); GS.track('abre_sucursal', { id });
       modal('<div class="inaug"><div class="glob">🎈🎈🎈</div><h2>¡Inauguración!</h2><p class="cinta">GAMESHOP ' + R.city.toUpperCase() + '</p><p>Hay fila desde la esquina. ' + brCrew(id).join(' y ') + ' están con la remera recién planchada.</p><p><small>Empezás con un local humilde: mejoralo, enseñale al equipo y llevalo a 5 estrellas.</small></p><button class="btn" data-close>✂️ Cortar la cinta</button></div>');
+    }));
+  }
+  /* ---------------- FINAL: el país completo. Cambia según cómo se llegó; después, Nuevo Juego+ ---------------- */
+  const allDone = () => GS.REGIONS.every(r => brProgress(r.id) >= 100);
+  function showFinal(preview) {
+    const st = statsNow(), d = GS.Store.get('days') || 0, F = GS.FINALS.find(f => f.test(st, d)), SH = ['40,10 105,10 100,95 55,110 35,70', '105,10 175,25 185,75 140,105 100,95', '35,112 78,104 84,190 45,200 30,150', '80,104 140,107 170,150 150,215 86,205 84,190', '45,202 86,207 150,217 120,300 100,385 70,390 55,300'], CT = [[70, 58], [142, 62], [58, 152], [122, 160], [96, 270]];
+    A.play('fanfare'); GS.track('final', { tipo: F.id, jornadas: d });
+    modal('<div class="fin2"><h2>GameShop llegó a todo el país</h2><svg viewBox="0 0 220 400" class="mapa lit">' + SH.map((p, i) => '<g class="open"><polygon points="' + p + '"/><rect x="' + (CT[i][0] - 26) + '" y="' + (CT[i][1] - 9) + '" width="52" height="13" rx="3" class="cartel"/><text x="' + CT[i][0] + '" y="' + (CT[i][1] + 1) + '" class="ct">GAMESHOP</text></g>').join('') + '</svg>' +
+      '<div class="quote"><b>' + F.ic + ' Final: ' + F.t + '</b>' + F.d + '</div>' + (preview ? '<p><small>Vista previa: el final real se abre al completar las 5 sucursales.</small></p>' : '') +
+      '<p>' + d + ' jornadas · ' + st.c + ' clientes atendidos · ' + (GS.Store.get('ach') || []).length + ' logros</p>' +
+      '<p class="cred">Un juego de GameShop · Av. de los Incas 4552, CABA<br>Personajes inventados. Los precios y el stock, también.</p>' +
+      '<div class="cta"><b>Esto fue un juego. El local es real.</b><a class="btn alt" href="' + C.links.tienda + '" target="_blank" rel="noopener">Conocé www.gameshop.com.ar</a></div>' +
+      '<div class="row"><button class="btn ghost" id="finShare">📸 Compartir</button><button class="btn" id="finNg">Nuevo Juego+</button></div><button class="btn ghost" data-close>Seguir en esta partida</button></div>');
+    $('finShare').addEventListener('click', () => showCard()); $('finNg').addEventListener('click', showNgPlus);
+  }
+  function showNgPlus() {
+    modal('<h2>Nuevo Juego+</h2><p>Empezás de nuevo desde Incas, con tus logros, tus premios del Arcade y tu personaje. Elegí cómo:</p><div class="arc2">' + GS.MODS.map(m => '<button data-mod="' + m.id + '"><i>' + m.ic + '</i><b>' + m.name + '</b><small>' + m.d + '</small></button>').join('') + '</div><button class="btn ghost" data-close>Mejor no</button>');
+    $('sheet').querySelectorAll('[data-mod]').forEach(b => b.addEventListener('click', () => {
+      const keep = {}; ['ach', 'cos', 'arcBest', 'arcade', 'tutorial', 'seen'].forEach(k => { keep[k] = GS.Store.get(k); }); const ng = (GS.Store.get('ngp') || 0) + 1;
+      GS.Store.reset(); Object.keys(keep).forEach(k => { if (keep[k] != null) GS.Store.set(k, keep[k]); }); GS.Store.set('ngp', ng); GS.Store.set('mod', b.dataset.mod); GS.Store.set('introSeen', true); GS.Store.set('plotIntro', true);
+      GS.track('nuevo_juego_mas', { mod: b.dataset.mod, vuelta: ng }); $('modal').hidden = true; W.clearDirt(); applyBranch(); goHome(); refreshStart(); toast('<b>Nuevo Juego+ ' + ng + '</b>Otra vez desde Incas. Ahora ya sabés cómo es.', '', 3400);
     }));
   }
   function teach() {
@@ -817,8 +839,8 @@ GS.Game = (function () {
     brSave({ days: (brNow().days || 0) + 1 });
     const lostSale = d.lostSale || 0, ask = d.served + d.lost + lostSale, perfect = !errs && !d.lost && !lostSale && !d.tasksLate && !d.relaxed, dirty = d.dirt >= 3;
     if (dirty) addRep(-0.1);                                                        // cerrar con el piso sucio se nota
-    const earned = Math.max(0, Math.round(d.score / 20 * coinMult() * (d.plan.bonus || 1)) - (d.coinLoss || 0)); GS.Store.set('coins', coinsNow() + earned);
-    const fEarn = d.relaxed ? 0 : Math.round(d.sales / 6500 * (0.5 + repNow() / 5)); addFondo(fEarn);     // fondos de expansión: salen de la facturación y la reputación
+    const earned = Math.max(0, Math.round(d.score / 20 * coinMult() * (d.plan.bonus || 1) * (modNow() === 'sinrespiro' ? 1.3 : 1)) - (d.coinLoss || 0) * (modNow() === 'lupa' ? 2 : 1)); GS.Store.set('coins', coinsNow() + earned);
+    const fEarn = d.relaxed ? 0 : Math.round(d.sales / 6500 * (0.5 + repNow() / 5) * (modNow() === 'apuro' || modNow() === 'lupa' ? 1.5 : 1)); addFondo(fEarn);     // fondos de expansión: salen de la facturación y la reputación
     { const t = statsNow(); delete t.rep; delete t.flota; t.c += d.served; t.d++; t.caught += d.caught || 0; t.web += (d.okBy && d.okBy.ml) || 0; t.clean += d.cleaned; t.sales += d.sales;
       if (perfect) { t.perfect++; t.streak++; } else if (!d.relaxed) t.streak = 0; if (d.vueltoMal) t.vueltoMal++; if (!d.dirt && !d.relaxed) t.limpio++; if (dirty) t.sucio++; if (d.santaSold) t.santa++; GS.Store.set('tot', t); }
     const fresh = checkLogros(), mode = d.relaxed ? 'Tranquilo' : 'Normal';
@@ -853,6 +875,7 @@ GS.Game = (function () {
     $('endAgain').addEventListener('click', () => startDay(d.relaxed));
     $('endHome').addEventListener('click', goHome); $('endRecs').addEventListener('click', showLogros); $('endShop').addEventListener('click', openShop);
     $('end').hidden = false; $('end').scrollTop = 0;
+    if (allDone() && !GS.Store.get('finalN') && !GS.Store.get('testDay')) { GS.Store.set('finalN', 1); setTimeout(() => showFinal(), 1600); }
     { const el = $('sumCoins'), t0 = performance.now(); (function tick(t) { const k = Math.min(1, (t - t0) / 900); if (!el.isConnected) return; el.textContent = '+' + Math.round(earned * k); if (k < 1) requestAnimationFrame(tick); else { el.classList.add('pop'); if (earned) A.play('cash'); } })(t0); }   // las monedas suben
   }
   // Gancho para la jornada siguiente: lo próximo que vale la pena esperar
@@ -968,7 +991,7 @@ GS.Game = (function () {
   function refreshStart() {
     const n = dayNumber(), fresh = n <= GS.UNLOCKS.length ? GS.UNLOCKS[n - 1] : [];
     $('playT').textContent = n === 1 && !GS.Store.get('introSeen') ? 'Iniciar modo carrera' : 'Seguir modo carrera'; W.setNext(GS.Store.get('final2Seen') && tierNow().at >= 1 ? 'gs2' : 'venta'); $('goalStart').innerHTML = goalHtml(); $('btnPlot').innerHTML = plotHtml();
-    $('rankT').textContent = '📍 ' + RG(brId()).city + ' · ⭐ ' + repTxt(repNow()) + ' · 🪙 ' + coinsNow() + ' · 🗺️ ' + fondoNow();
+    $('rankT').textContent = (GS.Store.get('ngp') ? '➕ NJ+' + GS.Store.get('ngp') + ' · ' : '') + '📍 ' + RG(brId()).city + ' · ⭐ ' + repTxt(repNow()) + ' · 🪙 ' + coinsNow() + ' · 🗺️ ' + fondoNow();
     $('playS').textContent = n === 1 && GS.Store.get('introSeen') ? 'Jornada 1 · ' + monthOf(1) + ' · inducción' : n > 1 ? 'Jornada ' + n + ' · ' + monthOf(n) + (fresh.length ? ' · se suma: ' + fresh.map(id => ST(id).name).join(' y ') : '') : n === 1 ? (GS.Store.get('introSeen') ? 'Jornada 1 · inducción: mostrador y caja' : 'Conocé el local, al Dueño y a tus compañeros') : 'Jornada ' + n + (fresh.length ? ' · se suma: ' + fresh.map(id => ST(id).name).join(' y ') : ' · de 10 a 19 · ⭐ ' + repTxt(repNow()));
   }
   function goHome() {
@@ -1040,7 +1063,7 @@ GS.Game = (function () {
       if (im[1]) { g.save(); g.beginPath(); g.arc(W_ / 2, 560, 204, 0, 7); g.clip(); try { g.drawImage(im[1], W_ / 2 - 190, 372, 380, 472); } catch (e) {} g.restore(); }
       g.lineWidth = 10; g.strokeStyle = '#ff0000'; g.beginPath(); g.arc(W_ / 2, 560, 223, 0, 7); g.stroke();
       // rango
-      const rk = ('Jornada ' + n + ' · ' + repTxt(repNow()) + ' estrellas').toUpperCase(); g.font = F(64); const rw = Math.min(940, g.measureText(rk).width + 90);
+      const rk = (GS.REGIONS.filter(r => (brAll()[r.id] || {}).open).length + ' de 5 sucursales · jornada ' + n).toUpperCase(); g.font = F(64); const rw = Math.min(940, g.measureText(rk).width + 90);
       g.fillStyle = '#f5c518'; g.beginPath(); g.moveTo(W_ / 2 - rw / 2 + 24, 770); g.lineTo(W_ / 2 + rw / 2, 770); g.lineTo(W_ / 2 + rw / 2 - 24, 868); g.lineTo(W_ / 2 - rw / 2, 868); g.fill();
       g.fillStyle = '#000'; g.fillText(rk, W_ / 2, 843, 860);
       g.fillStyle = '#fff'; g.font = F(50, '700'); g.fillText(GS.FINAL.card[0].replace('{n}', n), W_ / 2, 946, 980);
@@ -1144,7 +1167,7 @@ GS.Game = (function () {
       '<div class="setting"><span>Tu personaje</span><button class="btn ghost" id="optAv" style="width:auto">Cambiar</button></div>' +
       '<div class="setting"><span>Jornada (modo prueba)</span>' + seg('testDay', [['0', 'Auto'], ['1', '1'], ['2', '2'], ['3', '3'], ['4', '4'], ['5', '5'], ['6', '6'], ['8', '8']], String(GS.Store.get('testDay') || 0)) + '</div>' +
       '<div class="setting"><span>Clima (modo prueba)</span>' + seg('testCond', [['', 'Auto'], ['ninguna', 'Normal'], ['lluvia', 'Lluvia'], ['blackfriday', 'Black Friday'], ['navidad', 'Navidad']], GS.Store.get('testCond') || '') + '</div>' +
-      (fromPause ? '' : '<div class="setting"><span>Escena final<br><small>' + (GS.Store.get('final2Seen') ? 'Volver a verla' : 'Se ve al terminar la jornada ' + C.finalDay + ' (modo prueba)') + '</small></span><button class="btn ghost" id="optFinal" style="width:auto">Ver</button></div>') +
+      (fromPause ? '' : '<div class="setting"><span>Final del juego<br><small>' + (GS.Store.get('finalN') ? 'Volver a verlo' : 'Se abre al completar las 5 sucursales (vista previa)') + '</small></span><button class="btn ghost" id="optFinal" style="width:auto">Ver</button></div>') +
       '<div class="setting"><span>Datos de prueba<br><small>Cuánto dura cada jornada, monedas y dónde hay errores</small></span><button class="btn ghost" id="optData" style="width:auto">Ver</button></div>' +
       '<div class="setting"><span>Empezar una temporada nueva<br><small>Vuelve a la jornada 1 y reinicia la trama. Conserva monedas y mejoras</small></span><button class="btn ghost" id="optDay1" style="width:auto">Volver</button></div>' +
       '<div class="setting"><span>Borrar todo<br><small>Jornadas, monedas, mejoras y récords</small></span><button class="btn ghost" id="optReset" style="width:auto">Reiniciar</button></div>' +
@@ -1164,7 +1187,7 @@ GS.Game = (function () {
     $('optDay1').addEventListener('click', e => { GS.Store.set('days', 0); GS.Store.set('seen', {}); GS.Store.set('testDay', 0); ['hist', 'fondo', 'goalAdj', 'final2Seen', 'plotIntro', 'gflags', 'introSeen', 'xmas'].forEach(k => GS.Store.set(k, null)); refreshStart(); e.target.textContent = 'Listo ✔'; });
     $('optAv').addEventListener('click', () => showAvatar(() => showOptions(fromPause)));
     $('optData').addEventListener('click', showMetrics);
-    if ($('optFinal')) $('optFinal').addEventListener('click', () => { modalOnClose = null; $('modal').hidden = true; startFinal(); });
+    if ($('optFinal')) $('optFinal').addEventListener('click', () => { modalOnClose = null; showFinal(!GS.Store.get('finalN')); });
     $('optReset').addEventListener('click', e => { GS.Store.reset(); W.setUpgrades({}); refreshStart(); e.target.textContent = 'Borrado ✔'; });
   }
   function showPause() {
@@ -1224,9 +1247,10 @@ GS.Game = (function () {
       modal('<h2>Ups</h2><p>Este navegador no pudo iniciar los gráficos 3D. Probá actualizarlo o abrir el juego en otro navegador.</p>');
       return;
     }
-    staffInit(); applyBranch(); GS.Arcade.bind(); setSky(0.3, false); document.body.classList.toggle('big', !!GS.Store.get('big')); if (C.launched) { $('phasesStart').hidden = true; $('chipPhase').hidden = true; document.querySelector('.fine').firstChild.textContent = 'Precios y stock ficticios.'; }
+    staffInit(); applyBranch(); GS.Arcade.bind(); if (C.launched && $('fineT')) $('fineT').firstChild.textContent = 'Precios y stock ficticios.'; if ($('btnStore')) $('btnStore').hidden = true;      // el enlace a la tienda aparece solo en el final setSky(0.3, false); document.body.classList.toggle('big', !!GS.Store.get('big')); if (C.launched) { $('phasesStart').hidden = true; $('chipPhase').hidden = true; document.querySelector('.fine').firstChild.textContent = 'Precios y stock ficticios.'; }
     GS.track.init(); GS.track('abrir_juego', { jornada: dayNumber() }); window.addEventListener('error', e => GS.track('error_js', { msg: String(e.message).slice(0, 80) }));
-    if (C.links.tienda) { $('btnStore').hidden = false; $('btnStore').href = C.links.tienda; $('btnStore').addEventListener('click', () => GS.track('click_tienda', { desde: 'inicio' })); }
+    if (C.links.tienda) { $('btnStore').href = C.links.tienda;      // queda oculto: el enlace a la tienda se muestra solo en el final
+      $('btnStore').addEventListener('click', () => GS.track('click_tienda', { desde: 'inicio' })); }
     setCalm(!!GS.Store.get('calm')); syncMute(); W.showAll(); W.setUpgrades(upNow()); W.setPlayerLook(GS.Store.get('avatar'));
     $('btnShop').addEventListener('click', openShop); $('shopDone').addEventListener('click', closeShop);
     $('shopFund').addEventListener('click', e => { const b = e.target.closest('[data-fund]'); if (!b) return; const c = coinsNow(), v = Math.min(c, Number(b.dataset.fund) || c); if (v <= 0) return;

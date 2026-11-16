@@ -4,13 +4,16 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>GameShop Simulator</title>
-<meta name="description" content="GameShop Simulator: sobreviví a una jornada atendiendo el local. Juego gratis, sin registro.">
+<meta name="description" content="GameShop Simulator: atendé el mostrador y llevá GameShop a todo el país. Juego gratis, sin registro.">
 <meta name="theme-color" content="#000000">
 <meta name="robots" content="noindex">
 <meta property="og:type" content="website">
 <meta property="og:title" content="GameShop Simulator">
-<meta property="og:description" content="¿Te animás a un turno en GameShop? Atendé el mostrador, cobrá, armá PC y sobreviví a la jornada. Gratis y sin registro.">
-<meta name="twitter:card" content="summary">
+<meta property="og:description" content="¿Te animás a un turno en GameShop? Atendé el mostrador, cobrá, armá PC y abrí sucursales en todo el país. Gratis y sin registro.">
+<meta property="og:image" content="https://calimbo2026.github.io/gameshop-simulator/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23000'/%3E%3Cpath d='M12 20h40a8 8 0 0 1 8 8v8a10 10 0 0 1-18 6l-3-4H25l-3 4a10 10 0 0 1-18-6v-8a8 8 0 0 1 8-8z' fill='%23ff0000'/%3E%3Ccircle cx='44' cy='30' r='4' fill='%23fff'/%3E%3Cpath d='M16 30h10M21 25v10' stroke='%23fff' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
 <style>
 /* GameShop Simulator — estilos. Marca: negro, blanco y rojo. Mobile-first. */
@@ -417,6 +420,10 @@ body.calm .fx { animation-duration: .01s; }
 .arc2 { display: grid; gap: 8px; margin-bottom: 12px; } .arc2 button { display: grid; grid-template-columns: 44px 1fr; gap: 2px 10px; text-align: left; background: #1b1b20; border: 2px solid #2c2c34; border-radius: 14px; padding: 10px; color: #fff; font: inherit; cursor: pointer; } .arc2 button:disabled { opacity: .5; } .arc2 i { grid-row: span 2; font-size: 32px; font-style: normal; align-self: center; text-align: center; } .arc2 small { color: var(--mute); font-size: 12.5px; line-height: 1.3; } .arc2 .won { border-color: var(--warn); }
 .hats { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; } .hats button { flex: 1; min-width: 90px; }
 
+/* ---------- Etapas 7 y 8: final y cierre ---------- */
+.fin2 { text-align: center; display: grid; gap: 8px; } .fin2 .quote { text-align: left; } .mapa.lit { width: 150px; height: 273px; } .mapa.lit polygon { fill: #e10600; animation: lit 1.4s ease-in-out infinite alternate; } .mapa.lit .cartel { stroke-width: 2; } @keyframes lit { to { fill: #ff3b30; } }
+.cred { font-size: 12.5px; color: var(--mute); margin: 0; } .cta { border: 1px solid #2c2c34; border-radius: 14px; padding: 12px; display: grid; gap: 8px; } .cta a { text-decoration: none; display: block; font-size: 15px; padding: 10px; }
+
 </style>
 </head>
 <body>
@@ -473,7 +480,7 @@ body.calm .fx { animation-duration: .01s; }
       </div>
       <a class="btn ghost" id="btnStore" target="_blank" rel="noopener" hidden>🛒 Ir a la tienda de verdad</a>
       <button class="phases" id="phasesStart" aria-label="Etapas del proyecto"></button>
-      <p class="fine">Versión en construcción. Precios y stock ficticios.<br>Personajes inventados: cualquier parecido es pura coincidencia.</p>
+      <p class="fine" id="fineT">Versión en construcción. Precios y stock ficticios.<br>Personajes inventados: cualquier parecido es pura coincidencia.</p>
     </div>
   </div>
 </section>
@@ -517,9 +524,9 @@ const GS = {};
 GS.LOGO = "data:image/png;base64,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";
 
 GS.CONFIG = {
-  version: '0.18.0',
-  phase: 7,
-  phaseNote: 'Ya se pueden ganar los tres juegos del Arcade. Siguen los finales y el Nuevo Juego+',                       // fase actual del proyecto (1 a 5)
+  version: '0.19.0',
+  phase: 8,
+  phaseNote: 'Juego completo de punta a punta. Falta tu playtest con 5 personas y encender el lanzamiento (launched: true)',                       // fase actual del proyecto (1 a 5)
   links: { tienda: 'https://www.gameshop.com.ar', instagram: '' },   // botones del inicio y del cierre (vacío = no se muestra)
   // Analítica: pegá acá el ID de medición de Google Analytics 4 (G-XXXXXXXXXX) y el juego empieza a contar jugadores. Vacío = no se envía nada.
   analytics: { ga4: '' },
@@ -836,6 +843,20 @@ GS.REGIONS = [
     rival: { name: 'Ventisca Gaming', owner: 'El Ruso Iván', rule: 'Vende todo con campera de regalo. Nadie sabe de dónde saca las camperas.' },
     crew: [{ id: 'sol', name: 'Sol', d: 'Atiende con guantes y no erra un precio.', look: { skin: 0xf6d7bd, hair: 0xd9a514, hairStyle: 'largo', glasses: false } }, { id: 'lauti', name: 'Lauti', d: 'Hace los envíos aunque nieve.', look: { skin: 0xf2c9a0, hair: 0x5a2d0c, hairStyle: 'rulos', glasses: false } },
       { id: 'ema', name: 'Ema', d: 'Sabe de consolas y de fogones.', look: { skin: 0xe0ac7e, hair: 0x1b1b1f, hairStyle: 'rodete', glasses: true } }, { id: 'vasco', name: 'El Vasco', d: 'Habla poco. Vende mucho.', look: { skin: 0xf6d7bd, hair: 0xb4b4bd, hairStyle: 'corto', glasses: false } }] }
+];
+/* Finales: según cómo se conquistó el país. test(st, días). El primero que cumple, gana. El secreto no se anuncia. */
+GS.FINALS = [
+  { id: 'secreto', ic: '🗝️', t: 'Las llaves', d: 'Ni un vuelto mal dado, ni un piso sucio, y jornadas impecables de sobra. El Dueño te deja un llavero sobre el mostrador: "Yo me voy a pescar. El país es tuyo."', test: (st, d) => !st.vueltoMal && !st.sucio && st.perfect >= 10 },
+  { id: 'relampago', ic: '⚡', t: 'Conquista relámpago', d: 'Cinco regiones en tiempo récord. En Incas todavía no terminaron de colgar el mapa y ya está completo.', test: (st, d) => d <= 40 },
+  { id: 'prolijo', ic: '✨', t: 'A paso firme', d: 'Tardaste lo que había que tardar, y cada sucursal quedó impecable. Así se construye una marca.', test: (st, d) => st.perfect >= d * 0.35 },
+  { id: 'ponchazos', ic: '🤠', t: 'A los ponchazos', d: 'Hubo ventas perdidas, vueltos generosos y algún piso dudoso. Pero el cartel está encendido en todo el país, y eso no te lo saca nadie.', test: () => true }
+];
+/* Nuevo Juego+: se vuelve a empezar con los premios y logros, y un modificador a elección. */
+GS.MODS = [
+  { id: 'apuro', ic: '⏱️', name: 'Clientes apurados', d: 'Esperan un 25% menos. A cambio, 50% más de fondos de expansión.' },
+  { id: 'sinrespiro', ic: '🔥', name: 'Sin respiros', d: 'Los respiros duran la mitad. A cambio, 30% más de monedas.' },
+  { id: 'lupa', ic: '🔍', name: 'Auditoría permanente', d: 'Los errores de caja cuestan el doble. A cambio, 50% más de fondos.' },
+  { id: '', ic: '🎮', name: 'Sin modificador', d: 'El juego tal cual, con lo que ya ganaste.' }
 ];
 GS.MONTHS = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];   // 1 jornada = 1 mes
 GS.SANTA = { id: 'santa', name: 'Papá Noel', face: '🎅', shirt: 0xd81e2c, hair: 0xffffff, tag: 'Compras de último momento',
@@ -3096,7 +3117,8 @@ GS.Game = (function () {
   const coinsNow = () => GS.Store.get('coins') || 0;
   const monthOf = n => GS.MONTHS[(n - 1) % 12] + ', año ' + (Math.floor((n - 1) / 12) + 1);
   const coinMult = () => { const u = upNow(); return 1 + 0.1 * ((u.mesa || 0) + (u.isla || 0) + (u.gondola || 0) + (u.luces || 0) + (u.web >= 3 ? 1 : 0)); };
-  const patMult = () => { const u = upNow(); return 1 + 0.15 * (u.escritorio || 0) + 0.1 * (u.sillas || 0) + 0.1 * (u.cafetera || 0); };
+  const patMult = () => { const u = upNow(); return (1 + 0.15 * (u.escritorio || 0) + 0.1 * (u.sillas || 0) + 0.1 * (u.cafetera || 0)) * (modNow() === 'apuro' ? 0.75 : 1); };
+  const modNow = () => GS.Store.get('mod') || '';
   function conditionFor(n) {
     const forced = GS.Store.get('testCond'); if (forced) return forced === 'ninguna' ? null : forced;             // fechas especiales fijas y lluvia al azar (nunca en las primeras jornadas)
     if (n % 12 === 11) return 'blackfriday';             // noviembre
@@ -3194,7 +3216,7 @@ GS.Game = (function () {
   }
   function endWave() {
     if (day.wave >= day.plan.length - 1) { day.closing = true; setTimeout(endDay, 2800); return; }
-    day.stage = 'rest'; day.rest = C.day.restSeconds; W.focus(null); W.home();
+    day.stage = 'rest'; day.rest = C.day.restSeconds * (modNow() === 'sinrespiro' ? 0.5 : 1); W.focus(null); W.home();
     const d = day;
     setTimeout(() => {                       // en el respiro habla el Dueño, sin nada tapando el local
       if (day !== d || state !== 'day' || d.stage !== 'rest') return;
@@ -3435,6 +3457,27 @@ GS.Game = (function () {
       addFondo(-R.cost); const all = brAll(); all[id] = { open: 1, staff: sel.slice(), up: {}, rep: 4, train: 0, days: 0 }; GS.Store.set('branches', all); switchBranch(id); if (state === 'end') goHome();
       A.play('fanfare'); W.showAll(); GS.track('abre_sucursal', { id });
       modal('<div class="inaug"><div class="glob">🎈🎈🎈</div><h2>¡Inauguración!</h2><p class="cinta">GAMESHOP ' + R.city.toUpperCase() + '</p><p>Hay fila desde la esquina. ' + brCrew(id).join(' y ') + ' están con la remera recién planchada.</p><p><small>Empezás con un local humilde: mejoralo, enseñale al equipo y llevalo a 5 estrellas.</small></p><button class="btn" data-close>✂️ Cortar la cinta</button></div>');
+    }));
+  }
+  /* ---------------- FINAL: el país completo. Cambia según cómo se llegó; después, Nuevo Juego+ ---------------- */
+  const allDone = () => GS.REGIONS.every(r => brProgress(r.id) >= 100);
+  function showFinal(preview) {
+    const st = statsNow(), d = GS.Store.get('days') || 0, F = GS.FINALS.find(f => f.test(st, d)), SH = ['40,10 105,10 100,95 55,110 35,70', '105,10 175,25 185,75 140,105 100,95', '35,112 78,104 84,190 45,200 30,150', '80,104 140,107 170,150 150,215 86,205 84,190', '45,202 86,207 150,217 120,300 100,385 70,390 55,300'], CT = [[70, 58], [142, 62], [58, 152], [122, 160], [96, 270]];
+    A.play('fanfare'); GS.track('final', { tipo: F.id, jornadas: d });
+    modal('<div class="fin2"><h2>GameShop llegó a todo el país</h2><svg viewBox="0 0 220 400" class="mapa lit">' + SH.map((p, i) => '<g class="open"><polygon points="' + p + '"/><rect x="' + (CT[i][0] - 26) + '" y="' + (CT[i][1] - 9) + '" width="52" height="13" rx="3" class="cartel"/><text x="' + CT[i][0] + '" y="' + (CT[i][1] + 1) + '" class="ct">GAMESHOP</text></g>').join('') + '</svg>' +
+      '<div class="quote"><b>' + F.ic + ' Final: ' + F.t + '</b>' + F.d + '</div>' + (preview ? '<p><small>Vista previa: el final real se abre al completar las 5 sucursales.</small></p>' : '') +
+      '<p>' + d + ' jornadas · ' + st.c + ' clientes atendidos · ' + (GS.Store.get('ach') || []).length + ' logros</p>' +
+      '<p class="cred">Un juego de GameShop · Av. de los Incas 4552, CABA<br>Personajes inventados. Los precios y el stock, también.</p>' +
+      '<div class="cta"><b>Esto fue un juego. El local es real.</b><a class="btn alt" href="' + C.links.tienda + '" target="_blank" rel="noopener">Conocé www.gameshop.com.ar</a></div>' +
+      '<div class="row"><button class="btn ghost" id="finShare">📸 Compartir</button><button class="btn" id="finNg">Nuevo Juego+</button></div><button class="btn ghost" data-close>Seguir en esta partida</button></div>');
+    $('finShare').addEventListener('click', () => showCard()); $('finNg').addEventListener('click', showNgPlus);
+  }
+  function showNgPlus() {
+    modal('<h2>Nuevo Juego+</h2><p>Empezás de nuevo desde Incas, con tus logros, tus premios del Arcade y tu personaje. Elegí cómo:</p><div class="arc2">' + GS.MODS.map(m => '<button data-mod="' + m.id + '"><i>' + m.ic + '</i><b>' + m.name + '</b><small>' + m.d + '</small></button>').join('') + '</div><button class="btn ghost" data-close>Mejor no</button>');
+    $('sheet').querySelectorAll('[data-mod]').forEach(b => b.addEventListener('click', () => {
+      const keep = {}; ['ach', 'cos', 'arcBest', 'arcade', 'tutorial', 'seen'].forEach(k => { keep[k] = GS.Store.get(k); }); const ng = (GS.Store.get('ngp') || 0) + 1;
+      GS.Store.reset(); Object.keys(keep).forEach(k => { if (keep[k] != null) GS.Store.set(k, keep[k]); }); GS.Store.set('ngp', ng); GS.Store.set('mod', b.dataset.mod); GS.Store.set('introSeen', true); GS.Store.set('plotIntro', true);
+      GS.track('nuevo_juego_mas', { mod: b.dataset.mod, vuelta: ng }); $('modal').hidden = true; W.clearDirt(); applyBranch(); goHome(); refreshStart(); toast('<b>Nuevo Juego+ ' + ng + '</b>Otra vez desde Incas. Ahora ya sabés cómo es.', '', 3400);
     }));
   }
   function teach() {
@@ -3847,8 +3890,8 @@ GS.Game = (function () {
     brSave({ days: (brNow().days || 0) + 1 });
     const lostSale = d.lostSale || 0, ask = d.served + d.lost + lostSale, perfect = !errs && !d.lost && !lostSale && !d.tasksLate && !d.relaxed, dirty = d.dirt >= 3;
     if (dirty) addRep(-0.1);                                                        // cerrar con el piso sucio se nota
-    const earned = Math.max(0, Math.round(d.score / 20 * coinMult() * (d.plan.bonus || 1)) - (d.coinLoss || 0)); GS.Store.set('coins', coinsNow() + earned);
-    const fEarn = d.relaxed ? 0 : Math.round(d.sales / 6500 * (0.5 + repNow() / 5)); addFondo(fEarn);     // fondos de expansión: salen de la facturación y la reputación
+    const earned = Math.max(0, Math.round(d.score / 20 * coinMult() * (d.plan.bonus || 1) * (modNow() === 'sinrespiro' ? 1.3 : 1)) - (d.coinLoss || 0) * (modNow() === 'lupa' ? 2 : 1)); GS.Store.set('coins', coinsNow() + earned);
+    const fEarn = d.relaxed ? 0 : Math.round(d.sales / 6500 * (0.5 + repNow() / 5) * (modNow() === 'apuro' || modNow() === 'lupa' ? 1.5 : 1)); addFondo(fEarn);     // fondos de expansión: salen de la facturación y la reputación
     { const t = statsNow(); delete t.rep; delete t.flota; t.c += d.served; t.d++; t.caught += d.caught || 0; t.web += (d.okBy && d.okBy.ml) || 0; t.clean += d.cleaned; t.sales += d.sales;
       if (perfect) { t.perfect++; t.streak++; } else if (!d.relaxed) t.streak = 0; if (d.vueltoMal) t.vueltoMal++; if (!d.dirt && !d.relaxed) t.limpio++; if (dirty) t.sucio++; if (d.santaSold) t.santa++; GS.Store.set('tot', t); }
     const fresh = checkLogros(), mode = d.relaxed ? 'Tranquilo' : 'Normal';
@@ -3883,6 +3926,7 @@ GS.Game = (function () {
     $('endAgain').addEventListener('click', () => startDay(d.relaxed));
     $('endHome').addEventListener('click', goHome); $('endRecs').addEventListener('click', showLogros); $('endShop').addEventListener('click', openShop);
     $('end').hidden = false; $('end').scrollTop = 0;
+    if (allDone() && !GS.Store.get('finalN') && !GS.Store.get('testDay')) { GS.Store.set('finalN', 1); setTimeout(() => showFinal(), 1600); }
     { const el = $('sumCoins'), t0 = performance.now(); (function tick(t) { const k = Math.min(1, (t - t0) / 900); if (!el.isConnected) return; el.textContent = '+' + Math.round(earned * k); if (k < 1) requestAnimationFrame(tick); else { el.classList.add('pop'); if (earned) A.play('cash'); } })(t0); }   // las monedas suben
   }
   // Gancho para la jornada siguiente: lo próximo que vale la pena esperar
@@ -3998,7 +4042,7 @@ GS.Game = (function () {
   function refreshStart() {
     const n = dayNumber(), fresh = n <= GS.UNLOCKS.length ? GS.UNLOCKS[n - 1] : [];
     $('playT').textContent = n === 1 && !GS.Store.get('introSeen') ? 'Iniciar modo carrera' : 'Seguir modo carrera'; W.setNext(GS.Store.get('final2Seen') && tierNow().at >= 1 ? 'gs2' : 'venta'); $('goalStart').innerHTML = goalHtml(); $('btnPlot').innerHTML = plotHtml();
-    $('rankT').textContent = '📍 ' + RG(brId()).city + ' · ⭐ ' + repTxt(repNow()) + ' · 🪙 ' + coinsNow() + ' · 🗺️ ' + fondoNow();
+    $('rankT').textContent = (GS.Store.get('ngp') ? '➕ NJ+' + GS.Store.get('ngp') + ' · ' : '') + '📍 ' + RG(brId()).city + ' · ⭐ ' + repTxt(repNow()) + ' · 🪙 ' + coinsNow() + ' · 🗺️ ' + fondoNow();
     $('playS').textContent = n === 1 && GS.Store.get('introSeen') ? 'Jornada 1 · ' + monthOf(1) + ' · inducción' : n > 1 ? 'Jornada ' + n + ' · ' + monthOf(n) + (fresh.length ? ' · se suma: ' + fresh.map(id => ST(id).name).join(' y ') : '') : n === 1 ? (GS.Store.get('introSeen') ? 'Jornada 1 · inducción: mostrador y caja' : 'Conocé el local, al Dueño y a tus compañeros') : 'Jornada ' + n + (fresh.length ? ' · se suma: ' + fresh.map(id => ST(id).name).join(' y ') : ' · de 10 a 19 · ⭐ ' + repTxt(repNow()));
   }
   function goHome() {
@@ -4070,7 +4114,7 @@ GS.Game = (function () {
       if (im[1]) { g.save(); g.beginPath(); g.arc(W_ / 2, 560, 204, 0, 7); g.clip(); try { g.drawImage(im[1], W_ / 2 - 190, 372, 380, 472); } catch (e) {} g.restore(); }
       g.lineWidth = 10; g.strokeStyle = '#ff0000'; g.beginPath(); g.arc(W_ / 2, 560, 223, 0, 7); g.stroke();
       // rango
-      const rk = ('Jornada ' + n + ' · ' + repTxt(repNow()) + ' estrellas').toUpperCase(); g.font = F(64); const rw = Math.min(940, g.measureText(rk).width + 90);
+      const rk = (GS.REGIONS.filter(r => (brAll()[r.id] || {}).open).length + ' de 5 sucursales · jornada ' + n).toUpperCase(); g.font = F(64); const rw = Math.min(940, g.measureText(rk).width + 90);
       g.fillStyle = '#f5c518'; g.beginPath(); g.moveTo(W_ / 2 - rw / 2 + 24, 770); g.lineTo(W_ / 2 + rw / 2, 770); g.lineTo(W_ / 2 + rw / 2 - 24, 868); g.lineTo(W_ / 2 - rw / 2, 868); g.fill();
       g.fillStyle = '#000'; g.fillText(rk, W_ / 2, 843, 860);
       g.fillStyle = '#fff'; g.font = F(50, '700'); g.fillText(GS.FINAL.card[0].replace('{n}', n), W_ / 2, 946, 980);
@@ -4174,7 +4218,7 @@ GS.Game = (function () {
       '<div class="setting"><span>Tu personaje</span><button class="btn ghost" id="optAv" style="width:auto">Cambiar</button></div>' +
       '<div class="setting"><span>Jornada (modo prueba)</span>' + seg('testDay', [['0', 'Auto'], ['1', '1'], ['2', '2'], ['3', '3'], ['4', '4'], ['5', '5'], ['6', '6'], ['8', '8']], String(GS.Store.get('testDay') || 0)) + '</div>' +
       '<div class="setting"><span>Clima (modo prueba)</span>' + seg('testCond', [['', 'Auto'], ['ninguna', 'Normal'], ['lluvia', 'Lluvia'], ['blackfriday', 'Black Friday'], ['navidad', 'Navidad']], GS.Store.get('testCond') || '') + '</div>' +
-      (fromPause ? '' : '<div class="setting"><span>Escena final<br><small>' + (GS.Store.get('final2Seen') ? 'Volver a verla' : 'Se ve al terminar la jornada ' + C.finalDay + ' (modo prueba)') + '</small></span><button class="btn ghost" id="optFinal" style="width:auto">Ver</button></div>') +
+      (fromPause ? '' : '<div class="setting"><span>Final del juego<br><small>' + (GS.Store.get('finalN') ? 'Volver a verlo' : 'Se abre al completar las 5 sucursales (vista previa)') + '</small></span><button class="btn ghost" id="optFinal" style="width:auto">Ver</button></div>') +
       '<div class="setting"><span>Datos de prueba<br><small>Cuánto dura cada jornada, monedas y dónde hay errores</small></span><button class="btn ghost" id="optData" style="width:auto">Ver</button></div>' +
       '<div class="setting"><span>Empezar una temporada nueva<br><small>Vuelve a la jornada 1 y reinicia la trama. Conserva monedas y mejoras</small></span><button class="btn ghost" id="optDay1" style="width:auto">Volver</button></div>' +
       '<div class="setting"><span>Borrar todo<br><small>Jornadas, monedas, mejoras y récords</small></span><button class="btn ghost" id="optReset" style="width:auto">Reiniciar</button></div>' +
@@ -4194,7 +4238,7 @@ GS.Game = (function () {
     $('optDay1').addEventListener('click', e => { GS.Store.set('days', 0); GS.Store.set('seen', {}); GS.Store.set('testDay', 0); ['hist', 'fondo', 'goalAdj', 'final2Seen', 'plotIntro', 'gflags', 'introSeen', 'xmas'].forEach(k => GS.Store.set(k, null)); refreshStart(); e.target.textContent = 'Listo ✔'; });
     $('optAv').addEventListener('click', () => showAvatar(() => showOptions(fromPause)));
     $('optData').addEventListener('click', showMetrics);
-    if ($('optFinal')) $('optFinal').addEventListener('click', () => { modalOnClose = null; $('modal').hidden = true; startFinal(); });
+    if ($('optFinal')) $('optFinal').addEventListener('click', () => { modalOnClose = null; showFinal(!GS.Store.get('finalN')); });
     $('optReset').addEventListener('click', e => { GS.Store.reset(); W.setUpgrades({}); refreshStart(); e.target.textContent = 'Borrado ✔'; });
   }
   function showPause() {
@@ -4254,9 +4298,10 @@ GS.Game = (function () {
       modal('<h2>Ups</h2><p>Este navegador no pudo iniciar los gráficos 3D. Probá actualizarlo o abrir el juego en otro navegador.</p>');
       return;
     }
-    staffInit(); applyBranch(); GS.Arcade.bind(); setSky(0.3, false); document.body.classList.toggle('big', !!GS.Store.get('big')); if (C.launched) { $('phasesStart').hidden = true; $('chipPhase').hidden = true; document.querySelector('.fine').firstChild.textContent = 'Precios y stock ficticios.'; }
+    staffInit(); applyBranch(); GS.Arcade.bind(); if (C.launched && $('fineT')) $('fineT').firstChild.textContent = 'Precios y stock ficticios.'; if ($('btnStore')) $('btnStore').hidden = true;      // el enlace a la tienda aparece solo en el final setSky(0.3, false); document.body.classList.toggle('big', !!GS.Store.get('big')); if (C.launched) { $('phasesStart').hidden = true; $('chipPhase').hidden = true; document.querySelector('.fine').firstChild.textContent = 'Precios y stock ficticios.'; }
     GS.track.init(); GS.track('abrir_juego', { jornada: dayNumber() }); window.addEventListener('error', e => GS.track('error_js', { msg: String(e.message).slice(0, 80) }));
-    if (C.links.tienda) { $('btnStore').hidden = false; $('btnStore').href = C.links.tienda; $('btnStore').addEventListener('click', () => GS.track('click_tienda', { desde: 'inicio' })); }
+    if (C.links.tienda) { $('btnStore').href = C.links.tienda;      // queda oculto: el enlace a la tienda se muestra solo en el final
+      $('btnStore').addEventListener('click', () => GS.track('click_tienda', { desde: 'inicio' })); }
     setCalm(!!GS.Store.get('calm')); syncMute(); W.showAll(); W.setUpgrades(upNow()); W.setPlayerLook(GS.Store.get('avatar'));
     $('btnShop').addEventListener('click', openShop); $('shopDone').addEventListener('click', closeShop);
     $('shopFund').addEventListener('click', e => { const b = e.target.closest('[data-fund]'); if (!b) return; const c = coinsNow(), v = Math.min(c, Number(b.dataset.fund) || c); if (v <= 0) return;

@@ -180,3 +180,15 @@ Decisiones tomadas: tres métricas (estrellas, monedas y fondos; el arcade premi
 - Cada sucursal nueva tiene **sus personajes** (2 clientes con historia y el **rival de la zona**, que hace guerra de precios, un sabotaje gracioso y un desafío final). Están en `GS.STORIES` con `reg`. Vienen al mostrador como un cliente más.
 - **Eventos sorpresa** (`GS.EVENTS`): corte de luz, promo relámpago, inspección, cliente famoso, stock que no llega. Uno por jornada como mucho; a veces la opción que parecía mala sale bien.
 - El avance de cada sucursal ahora cuenta mejoras (50%), reputación (30%) e historias cerradas (20%).
+
+### Etapa 6 · Arcade (v0.18.0)
+
+Tres juegos en `src/arcade.js`, que se ganan al terminar las jornadas 3, 8 y 14 y se juegan desde el menú Arcade: **Stock Tetris**, **Defensa del mostrador** y **Cable Runner**. Llegar a la meta da un premio para el personaje (casco, corona, vincha), no monedas. Metas en `GS.ARCADE` (`goal`). Prueba: `test/v17.py`.
+
+### Etapas 7 y 8 · Finales, Nuevo Juego+ y lanzamiento (v0.19.0)
+
+- **Final** al completar las 5 sucursales: mapa encendido, créditos y un final distinto según cómo se llegó (`GS.FINALS`, uno secreto). Vista previa en Opciones.
+- **Nuevo Juego+** con modificador (`GS.MODS`): conserva logros, premios y personaje.
+- El enlace a la tienda aparece solo en el final ("Esto fue un juego. El local es real.").
+- **Lanzamiento**: poner `launched: true` en `src/data.js` y compilar. Eso quita el `noindex`, el cartel de etapas y el "en construcción". `og.png` es la imagen para compartir; la dirección pública está en `build.js` (`SITE`).
+- Prueba: `test/v18.py`.

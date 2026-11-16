@@ -7,9 +7,9 @@
 const GS = {};
 
 GS.CONFIG = {
-  version: '0.18.0',
-  phase: 7,
-  phaseNote: 'Ya se pueden ganar los tres juegos del Arcade. Siguen los finales y el Nuevo Juego+',                       // fase actual del proyecto (1 a 5)
+  version: '0.19.0',
+  phase: 8,
+  phaseNote: 'Juego completo de punta a punta. Falta tu playtest con 5 personas y encender el lanzamiento (launched: true)',                       // fase actual del proyecto (1 a 5)
   links: { tienda: 'https://www.gameshop.com.ar', instagram: '' },   // botones del inicio y del cierre (vacío = no se muestra)
   // Analítica: pegá acá el ID de medición de Google Analytics 4 (G-XXXXXXXXXX) y el juego empieza a contar jugadores. Vacío = no se envía nada.
   analytics: { ga4: '' },
@@ -326,6 +326,20 @@ GS.REGIONS = [
     rival: { name: 'Ventisca Gaming', owner: 'El Ruso Iván', rule: 'Vende todo con campera de regalo. Nadie sabe de dónde saca las camperas.' },
     crew: [{ id: 'sol', name: 'Sol', d: 'Atiende con guantes y no erra un precio.', look: { skin: 0xf6d7bd, hair: 0xd9a514, hairStyle: 'largo', glasses: false } }, { id: 'lauti', name: 'Lauti', d: 'Hace los envíos aunque nieve.', look: { skin: 0xf2c9a0, hair: 0x5a2d0c, hairStyle: 'rulos', glasses: false } },
       { id: 'ema', name: 'Ema', d: 'Sabe de consolas y de fogones.', look: { skin: 0xe0ac7e, hair: 0x1b1b1f, hairStyle: 'rodete', glasses: true } }, { id: 'vasco', name: 'El Vasco', d: 'Habla poco. Vende mucho.', look: { skin: 0xf6d7bd, hair: 0xb4b4bd, hairStyle: 'corto', glasses: false } }] }
+];
+/* Finales: según cómo se conquistó el país. test(st, días). El primero que cumple, gana. El secreto no se anuncia. */
+GS.FINALS = [
+  { id: 'secreto', ic: '🗝️', t: 'Las llaves', d: 'Ni un vuelto mal dado, ni un piso sucio, y jornadas impecables de sobra. El Dueño te deja un llavero sobre el mostrador: "Yo me voy a pescar. El país es tuyo."', test: (st, d) => !st.vueltoMal && !st.sucio && st.perfect >= 10 },
+  { id: 'relampago', ic: '⚡', t: 'Conquista relámpago', d: 'Cinco regiones en tiempo récord. En Incas todavía no terminaron de colgar el mapa y ya está completo.', test: (st, d) => d <= 40 },
+  { id: 'prolijo', ic: '✨', t: 'A paso firme', d: 'Tardaste lo que había que tardar, y cada sucursal quedó impecable. Así se construye una marca.', test: (st, d) => st.perfect >= d * 0.35 },
+  { id: 'ponchazos', ic: '🤠', t: 'A los ponchazos', d: 'Hubo ventas perdidas, vueltos generosos y algún piso dudoso. Pero el cartel está encendido en todo el país, y eso no te lo saca nadie.', test: () => true }
+];
+/* Nuevo Juego+: se vuelve a empezar con los premios y logros, y un modificador a elección. */
+GS.MODS = [
+  { id: 'apuro', ic: '⏱️', name: 'Clientes apurados', d: 'Esperan un 25% menos. A cambio, 50% más de fondos de expansión.' },
+  { id: 'sinrespiro', ic: '🔥', name: 'Sin respiros', d: 'Los respiros duran la mitad. A cambio, 30% más de monedas.' },
+  { id: 'lupa', ic: '🔍', name: 'Auditoría permanente', d: 'Los errores de caja cuestan el doble. A cambio, 50% más de fondos.' },
+  { id: '', ic: '🎮', name: 'Sin modificador', d: 'El juego tal cual, con lo que ya ganaste.' }
 ];
 GS.MONTHS = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];   // 1 jornada = 1 mes
 GS.SANTA = { id: 'santa', name: 'Papá Noel', face: '🎅', shirt: 0xd81e2c, hair: 0xffffff, tag: 'Compras de último momento',
