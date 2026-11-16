@@ -772,7 +772,7 @@ GS.Game = (function () {
       $('clockT').textContent = 'Ronda ' + Math.max(1, Math.min(day.round, C.day.arcadeRounds)) + '/' + C.day.arcadeRounds; $('clockS').textContent = 'Arcade · ' + ST(day.arcade).name;
       $('clockB').style.width = (Math.max(0, day.round - 1) / C.day.arcadeRounds * 100) + '%';
     } else {
-      const tot = planTotals(day.plan), all = tot.c + tot.t, doneN = day.served + day.lost + day.tasksDone + day.tasksLate, f = Math.min(1, doneN / all);
+      const tot = planTotals(day.plan), all = tot.c + tot.t, doneN = day.served + day.lost + (day.lostSale || 0) + day.tasksDone + day.tasksLate, f = Math.min(1, doneN / all);
       const fin = day.wave >= 0 && day.plan[day.wave].final, nw = day.plan.filter(w => !w.final).length, m = Math.round((600 + f * 540) / 10) * 10;
       setSky((m - 600) / 540, day.cond === 'lluvia');
       $('clockT').textContent = '🕙 ' + String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0'); $('clockB').style.width = (f * 100).toFixed(1) + '%';
