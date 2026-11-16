@@ -421,6 +421,17 @@ GS.World = (function () {
 
   // Capa regional: misma base de local, con paleta, paisaje y fachada de cada región. stage 1..3 = humilde, mejorado, estrella.
   let floorMat = null, regG = null;
+  // Estructura: una sola platea clara bajo todo el edificio (tapa las bases oscuras y las uniones entre ambientes), tabiques bajos en las juntas
+  // y cierre de la vidriera. Del lado de la cámara los muros son bajos para no tapar el interior.
+  function buildShell(root) {
+    const s = L.salon, t = L.taller, zG = L.galeria.zMax, x1 = 11.4, wall = 0xf4f4f2, low = 0xdedede, glass = new T.MeshLambertMaterial({ color: 0xbfe9ff, transparent: true, opacity: 0.16, depthWrite: false });
+    box(root, s.xMax - s.xMin + 0.5, 0.3, zG - s.zMin + 0.45, 0xcfd0d4, 0, -0.306, (s.zMin + zG) / 2); box(root, x1 + 0.35 - s.xMax, 0.3, t.zB + 0.35 - s.zMin + 0.2, 0xcfd0d4, (s.xMax + x1 + 0.35) / 2, -0.306, (s.zMin - 0.2 + t.zB + 0.35) / 2);      // platea
+    box(root, 0.2, s.wallH, zG - s.zMax + 0.1, wall, s.xMin - 0.1, 0, (s.zMax + zG) / 2 + 0.05); box(root, 0.02, 0.9, zG - s.zMax, 0x16161a, s.xMin + 0.011, 0, (s.zMax + zG) / 2);                    // la pared del costado sigue hasta la vidriera
+    box(root, 0.24, 0.34, 15.9, low, x1 + 0.1, 0, 0.7); [-7.1, t.zB + 0.1].forEach(z => box(root, 0.34, 0.5, 0.34, 0xbfc1c7, x1 + 0.1, 0, z));                                                       // muro bajo corrido del lado del estacionamiento
+    box(root, x1 - 6.5, 0.36, 0.3, low, (6.5 + x1) / 2, 0, -1.05 + 0.02); box(root, x1 - 6.5, 0.36, 0.34, low, (6.5 + x1) / 2, 0, 3.775);                                                              // tabiques entre depósito, oficina y taller
+    box(root, 0.3, 0.5, zG - s.zMax, low, s.xMax + 0.2, 0, (s.zMax + zG) / 2); plane(root, zG - s.zMax, 1.9, glass, s.xMax + 0.2, 1.45, (s.zMax + zG) / 2, Math.PI / 2); box(root, 0.3, 0.12, zG - s.zMax, 0x0c0c0c, s.xMax + 0.2, 2.4, (s.zMax + zG) / 2);   // cierre de la vidriera del lado del taller: zócalo, vidrio y dintel
+    box(root, 0.12, 0.012, s.zMax - s.zMin, 0x8d9199, s.xMax + 0.25, 0.006, (s.zMin + s.zMax) / 2);                                                                                                     // umbral metálico entre el salón y los ambientes
+  }
   // Techo: aparece al alejar la cámara al máximo; al acercar apenas, se abre y se ve el interior
   let roofG = null, roofMats = [], critters = [];
   // Animales sueltos del paisaje: eligen un punto cercano fuera del local, caminan hasta ahí, esperan y vuelven a elegir
@@ -895,7 +906,7 @@ GS.World = (function () {
     // zócalos bajos donde la pared está "cortada"
     { const doors = [L.depoDoor.z, -0.3, L.tallerDoor.z]; let z0 = L.salon.zMin;          // zócalo con los huecos de las tres puertas
       doors.concat([null]).forEach(dz => { const z1 = dz == null ? L.salon.zMax : dz - 0.55; if (z1 - z0 > 0.05) box(root, 0.2, 0.3, z1 - z0, 0xdedede, L.salon.xMax + 0.1, 0, (z0 + z1) / 2); if (dz != null) z0 = dz + 0.55; }); }
-    buildCounter(root); buildCenter(root); buildWorkStations(root); buildDepot(root); sideDoor(root, L.depoDoor.z, 'DEPÓSITO'); buildOffice(root); buildTaller(root); sideDoor(root, L.tallerDoor.z, 'TALLER'); buildGallery(root); buildSign(root); buildExtras(root); buildFleet(root); for (const k in ups.flota) ups.flota[k].position.y = -0.24; buildRoof(root);
+    buildCounter(root); buildCenter(root); buildWorkStations(root); buildDepot(root); sideDoor(root, L.depoDoor.z, 'DEPÓSITO'); buildOffice(root); buildTaller(root); sideDoor(root, L.tallerDoor.z, 'TALLER'); buildGallery(root); buildSign(root); buildExtras(root); buildShell(root); buildFleet(root); for (const k in ups.flota) ups.flota[k].position.y = -0.24; buildRoof(root);
 
     // empleados (inventados): vos en el mostrador y Brian, pegado al celular, en la caja
     yo = makePerson({ shirt: 0xe10600, hair: 0x2b2b3a, skin: SKINS[1], speed: 7.5 }); yo.setPos(L.yoMostrador[0], L.yoMostrador[1]);
