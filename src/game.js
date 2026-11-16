@@ -558,7 +558,7 @@ GS.Game = (function () {
   // Limpiar: el personaje va con la mopa hasta cada mancha, la friega un momento y sigue con la próxima
   function mopNext() {
     const yo = W.player(); if (!day || !day.mopping) return;
-    if (!day.dirtPos.length) { day.mopping = false; yo.mop(false); day.jobSig = ''; yoGo('H'); return; }
+    if (!day.dirtPos.length) { day.mopping = false; yo.mop(false); day.jobSig = ''; yoGo('most'); return; }
     const q = day.dirtPos[0]; yoWalkTo(q[0] - 0.35, q[1] - 0.35, () => { if (day && day.mopping) { yo.face(Math.PI / 4); day.mopT = 1.1; } });
   }
   function mopTick(dt) {
@@ -629,16 +629,26 @@ GS.Game = (function () {
   }
   // Caminar a un punto libre del local: por los pasillos hasta el nodo más cercano (nunca a través del mostrador) y de ahí derecho
   const WALK = ['O', 'H', 'T1', 'G'];
+  // Zona caminable: salón (delante del mostrador), pasillo de entrada y vereda, sin los muebles grandes que haya comprados
+  function walkable(x, z) {
+    const s = L.salon, area = (x > s.xMin + 0.6 && x < s.xMax - 0.5 && z > L.mostrador.z + 1.3 && z < s.zMax - 0.2) || (Math.abs(x - L.puerta.x) < 1.3 && z >= s.zMax - 0.2 && z < L.galeria.zMax + 0.2) || (z >= L.galeria.zMax + 0.2 && z < L.galeria.zMax + 3.7 && x > -11 && x < 14);
+    if (!area) return false; const u = upNow(); return !GS.UPGRADES.some(g => u[g.id] && ['mesa', 'isla', 'gondola', 'escritorio', 'sillas', 'arcade'].indexOf(g.id) >= 0 && Math.hypot(x - g.pos[0], z - g.pos[1]) < 1.25);
+  }
+  const clearLine = (x0, z0, x1, z1) => { const n = Math.ceil(Math.hypot(x1 - x0, z1 - z0) / 0.3); for (let i = 0; i <= n; i++) if (!walkable(x0 + (x1 - x0) * i / n, z0 + (z1 - z0) * i / n)) return false; return true; };
   function yoWalkTo(x, z, cb) {
-    const yo = W.player(); if (!yo) return; let best = WALK[0], bd = 1e9; const from = yoRoute.length ? yoRoute[0] : yoAt;
+    const yo = W.player(); if (!yo) return; const P = yo.group.position;
+    // que no termine parado encima de un compañero o de un cliente
+    { const ppl = W.staff().map(p => p.group.position).concat(day ? day.customers.map(c => c.person.group.position) : []); for (const q of ppl) { const d = Math.hypot(x - q.x, z - q.z); if (d < 0.85) { const ax = d > 0.05 ? (x - q.x) / d : 1, az = d > 0.05 ? (z - q.z) / d : 0; x = q.x + ax * 0.95; z = q.z + az * 0.95; } } }
+    const near = n0 => { let b = WALK[0], bd = 1e9; WALK.forEach(n => { const d = Math.hypot(NAV[n][0] - n0[0], NAV[n][1] - n0[1]); if (d < bd) { bd = d; b = n; } }); return b; };
+    if (!yoRoute.length && clearLine(P.x, P.z, x, z)) { yoFree = true; yoDone = null; yoAt = near([x, z]); yo.walk([[x, z]], () => { if (cb) cb(); }); return; }      // sin nada grande en el medio: va derecho
+    let best = WALK[0], bd = 1e9; const from = yoRoute.length ? yoRoute[0] : yoAt;
     const navLen = to => { const a = navChain(from), b = navChain(to); let l = null; while (a.length && b.length && a[a.length - 1] === b[b.length - 1]) { l = a.pop(); b.pop(); } const r = a.concat([l], b.reverse()); let d = 0; for (let i = 1; i < r.length; i++) d += Math.hypot(NAV[r[i]][0] - NAV[r[i - 1]][0], NAV[r[i]][1] - NAV[r[i - 1]][1]); return d; };
-    WALK.forEach(n => { const d = navLen(n) * 0.6 + Math.hypot(NAV[n][0] - x, NAV[n][1] - z); if (d < bd) { bd = d; best = n; } });      // el camino más corto en total, no solo el nodo más cercano
-    yoGo(best, () => { yoFree = true; yo.walk([[x, z]], () => { if (cb) cb(); }); });
+    WALK.forEach(n => { const d = navLen(n) * 0.6 + Math.hypot(NAV[n][0] - x, NAV[n][1] - z) + (clearLine(NAV[n][0], NAV[n][1], x, z) ? 0 : 6); if (d < bd) { bd = d; best = n; } });      // si hay que rodear algo, por el nodo que deje el último tramo despejado
+    yoGo(best, () => { yoFree = true; yoAt = near([x, z]); yo.walk([[x, z]], () => { if (cb) cb(); }); });
   }
   function groundTap(x, z) {
     if (state !== 'day' || !day || day.arcade || paused || MG.isOpen() || day.mopping || day.closing) return;
-    const s = L.salon, ok = (x > s.xMin + 0.6 && x < s.xMax - 0.5 && z > L.mostrador.z + 1.3 && z < s.zMax - 0.2) || (Math.abs(x - L.puerta.x) < 1.3 && z >= s.zMax - 0.2 && z < L.galeria.zMax + 0.2) || (z >= L.galeria.zMax + 0.2 && z < L.galeria.zMax + 3.7 && x > -11 && x < 14);
-    if (!ok) return; W.ping(x, z); A.play('click'); yoWalkTo(x, z);
+    if (!walkable(x, z)) return; W.ping(x, z); A.play('click'); yoWalkTo(x, z);
   }
   function focusFor(type) {
     const land = window.innerWidth > window.innerHeight && window.innerHeight <= 560;
@@ -1384,5 +1394,5 @@ GS.Game = (function () {
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 
-  return { goHome, startDay, startArcade, startFinal, showCard, drawCard, debugIntr: () => spawnIntr(), openStation, openJob, pendingJobs, endDay, debugTask: id => spawnTask(ST(id)), state: () => state, day: () => day };
+  return { groundTap, goHome, startDay, startArcade, startFinal, showCard, drawCard, debugIntr: () => spawnIntr(), openStation, openJob, pendingJobs, endDay, debugTask: id => spawnTask(ST(id)), state: () => state, day: () => day };
 })();

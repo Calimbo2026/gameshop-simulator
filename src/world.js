@@ -261,9 +261,11 @@ GS.World = (function () {
   /* Mejoras del local: cada mueble comprable vive en su propio grupo, que se muestra según el nivel comprado */
   const ups = {};
   function upGroup(root, id, lvl) { const g = new T.Group(); root.add(g); (ups[id] = ups[id] || {})[lvl] = g; return g; }
-  function applyUpgrades(state) {
+  let lastUp = {}, roofOn = false;
+  function applyUpgrades(state) { lastUp = state; if (roofOn) return hideSign();
     for (const id in ups) for (const lvl in ups[id]) ups[id][lvl].visible = id === 'cartel' || id === 'flota' ? (state[id] || 0) === Number(lvl) : (state[id] || 0) >= Number(lvl);
   }
+  function hideSign() { for (const id in ups) for (const lvl in ups[id]) if (id !== 'cartel') ups[id][lvl].visible = id === 'flota' ? (lastUp[id] || 0) === Number(lvl) : (lastUp[id] || 0) >= Number(lvl); else ups[id][lvl].visible = false; }      // con el techo puesto, el cartel del frente queda debajo
   const glowMat = c => new T.MeshBasicMaterial({ color: c });
   const gPot = new T.CylinderGeometry(0.17, 0.12, 0.3, 8), gLeaf = new T.SphereGeometry(0.2, 8, 6);
   function plant(parent, x, z, k) {
@@ -984,7 +986,7 @@ GS.World = (function () {
     applyCam(); updatePeople(dt);
     if (pingT > 0) { pingT -= dt; const k = 1 - pingT / 0.7; pingM.scale.setScalar(0.6 + k * 0.9); pingM.material.opacity = 1 - k; if (pingT <= 0) pingM.visible = false; }
     if (critters.length) updateCritters(dt);
-    if (roofG) { const o = U.clamp((cam.dist / cam.fit - 1.42) / 0.16, 0, 1); roofG.visible = o > 0.02; if (roofG.visible) roofMats.forEach(m => { m.opacity = o; }); }
+    if (roofG) { const o = U.clamp((cam.dist / cam.fit - 1.42) / 0.16, 0, 1); roofG.visible = o > 0.02; if (roofG.visible) roofMats.forEach(m => { m.opacity = o; }); if (roofG.visible !== roofOn) { roofOn = roofG.visible; applyUpgrades(lastUp); } }
     for (const a of animated) {
       if (a.type === 'sign') { a.t += dt; if (a.t > 4) { a.t = 0; a.i = (a.i + 1) % a.texs.length; a.mat.map = a.texs[a.i]; a.mat.needsUpdate = true; } }
       else if (a.type === 'screen' && !reduceMotion) { a.t = (a.t || 0) + dt; a.mesh.material.color.setHSL((a.t * 0.05) % 1, 0.6, 0.6); }
