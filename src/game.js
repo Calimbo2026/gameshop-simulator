@@ -1032,15 +1032,15 @@ GS.Game = (function () {
     return best;
   }
   // Tarjetas del inicio: mismo armado las dos (etiqueta, dato grande, barra con su número y un botón claro)
-  const hcard = (label, big, sub, cur, tot, unit, cta, full) => '<small class="hc-l">' + label + '</small><b class="hc-b">' + big + '</b>' + (sub ? '<span class="hc-s">' + sub + '</span>' : '') +
-    (tot ? '<span class="hc-p"><i style="width:' + Math.min(100, cur / tot * 100).toFixed(0) + '%"></i></span><span class="hc-n' + (full ? ' ok' : '') + '">' + unit + ' ' + Math.min(cur, tot) + ' <em>de ' + tot + '</em></span>' : '') + '<span class="hc-c">' + cta + ' ›</span>';
+  const wbtn = (ic, title, info, cur, tot, unit, full, extra) => '<i class="wb-i">' + ic + '</i><span class="wb-m"><b>' + title + (extra || '') + '</b><small>' + info + '</small>' +
+    (tot ? '<span class="wb-r"><span class="wb-p"><i style="width:' + Math.min(100, cur / tot * 100).toFixed(0) + '%"></i></span><span class="wb-n' + (full ? ' ok' : '') + '">' + unit + ' ' + Math.min(cur, tot) + ' <em>de ' + tot + '</em></span></span>' : '') + '</span><i class="wb-a">›</i>';
   function sucCard() {
     const all = brAll(), f = fondoNow(), g = goalNow(), n = MAIN.filter(r => all[r.id] && all[r.id].open).length, dots = '<span class="hc-d">' + MAIN.map(r => '<i class="' + (all[r.id] && all[r.id].open ? 'on' : '') + (r.id === brId() ? ' cur' : '') + '"></i>').join('') + '</span>';
-    return hcard('🗺️ Mis sucursales', n + ' de 5' + dots, g ? (f >= g ? '¡Ya podés abrir otra!' : 'Fondos para la próxima') : 'Las 5 abiertas · avance ' + Math.round(MAIN.reduce((a, r) => a + brProgress(r.id), 0) / MAIN.length) + '%', f, g, '🗺️', 'Ver mapa', f >= g);
+    return wbtn('🗺️', 'Mis sucursales', n + ' de 5 abiertas · ' + (g ? (f >= g ? '¡ya podés abrir otra!' : 'fondos para la próxima') : 'avance ' + Math.round(MAIN.reduce((a, r) => a + brProgress(r.id), 0) / MAIN.length) + '%'), f, g, '🗺️', f >= g, dots);
   }
   function goalCard() {
-    const t = nextGoal(), c = coinsNow(); if (!t) return hcard('🛠 Próxima mejora', '🏆 Local completo', 'Compraste todas las mejoras', 0, 0, '', 'Ver el local');
-    return hcard('🛠 Próxima mejora', t.g.icon + ' ' + t.lv.n, c >= t.lv.price ? '¡Ya te alcanza!' : 'Monedas ahorradas', c, t.lv.price, '🪙', 'Mejorar', c >= t.lv.price);
+    const t = nextGoal(), c = coinsNow(); if (!t) return wbtn('🛠', 'Mejorar el local', '🏆 Local completo: compraste todas las mejoras', 0, 0, '', false);
+    return wbtn('🛠', 'Mejorar el local', (c >= t.lv.price ? '¡Ya te alcanza! ' : 'Próxima: ') + t.g.icon + ' ' + t.lv.n, c, t.lv.price, '🪙', c >= t.lv.price);
   }
   function goalHtml() {
     const t = nextGoal(), c = coinsNow(); if (!t) return '<div class="goal"><b>🏆 Local completo</b><span>Compraste todas las mejoras.</span></div>';
@@ -1153,7 +1153,7 @@ GS.Game = (function () {
   }
   function refreshStart() {
     const n = dayNumber(), fresh = n <= GS.UNLOCKS.length ? GS.UNLOCKS[n - 1] : [];
-    $('playT').textContent = n === 1 && !GS.Store.get('introSeen') ? 'Iniciar modo carrera' : 'Seguir modo carrera'; W.setNext(GS.Store.get('final2Seen') && tierNow().at >= 1 ? 'gs2' : 'venta'); $('goalStart').innerHTML = goalCard(); $('btnPlot').innerHTML = sucCard();
+    $('playT').textContent = n === 1 && !GS.Store.get('introSeen') ? 'Iniciar modo carrera' : 'Seguir modo carrera'; W.setNext(GS.Store.get('final2Seen') && tierNow().at >= 1 ? 'gs2' : 'venta'); $('btnShop').innerHTML = goalCard(); $('btnPlot').innerHTML = sucCard();
     $('rankT').textContent = (DEV() ? '🛠 DEV · ' : '') + (GS.Store.get('ngp') ? '➕ NJ+' + GS.Store.get('ngp') + ' · ' : '') + '📍 ' + RG(brId()).city + ' · ⭐ ' + repTxt(repNow()) + ' · 🪙 ' + coinsNow() + ' · 🗺️ ' + fondoNow();
     $('playS').textContent = n === 1 && GS.Store.get('introSeen') ? 'Jornada 1 · ' + monthOf(1) + ' · inducción' : n > 1 ? 'Jornada ' + n + ' · ' + monthOf(n) + (fresh.length ? ' · se suma: ' + fresh.map(id => ST(id).name).join(' y ') : '') : n === 1 ? (GS.Store.get('introSeen') ? 'Jornada 1 · inducción: mostrador y caja' : 'Conocé el local, al Dueño y a tus compañeros') : 'Jornada ' + n + (fresh.length ? ' · se suma: ' + fresh.map(id => ST(id).name).join(' y ') : ' · de 10 a 19 · ⭐ ' + repTxt(repNow()));
   }
@@ -1427,7 +1427,7 @@ GS.Game = (function () {
     $('shopFund').addEventListener('click', e => { const b = e.target.closest('[data-fund]'); if (!b) return; const c = coinsNow(), v = Math.min(c, Number(b.dataset.fund) || c); if (v <= 0) return;
       const before = fondoNow() >= goalNow(); GS.Store.set('coins', c - v); addFondo(v); A.play('cash'); GS.track('aporte_fondo', { monto: v });
       toast(!before && fondoNow() >= goalNow() ? '<b>🏠 ¡Meta alcanzada!</b>Ya alcanza para el local de al lado. Lo que sumes de más mejora el final.' : '<b>🏠 Aportaste 🪙 ' + v + '</b>Fondo: ' + fondoNow() + ' de ' + goalNow() + '.', '', 2600); renderShop(); });
-    $('btnPlot').addEventListener('click', () => { A.unlock(); A.play('click'); showMap(); }); $('goalStart').addEventListener('click', openShop);
+    $('btnPlot').addEventListener('click', () => { A.unlock(); A.play('click'); showMap(); });
     $('coachOk').addEventListener('click', () => { $('coach').hidden = true; A.play('click'); });
     $('mapX').addEventListener('click', () => { A.play('click'); closeMap(); }); $('mapLib').addEventListener('click', () => { closeMap(); showLibreta(); });
     $('mapCard').addEventListener('click', e => { const g = e.target.closest('[data-go]'), o = e.target.closest('[data-open]'); if (g) { closeMap(); leaveTo(g.dataset.go); } else if (o && !o.disabled) { closeMap(); openRegion(o.dataset.open); } });

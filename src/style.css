@@ -471,3 +471,11 @@ body.snow #rain { background-color: rgba(220, 235, 250, .06); background-image: 
 .hc-n { font-size: 13px !important; font-weight: 700; } .hc-n em { font-style: normal; font-weight: 400; color: #9a9aa6; } .hc-n.ok { color: #6fe08a; }
 .hc-c { margin-top: auto; align-self: stretch; text-align: center; background: var(--warn); color: #17130a; font-weight: 800; font-size: 13.5px !important; border-radius: 10px; padding: 6px 8px; }
 .duo .hcard .hc-b { font-size: 18px !important; } .duo .hcard .hc-l { font-size: 11px !important; } .duo .hcard .hc-n { font-size: 13px !important; } .duo .hcard .hc-c { font-size: 13.5px !important; }
+
+/* Inicio: tres botones anchos (jugar, mis sucursales, mejorar el local) */
+.wbtn { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; background: #fff; color: #111; border: 0; border-radius: 18px; padding: 11px 14px; font: inherit; cursor: pointer; box-shadow: 0 5px 0 #b9b9c0; }
+.wbtn:active { transform: translateY(3px); box-shadow: 0 2px 0 #b9b9c0; } .wb-i { font-style: normal; font-size: 30px; flex: none; width: 38px; text-align: center; } .wb-a { font-style: normal; font-size: 30px; font-weight: 800; color: #e10600; flex: none; line-height: 1; }
+.wb-m { flex: 1; min-width: 0; display: grid; gap: 2px; } .wb-m > b { font-family: var(--display); font-size: 21px; text-transform: uppercase; line-height: 1.05; display: flex; align-items: center; gap: 9px; flex-wrap: wrap; } .wb-m > small { font-size: 13px; color: #44444c; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wb-r { display: flex; align-items: center; gap: 9px; margin-top: 2px; } .wb-p { flex: 1; height: 9px; border-radius: 5px; background: #dcdce2; overflow: hidden; } .wb-p i { display: block; height: 100%; min-width: 4px; background: linear-gradient(90deg, #e10600, #ff5a3c); border-radius: 5px; }
+.wb-n { font-size: 13px; font-weight: 800; white-space: nowrap; } .wb-n em { font-style: normal; font-weight: 500; color: #77777f; } .wb-n.ok { color: #0a8a3d; } .wbtn .hc-d i { background: #cfcfd6; } .wbtn .hc-d i.on { background: #e10600; } .wbtn .hc-d i.cur { box-shadow: 0 0 0 2px #f5c518; }
+.wb-m > b { flex-wrap: nowrap; white-space: nowrap; } .wbtn .hc-d { flex: none; }
