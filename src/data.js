@@ -7,9 +7,9 @@
 const GS = {};
 
 GS.CONFIG = {
-  version: '0.13.0',
-  phase: 5,
-  phaseNote: 'Trama del local de al lado, visitas con historia, personajes nuevos y más variedad',                       // fase actual del proyecto (1 a 5)
+  version: '0.14.0',
+  phase: 1,
+  phaseNote: 'Midiendo cuánto dura cada jornada y cuántas monedas deja, para ajustar a unos 3 minutos',                       // fase actual del proyecto (1 a 5)
   links: { tienda: 'https://www.gameshop.com.ar', instagram: '' },   // botones del inicio y del cierre (vacío = no se muestra)
   // Analítica: pegá acá el ID de medición de Google Analytics 4 (G-XXXXXXXXXX) y el juego empieza a contar jugadores. Vacío = no se envía nada.
   analytics: { ga4: '' },
@@ -33,8 +33,9 @@ GS.CONFIG = {
     // La jornada es por cantidad, en tandas: c = clientes, t = tareas del local. Entre tandas hay un respiro.
     // En la Etapa 3 esto lo va a armar la Carrera según el cartel del frente, el clima y la fecha (lluvia, Navidad, Black Friday).
     waves: [{ c: 1, t: 0 }, { c: 2, t: 1 }, { c: 2, t: 1 }, { c: 3, t: 2 }],
-    restSeconds: 9,               // respiro entre tandas: habla el Dueño y se ve el local
-    customerGap: 7, taskGap: 9    // segundos entre llegadas dentro de una tanda
+    restSeconds: 7,               // respiro entre tandas: habla el Dueño y se ve el local
+    maxDayCustomers: 6, maxDayTasks: 2,   // tope por jornada: con esto una jornada dura unos 3 minutos (medido con test/v8.py)
+    customerGap: 5.5, taskGap: 7    // segundos entre llegadas dentro de una tanda
   },
   // Cordura: nunca hay Game Over. Sube en los respiros y con las rachas; baja con errores y cuando se junta mucho.
   cord: { start: 60, rest: 2.5, busy: 0.7, busyFrom: 3, mistake: 4, lost: 10, late: 6, streak: 1, focus: 70, burnt: 30, mateBoost: 25, bonus: 3,
@@ -42,12 +43,16 @@ GS.CONFIG = {
 };
 
 /* Las 5 etapas del proyecto: se muestran siempre mientras esté en construcción */
+/* Etapas de la EXPANSIÓN NACIONAL (el juego base ya está hecho; esto es lo que se construye ahora). */
 GS.PHASES = [
-  { n: 1, name: 'Base jugable',   desc: 'Inicio, salón 3D, Mostrador y Caja, una jornada completa.' },
-  { n: 2, name: 'Minijuegos',     desc: 'Las 12 estaciones, modo Arcade y combos.' },
-  { n: 3, name: 'Carrera',        desc: 'Rangos, jornadas que crecen, clima y fechas, el Dueño y las mejoras del local.' },
-  { n: 4, name: 'Mundo completo', desc: 'Depósito, oficina, música, cordura, interrupciones, final y tarjeta para compartir.' },
-  { n: 5, name: 'Pulido',         desc: 'Rendimiento, balance, bugs, accesibilidad, analítica y lanzamiento.' }
+  { n: 1, name: 'Curva y tiempos',        desc: 'Medir y ajustar: jornadas de unos 3 minutos y monedas que no sobren ni falten.' },
+  { n: 2, name: 'Feedback y resumen',     desc: 'Respuesta inmediata en cada acción y un resumen de jornada con gancho para la siguiente.' },
+  { n: 3, name: 'Economía y mostrador',   desc: 'Monedas y fondos de expansión, flota y web, errores que cuestan, limpieza, logros y calendario de 12 meses.' },
+  { n: 4, name: 'Mapa y sucursales',      desc: 'Mapa del país, cinco regiones, empleados, delegar y tablero de control.' },
+  { n: 5, name: 'Historias y competencia',desc: 'Personajes de cada sucursal en el mostrador, eventos y locales rivales.' },
+  { n: 6, name: 'Minijuegos arcade',      desc: 'Stock Tetris, Defensa del mostrador y Cable Runner, como premios fuera de la jornada.' },
+  { n: 7, name: 'Finales y rejugar',      desc: 'Finales según cómo se conquistó, Nuevo Juego+ y modificadores.' },
+  { n: 8, name: 'Lanzamiento',            desc: 'Pantalla para compartir, guiños del local real y salida a buscadores.' }
 ];
 
 /* Catálogo: cada producto es un objeto editable. url = ficha real (se conecta después).

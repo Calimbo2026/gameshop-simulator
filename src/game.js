@@ -30,7 +30,7 @@ GS.Game = (function () {
       return '<li class="' + cls + '"><span class="ph-dot ' + cls + '">' + (p.n < C.phase ? '✔' : p.n) + '</span><div><em>' + st + '</em><b>' + p.name + '</b><span>' + p.desc +
         (p.n === C.phase && C.phaseNote ? ' <i>' + C.phaseNote + '.</i>' : '') + '</span></div></li>';
     }).join('');
-    modal('<h2>Etapas del proyecto</h2><p>El juego se construye en 5 etapas. Cada una se prueba y se aprueba antes de pasar a la siguiente.</p><ul class="ph-list">' + items +
+    modal('<h2>Etapas de la expansión</h2><p>El juego base ya está. Ahora crece para llevar GameShop a todo el país, en ' + GS.PHASES.length + ' etapas. Cada una se prueba y se aprueba antes de pasar a la siguiente.</p><ul class="ph-list">' + items +
       '</ul><button class="btn" data-close>Entendido</button>');
   }
 
@@ -75,13 +75,14 @@ GS.Game = (function () {
   function planDay(n, cond) {
     const un = unlockedFor(n), pool = TASK_STATIONS.filter(s => un.indexOf(s.id) >= 0), u = upNow(), c = cond ? GS.CONDITIONS[cond] : null, r = repNow();
     let cust = Math.min(3 + n, 7) + (u.cartel || 0) + (u.arcade || 0) + (u.vidluz || 0) + (r >= 4 ? 1 : r < 2 ? -1 : 0) + (c ? c.cust : 0);   // cartel, arcade y reputación traen gente
-    cust = U.clamp(cust, 3, 12);
-    const tasks = pool.length ? Math.min(n - 1, 5) : 0, extraMl = c && un.indexOf('ml') >= 0 ? c.ml : 0, nw = cust <= 5 ? 3 : 4;
+    const want = U.clamp(cust, 3, 12); cust = Math.min(want, C.day.maxDayCustomers);       // la jornada dura siempre unos 3 minutos: lo que el cartel y las mejoras traen de más se cobra como tickets más altos
+    const tasks = pool.length ? Math.min(n - 1, C.day.maxDayTasks) : 0, extraMl = c && un.indexOf('ml') >= 0 ? c.ml : 0, nw = cust <= 5 ? 3 : 4;
     const plan = Array.from({ length: nw }, () => ({ c: 0, t: 0, ml: 0 }));
     for (let i = 0; i < cust; i++) plan[nw - 1 - (i % nw)].c++;
     for (let i = 0; i < tasks; i++) plan[nw - 1 - (i % (nw - 1))].t++;
     for (let i = 0; i < extraMl; i++) plan[1 + (i % (nw - 1))].ml++;
     if (un.indexOf('cierre') >= 0) plan.push({ c: 0, t: 1, ml: 0, final: true });
+    plan.bonus = 1 + (want - cust) * 0.07;
     return plan;
   }
   function addRep(d) { GS.Store.set('rep', U.clamp((GS.Store.get('rep') == null ? 3 : GS.Store.get('rep')) + d, 0, 5)); }
@@ -194,7 +195,7 @@ GS.Game = (function () {
     const n = dayNumber(); luchoLook(n);
     const un = unlockedFor(n), fresh = n <= GS.UNLOCKS.length ? GS.UNLOCKS[n - 1] : [];
     const cond = conditionFor(n);
-    day = newDay({ relaxed, n, cond, unlocked: un, plan: planDay(n, cond), rest: 7.5 }); state = 'day'; enterPlay(); $('jobs').hidden = false;
+    day = newDay({ relaxed, n, cond, unlocked: un, plan: planDay(n, cond), rest: 5.5 }); state = 'day'; enterPlay(); $('jobs').hidden = false;
     A.setMood(cond === 'lluvia' ? 'rain' : cond ? 'party' : 'day');
     W.setXmas(cond === 'navidad' ? (GS.Store.get('xmas') || { a: 0, g: 0, l: 0 }) : null); W.setHats(cond === 'navidad');
     if (!relaxed) { const nw = day.plan.filter(w => !w.final).length; day.visits = dueStories(n).map((S, i) => ({ S, wave: Math.min(nw - 1, i + (nw > 2 ? 1 : 0)) })); }
@@ -483,9 +484,11 @@ GS.Game = (function () {
     ref.st = isCust ? (job.type === 'mostrador' ? 'inM' : 'inC') : 'in'; ref.pat = Math.max(ref.pat, 0.55);
     focusFor(job.type);
     yoGo(NODE_OF[job.type]);
+    const mt = day.mt = day.mt || {}, m0 = day.tt || 0, me = mt[job.type] = mt[job.type] || { n: 0, s: 0, e: 0 }; me.n++;
     const cb = {
-      onMistake(kind) { day.wv.mistakes = (day.wv.mistakes || 0) + 1; breakCombo(); addRep(-0.02); addCord(-CD.mistake); if (kind === 'caja') day.cajaErr++; else day.otherErr++; if (!day.relaxed) ref.pat = Math.max(0.05, ref.pat - C.day.mistakeCost); },
+      onMistake(kind) { me.e++; day.wv.mistakes = (day.wv.mistakes || 0) + 1; breakCombo(); addRep(-0.02); addCord(-CD.mistake); if (kind === 'caja') day.cajaErr++; else day.otherErr++; if (!day.relaxed) ref.pat = Math.max(0.05, ref.pat - C.day.mistakeCost); },
       onEnd(ok, info) {
+        me.s += (day.tt || 0) - m0;
         if (job.type !== 'caja') W.focus(null);
         if (job.type === 'mostrador') {
           addScore(100, ref.pat); addRep(0.02); { const v = GS.Store.get('vid') || 0, saw = Math.random() < v * 0.7 + (upNow().vidluz ? 0.15 : 0); if (saw) addRep(0.02); sayAt(ref.person, saw ? U.pick(LN.sawWindow) : '¡Eso! Voy a la caja.', saw ? 3000 : 1900); } ref.st = 'toCaja'; ref.slotM = -1; ref.pat = Math.max(ref.pat, 0.8);
@@ -710,9 +713,10 @@ GS.Game = (function () {
     { const tot = GS.Store.get('tot') || { c: 0, d: 0 }; tot.c += d.served; tot.d++; GS.Store.set('tot', tot); }
     const isFinal = d.n === C.finalDay && !GS.Store.get('testDay') && !GS.Store.get('final2Seen');
     lastCard = { n: d.n, score: d.score, stars, cord: cordEnd };
-    const earned = Math.round(d.score / 20 * coinMult()); GS.Store.set('coins', coinsNow() + earned);
+    const earned = Math.round(d.score / 20 * coinMult() * (d.plan.bonus || 1)); GS.Store.set('coins', coinsNow() + earned);
     const rv = repNow(), rd = rv - d.rep0; refreshStart();
-    GS.track('fin_jornada', { puntaje: d.score, atendidos: d.served, tareas: d.tasksDone, perdidos: missed, estrellas: stars, modo: entry.mode });
+    GS.track('fin_jornada', { puntaje: d.score, atendidos: d.served, tareas: d.tasksDone, perdidos: missed, estrellas: stars, modo: entry.mode, segundos: Math.round(d.tt || 0), monedas: earned });
+    { const ms = GS.Store.get('metrics') || []; ms.push({ n: d.n, modo: entry.mode, seg: Math.round(d.tt || 0), mg: Math.round(d.tj || 0), monedas: earned, at: d.served, per: d.lost, tar: d.tasksDone, tarde: d.tasksLate, err: d.cajaErr + d.otherErr, rep: Math.round(repNow() * 10) / 10, mt: d.mt || {} }); GS.Store.set('metrics', ms.slice(-40)); }
     $('endCol').innerHTML =
       '<div><div class="ticket"><h3>CIERRE DE CAJA</h3><div class="c">Jornada ' + d.n + ' · ' + rankOf(d.n) + (d.cond ? ' · ' + GS.CONDITIONS[d.cond].name : '') + (d.relaxed ? ' · turno tranquilo' : '') + '</div>' +
       '<p><span>Clientes atendidos</span><b>' + d.served + '</b></p><p><span>Tareas del local hechas</span><b>' + d.tasksDone + '</b></p>' +
@@ -944,6 +948,18 @@ GS.Game = (function () {
     });
   }
 
+  /* ---------------- Datos de prueba: lo que se mide en cada jornada, para ajustar la curva con números ---------------- */
+  function showMetrics() {
+    const ms = GS.Store.get('metrics') || [], mmss = v => Math.floor(v / 60) + ':' + String(v % 60).padStart(2, '0'), avg = k => ms.length ? Math.round(ms.reduce((a, m) => a + m[k], 0) / ms.length) : 0;
+    const by = {}; ms.forEach(m => { for (const k in m.mt) { const b = by[k] = by[k] || { n: 0, s: 0, e: 0 }; b.n += m.mt[k].n; b.s += m.mt[k].s; b.e += m.mt[k].e; } });
+    const txt = 'GameShop Simulator ' + C.version + ' · datos de prueba\n' + ms.map(m => 'J' + m.n + ' ' + m.modo + ' · ' + mmss(m.seg) + ' (minijuegos ' + mmss(m.mg) + ') · monedas ' + m.monedas + ' · atendidos ' + m.at + ' · perdidos ' + m.per + ' · tareas ' + m.tar + ' (tarde ' + m.tarde + ') · errores ' + m.err + ' · rep ' + m.rep).join('\n') +
+      '\n' + Object.keys(by).map(k => k + ': ' + by[k].n + ' veces, ' + (by[k].s / Math.max(1, by[k].n)).toFixed(1) + ' s c/u, ' + by[k].e + ' errores').join('\n');
+    modal('<h2>Datos de prueba</h2>' + (ms.length ? '<p>Últimas ' + ms.length + ' jornadas. Promedio: <b>' + mmss(avg('seg')) + '</b> por jornada y <b>🪙 ' + avg('monedas') + '</b>. La meta es unos 3:00.</p>' +
+      '<div class="mtable"><table><tr><th>Jorn.</th><th>Duración</th><th>🪙</th><th>Atend.</th><th>Perd.</th><th>Errores</th></tr>' + ms.slice().reverse().map(m => '<tr><td>' + m.n + (m.modo === 'Tranquilo' ? ' 🧘' : '') + '</td><td>' + mmss(m.seg) + '</td><td>' + m.monedas + '</td><td>' + m.at + '</td><td>' + m.per + '</td><td>' + m.err + '</td></tr>').join('') + '</table></div>' +
+      '<p style="font-size:13px;color:var(--mute);margin:0">Por tarea: ' + Object.keys(by).map(k => (ST(k) ? ST(k).short || ST(k).name : k) + ' ' + (by[k].s / Math.max(1, by[k].n)).toFixed(0) + ' s' + (by[k].e ? ' (' + by[k].e + ' err.)' : '')).join(' · ') + '</p>' +
+      '<button class="btn" id="mCopy">Copiar para mandar</button>' : '<p>Todavía no hay jornadas medidas. Jugá una y volvé.</p>') + '<button class="btn ghost" data-close>Cerrar</button>');
+    if ($('mCopy')) $('mCopy').addEventListener('click', () => { const ok = () => toast('Copiado. Pegalo en un mensaje.', '', 2000); if (navigator.clipboard) navigator.clipboard.writeText(txt).then(ok, () => window.prompt('Copiá este texto:', txt)); else window.prompt('Copiá este texto:', txt); });
+  }
   /* ---------------- Modo carrera: la primera vez, unas placas cortas presentan el local, la gente y la trama ---------------- */
   function careerStart() {
     A.unlock();
@@ -999,6 +1015,7 @@ GS.Game = (function () {
       '<div class="setting"><span>Jornada (modo prueba)</span>' + seg('testDay', [['0', 'Auto'], ['1', '1'], ['2', '2'], ['3', '3'], ['4', '4'], ['5', '5'], ['6', '6'], ['8', '8']], String(GS.Store.get('testDay') || 0)) + '</div>' +
       '<div class="setting"><span>Clima (modo prueba)</span>' + seg('testCond', [['', 'Auto'], ['ninguna', 'Normal'], ['lluvia', 'Lluvia'], ['blackfriday', 'Black Friday'], ['navidad', 'Navidad']], GS.Store.get('testCond') || '') + '</div>' +
       (fromPause ? '' : '<div class="setting"><span>Escena final<br><small>' + (GS.Store.get('final2Seen') ? 'Volver a verla' : 'Se ve al terminar la jornada ' + C.finalDay + ' (modo prueba)') + '</small></span><button class="btn ghost" id="optFinal" style="width:auto">Ver</button></div>') +
+      '<div class="setting"><span>Datos de prueba<br><small>Cuánto dura cada jornada, monedas y dónde hay errores</small></span><button class="btn ghost" id="optData" style="width:auto">Ver</button></div>' +
       '<div class="setting"><span>Empezar una temporada nueva<br><small>Vuelve a la jornada 1 y reinicia la trama. Conserva monedas y mejoras</small></span><button class="btn ghost" id="optDay1" style="width:auto">Volver</button></div>' +
       '<div class="setting"><span>Borrar todo<br><small>Jornadas, monedas, mejoras y récords</small></span><button class="btn ghost" id="optReset" style="width:auto">Reiniciar</button></div>' +
       '<button class="btn" data-close>Listo</button>', () => { if (fromPause) showPause(); });
@@ -1016,6 +1033,7 @@ GS.Game = (function () {
     }));
     $('optDay1').addEventListener('click', e => { GS.Store.set('days', 0); GS.Store.set('seen', {}); GS.Store.set('testDay', 0); ['hist', 'fondo', 'goalAdj', 'final2Seen', 'plotIntro', 'gflags', 'introSeen', 'xmas'].forEach(k => GS.Store.set(k, null)); refreshStart(); e.target.textContent = 'Listo ✔'; });
     $('optAv').addEventListener('click', () => showAvatar(() => showOptions(fromPause)));
+    $('optData').addEventListener('click', showMetrics);
     if ($('optFinal')) $('optFinal').addEventListener('click', () => { modalOnClose = null; $('modal').hidden = true; startFinal(); });
     $('optReset').addEventListener('click', e => { GS.Store.reset(); W.setUpgrades({}); refreshStart(); e.target.textContent = 'Borrado ✔'; });
   }
@@ -1050,7 +1068,8 @@ GS.Game = (function () {
   function frame(t) {
     requestAnimationFrame(frame);
     if (document.hidden) { lastT = t; return; }             // pestaña oculta: no se dibuja ni corre el reloj
-    const dt = Math.min(0.05, (t - lastT) / 1000 || 0); lastT = t;
+    const dt = Math.min(0.05, (t - lastT) / 1000 || 0) * (GS.DEBUG_SPEED || 1); lastT = t;
+    if (state === 'day' && day && !paused) { day.tt = (day.tt || 0) + dt; if (MG.isOpen()) day.tj = (day.tj || 0) + dt; }      // medición: segundos de jornada y segundos dentro de minijuegos
     if (state === 'day' && !paused) updateDay(dt);
     if (state === 'final' && !paused) updateFinal(dt);
     if (!paused) updateStaff(dt);

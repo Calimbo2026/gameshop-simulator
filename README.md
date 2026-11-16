@@ -2,7 +2,11 @@
 
 Juego web (un solo HTML) que simula una jornada de trabajo en GameShop. Pieza de marca para `juego.gameshop.com.ar`.
 
-## Estado: Etapa 5 de 5 (pulido, en curso)
+## Estado: Expansión nacional · etapa 1 de 8 (curva y tiempos)
+
+El juego base (las cinco etapas de abajo) está terminado. Ahora crece hacia "llevar GameShop a todo el país" en ocho etapas nuevas: ver `GS.PHASES` en `src/data.js` y la sección "Expansión nacional" al final.
+
+## Juego base (terminado)
 
 | # | Etapa | Qué incluye | Estado |
 |---|-------|-------------|--------|
@@ -134,3 +138,16 @@ Sin datos sensibles del negocio, sin personas reales, precios y stock ficticios.
 - **Stock:** la respuesta correcta cambia de lugar.
 
 **Pruebas:** `python3 test/v12.py` (celular de 360 x 640).
+
+## Expansión nacional
+
+Ocho etapas: 1) curva y tiempos, 2) feedback y resumen de jornada, 3) economía de dos recursos y mostrador, 4) mapa del país, sucursales y delegación, 5) historias, eventos y competencia, 6) minijuegos arcade, 7) finales y rejugabilidad, 8) lanzamiento.
+
+Decisiones tomadas: tres métricas (estrellas, monedas y fondos; el arcade premia con cosméticos); equivocarse cuesta de verdad; dos o tres bases de local con decoración regional; una sucursal se completa con 4,8 estrellas o más; sin ranking semanal; modismos regionales cariñosos, nunca burlones.
+
+### Etapa 1: curva y tiempos
+
+- **Medición** (`showMetrics` en `src/game.js`, Opciones → "Datos de prueba"): cada jornada guarda duración, tiempo dentro de minijuegos, monedas, atendidos, perdidos, errores y segundos por tipo de tarea. Botón para copiar todo como texto. También viaja en el evento `fin_jornada`.
+- **Tope por jornada** (`GS.CONFIG.day.maxDayCustomers` = 6, `maxDayTasks` = 2): con eso una jornada dura unos 3 minutos sin importar el día. Lo que el cartel y las mejoras traerían de más se paga como tickets más altos (+7% de monedas por cliente que no entra en el tope).
+- **Ritmo:** respiros de 7 s, llegadas cada 5,5 s (clientes) y 7 s (tareas).
+- **Cómo medir:** `python3 test/v8.py <jornada> 4` juega sola esa jornada a velocidad x4 (`GS.DEBUG_SPEED`) e imprime la medida. Con el bot: jornada 6 = 3:02, jornada 9 = 3:02, jornada 14 = 2:45; monedas entre 370 y 600.
