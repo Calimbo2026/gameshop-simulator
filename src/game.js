@@ -778,9 +778,22 @@ GS.Game = (function () {
     $('endArc').addEventListener('click', () => { goHome(); showArcade(); }); $('endHome').addEventListener('click', goHome);
     $('end').hidden = false; $('end').scrollTop = 0;
   }
+  // Arcade: tres juegos que se ganan jugando el modo carrera. Dan cosméticos (no monedas).
+  const HATN = { casco: 'Casco', corona: 'Corona', vincha: 'Vincha' };
   function showArcade() {
+    const days = GS.Store.get('days') || 0, cos = GS.Store.get('cos') || {}, best = GS.Store.get('arcBest') || {}, av = GS.Store.get('avatar') || {}, own = GS.ARCADE.filter(a => cos[a.prize]);
+    modal('<h2>🕹️ Arcade</h2><p>Juegos cortos que se ganan avanzando en el modo carrera. Si llegás a la meta, te llevás un premio para tu personaje.</p><div class="arc2">' +
+      GS.ARCADE.map(a => { const open = days >= a.from; return '<button data-arc="' + a.id + '"' + (open ? '' : ' disabled') + ' class="' + (cos[a.prize] ? 'won' : '') + '"><i>' + (open ? a.ic : '🔒') + '</i><b>' + a.name + '</b><small>' + (open ? a.d + ' Meta: ' + a.goal + (best[a.id] ? ' · tu mejor: ' + best[a.id] : '') + (cos[a.prize] ? ' · 🎁 ' + a.prizeName : '') : 'Se gana al terminar la jornada ' + a.from + '.') + '</small></button>'; }).join('') + '</div>' +
+      (own.length ? '<p style="margin:0 0 6px"><b>Tus premios</b></p><div class="hats"><button class="btn ghost" data-hat="">Sin nada</button>' + own.map(a => '<button class="btn ' + (av.hat === a.prize ? '' : 'ghost') + '" data-hat="' + a.prize + '">' + HATN[a.prize] + '</button>').join('') + '</div>' : '') +
+      '<div class="row"><button class="btn ghost" id="arcPrac">Practicar estaciones</button><button class="btn" data-close>Volver</button></div>');
+    $('sheet').querySelectorAll('[data-arc]').forEach(b => b.addEventListener('click', () => { $('modal').hidden = true; A.setMusic && A.setMood('day'); GS.track('arcade', { juego: b.dataset.arc }); GS.Arcade.open(b.dataset.arc, (sc, won, def) => {
+      const bs = GS.Store.get('arcBest') || {}; bs[def.id] = Math.max(bs[def.id] || 0, sc); GS.Store.set('arcBest', bs); if (won) { const c = GS.Store.get('cos') || {}; c[def.prize] = 1; GS.Store.set('cos', c); } }); }));
+    $('sheet').querySelectorAll('[data-hat]').forEach(b => b.addEventListener('click', () => { const a = Object.assign({}, GS.Store.get('avatar') || {}, { hat: b.dataset.hat || null }); GS.Store.set('avatar', a); W.setPlayerLook(a); A.play('ok'); showArcade(); }));
+    $('arcPrac').addEventListener('click', showPractice);
+  }
+  function showPractice() {
     const bests = GS.Store.get('arcade') || {};
-    modal('<h2>Arcade</h2><p>Jugá una estación suelta: 5 rondas seguidas, sin clientes esperando.</p><div class="arc">' +
+    modal('<h2>Practicar</h2><p>Jugá una estación suelta: 5 rondas seguidas, sin clientes esperando.</p><div class="arc">' +
       GS.STATIONS.map(s => '<button class="arc-b' + (s.soon ? ' soon' : '') + '" data-id="' + s.id + '"' + (s.soon ? ' disabled' : '') + '><span class="ji">' + s.icon + '</span><b>' + s.name + '</b><small>' +
         (s.soon ? 'Próximamente' : bests[s.id] ? 'Récord: ' + bests[s.id].toLocaleString('es-AR') : 'Sin jugar') + '</small></button>').join('') +
       '</div><button class="btn ghost" data-close>Volver</button>');
@@ -827,6 +840,7 @@ GS.Game = (function () {
       '<p><span>🗺️ Fondos de expansión</span><b>+' + fEarn + '</b></p><p><span>⭐ Reputación</span><b>' + repTxt(rv) + ' (' + (rd >= 0 ? '+' : '−') + repTxt(Math.abs(rd)) + ')</b></p>' +
       '<p><span>Facturación (ficticia)</span><b>' + U.money(d.sales) + '</b></p></div></div>' +
       '<div style="display:flex;flex-direction:column;gap:10px;margin-top:8px">' +
+      GS.ARCADE.filter(a => a.from === d.n && !GS.Store.get('testDay')).map(a => '<div class="newrec">🕹️ Premio de la jornada: <b>' + a.name + '</b><small>Juego nuevo en el Arcade (desde el inicio). ' + a.d + '</small></div>').join('') +
       fresh.map(a => '<div class="newrec">' + a.ic + ' Logro: <b>' + a.name + '</b><small>' + a.d + '</small></div>').join('') +
       '<div class="quote"><b>' + (d.moment ? 'El momento del día' : 'El Dueño opina') + '</b>' + (d.moment || comment) + '</div>' +
       '<div class="hook"><i>' + hook[0] + '</i><span><b>Lo que viene</b>' + hook[1] + '</span></div>' +
@@ -1210,7 +1224,7 @@ GS.Game = (function () {
       modal('<h2>Ups</h2><p>Este navegador no pudo iniciar los gráficos 3D. Probá actualizarlo o abrir el juego en otro navegador.</p>');
       return;
     }
-    staffInit(); applyBranch(); setSky(0.3, false); document.body.classList.toggle('big', !!GS.Store.get('big')); if (C.launched) { $('phasesStart').hidden = true; $('chipPhase').hidden = true; document.querySelector('.fine').firstChild.textContent = 'Precios y stock ficticios.'; }
+    staffInit(); applyBranch(); GS.Arcade.bind(); setSky(0.3, false); document.body.classList.toggle('big', !!GS.Store.get('big')); if (C.launched) { $('phasesStart').hidden = true; $('chipPhase').hidden = true; document.querySelector('.fine').firstChild.textContent = 'Precios y stock ficticios.'; }
     GS.track.init(); GS.track('abrir_juego', { jornada: dayNumber() }); window.addEventListener('error', e => GS.track('error_js', { msg: String(e.message).slice(0, 80) }));
     if (C.links.tienda) { $('btnStore').hidden = false; $('btnStore').href = C.links.tienda; $('btnStore').addEventListener('click', () => GS.track('click_tienda', { desde: 'inicio' })); }
     setCalm(!!GS.Store.get('calm')); syncMute(); W.showAll(); W.setUpgrades(upNow()); W.setPlayerLook(GS.Store.get('avatar'));

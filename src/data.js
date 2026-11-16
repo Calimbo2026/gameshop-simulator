@@ -7,9 +7,9 @@
 const GS = {};
 
 GS.CONFIG = {
-  version: '0.17.0',
-  phase: 6,
-  phaseNote: 'Cada sucursal ya tiene sus personajes, su rival y eventos sorpresa. Siguen los minijuegos arcade',                       // fase actual del proyecto (1 a 5)
+  version: '0.18.0',
+  phase: 7,
+  phaseNote: 'Ya se pueden ganar los tres juegos del Arcade. Siguen los finales y el Nuevo Juego+',                       // fase actual del proyecto (1 a 5)
   links: { tienda: 'https://www.gameshop.com.ar', instagram: '' },   // botones del inicio y del cierre (vacío = no se muestra)
   // Analítica: pegá acá el ID de medición de Google Analytics 4 (G-XXXXXXXXXX) y el juego empieza a contar jugadores. Vacío = no se envía nada.
   analytics: { ga4: '' },
