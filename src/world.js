@@ -786,7 +786,7 @@ GS.World = (function () {
     const sh = new T.Mesh(gShadow, shadowMat); sh.rotation.x = -Math.PI / 2; sh.position.y = 0.02; g.add(sh);
     const bag = box(g, 0.26, 0.3, 0.12, 0xe10600, 0.36, 0.3, 0.1); bag.visible = false;
     const carry = box(g, 0.36, 0.28, 0.3, 0xc49a6c, 0, 0.5, 0.3); carry.visible = false;
-    const mopG = new T.Group(); mopG.visible = false; g.add(mopG); { const st = new T.Mesh(new T.CylinderGeometry(0.03, 0.03, 1.35, 6), mat(0xb5894f)); st.position.set(0, 0.62, 0.42); st.rotation.x = 0.5; mopG.add(st); box(mopG, 0.5, 0.1, 0.22, 0x57b7e6, 0, 0, 0.76); box(mopG, 0.5, 0.05, 0.3, 0xe9f4fb, 0, 0, 0.82); }      // mopa
+    const mopG = new T.Group(); mopG.visible = false; g.add(mopG); { const st = new T.Mesh(new T.CylinderGeometry(0.03, 0.03, 1.35, 6), mat(0xb5894f)); st.position.set(0, 0.62, 0.42); st.rotation.x = -0.5; mopG.add(st); box(mopG, 0.5, 0.1, 0.22, 0x57b7e6, 0, 0, 0.76); box(mopG, 0.5, 0.05, 0.3, 0xe9f4fb, 0, 0, 0.82); }      // mopa
     const phone = o.phone ? box(g, 0.1, 0.18, 0.03, 0x111111, 0.16, 0.6, 0.2) : null;
     let cargo = null;
     if (o.cart) {
@@ -929,8 +929,11 @@ GS.World = (function () {
     if (Math.abs(v3.x - m.x) < m.w / 2 + pad * 0.5 && Math.abs(v3.z - m.z) < m.d / 2 + pad && v3.x > -2.6) return tapHandler('mostrador');
     let best = null, bd = 1.7;
     for (const st of GS.STATIONS) { if (st.soon) continue; const d = Math.hypot(v3.x - st.pos[0], v3.z - st.pos[1]); if (d < bd) { bd = d; best = st.id; } }
-    if (best) tapHandler(best);
+    if (best) tapHandler(best); else if (groundHandler) groundHandler(v3.x, v3.z);
   }
+  // marca en el piso donde se tocó
+  let groundHandler = null, pingM = null, pingT = 0;
+  function ping(x, z) { if (!pingM) { pingM = new T.Mesh(new T.RingGeometry(0.28, 0.4, 24), new T.MeshBasicMaterial({ color: 0xf5c518, transparent: true, depthWrite: false })); pingM.rotation.x = -Math.PI / 2; scene.add(pingM); } pingM.position.set(x, 0.03, z); pingT = 0.7; pingM.visible = true; }
 
   /* ---------- API ---------- */
   function init(cv) {
@@ -978,6 +981,7 @@ GS.World = (function () {
     const k = reduceMotion ? 1 : 1 - Math.pow(0.002, dt);
     cam.tx += (cam.gx - cam.tx) * k; cam.tz += (cam.gz - cam.tz) * k; cam.dist += (cam.gdist - cam.dist) * k;
     applyCam(); updatePeople(dt);
+    if (pingT > 0) { pingT -= dt; const k = 1 - pingT / 0.7; pingM.scale.setScalar(0.6 + k * 0.9); pingM.material.opacity = 1 - k; if (pingT <= 0) pingM.visible = false; }
     if (critters.length) updateCritters(dt);
     if (roofG) { const o = U.clamp((cam.dist / cam.fit - 1.42) / 0.16, 0, 1); roofG.visible = o > 0.02; if (roofG.visible) roofMats.forEach(m => { m.opacity = o; }); }
     for (const a of animated) {
@@ -1027,7 +1031,7 @@ GS.World = (function () {
       box(g, 0.5, 0.36, 0.5, 0xc49a6c, 0, 0, 0); box(g, 0.44, 0.3, 0.44, 0xb98d5e, 0.03, 0.36, 0); box(g, 0.3, 0.22, 0.3, 0xc49a6c, -0.03, 0.66, 0); box(g, 0.4, 0.3, 0.4, 0xb98d5e, 0.55, 0, 0.1);
       return { remove() { scene.remove(g); } };
     },
-    onTap(fn) { tapHandler = fn; },
+    onTap(fn) { tapHandler = fn; }, onGround(fn) { groundHandler = fn; }, ping,
     // Posición en pantalla de un punto del mundo (para barras y globos en HTML)
     project(x, y, z) {
       pv.set(x, y, z).project(camera);

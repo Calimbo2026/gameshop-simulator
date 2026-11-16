@@ -231,7 +231,7 @@ GS.Game = (function () {
   function clearDay() {
     if (day) { day.customers.forEach(c => { if (c.person) c.person.remove(); c.label.remove(); }); day.tasks.forEach(t => { t.label.remove(); if (t.boxes) t.boxes.remove(); }); day.says.forEach(x => x.el.remove()); day.extras.forEach(x => x.remove()); }
     MG.close(); W.focus(null); W.bossHome(); W.clearDirt();
-    { const yo = W.player(); if (yo) { yo.stop(); yo.setPos(L.yoMostrador[0], L.yoMostrador[1]); yo.face(0); yoAt = 'most'; yoRoute = []; } const b = STAFF[1]; if (b && b.busy) { b.busy = false; b.q = [['go', [[4.0, -5.0], [4.6, -4.4], [4.5, -1.2], b.hub]]]; } }
+    { const yo = W.player(); if (yo) { yo.stop(); yo.setPos(L.yoMostrador[0], L.yoMostrador[1]); yo.face(0); yoAt = 'most'; yoFree = false; yoDone = null; yoRoute = []; } const b = STAFF[1]; if (b && b.busy) { b.busy = false; b.q = [['go', [[4.0, -5.0], [4.6, -4.4], [4.5, -1.2], b.hub]]]; } }
   }
   function makeLabel(icon) {
     const label = document.createElement('div'); label.className = 'plabel'; label.innerHTML = '<span class="ic">' + icon + '</span><span class="b"><i></i></span>'; label.hidden = true;
@@ -558,8 +558,8 @@ GS.Game = (function () {
   // Limpiar: el personaje va con la mopa hasta cada mancha, la friega un momento y sigue con la próxima
   function mopNext() {
     const yo = W.player(); if (!day || !day.mopping) return;
-    if (!day.dirtPos.length) { day.mopping = false; yo.mop(false); day.jobSig = ''; yoAt = 'H'; yoRoute = []; yo.walk([[NAV.H[0], NAV.H[1]]], () => { if (NAV.H[3] != null) yo.face(NAV.H[3]); }); return; }
-    const q = day.dirtPos[0]; yo.walk([[q[0] - 0.35, q[1] - 0.35]], () => { if (day && day.mopping) { yo.face(Math.PI / 4); day.mopT = 1.1; } });
+    if (!day.dirtPos.length) { day.mopping = false; yo.mop(false); day.jobSig = ''; yoGo('H'); return; }
+    const q = day.dirtPos[0]; yoWalkTo(q[0] - 0.35, q[1] - 0.35, () => { if (day && day.mopping) { yo.face(Math.PI / 4); day.mopT = 1.1; } });
   }
   function mopTick(dt) {
     if (!day.mopping || day.mopT <= 0) return; day.mopT -= dt; W.player().mopTick(day.t);
@@ -567,7 +567,7 @@ GS.Game = (function () {
   }
   function stopMop() { if (day && day.mopping) { day.mopping = false; day.mopT = 0; W.player().mop(false); } }
   function cleanUp() {
-    if (!day.dirt || day.mopping) return; day.mopping = true; day.jobSig = ''; yoRoute = []; W.player().mop(true); A.play('click'); mopNext();
+    if (!day.dirt || day.mopping) return; day.mopping = true; day.jobSig = ''; W.player().mop(true); A.play('click'); mopNext();
   }
   function leave(cu, withBag) {
     if (!cu.story && cu.st !== 'entering') dropDirt();
@@ -613,18 +613,32 @@ GS.Game = (function () {
     prov: [4.3, -5.5, 'X', 1.2], ml: [4.5, -2.3, 'O', 1.57], DD: [6.0, -4.4, 'A'], D1: [7.4, -4.4, 'DD'], repo: [8.3, -4.4, 'D1', 3.14],
     H: [4.0, 0.9, 'O'], T1: [4.0, 5.5, 'H'], TD: [6.0, 5.5, 'T1'], T2: [7.3, 5.9, 'TD'], service: [8.7, 5.65, 'T2', 3.14], pc: [10.1, 6.15, 'T2', 0], G: [-0.3, 5.5, 'T1'], vid: [0.6, 7.3, 'G', 1.57] };
   const NODE_OF = { mostrador: 'most', devol: 'most', whatsapp: 'wa', stock: 'wa', caja: 'caja', cierre: 'caja', adornos: 'H', ml: 'ml', proveedor: 'prov', repo: 'repo', service: 'service', pc: 'pc', vidriera: 'vid' };
-  let yoAt = 'most', yoRoute = [];
+  let yoAt = 'most', yoRoute = [], yoFree = false, yoDone = null;      // yoFree: está parado fuera de los nodos (caminó a un punto libre)
   const navChain = n => { const c = []; while (n) { c.push(n); n = NAV[n][2]; } return c; };
-  function yoGo(target) {
-    const yo = W.player(); if (!yo || !NAV[target]) return;
+  function yoEnd(n) { const yo = W.player(); if (NAV[n][3] != null) yo.face(NAV[n][3]); const f = yoDone; yoDone = null; if (f) f(); }
+  function yoGo(target, done) {
+    const yo = W.player(); if (!yo || !NAV[target]) return; yoDone = done || null;
     const moving = yoRoute.length > 0, from = moving ? yoRoute[0] : yoAt, a = navChain(from), b = navChain(target); let lca = null;
     while (a.length && b.length && a[a.length - 1] === b[b.length - 1]) { lca = a.pop(); b.pop(); }
     yoRoute = a.concat([lca], b.reverse()); if (yoRoute[0] !== from) yoRoute.unshift(from);
-    if (!moving) { yoRoute.shift(); if (yoRoute.length) yoStep(); else if (NAV[target][3] != null) yo.face(NAV[target][3]); }
+    if (!moving) { if (!yoFree) yoRoute.shift(); yoFree = false; if (yoRoute.length) yoStep(); else yoEnd(target); }      // si estaba suelto, primero vuelve al nodo más cercano
   }
   function yoStep() {
     const yo = W.player(), n = yoRoute[0];
-    yo.walk([[NAV[n][0], NAV[n][1]]], () => { yoAt = n; yoRoute.shift(); if (yoRoute.length) yoStep(); else if (NAV[n][3] != null) yo.face(NAV[n][3]); });
+    yo.walk([[NAV[n][0], NAV[n][1]]], () => { yoAt = n; yoRoute.shift(); if (yoRoute.length) yoStep(); else yoEnd(n); });
+  }
+  // Caminar a un punto libre del local: por los pasillos hasta el nodo más cercano (nunca a través del mostrador) y de ahí derecho
+  const WALK = ['O', 'H', 'T1', 'G'];
+  function yoWalkTo(x, z, cb) {
+    const yo = W.player(); if (!yo) return; let best = WALK[0], bd = 1e9; const from = yoRoute.length ? yoRoute[0] : yoAt;
+    const navLen = to => { const a = navChain(from), b = navChain(to); let l = null; while (a.length && b.length && a[a.length - 1] === b[b.length - 1]) { l = a.pop(); b.pop(); } const r = a.concat([l], b.reverse()); let d = 0; for (let i = 1; i < r.length; i++) d += Math.hypot(NAV[r[i]][0] - NAV[r[i - 1]][0], NAV[r[i]][1] - NAV[r[i - 1]][1]); return d; };
+    WALK.forEach(n => { const d = navLen(n) * 0.6 + Math.hypot(NAV[n][0] - x, NAV[n][1] - z); if (d < bd) { bd = d; best = n; } });      // el camino más corto en total, no solo el nodo más cercano
+    yoGo(best, () => { yoFree = true; yo.walk([[x, z]], () => { if (cb) cb(); }); });
+  }
+  function groundTap(x, z) {
+    if (state !== 'day' || !day || day.arcade || paused || MG.isOpen() || day.mopping || day.closing) return;
+    const s = L.salon, ok = (x > s.xMin + 0.6 && x < s.xMax - 0.5 && z > L.mostrador.z + 1.3 && z < s.zMax - 0.2) || (Math.abs(x - L.puerta.x) < 1.3 && z >= s.zMax - 0.2 && z < L.galeria.zMax + 0.2) || (z >= L.galeria.zMax + 0.2 && z < L.galeria.zMax + 3.7 && x > -11 && x < 14);
+    if (!ok) return; W.ping(x, z); A.play('click'); yoWalkTo(x, z);
   }
   function focusFor(type) {
     const land = window.innerWidth > window.innerHeight && window.innerHeight <= 560;
@@ -633,7 +647,7 @@ GS.Game = (function () {
   function openStation(type) {       // toque sobre una estación en el 3D
     if (state !== 'day' || !day || day.arcade) return;
     const job = pendingJobs().find(j => j.type === type);
-    if (!job) { if (!MG.isOpen() && !paused) toast('No hay nada pendiente en ' + ST(type).name + '.', '', 1400); return; }
+    if (!job) { if (!MG.isOpen() && !paused && !day.mopping && NODE_OF[type]) yoGo(NODE_OF[type]); return; }      // sin nada pendiente, igual se puede ir hasta ahí
     openJob(job);
   }
   function openJob(job) {
@@ -1336,7 +1350,7 @@ GS.Game = (function () {
     $('shopSlots').addEventListener('click', e => { const b = e.target.closest('.slotb'); if (b) { shopSel = Number(b.dataset.i); A.play('click'); renderShop(); } });
     $('shopCards').addEventListener('click', e => { const b = e.target.closest('[data-buy]'), c = e.target.closest('[data-see]'); if (b && !b.disabled) return buy(Number(b.dataset.buy)); if (c) { const x = $('shopCards').scrollLeft; A.play('click'); renderShop(Number(c.dataset.see)); $('shopCards').scrollLeft = x; } });
     $('shopCards').addEventListener('scroll', () => { const el = $('shopCards'), i = Math.round(el.scrollLeft / Math.max(1, el.clientWidth * 0.86)); if (el._i !== i) { el._i = i; const u = upNow(), g = GS.UPGRADES[shopSel], sh = Object.assign({}, u); sh[g.id] = Math.max(u[g.id] || 0, i + 1); W.setUpgrades(sh); } });
-    W.onTap(st => openStation(st));
+    W.onTap(st => openStation(st)); W.onGround(groundTap);
     $('btnPlay').addEventListener('click', careerStart);
     $('btnRelax').addEventListener('click', () => startDay(true));
     $('btnArcade').addEventListener('click', () => { A.unlock(); A.play('click'); showArcade(); });
