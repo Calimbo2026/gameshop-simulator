@@ -434,9 +434,14 @@ GS.World = (function () {
     mansard(0, (zN + zS) / 2, w, zS - zN, y, 1.9, 0.62, [4, 6]); mansard(8.95, 0.65, 5.2, 15.7, y - 0.5, 1.3, 0.55, [2, 5]);
     [[-1.6, -2.4], [1.4, -2.4], [0, 4.6]].forEach(q => { box(g, 1.5, 0.6, 1.1, light, q[0], y + 1.97, q[1]); box(g, 1.0, 0.08, 0.7, grey, q[0], y + 2.57, q[1]); });     // equipos de aire arriba
     // Logo corpóreo: letras con volumen paradas sobre el faldón del frente. "Game" en negro y "Shop" en rojo.
-    const logo = (side) => canvasTex(1024, 256, (c, W, H) => { c.font = 'italic 900 190px Impact, "Arial Narrow", "Arial Black", sans-serif'; c.textBaseline = 'middle'; c.lineJoin = 'round';
-      const a = c.measureText('Game').width, b = c.measureText('Shop').width, x0 = (W - a - b - 8) / 2; c.lineWidth = 16; c.strokeStyle = side ? '#6b6e78' : '#ffffff'; c.strokeText('Game', x0, H / 2 + 6); c.strokeText('Shop', x0 + a + 8, H / 2 + 6);
-      c.fillStyle = side ? '#050506' : '#141416'; c.fillText('Game', x0, H / 2 + 6); c.fillStyle = side ? '#8f0400' : '#e10600'; c.fillText('Shop', x0 + a + 8, H / 2 + 6); });
+    // Se arma con el logo real (misma tipografía): lo blanco pasa a negro, lo rojo queda rojo y el fondo negro se vuelve transparente.
+    const logo = (side) => { const W = 1024, H = 256, c = document.createElement('canvas'); c.width = W; c.height = H; const t = new T.CanvasTexture(c); t.anisotropy = 4;
+      const paint = () => { const mk = () => { const o = document.createElement('canvas'); o.width = W; o.height = H; return o; }, o = mk(), og = o.getContext('2d'), iw = 940, ih = iw * logoImg.height / logoImg.width; og.drawImage(logoImg, (W - iw) / 2, (H - ih) / 2, iw, ih);
+        const im = og.getImageData(0, 0, W, H), d = im.data; for (let k = 0; k < d.length; k += 4) { const a = Math.max(d[k], d[k + 1], d[k + 2]), wh = d[k + 1] > 110; d[k] = wh ? 20 : 225; d[k + 1] = wh ? 20 : 6; d[k + 2] = wh ? 22 : 0; d[k + 3] = a; } og.putImageData(im, 0, 0);
+        const sil = mk(), sg = sil.getContext('2d'); sg.drawImage(o, 0, 0); sg.globalCompositeOperation = 'source-in'; sg.fillStyle = side ? '#5a5d66' : '#ffffff'; sg.fillRect(0, 0, W, H);
+        const g2 = c.getContext('2d'); g2.clearRect(0, 0, W, H); for (let a = 0; a < 16; a++) g2.drawImage(sil, Math.cos(a * 0.3927) * 7, Math.sin(a * 0.3927) * 7); g2.drawImage(o, 0, 0);
+        if (side) { g2.globalCompositeOperation = 'source-atop'; g2.fillStyle = 'rgba(0,0,0,0.4)'; g2.fillRect(0, 0, W, H); g2.globalCompositeOperation = 'source-over'; } t.needsUpdate = true; };
+      if (logoReady) paint(); else logoWaiters.push(paint); return t; };
     const lf = new T.MeshBasicMaterial({ map: logo(false), transparent: true, alphaTest: 0.08 }), ls = new T.MeshBasicMaterial({ map: logo(true), transparent: true, alphaTest: 0.08 }); roofMats.push(lf, ls);
     const lg = new T.Group(); lg.position.set(0, y + 1.55, zS - 2.5); lg.rotation.x = -0.85; g.add(lg);
     for (let i = 0; i < 18; i++) plane(lg, 11.6, 2.9, i === 17 ? lf : ls, 0, 0, i * 0.04);
