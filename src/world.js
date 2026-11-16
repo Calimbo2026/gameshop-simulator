@@ -601,6 +601,7 @@ GS.World = (function () {
   const dirtGeo = new T.CircleGeometry(0.34, 9), dirtMat = new T.MeshBasicMaterial({ color: 0x4a3a2a, transparent: true, opacity: 0.55, depthWrite: false }); let dirt = [];
   function addDirt(x, z) { const m = new T.Mesh(dirtGeo, dirtMat); m.rotation.x = -Math.PI / 2; m.rotation.z = Math.random() * 6; m.scale.set(0.7 + Math.random() * 0.6, 0.6 + Math.random() * 0.5, 1); m.position.set(x, 0.016, z); scene.add(m); dirt.push(m); }
   function clearDirt() { dirt.forEach(m => scene.remove(m)); dirt = []; }
+  function removeDirt() { const m = dirt.shift(); if (m) scene.remove(m); }
   // El local de al lado (la trama): pegado a la izquierda, con la persiana baja y un cartel inclinado en el techo
   let nextSigns = null, xmasG = null;
   function buildNext(root) {
@@ -785,6 +786,7 @@ GS.World = (function () {
     const sh = new T.Mesh(gShadow, shadowMat); sh.rotation.x = -Math.PI / 2; sh.position.y = 0.02; g.add(sh);
     const bag = box(g, 0.26, 0.3, 0.12, 0xe10600, 0.36, 0.3, 0.1); bag.visible = false;
     const carry = box(g, 0.36, 0.28, 0.3, 0xc49a6c, 0, 0.5, 0.3); carry.visible = false;
+    const mopG = new T.Group(); mopG.visible = false; g.add(mopG); { const st = new T.Mesh(new T.CylinderGeometry(0.03, 0.03, 1.35, 6), mat(0xb5894f)); st.position.set(0, 0.62, 0.42); st.rotation.x = 0.5; mopG.add(st); box(mopG, 0.5, 0.1, 0.22, 0x57b7e6, 0, 0, 0.76); box(mopG, 0.5, 0.05, 0.3, 0xe9f4fb, 0, 0, 0.82); }      // mopa
     const phone = o.phone ? box(g, 0.1, 0.18, 0.03, 0x111111, 0.16, 0.6, 0.2) : null;
     let cargo = null;
     if (o.cart) {
@@ -846,6 +848,8 @@ GS.World = (function () {
       look(a) { style(a); },
       cargo(v) { if (cargo) cargo.visible = v; },
       phone(v) { if (phone) phone.visible = v; },
+      mop(v) { mopG.visible = v; p.holding = v; arms.forEach(a => { a.rotation.x = v ? -0.9 : 0; }); mopG.position.z = 0; },
+      mopTick(t) { const k = Math.sin(t * 9); arms.forEach(a => { a.rotation.x = -0.9 + k * 0.3; }); mopG.position.z = k * 0.14; mopG.position.x = Math.cos(t * 4.5) * 0.06; },
       carry(v) { carry.visible = v; arms.forEach(a => { a.rotation.x = v ? -1.1 : 0; }); p.holding = v; },
       lie(v) { g.rotation.x = v ? -1.3 : 0; g.position.y = v ? 0.28 : 0; },
       stop() { p.path = []; p.moving = false; p.onArrive = null; g.position.y = 0; rest(p); },
@@ -1005,7 +1009,7 @@ GS.World = (function () {
     setXmas,
     setHats(on) { [yo, lucho, brian, boss].forEach(p => { if (p) p.look({ hat: on ? 'gorro' : null }); }); },
     setNext() {},
-    addDirt, clearDirt, setRegion,
+    addDirt, clearDirt, removeDirt, setRegion,
     bossVisible(v) { if (boss) boss.group.visible = v; },
     boss: () => boss,
     staff: () => [lucho, brian],

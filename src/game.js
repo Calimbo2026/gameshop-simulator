@@ -53,7 +53,7 @@ GS.Game = (function () {
       relaxed: false, arcade: null, t: 0, dur: C.day.seconds, score: 0, combo: 0, bestCombo: 0, sales: 0, served: 0, lost: 0, cajaErr: 0, otherErr: 0,
       tasksDone: 0, tasksLate: 0, customers: [], tasks: [], spawned: 0, tasksSpawned: 0,
       extras: [], n: 1, unlocked: unlockedFor(1), plan: planDay(1), rep0: repNow(), dueno: null, wave: -1, stage: 'rest', rest: 0.6, queue: [], says: [], sayQ: [], sayGap: 0, beat: 0, wv: { done: {} }, ev: {},
-      cajaCount: 0, closing: false, jobSig: '', visits: [], dirt: 0, cleaned: 0, cord: CD.start, mate: false, lookers: [], lookT: 4, spots: {}, helper: null, intr: null, intrN: 0, intrOk: 0, intrBag: [], reqBag: U.shuffle(GS.REQUESTS), archBag: U.shuffle(GS.CUSTOMERS), taskBag: []
+      cajaCount: 0, closing: false, jobSig: '', visits: [], dirt: 0, dirtPos: [], mopping: false, mopT: 0, cleaned: 0, cord: CD.start, mate: false, lookers: [], lookT: 4, spots: {}, helper: null, intr: null, intrN: 0, intrOk: 0, intrBag: [], reqBag: U.shuffle(GS.REQUESTS), archBag: U.shuffle(GS.CUSTOMERS), taskBag: []
     }, extra || {});
   }
   // Arma la jornada: cuántos clientes y tareas trae cada tanda. Va de menos a más.
@@ -553,10 +553,21 @@ GS.Game = (function () {
   // Limpieza: los clientes dejan manchas; se limpian en los ratos libres. Terminar con el piso sucio baja la reputación.
   function dropDirt() {
     if (!day || day.arcade || day.dirt >= 5 || Math.random() > (upNow().plantas ? 0.22 : 0.45)) return;
-    coach('mancha'); day.dirt++; day.jobSig = ''; W.addDirt(U.rnd(-3.6, 0.6), U.rnd(-2.0, 4.6));
+    coach('mancha'); day.dirt++; day.jobSig = ''; { const x = U.rnd(-3.6, 0.6), z = U.rnd(-2.0, 4.6); day.dirtPos.push([x, z]); W.addDirt(x, z); }
   }
+  // Limpiar: el personaje va con la mopa hasta cada mancha, la friega un momento y sigue con la próxima
+  function mopNext() {
+    const yo = W.player(); if (!day || !day.mopping) return;
+    if (!day.dirtPos.length) { day.mopping = false; yo.mop(false); day.jobSig = ''; yoAt = 'H'; yoRoute = []; yo.walk([[NAV.H[0], NAV.H[1]]], () => { if (NAV.H[3] != null) yo.face(NAV.H[3]); }); return; }
+    const q = day.dirtPos[0]; yo.walk([[q[0] - 0.35, q[1] - 0.35]], () => { if (day && day.mopping) { yo.face(Math.PI / 4); day.mopT = 1.1; } });
+  }
+  function mopTick(dt) {
+    if (!day.mopping || day.mopT <= 0) return; day.mopT -= dt; W.player().mopTick(day.t);
+    if (day.mopT <= 0) { day.dirtPos.shift(); W.removeDirt(); day.dirt = Math.max(0, day.dirt - 1); day.cleaned++; day.score += 25; addRep(0.015); A.play('ok'); fx('🧹 +25'); day.jobSig = ''; mopNext(); }
+  }
+  function stopMop() { if (day && day.mopping) { day.mopping = false; day.mopT = 0; W.player().mop(false); } }
   function cleanUp() {
-    const n = day.dirt; if (!n) return; day.dirt = 0; day.cleaned += n; day.jobSig = ''; W.clearDirt(); day.score += 25 * n; addRep(0.015 * n); A.play('ok'); fx('🧹 +' + 25 * n); yoGo('H'); day.beat = 0.7;
+    if (!day.dirt || day.mopping) return; day.mopping = true; day.jobSig = ''; yoRoute = []; W.player().mop(true); A.play('click'); mopNext();
   }
   function leave(cu, withBag) {
     if (!cu.story && cu.st !== 'entering') dropDirt();
@@ -592,7 +603,7 @@ GS.Game = (function () {
     }
     for (const t of day.tasks) if (t.st === 'wait') jobs.push({ key: 't' + t.id, type: t.station.id, ref: t, pat: t.pat, icon: t.station.icon, title: t.station.short || t.station.name, sub: t.station.task.name });
     if (brId() !== 'pampeana' && !day.arcade && !day.taught && (brNow().train || 0) < 3 && day.stage === 'rest' && day.wave >= 0) jobs.push({ key: 'teach', type: 'ensenar', ref: null, pat: 1, icon: '🎓', title: 'Enseñarle al equipo', sub: 'Nivel ' + (brNow().train || 0) + ' de 3 · después resuelven tareas solos' });
-    if (day.dirt && !day.arcade && (day.stage === 'rest' || !jobs.length || day.dirt >= 3)) jobs.push({ key: 'dirt' + day.dirt, type: 'limpiar', ref: null, pat: 1, icon: '🧹', title: 'Limpiar el piso', sub: day.dirt + (day.dirt === 1 ? ' mancha' : ' manchas') + ' · un toque y listo' });
+    if (day.dirt && !day.mopping && !day.arcade && (day.stage === 'rest' || !jobs.length || day.dirt >= 3)) jobs.push({ key: 'dirt' + day.dirt, type: 'limpiar', ref: null, pat: 1, icon: '🧹', title: 'Limpiar el piso', sub: day.dirt + (day.dirt === 1 ? ' mancha' : ' manchas') + ' · un toque y listo' });
     return jobs.sort((a, b) => a.pat - b.pat);
   }
   /* ---------------- Tu personaje camina solo hasta cada tarea, por los pasillos y las puertas ----------------
@@ -627,6 +638,7 @@ GS.Game = (function () {
   }
   function openJob(job) {
     if (state !== 'day' || paused || MG.isOpen() || day.closing || day.beat > 0) return;
+    if (job.type !== 'limpiar') stopMop();
     if (job.type === 'historia') return openStory(job.ref);
     if (job.type === 'limpiar') return cleanUp();
     if (job.type === 'ensenar') return teach();
@@ -682,7 +694,7 @@ GS.Game = (function () {
     if (day.arcade) return updateArcade(dt);
     day.t += dt;
     const cfg = C.day, open = MG.isOpen();
-    if (day.beat > 0) day.beat -= dt;
+    if (day.beat > 0) day.beat -= dt; mopTick(dt);
     // tandas: llegan unos pocos pendientes, se resuelven y viene un respiro
     if (!day.closing) {
       if (day.stage === 'rest') { day.rest -= dt; if (day.rest <= 0) startWave(); }
@@ -864,7 +876,7 @@ GS.Game = (function () {
   /* ---------------- Cierre de caja ---------------- */
   function endDay() {
     if (!day || state !== 'day' || day.arcade) return;
-    state = 'end'; MG.close(); W.focus(null); W.showAll(); A.play('endDay'); A.setMood('menu'); $('rain').hidden = true;
+    stopMop(); state = 'end'; MG.close(); W.focus(null); W.showAll(); A.play('endDay'); A.setMood('menu'); $('rain').hidden = true;
     const d = day; d.intr = null;
     d.customers.slice().forEach(c => { if (c.st !== 'leaving') leave(c, false); }); d.lookers.slice().forEach(lk => { if (lk.st !== 'out') { lk.p.stop(); lookerOut(lk); } });
     d.tasks.slice().forEach(removeTask); d.says.forEach(x => x.el.remove()); d.says = [];
@@ -1019,7 +1031,7 @@ GS.Game = (function () {
   function showAvatar(then) {
     const a = Object.assign({ skin: GS.SKINS[2], hair: GS.HAIRS[0], hairStyle: 'corto', glasses: false, beard: false, lips: false }, GS.Store.get('avatar') || {}), hex = n => '#' + n.toString(16).padStart(6, '0');
     const sw = (key, list) => '<div class="sw" data-k="' + key + '">' + list.map(c => '<button style="background:' + hex(c) + '" data-c="' + c + '" class="' + (a[key] === c ? 'on' : '') + '"></button>').join('') + '</div>';
-    modal('<h2>Tu personaje</h2><p>Sos quien atiende el mostrador. Combiná lo que quieras.</p><div class="avprev" id="avPrev"></div>' +
+    modal('<h2>' + (GS.Store.get('introSeen') ? 'Tu personaje' : 'Primero, armá tu personaje') + '</h2><p>Sos quien atiende el mostrador. Combiná lo que quieras; después lo podés cambiar desde Opciones.</p><div class="avprev" id="avPrev"></div>' +
       '<div class="setting"><span>Piel</span>' + sw('skin', GS.SKINS) + '</div><div class="setting"><span>Pelo</span>' + sw('hair', GS.HAIRS) + '</div>' +
       '<div class="setting"><span>Peinado</span><div class="seg" id="avStyle">' + GS.HAIRSTYLES.map(h => '<button data-v="' + h[0] + '" class="' + (a.hairStyle === h[0] ? 'on' : '') + '">' + h[1] + '</button>').join('') + '</div></div>' +
       '<div class="setting"><span>Accesorios</span><div class="seg" id="avAcc">' + [['glasses', 'Anteojos'], ['beard', 'Barba'], ['lips', 'Labios pintados'], ['lashes', 'Pestañas']].map(x => '<button data-v="' + x[0] + '" class="' + (a[x[0]] ? 'on' : '') + '">' + x[1] + '</button>').join('') + '</div></div>' +
@@ -1150,7 +1162,7 @@ GS.Game = (function () {
   /* ---------------- Modo carrera: la primera vez, unas placas cortas presentan el local, la gente y la trama ---------------- */
   function careerStart() {
     A.unlock();
-    if (!GS.Store.get('avatar')) return showAvatar(careerStart);
+    if (!GS.Store.get('avatar') || (dayNumber() === 1 && !GS.Store.get('introSeen') && !GS.Store.get('avOk'))) return showAvatar(() => { GS.Store.set('avOk', true); careerStart(); });
     if (dayNumber() === 1 && !GS.Store.get('introSeen')) return showOnboard(() => showIntro(() => startDay(false)));
     startDay(false);
   }
