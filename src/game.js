@@ -388,7 +388,7 @@ GS.Game = (function () {
   function mapPick(id) { GS.Map3D.select(id); $('mapCard').innerHTML = mapCard(id); A.play('click'); }
   function showMap() {
     const all = brAll(), n = MAIN.filter(r => all[r.id] && all[r.id].open).length; mapWasDay = state === 'day'; if (mapWasDay) paused = true;
-    $('modal').hidden = true; $('map').hidden = false; $('mapSub').textContent = 'Sucursales ' + n + ' de 5 · fondos de expansión 🗺️ ' + fondoNow() + ' · tocá una región';
+    $('modal').hidden = true; $('map').hidden = false; $('mapSuc').textContent = '🏪 Sucursales ' + n + ' de 5'; $('mapFon').textContent = '🗺️ Fondos ' + (DEV() ? '∞' : fondoNow()); $('mapX').textContent = state === 'menu' ? '← Volver al menú' : '← Volver';
     if (!GS.Map3D.open($('mapCv'), mapState(), mapPick)) { closeMap(); return toast('<b>Ups</b>No se pudo dibujar el mapa en este navegador.', '', 2600); }
     GS.Map3D.select(brId()); $('mapCard').innerHTML = mapCard(brId());
   }
