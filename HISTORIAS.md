@@ -1,6 +1,6 @@
 # GameShop Simulator · Historias de cada sucursal
 
-Generado desde `src/data.js` (versión 0.29.0). Cada personaje viene al mostrador; en cada visita dice algo y el jugador elige una respuesta. Entre paréntesis, lo que deja cada respuesta (⭐ reputación, 🗺️ fondos de expansión).
+Generado desde `src/data.js` (versión 0.30.0). Cada personaje viene al mostrador; en cada visita dice algo y el jugador elige una respuesta. Entre paréntesis, lo que deja cada respuesta (⭐ reputación, 🗺️ fondos de expansión).
 
 ---
 
@@ -144,31 +144,6 @@ Desde la jornada 5.
 - **Es parte del equipo** → «Les mando saludos a todos. ¡Vuelvo para el cierre de la temporada!» (+500 🗺️)
 
 *En la libreta:* El chat explotó. Preguntaron por el del mohicano.
-
-### El hombre del maletín — Pregunta demasiado
-
-Desde la jornada 6.
-
-**Visita 1.** «Buenas. Una consulta, nada más: el local de al lado... ¿cuántos metros tiene? ¿Entra mucha gente por acá?»
-
-- **Eso pregúnteselo al Dueño** → «Discreto. Interesante. Buenas tardes.»
-- **Un montón, y lo vamos a comprar nosotros** → «¿Ah, sí? Qué dato. Muy amable.»
-
-*En la libreta:* Preguntó por el local de al lado. Raro.
-
-**Visita 2.** «Represento a MegaPlay Center. Vamos a ofertar por el local de al lado. Y por vos: te pagamos el doble. ¿Qué decís?»
-
-- **Mi lugar es GameShop** → «Lealtad. Qué antiguo. Dejo mi tarjeta igual.» (+0.2 ⭐)
-- **¿El doble de cuánto?** → «El doble de lo que sea. Lo consultamos y te avisamos.» (-0.1 ⭐)
-
-*En la libreta:* Es de MegaPlay Center. Quieren el local... y me ofreció trabajo.
-
-**Visita 3 (cierre).** «Última oferta: MegaPlay se retira de la compra si me decís cuánto juntaron ustedes.»
-
-- **Lo suficiente. Buenas tardes** → «...Me caés bien. Voy a decir que el local tiene humedad.» (+0.1 ⭐)
-- **Poquito, la verdad** → «Mh. Entonces ofertamos más. Gracias por la sinceridad.»
-
-*En la libreta:* MegaPlay hizo su última jugada.
 
 ### Nilda — Está vaciando un altillo
 
@@ -485,6 +460,30 @@ Desde la jornada 3 en esa sucursal.
 - **Provincias:** Islas Malvinas
 - **Clima:** Frío oceánico, viento casi todos los días y llovizna. Todo el mundo abrigado.
 - **Competencia:** Pirata Gaming, de El Capitán Tormenta. Dice que las islas son suyas porque llegó en barco. Te "toma prestados" los carteles, los toldos y a veces los pedidos.
+
+### El Capitán Tormenta — Dueño de Pirata Gaming
+
+Desde la jornada 2 en esa sucursal.
+
+**Visita 1.** «¡Ah del local! Soy el Capitán Tormenta, de Pirata Gaming. Llegué en barco, clavé un cartel y dije "esto es mío". Así funciona, ¿no?»
+
+- **No. Acá se atiende bien y se gana el lugar** → «¿Atender bien? Qué método raro. Ya van a ver.» (+0.1 ⭐)
+- **Las islas ya tenían dueño, capitán** → «Detalles. Los piratas no leemos la letra chica.» (+0.1 ⭐)
+
+*En la libreta:* El Capitán Tormenta dice que las islas son suyas porque llegó en barco.
+
+**Visita 2.** «Qué casualidad: su cartel apareció en mi barco. Y su toldo. Y un pingüino con remera roja. Yo los "tomé prestados". Es cultura pirata.»
+
+- **Devuélvalos. El pingüino trabaja acá** → «El pingüino se quiso volver solo. Dice que ustedes pagan mejor.» (+0.15 ⭐, +100 🗺️)
+- **Quédese el toldo: con este viento se le vuela igual** → «...Ya se voló. Con el ancla y todo.» (+0.15 ⭐)
+
+*En la libreta:* Pirata Gaming "tomó prestados" el cartel, el toldo y un pingüino.
+
+**Visita 3 (cierre).** «Basta de juegos. Duelo final: todo el pueblo hace fila en los dos locales. El que atienda a todos sin un error se queda en las islas. El otro, leva anclas.»
+
+- **Acepto. Que pase el primero** → «Mi fila se pasó a la de ustedes. Hasta mi loro. Está bien, me voy en mi barco. Las islas son de ustedes. Siempre lo fueron.» (+0.4 ⭐, +500 🗺️)
+
+*En la libreta:* Duelo final contra Pirata Gaming: atender a todo el pueblo sin un error.
 
 ### Don Evaristo — El farero
 

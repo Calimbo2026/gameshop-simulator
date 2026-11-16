@@ -428,3 +428,10 @@ body.snow #rain { background-color: rgba(220, 235, 250, .06); background-image: 
 
 /* Contexto de la región al abrir una sucursal */
 .ctx { display: grid; gap: 8px; margin: 4px 0 12px; } .ctx > div { display: flex; gap: 10px; align-items: flex-start; background: #1b1b20; border: 1px solid #2c2c34; border-radius: 12px; padding: 9px 11px; } .ctx > div.riv { border-color: var(--warn); } .ctx i { font-style: normal; font-size: 22px; line-height: 1.1; } .ctx span { font-size: 13.5px; line-height: 1.35; color: #d7d7de; } .ctx b { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .5px; color: var(--warn); margin-bottom: 2px; }
+
+/* Consejos del Dueño (primera vez) y guía sobre el mapa */
+#coach { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(96px + env(safe-area-inset-bottom)); z-index: 70; width: min(94%, 460px); display: flex; gap: 10px; align-items: center; background: #17171c; border: 2px solid var(--warn); border-radius: 16px; padding: 10px 12px; box-shadow: 0 10px 30px rgba(0,0,0,.6); animation: coachIn .35s ease-out; }
+#coach[hidden] { display: none; } @keyframes coachIn { from { opacity: 0; transform: translate(-50%, 20px); } } .coach-face { flex: none; width: 52px; height: 52px; border-radius: 50%; background: #e9e9ee; overflow: hidden; } .coach-face svg { width: 52px; height: 64px; margin-top: -2px; }
+.coach-txt { flex: 1; min-width: 0; font-size: 14px; line-height: 1.35; } .coach-txt b:first-child { display: block; font-size: 11.5px; text-transform: uppercase; letter-spacing: .6px; color: var(--warn); } #coach .btn { flex: none; width: auto; font-size: 14px; padding: 8px 12px; }
+.guide { display: flex; gap: 12px; align-items: center; background: rgba(16,16,20,.94); border: 2px solid var(--warn); border-radius: 16px; padding: 12px; } .guide .coach-face { width: 64px; height: 64px; } .guide .coach-face svg { width: 64px; height: 79px; } .guide p { margin: 0 0 8px; font-size: 15.5px; line-height: 1.4; } .guide small { color: var(--mute); } .guide .btn { font-size: 16px; padding: 10px; }
+#map.onb .map-bot .row, #map.onb .map-top small { display: none; }

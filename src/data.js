@@ -7,7 +7,7 @@
 const GS = {};
 
 GS.CONFIG = {
-  version: '0.29.0',
+  version: '0.30.0',
   phase: 8,
   phaseNote: 'Juego completo de punta a punta. Falta tu playtest con 5 personas y encender el lanzamiento (launched: true)',                       // fase actual del proyecto (1 a 5)
   links: { tienda: 'https://www.gameshop.com.ar', instagram: '' },   // botones del inicio y del cierre (vacío = no se muestra)
@@ -342,13 +342,32 @@ GS.FINALS = [
   { id: 'ponchazos', ic: '🤠', t: 'A los ponchazos', d: 'Hubo ventas perdidas, vueltos generosos y algún piso dudoso. Pero el cartel está encendido en todo el país, y eso no te lo saca nadie.', test: () => true }
 ];
 /* Nuevo Juego+: se vuelve a empezar con los premios y logros, y un modificador a elección. */
-GS.FINAL_M = { t: 'Las islas', d: 'La sucursal más austral quedó completa: mejoras, cinco estrellas, camión y hasta el farero de cliente. Al cierre, todo el equipo salió a la vereda y plantó la bandera. El viento, por una vez, ayudó: la dejó bien extendida.' };
+GS.FINAL_M = { t: 'Las Malvinas', d: 'Pirata Gaming levó anclas y la sucursal más austral quedó completa. Al cierre, todo el equipo salió a la vereda y plantó la bandera; el viento, por una vez, ayudó y la dejó bien extendida. La noticia cruzó el mar: de La Quiaca a Ushuaia hubo bocinazos, y en Incas el Dueño lloró un poquito (dice que fue el viento). GameShop llegó a todo el país. A todo.' };
 GS.MODS = [
   { id: 'apuro', ic: '⏱️', name: 'Clientes apurados', d: 'Esperan un 25% menos. A cambio, 50% más de fondos de expansión.' },
   { id: 'sinrespiro', ic: '🔥', name: 'Sin respiros', d: 'Los respiros duran la mitad. A cambio, 30% más de monedas.' },
   { id: 'lupa', ic: '🔍', name: 'Auditoría permanente', d: 'Los errores de caja cuestan el doble. A cambio, 50% más de fondos.' },
   { id: '', ic: '🎮', name: 'Sin modificador', d: 'El juego tal cual, con lo que ya ganaste.' }
 ];
+/* Primera vez: el Dueño explica la misión sobre el mapa. El último paso pide tocar Buenos Aires. */
+GS.ONBOARD = [
+  'Bienvenido. Soy el Dueño. Te contraté para algo grande: <b>llevar GameShop a todo el país</b>.',
+  'Este es el mapa. Cada región va a tener su sucursal, y desde cada una se envía más fácil a sus provincias. Hoy hay una sola: la nuestra.',
+  'Atendiendo ganás <b>🪙 monedas</b> para mejorar el local y <b>🗺️ fondos de expansión</b> para abrir sucursales. La <b>⭐ reputación</b> trae más gente.',
+  'Podemos hacer mucho por GameShop. Y quién sabe: por el país. Empecemos por casa: <b>tocá Buenos Aires en el mapa</b>.'
+];
+/* Consejos del Dueño: aparecen una sola vez, la primera vez que pasa cada cosa. */
+GS.TIPS = {
+  resumen: 'Este es el resumen del día. Las <b>🪙 monedas</b> se gastan en "Mejorar"; los <b>🗺️ fondos</b> se juntan solos para abrir sucursales desde el Mapa.',
+  tienda: 'Tocá una mejora para verla en el local. Las que tienen niveles se pueden mirar aunque todavía no te alcance.',
+  mapa: 'Tocá una región para ver su sucursal. Las que tienen candado se abren con fondos de expansión.',
+  mancha: '🧹 Dejaron una mancha. Cuando tengas un rato libre, tocá <b>Limpiar el piso</b>: terminar con el local sucio baja la reputación.',
+  ensenar: '🎓 En las sucursales nuevas, en los respiros podés <b>enseñarle al equipo</b>. Cuanto más saben, más tareas resuelven solos.',
+  errores: 'Desde hoy, ojo: si le das <b>otro producto</b>, el cliente se va. Y cobrar mal baja la reputación.',
+  sucursal: 'Sucursal nueva: empezás con un local humilde. Mejoralo, enseñale al equipo y llevalo a 5 estrellas. Yo te llamo cada tanto.',
+  evento: 'A veces pasa algo inesperado. Elegí con criterio: lo que decidas deja huella en la reputación o en la caja.',
+  arcade: '🕹️ Ganaste un juego nuevo. Está en <b>Arcade</b>, en el inicio: si llegás a la meta, te llevás un premio para tu personaje.'
+};
 GS.MONTHS = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];   // 1 jornada = 1 mes
 GS.SANTA = { id: 'santa', name: 'Papá Noel', face: '🎅', shirt: 0xd81e2c, hair: 0xffffff, tag: 'Compras de último momento',
   look: { hairStyle: 'corto', beard: true, glasses: true, lips: false, lashes: false, hat: 'gorro', pants: 0x23232b, skin: 0xf2c9a0 },
@@ -747,16 +766,6 @@ GS.STORIES = [
       { b: 'Que no toquen nada', r: 'Jaja, ok: "no toquen nada", dice el local.', rm: 'normal', fx: { rep: 0.05 } }] },
     { m: 'happy', t: '¡Se llenó el chat! Uno preguntó si el del mohicano es parte del decorado.', note: 'El chat explotó. Preguntaron por el del mohicano.', end: true, opts: [
       { b: 'Es parte del equipo', r: 'Les mando saludos a todos. ¡Vuelvo para el cierre de la temporada!', rm: 'happy', fx: { fondo: 500, cord: 10 } }] }] },
-  { id: 'maletin', name: 'El hombre del maletín', tag: 'Pregunta demasiado', from: 6, gap: 3, look: { shirt: 0x23232b, hair: 0x2b2b3a, hairStyle: 'corto', skin: 0xe0ac7e, glasses: true }, steps: [
-    { m: 'normal', t: 'Buenas. Una consulta, nada más: el local de al lado... ¿cuántos metros tiene? ¿Entra mucha gente por acá?', note: 'Preguntó por el local de al lado. Raro.', opts: [
-      { b: 'Eso pregúnteselo al Dueño', r: 'Discreto. Interesante. Buenas tardes.', rm: 'impatient', fx: { goal: -300 } },
-      { b: 'Un montón, y lo vamos a comprar nosotros', r: '¿Ah, sí? Qué dato. Muy amable.', rm: 'happy', fx: { goal: 500 } }] },
-    { m: 'talk', t: 'Represento a MegaPlay Center. Vamos a ofertar por el local de al lado. Y por vos: te pagamos el doble. ¿Qué decís?', note: 'Es de MegaPlay Center. Quieren el local... y me ofreció trabajo.', opts: [
-      { b: 'Mi lugar es GameShop', r: 'Lealtad. Qué antiguo. Dejo mi tarjeta igual.', rm: 'impatient', fx: { rep: 0.2, goal: -300, cord: 10 } },
-      { b: '¿El doble de cuánto?', r: 'El doble de lo que sea. Lo consultamos y te avisamos.', rm: 'happy', fx: { rep: -0.1 } }] },
-    { m: 'nervous', t: 'Última oferta: MegaPlay se retira de la compra si me decís cuánto juntaron ustedes.', note: 'MegaPlay hizo su última jugada.', end: true, opts: [
-      { b: 'Lo suficiente. Buenas tardes', r: '...Me caés bien. Voy a decir que el local tiene humedad.', rm: 'happy', fx: { goal: -500, rep: 0.1 } },
-      { b: 'Poquito, la verdad', r: 'Mh. Entonces ofertamos más. Gracias por la sinceridad.', rm: 'happy', fx: { goal: 500 } }] }] },
   { id: 'nilda', name: 'Nilda', tag: 'Está vaciando un altillo', from: 4, gap: 2, look: { shirt: 0x21a0a0, hair: 0x7a3b1e, hairStyle: 'rodete', skin: 0xf2c9a0, lips: true, glasses: false }, steps: [
     { m: 'talk', t: 'Estoy vaciando el altillo de mi hermano. Hay una caja de juegos viejos, con sus manuales. ¿Ustedes compran? Si no, va a la vereda.', note: 'Le compré la caja de juegos viejos del altillo, con manuales y todo.', end: true, opts: [
       { b: 'Se la compro (🪙 200 del fondo)', r: '¡Menos mal! Hay uno de un astronauta con mate. Mire qué rareza.', rm: 'happy', fx: { fondo: -200, rep: 0.05, gflag: 'galaxia' } },
@@ -802,6 +811,10 @@ GS.STORIES = [
     { m: 'talk', t: 'Yo regalo campera con cada consola. Acá sin campera nadie compra nada. Suerte.', note: 'El Ruso Iván regala camperas con cada consola.', opts: [{ b: 'Nosotros mandamos el pedido a tu casa: no hace falta salir', r: '...No había pensado en eso.', rm: 'surprised', fx: { rep: 0.1 } } , { b: '¿De dónde saca tantas camperas?', r: 'Esa pregunta no se hace.', rm: 'nervous', fx: { rep: 0.05 } }] },
     { m: 'nervous', t: 'Alguien les dejó un muñeco de nieve en la puerta, ¿no? Con cartel de "cerrado". Los chicos de ahora.', note: 'Un muñeco de nieve con cartel de "cerrado" en la puerta.', opts: [{ b: 'Le pusimos remera roja: ahora es el empleado del mes', r: 'Le queda mejor que a mí la campera. Me voy.', rm: 'sad', fx: { rep: 0.15, fondo: 100 } } , { b: 'Tiene nieve en los guantes, Iván', r: 'Acá todos tenemos nieve en los guantes.', rm: 'nervous', fx: { rep: 0.05 } }] },
     { m: 'talk', t: 'Es el último local que les falta, ¿no? Entonces el desafío es grande: el que haga llegar un paquete a Ushuaia primero, gana el sur.', note: 'El desafío más grande: un envío a Ushuaia contra el Ruso Iván.', end: true, opts: [{ b: 'Sale hoy, con seguimiento y camión propio', r: '...Llegó antes que mi campera. Ganaron el sur. Y el país, me parece.', rm: 'happy', fx: { rep: 0.3, fondo: 400 } }] }] },
+  { id: 'rival_malvinas', reg: 'malvinas', name: 'El Capitán Tormenta', tag: 'Dueño de Pirata Gaming', from: 2, gap: 2, look: { shirt: 0x23232b, hair: 0x1b1b1f, hairStyle: 'largo', skin: 0xe0ac7e, beard: true }, steps: [
+    { m: 'talk', t: '¡Ah del local! Soy el Capitán Tormenta, de Pirata Gaming. Llegué en barco, clavé un cartel y dije "esto es mío". Así funciona, ¿no?', note: 'El Capitán Tormenta dice que las islas son suyas porque llegó en barco.', opts: [{ b: 'No. Acá se atiende bien y se gana el lugar', r: '¿Atender bien? Qué método raro. Ya van a ver.', rm: 'surprised', fx: { rep: 0.1 } }, { b: 'Las islas ya tenían dueño, capitán', r: 'Detalles. Los piratas no leemos la letra chica.', rm: 'angry', fx: { rep: 0.1 } }] },
+    { m: 'nervous', t: 'Qué casualidad: su cartel apareció en mi barco. Y su toldo. Y un pingüino con remera roja. Yo los "tomé prestados". Es cultura pirata.', note: 'Pirata Gaming "tomó prestados" el cartel, el toldo y un pingüino.', opts: [{ b: 'Devuélvalos. El pingüino trabaja acá', r: 'El pingüino se quiso volver solo. Dice que ustedes pagan mejor.', rm: 'sad', fx: { rep: 0.15, fondo: 100 } }, { b: 'Quédese el toldo: con este viento se le vuela igual', r: '...Ya se voló. Con el ancla y todo.', rm: 'nervous', fx: { rep: 0.15 } }] },
+    { m: 'talk', t: 'Basta de juegos. Duelo final: todo el pueblo hace fila en los dos locales. El que atienda a todos sin un error se queda en las islas. El otro, leva anclas.', note: 'Duelo final contra Pirata Gaming: atender a todo el pueblo sin un error.', opts: [{ b: 'Acepto. Que pase el primero', r: 'Mi fila se pasó a la de ustedes. Hasta mi loro. Está bien, me voy en mi barco. Las islas son de ustedes. Siempre lo fueron.', rm: 'sad', fx: { rep: 0.4, fondo: 500 } }], end: true }] },
   { id: 'm_farero', reg: 'malvinas', name: 'Don Evaristo', tag: 'El farero', from: 1, gap: 2, look: { shirt: 0x2d6cdf, hair: 0xc9c9d6, hairStyle: 'corto', skin: 0xe0ac7e, beard: true }, steps: [
     { m: 'talk', t: 'Cuido el faro hace treinta años. De noche se ve hasta el continente, si uno tiene ganas. Quiero una radio que agarre todo.', note: 'El farero quiere una radio que agarre todo.', opts: [{ b: 'Este parlante con radio, y pilas de sobra', r: 'Con pilas de sobra. Acá todo se pide de sobra. Vuelvo cuando la pruebe.', rm: 'happy', fx: { rep: 0.15 } }, { b: 'Mejor una tele', r: 'La tele no se escucha desde arriba del faro, m\'hijo.', rm: 'normal', fx: {} }] },
     { m: 'happy', t: 'Anoche agarré un partido, un chamamé y a un señor de Jujuy que saludaba. Desde el faro vi su cartel prendido. Queda lindo.', note: 'Desde el faro se ve el cartel de GameShop prendido.', end: true, opts: [{ b: 'Lo dejamos prendido toda la noche', r: 'Entonces ya son dos faros.', rm: 'happy', fx: { rep: 0.3, fondo: 200 } }] }] },
@@ -824,7 +837,6 @@ GS.INTRO = [
   { t: 'Tu primer día', d: 'Entrás a trabajar en GameShop: consolas, juegos, notebooks y accesorios. Abrimos de 10 a 19.', cam: null, who: ['yo'] },
   { t: 'El Dueño', d: 'Vive en su oficina y sale a opinar de todo. Tiene el pelo gris, la cresta apenas más larga y una frase para cada cosa.', cam: [9.0, 1.3, 0.36], who: ['boss'] },
   { t: 'Lucho y Brian', d: 'Tus compañeros. Lucho repone y cambia el color del mohicano cada día. Brian vive pegado al celular. Los dos duermen la siesta en el depósito.', cam: [4.0, 1.2, 0.3], who: ['lucho', 'brian'] },
-  { t: 'La misión', d: 'Llevar GameShop a todo el país: una sucursal en cada región. Desde cada una se envía más fácil a sus provincias. Cada jornada deja fondos de expansión para abrir la siguiente.', cam: null, who: [], sign: '5 REGIONES' },
   { t: 'Cómo se juega', d: 'Tocá los pedidos de abajo y tu personaje va solo. Ojo: si le das otro producto, el cliente se va; y cobrar mal baja la reputación.', cam: [-0.6, -3.2, 0.5], who: ['yo'] }
 ];
 GS.FINAL = {
