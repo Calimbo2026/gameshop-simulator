@@ -7,7 +7,7 @@
 const GS = {};
 
 GS.CONFIG = {
-  version: '0.35.2',
+  version: '0.36.0',
   phase: 8,
   phaseNote: 'Juego completo de punta a punta. Falta tu playtest con 5 personas y encender el lanzamiento (launched: true)',                       // fase actual del proyecto (1 a 5)
   links: { tienda: 'https://www.gameshop.com.ar', instagram: '' },   // botones del inicio y del cierre (vacío = no se muestra)
@@ -343,6 +343,26 @@ GS.FINALS = [
 ];
 /* Nuevo Juego+: se vuelve a empezar con los premios y logros, y un modificador a elección. */
 GS.FINAL_M = { t: 'Las Malvinas', d: 'Pirata Gaming levó anclas y la sucursal más austral quedó completa. Al cierre, todo el equipo salió a la vereda y plantó la bandera; el viento, por una vez, ayudó y la dejó bien extendida. La noticia cruzó el mar: de La Quiaca a Ushuaia hubo bocinazos, y en Incas el Dueño lloró un poquito (dice que fue el viento). GameShop llegó a todo el país. A todo.' };
+/* Finales en imágenes. art: 'yo' retrato del jugador · 'equipo' todos los equipos · 'mapa' país encendido · 'copa' trofeo con los números · 'dueno' el Dueño ·
+   'sur' el mapa acercado a las islas · 'duelo' jugador contra pirata · 'barco' el pirata se va · 'bandera' · 'islas' las islas con sucursal y bandera · 'pais' todo el mapa. */
+GS.EPIC = {
+  pais: [
+    { art: 'yo', k: 'Av. de los Incas 4552', t: 'Todo empezó detrás de un mostrador', d: 'Un local, dos compañeros, un Dueño con una frase para cada cosa y una misión que parecía demasiado grande.' },
+    { art: 'equipo', k: 'Jornada tras jornada', t: 'Cinco regiones, cinco equipos', d: 'Abriste cada sucursal, elegiste a su gente, les enseñaste el oficio y le ganaste a cada rival con lo de siempre: atender bien.' },
+    { art: 'mapa', k: 'Misión cumplida', t: 'GameShop está en todo el país', d: 'De Salta a Bariloche y de Mendoza a Posadas, hay un cartel de GameShop encendido y un envío que llega más rápido.' },
+    { art: 'copa', k: 'El logro', t: 'Número uno en reputación y ventas', d: 'Cinco sucursales completas, cinco estrellas en cada una y camión propio en todas. Nadie atiende mejor ni llega más lejos.' },
+    { art: 'dueno', k: 'El Dueño opina', t: '', d: '' },
+    { art: 'sur', k: 'Un momento...', t: '¿O no era todo?', d: 'Dicen que en el mapa apareció algo nuevo, bien al sur. Y que alguien llegó en barco diciendo que es suyo.' }
+  ],
+  malvinas: [
+    { art: 'duelo', k: 'Puerto Argentino', t: 'El duelo final', d: 'Todo el pueblo hizo fila en los dos locales. El que atendiera a todos sin un error se quedaba en las islas.' },
+    { art: 'barco', k: 'Pirata Gaming', t: 'El pirata levó anclas', d: 'Su fila se pasó a la nuestra. Hasta su loro. El Capitán Tormenta subió al barco y dijo: "Las islas son de ustedes. Siempre lo fueron."' },
+    { art: 'bandera', k: 'Al cierre', t: 'Y plantamos la bandera', d: 'Todo el equipo salió a la vereda. El viento, por una vez, ayudó: la dejó bien extendida.' },
+    { art: 'islas', k: 'La sucursal más austral', t: 'Las Malvinas tienen su GameShop', d: 'Mejoras completas, cinco estrellas, camión, el farero de cliente y los pingüinos mirando la vidriera.' },
+    { art: 'pais', k: 'De La Quiaca a Puerto Argentino', t: 'Toda la Argentina lo festejó', d: 'La noticia cruzó el mar. Hubo bocinazos en cada ciudad donde hay un cartel de GameShop. O sea, en todas.' },
+    { art: 'dueno', k: 'En Incas', t: 'El Dueño lloró un poquito', d: 'Dice que fue el viento. GameShop llegó a todo el país. A todo.' }
+  ]
+};
 GS.MODS = [
   { id: 'apuro', ic: '⏱️', name: 'Clientes apurados', d: 'Esperan un 25% menos. A cambio, 50% más de fondos de expansión.' },
   { id: 'sinrespiro', ic: '🔥', name: 'Sin respiros', d: 'Los respiros duran la mitad. A cambio, 30% más de monedas.' },

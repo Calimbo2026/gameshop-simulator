@@ -439,26 +439,51 @@ GS.Game = (function () {
   const allDone = () => MAIN.every(r => brProgress(r.id) >= 100);
   const malvOk = () => allDone() || (DEV() && MAIN.every(r => (brAll()[r.id] || {}).open));        // en modo desarrollador alcanza con tener las 5 abiertas
   const snowy = () => brId() === 'cuyo' || brId() === 'patagonia', condInfo = c => GS.CONDITIONS[c === 'lluvia' && snowy() ? 'nieve' : c];
+  /* Finales contados en imágenes: una seguidilla a pantalla completa, y al final los botones */
+  const PIRATE = () => (GS.STORIES.find(S => S.id === 'rival_malvinas') || {}).look || {};
+  function epicArt(kind, F) {
+    const el = $('epicArt'), me = Object.assign({ skin: GS.SKINS[2], hair: GS.HAIRS[0], hairStyle: 'corto', shirt: 0xe10600 }, GS.Store.get('avatar') || {}), fig = (look, mood, name) => '<figure><div class="pf">' + avatarSvg(look, mood) + '</div>' + (name ? '<figcaption>' + name + '</figcaption>' : '') + '</figure>';
+    const conf = () => '<div class="conf">' + Array.from({ length: 34 }, (_, i) => '<i style="left:' + (i * 3 + Math.random() * 3) + '%;background:' + ['#f5c518', '#fff', '#74acdf', '#e10600', '#3bb54a'][i % 5] + ';animation-duration:' + (2.4 + Math.random() * 2.6) + 's;animation-delay:-' + (Math.random() * 4) + 's"></i>').join('') + '</div>';
+    GS.Map3D.close();
+    if (kind === 'mapa' || kind === 'sur' || kind === 'islas' || kind === 'pais') { el.innerHTML = '<canvas id="epicCv"></canvas>' + (kind === 'sur' ? '' : conf()); const st = mapState(true), mv = kind === 'sur' ? { open: false, can: true } : (kind === 'islas' || kind === 'pais') ? { open: true, stage: 3, flag: true } : { hidden: true }; st.malvinas = mv; GS.Map3D.open($('epicCv'), st, null, kind === 'sur' || kind === 'islas' ? 'malvinas' : null); return; }
+    if (kind === 'yo') return void (el.innerHTML = '<div class="ep-faces big">' + fig(me, 'happy') + '</div>');
+    if (kind === 'dueno') return void (el.innerHTML = '<div class="ep-faces big" style="background:linear-gradient(160deg,#26262c,#0b0b0d)">' + fig(BOSS_LOOK, 'happy') + '</div>' + conf());
+    if (kind === 'duelo') return void (el.innerHTML = '<div class="ep-faces vs">' + fig(me, 'angry', 'Vos') + '<b>VS</b>' + fig(PIRATE(), 'angry', 'Capitán Tormenta') + '</div>');
+    if (kind === 'equipo') { const all = brAll(), ppl = [[me, 'Vos'], [{ shirt: 0xe10600, hair: MOHAWK[1], hairStyle: 'mohicano', skin: GS.SKINS[3], glasses: true }, 'Lucho'], [{ shirt: 0xe10600, hair: 0x2d6cdf, hairStyle: 'corto', skin: GS.SKINS[0] }, 'Brian']];
+      MAIN.forEach(r => { if (r.crew) ((all[r.id] || {}).staff || [r.crew[0].id, r.crew[1].id]).forEach(cid => { const c = r.crew.find(x => x.id === cid); if (c) ppl.push([Object.assign({ shirt: 0xe10600 }, c.look), c.name]); }); });
+      return void (el.innerHTML = '<div class="ep-faces sm">' + ppl.map(q => fig(q[0], 'happy', q[1])).join('') + '</div>'); }
+    if (kind === 'copa') { const t = statsNow(); return void (el.innerHTML = '<svg viewBox="0 0 300 300" preserveAspectRatio="xMidYMid meet" style="background:#1d0806"><defs><radialGradient id="cg" cx="50%" cy="40%" r="70%"><stop offset="0" stop-color="#7a1a10"/><stop offset="1" stop-color="#150607"/></radialGradient><linearGradient id="cu" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffe680"/><stop offset=".5" stop-color="#f5c518"/><stop offset="1" stop-color="#b8860b"/></linearGradient></defs><rect width="300" height="300" fill="url(#cg)"/>' +
+      Array.from({ length: 12 }, (_, i) => '<path d="M150 135 L' + (150 + Math.cos(i * 0.5236) * 260) + ' ' + (135 + Math.sin(i * 0.5236) * 260) + ' L' + (150 + Math.cos(i * 0.5236 + 0.2) * 260) + ' ' + (135 + Math.sin(i * 0.5236 + 0.2) * 260) + 'z" fill="#f5c518" opacity=".1"/>').join('') +
+      '<g class="bobs"><path d="M105 70 H195 V110 Q195 160 150 168 Q105 160 105 110z" fill="url(#cu)"/><path d="M105 82 Q72 82 76 108 Q80 132 108 134" fill="none" stroke="url(#cu)" stroke-width="9"/><path d="M195 82 Q228 82 224 108 Q220 132 192 134" fill="none" stroke="url(#cu)" stroke-width="9"/><rect x="141" y="166" width="18" height="26" fill="url(#cu)"/><rect x="116" y="190" width="68" height="14" rx="4" fill="url(#cu)"/><rect x="106" y="202" width="88" height="16" rx="4" fill="#3a2a1a"/>' +
+      '<text x="150" y="128" text-anchor="middle" font-family="Impact, sans-serif" font-size="46" fill="#7a0000">N°1</text></g><text x="150" y="250" text-anchor="middle" font-family="Impact, sans-serif" font-size="22" fill="#fff">⭐⭐⭐⭐⭐ × 5 sucursales</text>' +
+      '<text x="150" y="276" text-anchor="middle" font-family="system-ui, sans-serif" font-weight="700" font-size="13" fill="#f5c518">' + (GS.Store.get('days') || 0) + ' jornadas · ' + t.c + ' clientes · ' + U.money(t.sales || 0) + '</text></svg>' + conf()); }
+    const sea = '<defs><linearGradient id="sk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6b56b"/><stop offset=".55" stop-color="#f38f5a"/><stop offset=".56" stop-color="#1f5d8c"/><stop offset="1" stop-color="#0d2f52"/></linearGradient></defs><rect width="300" height="300" fill="url(#sk)"/><circle cx="212" cy="150" r="34" fill="#ffe9a8" opacity=".9"/><g fill="none" stroke="#7fc4ee" stroke-width="2" opacity=".6"><path d="M0 196 q15 -8 30 0 t30 0 t30 0 t30 0 t30 0 t30 0 t30 0 t30 0 t30 0 t30 0"/><path d="M-10 232 q15 -8 30 0 t30 0 t30 0 t30 0 t30 0 t30 0 t30 0 t30 0 t30 0 t30 0 t30 0"/><path d="M0 268 q15 -8 30 0 t30 0 t30 0 t30 0 t30 0 t30 0 t30 0 t30 0 t30 0 t30 0"/></g>';
+    if (kind === 'barco') return void (el.innerHTML = '<svg viewBox="0 0 300 300" preserveAspectRatio="xMidYMid slice">' + sea + '<path d="M0 214 Q40 196 78 214 L78 300 H0z" fill="#3f8f3a"/><g transform="translate(40 128)"><rect x="0" y="50" width="34" height="26" fill="#f4f4f2"/><rect x="-2" y="44" width="38" height="8" fill="#e10600"/><rect x="13" y="62" width="8" height="14" fill="#23232b"/></g>' +
+      '<g class="sail"><g class="bobs"><path d="M120 176 H206 L194 198 H132z" fill="#3a2a1a"/><rect x="160" y="112" width="4" height="66" fill="#6b4a2a"/><path d="M164 116 Q196 132 164 164z" fill="#f4f4f2"/><path d="M160 122 Q136 138 160 160z" fill="#e9e4d8"/><path d="M164 112 l18 5 l-18 6z" fill="#111"/></g></g></svg>');
+    if (kind === 'bandera') return void (el.innerHTML = '<svg viewBox="0 0 300 300" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="bs" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7ec0f4"/><stop offset=".7" stop-color="#cfe8fb"/><stop offset=".71" stop-color="#93ad6e"/><stop offset="1" stop-color="#6f8a50"/></linearGradient></defs><rect width="300" height="300" fill="url(#bs)"/>' +
+      '<g transform="translate(196 150)"><rect x="0" y="34" width="60" height="42" fill="#f4f4f2"/><rect x="-3" y="26" width="66" height="10" fill="#e10600"/><rect x="24" y="52" width="12" height="24" fill="#23232b"/></g><rect x="92" y="40" width="6" height="200" rx="3" fill="#e8e8e8"/><circle cx="95" cy="38" r="6" fill="#f5c518"/>' +
+      '<g class="wave" style="transform-box:fill-box"><rect x="98" y="46" width="130" height="28" fill="#74acdf"/><rect x="98" y="74" width="130" height="28" fill="#fff"/><rect x="98" y="102" width="130" height="28" fill="#74acdf"/><circle cx="163" cy="88" r="10" fill="#f5c518"/></g>' +
+      [[60, 236], [128, 244], [150, 236]].map((q, i) => '<g transform="translate(' + q[0] + ' ' + q[1] + ')"><ellipse cx="0" cy="0" rx="9" ry="14" fill="#16161a"/><ellipse cx="1" cy="2" rx="6" ry="10" fill="#fff"/><path d="M4 -8 l7 2 l-7 2z" fill="#f5a623"/></g>').join('') + '</svg>' + conf());
+    el.innerHTML = '';
+  }
+  function showEpic(slides, F, navHtml, bind) {
+    let i = 0; $('modal').hidden = true; $('epic').hidden = false; A.play('fanfare'); A.setMood('party');
+    const paint = () => { const sl = slides[i], last = i === slides.length - 1, boss = sl.art === 'dueno' && F && !sl.t;
+      epicArt(sl.art, F); $('epicK').textContent = boss ? F.ic + ' Final: ' + F.t : sl.k; $('epicT').textContent = boss ? '"' + F.t + '"' : sl.t; $('epicD').textContent = boss ? F.d : sl.d;
+      $('epicDots').innerHTML = slides.map((_, k) => '<i class="' + (k === i ? 'on' : '') + '"></i>').join('');
+      $('epicNav').innerHTML = last ? navHtml : '<button class="btn" id="epicNext">Siguiente</button>';
+      if (last) bind(); else $('epicNext').addEventListener('click', () => { A.play('click'); i++; paint(); }); $('epic').scrollTop = 0; };
+    paint();
+  }
+  function closeEpic() { GS.Map3D.close(); $('epic').hidden = true; A.setMood('menu'); }
+  const endNav = extra => (extra || '') + '<div class="row"><button class="btn ghost" id="finShare">📸 Compartir</button><button class="btn" id="finNg">Nuevo Juego+</button></div><button class="btn ghost" id="finStay">Seguir en esta partida</button>';
+  const endBind = () => { $('finShare').addEventListener('click', () => showCard()); $('finNg').addEventListener('click', () => { closeEpic(); showNgPlus(); }); $('finStay').addEventListener('click', () => { A.play('click'); closeEpic(); }); };
   function showFinal(preview) {
-    const st = statsNow(), d = GS.Store.get('days') || 0, F = GS.FINALS.find(f => f.test(st, d)), SH = ['40,10 105,10 100,95 55,110 35,70', '105,10 175,25 185,75 140,105 100,95', '35,112 78,104 84,190 45,200 30,150', '80,104 140,107 170,150 150,215 86,205 84,190', '45,202 86,207 150,217 120,300 100,385 70,390 55,300'], CT = [[70, 58], [142, 62], [58, 152], [122, 160], [96, 270]];
-    A.play('fanfare'); GS.track('final', { tipo: F.id, jornadas: d });
-    modal('<div class="fin2"><h2>GameShop llegó a todo el país</h2><canvas id="finMap"></canvas>' +
-      '<div class="quote"><b>' + F.ic + ' Final: ' + F.t + '</b>' + F.d + '</div>' + (preview ? '<p><small>Vista previa: el final real se abre al completar las 5 sucursales.</small></p>' : '') +
-      '<p>' + d + ' jornadas · ' + st.c + ' clientes atendidos · ' + (GS.Store.get('ach') || []).length + ' logros</p>' +
-      '<p class="cred">Un juego de GameShop · Av. de los Incas 4552, CABA<br>Personajes inventados. Los precios y el stock, también.</p>' +
-      '<div class="cta"><b>Esto fue un juego. El local es real.</b><a class="btn alt" href="' + C.links.tienda + '" target="_blank" rel="noopener">Conocé www.gameshop.com.ar</a></div>' +
-      '<p><small>...¿O no era todo? Dicen que en el mapa apareció algo nuevo, bien al sur.</small></p><div class="row"><button class="btn ghost" id="finShare">📸 Compartir</button><button class="btn" id="finNg">Nuevo Juego+</button></div><button class="btn ghost" data-close>Seguir en esta partida</button></div>');
-    GS.Map3D.open($('finMap'), mapState(true), null); modalOnClose = () => GS.Map3D.close();
-    $('finShare').addEventListener('click', () => showCard()); $('finNg').addEventListener('click', showNgPlus);
+    const st = statsNow(), d = GS.Store.get('days') || 0, F = GS.FINALS.find(f => f.test(st, d)); GS.track('final', { tipo: F.id, jornadas: d });
+    showEpic(GS.EPIC.pais, F, endNav('<div class="cta"><b>Esto fue un juego. El local es real.</b><a class="btn alt" href="' + C.links.tienda + '" target="_blank" rel="noopener">Conocé www.gameshop.com.ar</a></div>' + (preview ? '<small style="color:var(--mute)">Vista previa: el final real aparece al cerrar la jornada en la que las 5 sucursales quedan completas.</small>' : '')), endBind);
   }
-  // Final oculto: la sucursal de Malvinas completa y la bandera plantada
-  function showFinalM() {
-    A.play('fanfare'); GS.track('final', { tipo: 'malvinas', jornadas: GS.Store.get('days') || 0 }); const F = GS.FINAL_M;
-    modal('<div class="fin2"><h2>🇦🇷 ' + F.t + '</h2><canvas id="finMap"></canvas><div class="quote"><b>🗝️ Final oculto</b>' + F.d + '</div><p class="cred">GameShop · de La Quiaca a Puerto Argentino</p>' +
-      '<div class="row"><button class="btn ghost" id="finShare">📸 Compartir</button><button class="btn" id="finNg">Nuevo Juego+</button></div><button class="btn ghost" data-close>Seguir en esta partida</button></div>');
-    GS.Map3D.open($('finMap'), mapState(), null, 'malvinas'); modalOnClose = () => GS.Map3D.close();
-    $('finShare').addEventListener('click', () => showCard()); $('finNg').addEventListener('click', showNgPlus);
-  }
+  // Final oculto: se le ganó a Pirata Gaming, la sucursal de Malvinas quedó completa y se plantó la bandera
+  function showFinalM() { GS.track('final', { tipo: 'malvinas', jornadas: GS.Store.get('days') || 0 }); showEpic(GS.EPIC.malvinas, null, endNav(''), endBind); }
   function showNgPlus() {
     GS.Map3D.close();
     modal('<h2>Nuevo Juego+</h2><p>Empezás de nuevo desde Incas, con tus logros, tus premios del Arcade y tu personaje. Elegí cómo:</p><div class="arc2">' + GS.MODS.map(m => '<button data-mod="' + m.id + '"><i>' + m.ic + '</i><b>' + m.name + '</b><small>' + m.d + '</small></button>').join('') + '</div><button class="btn ghost" data-close>Mejor no</button>');
@@ -1260,6 +1285,7 @@ GS.Game = (function () {
       '<div class="setting"><span>Jornada (modo prueba)</span>' + seg('testDay', [['0', 'Auto'], ['1', '1'], ['2', '2'], ['3', '3'], ['4', '4'], ['5', '5'], ['6', '6'], ['8', '8']], String(GS.Store.get('testDay') || 0)) + '</div>' +
       '<div class="setting"><span>Clima (modo prueba)</span>' + seg('testCond', [['', 'Auto'], ['ninguna', 'Normal'], ['lluvia', 'Lluvia'], ['blackfriday', 'Black Friday'], ['navidad', 'Navidad']], GS.Store.get('testCond') || '') + '</div>' +
       (fromPause ? '' : '<div class="setting"><span>🛠 Modo desarrollador<br><small>Monedas y fondos de expansión infinitos, para probar mejoras y sucursales</small></span><button class="btn ghost" id="optDev" style="width:auto">' + (DEV() ? 'Activado ✔' : 'Activar') + '</button></div>') +
+      (fromPause || !DEV() ? '' : '<div class="setting"><span>Final de Malvinas<br><small>Ver la seguidilla del final oculto (solo en modo desarrollador)</small></span><button class="btn ghost" id="optFinalM" style="width:auto">Ver</button></div>') +
       (fromPause || !DEV() ? '' : '<div class="setting"><span>Completar esta sucursal<br><small>Todas las mejoras, 5 estrellas e historias cerradas en ' + RG(brId()).city + '</small></span><button class="btn ghost" id="optDevDone" style="width:auto">Completar</button></div>') +
       (fromPause ? '' : '<div class="setting"><span>Final del juego<br><small>' + (GS.Store.get('finalN') ? 'Volver a verlo' : 'Se abre al completar las 5 sucursales (vista previa)') + '</small></span><button class="btn ghost" id="optFinal" style="width:auto">Ver</button></div>') +
       '<div class="setting"><span>Datos de prueba<br><small>Cuánto dura cada jornada, monedas y dónde hay errores</small></span><button class="btn ghost" id="optData" style="width:auto">Ver</button></div>' +
@@ -1285,6 +1311,7 @@ GS.Game = (function () {
     if ($('optDevDone')) $('optDevDone').addEventListener('click', () => { const up = {}, h = histAll(), id = brId(); GS.UPGRADES.forEach(g => { up[g.id] = g.levels.length; }); GS.STORIES.forEach(S => { if (!S.once && (S.reg || 'pampeana') === id) h[S.id] = Object.assign({ notes: [], flags: {} }, h[S.id], { done: 1, step: S.steps.length, last: dayNumber() }); });
       GS.Store.set('up', up); GS.Store.set('rep', 5); GS.Store.set('hist', h); brSave(); applyBranch(); refreshStart(); A.play('ok'); toast('<b>🛠 ' + RG(id).city + ' completa</b>El final se dispara al cerrar una jornada con todo completo.', '', 3800); showOptions(fromPause); });
     if ($('optFinal')) $('optFinal').addEventListener('click', () => { modalOnClose = null; showFinal(!GS.Store.get('finalN')); });
+    if ($('optFinalM')) $('optFinalM').addEventListener('click', () => { modalOnClose = null; showFinalM(); });
     $('optReset').addEventListener('click', e => { GS.Store.reset(); W.setUpgrades({}); refreshStart(); e.target.textContent = 'Borrado ✔'; });
   }
   function showPause() {
