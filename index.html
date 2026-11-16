@@ -480,6 +480,16 @@ body.snow #rain { background-color: rgba(220, 235, 250, .06); background-image: 
 .split { background: #17171c; border: 1px solid #2c2c34; border-radius: 14px; padding: 10px; } .split > b { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .6px; color: var(--warn); margin-bottom: 8px; } .split > div { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
 .split button { background: #23232a; border: 2px solid #33333c; border-radius: 12px; color: #fff; font: inherit; font-weight: 700; font-size: 13.5px; padding: 8px 4px; cursor: pointer; } .split button small { display: block; font-weight: 400; font-size: 11px; color: var(--mute); line-height: 1.2; margin-top: 2px; } .split button.on { border-color: var(--warn); background: #2a2410; }
 
+/* Tarjetas del inicio: Mis sucursales y Próxima mejora */
+.hcard { display: flex; flex-direction: column; gap: 3px; text-align: left; background: linear-gradient(170deg, rgba(34,34,40,.96), rgba(18,18,22,.96)); border: 1px solid #34343e; border-radius: 16px; padding: 10px 12px 9px; color: #fff; font: inherit; cursor: pointer; width: 100%; height: 100%; box-shadow: 0 4px 0 rgba(0,0,0,.35); }
+.hcard:active { transform: translateY(2px); box-shadow: 0 2px 0 rgba(0,0,0,.35); } .hc-l { font-size: 11px !important; font-weight: 800; letter-spacing: .8px; text-transform: uppercase; color: var(--warn); }
+.hc-b { font-family: var(--display); font-size: 19px !important; line-height: 1.1 !important; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-height: 22px; } .hc-s { font-size: 12px !important; color: #b9b9c4; }
+.hc-d { display: inline-flex; gap: 4px; } .hc-d i { width: 11px; height: 11px; border-radius: 50%; background: #3a3a44; } .hc-d i.on { background: #e10600; } .hc-d i.cur { box-shadow: 0 0 0 2px var(--warn); }
+.hc-p { display: block; height: 9px; border-radius: 5px; background: #2e2e36; overflow: hidden; margin-top: 3px; } .hc-p i { display: block; height: 100%; min-width: 4px; background: linear-gradient(90deg, var(--warn), #ffe27a); border-radius: 5px; }
+.hc-n { font-size: 13px !important; font-weight: 700; } .hc-n em { font-style: normal; font-weight: 400; color: #9a9aa6; } .hc-n.ok { color: #6fe08a; }
+.hc-c { margin-top: auto; align-self: stretch; text-align: center; background: var(--warn); color: #17130a; font-weight: 800; font-size: 13.5px !important; border-radius: 10px; padding: 6px 8px; }
+.duo .hcard .hc-b { font-size: 18px !important; } .duo .hcard .hc-l { font-size: 11px !important; } .duo .hcard .hc-n { font-size: 13px !important; } .duo .hcard .hc-c { font-size: 13.5px !important; }
+
 </style>
 </head>
 <body>
@@ -496,7 +506,7 @@ body.snow #rain { background-color: rgba(220, 235, 250, .06); background-image: 
     <button class="icon-btn" id="btnMute" aria-label="Sonido">🔊</button>
   </div>
   <div class="chips">
-    <button class="chip phase" id="chipPhase">Fase 1 de 5</button>
+    <button class="chip phase" id="chipPhase" hidden>Fase 1 de 5</button>
     <span class="chip" id="chipSales">💰 $0</span>
     <span class="chip" id="chipRep">⭐ 3,0</span>
     <span class="chip rep" id="chipCond" hidden></span>
@@ -533,7 +543,7 @@ body.snow #rain { background-color: rgba(220, 235, 250, .06); background-image: 
     </div>
     <div style="display:flex;flex-direction:column;gap:12px">
       <button class="btn" id="btnPlay"><span id="playT">Jugar la jornada 1</span><small id="playS">De 10 a 19 · en tandas, con respiros</small></button>
-      <div class="duo"><div id="goalStart"></div><button class="plot" id="btnPlot" aria-label="El local de al lado: fondo y libreta"></button></div>
+      <div class="duo"><button class="hcard" id="btnPlot" aria-label="Mis sucursales: ver el mapa"></button><button class="hcard" id="goalStart" aria-label="Próxima mejora: abrir Mejorar el local"></button></div>
       <button class="btn alt" id="btnShop">🛠 Mejorar el local<small>Gastá tus monedas en mejoras</small></button>
       <div class="row"><button class="btn ghost" id="btnRelax">Turno tranquilo</button><button class="btn ghost" id="btnArcade">🕹️ Arcade</button></div>
       <div class="row">
@@ -542,8 +552,8 @@ body.snow #rain { background-color: rgba(220, 235, 250, .06); background-image: 
         <button class="btn ghost" id="btnOpts">Opciones</button>
       </div>
       <a class="btn ghost" id="btnStore" target="_blank" rel="noopener" hidden>🛒 Ir a la tienda de verdad</a>
-      <button class="phases" id="phasesStart" aria-label="Etapas del proyecto"></button>
-      <p class="fine" id="fineT">Versión en construcción. Precios y stock ficticios.<br>Personajes inventados: cualquier parecido es pura coincidencia.</p>
+      <button class="phases" id="phasesStart" aria-label="Etapas del proyecto" hidden></button>
+      <p class="fine" id="fineT">Precios y stock ficticios.<br>Personajes inventados: cualquier parecido es pura coincidencia.</p>
     </div>
   </div>
 </section>
@@ -3513,7 +3523,7 @@ GS.Game = (function () {
 
   /* ---------------- Etapas del proyecto ---------------- */
   function phasesCompact() {
-    if (C.launched) return '';
+    return '';      // ya no se muestra el cartel de "en construcción" ni las etapas
     const cur = GS.PHASES[C.phase - 1];
     let dots = '';
     GS.PHASES.forEach((p, i) => {
@@ -4425,7 +4435,7 @@ GS.Game = (function () {
       '<p class="tot"><span>PUNTAJE</span><b>' + d.score.toLocaleString('es-AR') + '</b></p></div></div>' +
       '<div style="display:flex;flex-direction:column;gap:12px;margin-top:8px">' + (rec ? '<div class="newrec">🏆 ¡Nuevo récord en ' + st.name + '!</div>' : '') +
       '<button class="btn" id="endAgain">Otra vez</button><div class="row"><button class="btn ghost" id="endArc">Otra estación</button><button class="btn ghost" id="endHome">Inicio</button></div>' +
-      '<button class="phases" id="phasesEnd"></button></div>';
+      '<button class="phases" id="phasesEnd" hidden></button></div>';
     $('phasesEnd').innerHTML = phasesCompact(); $('phasesEnd').addEventListener('click', showPhases);
     $('endAgain').addEventListener('click', () => startArcade(st.id));
     $('endArc').addEventListener('click', () => { goHome(); showArcade(); }); $('endHome').addEventListener('click', goHome);
@@ -4502,7 +4512,7 @@ GS.Game = (function () {
       '<button class="btn" id="endAgain">Siguiente jornada</button>' +
       '<div class="row"><button class="btn alt" id="endShop" style="font-size:16px">🛠 Mejorar</button><button class="btn ghost" id="endMap">🗺️ Mapa</button><button class="btn ghost" id="endRecs">🏅 Logros</button></div>' +
       '<div class="row"><button class="btn ghost" id="endCard">📸 Compartir</button><button class="btn ghost" id="endLib">📖 Libreta</button><button class="btn ghost" id="endHome">Inicio</button></div>' +
-      '<button class="phases" id="phasesEnd"' + (C.launched ? ' hidden' : '') + '></button></div>';
+      '<button class="phases" id="phasesEnd" hidden></button></div>';
     $('phasesEnd').innerHTML = phasesCompact(); $('phasesEnd').addEventListener('click', showPhases);
     $('endMap').addEventListener('click', showMap); $('endCard').addEventListener('click', () => showCard()); $('endLib').addEventListener('click', showLibreta);
     $('endAgain').addEventListener('click', () => startDay(d.relaxed));
@@ -4531,6 +4541,17 @@ GS.Game = (function () {
     const u = upNow(); let best = null;
     GS.UPGRADES.forEach(g => { const lv = g.levels[u[g.id] || 0]; if (lv && (!best || lv.price < best.lv.price)) best = { g, lv }; });
     return best;
+  }
+  // Tarjetas del inicio: mismo armado las dos (etiqueta, dato grande, barra con su número y un botón claro)
+  const hcard = (label, big, sub, cur, tot, unit, cta, full) => '<small class="hc-l">' + label + '</small><b class="hc-b">' + big + '</b>' + (sub ? '<span class="hc-s">' + sub + '</span>' : '') +
+    (tot ? '<span class="hc-p"><i style="width:' + Math.min(100, cur / tot * 100).toFixed(0) + '%"></i></span><span class="hc-n' + (full ? ' ok' : '') + '">' + unit + ' ' + Math.min(cur, tot) + ' <em>de ' + tot + '</em></span>' : '') + '<span class="hc-c">' + cta + ' ›</span>';
+  function sucCard() {
+    const all = brAll(), f = fondoNow(), g = goalNow(), n = MAIN.filter(r => all[r.id] && all[r.id].open).length, dots = '<span class="hc-d">' + MAIN.map(r => '<i class="' + (all[r.id] && all[r.id].open ? 'on' : '') + (r.id === brId() ? ' cur' : '') + '"></i>').join('') + '</span>';
+    return hcard('🗺️ Mis sucursales', n + ' de 5' + dots, g ? (f >= g ? '¡Ya podés abrir otra!' : 'Fondos para la próxima') : 'Las 5 abiertas · avance ' + Math.round(MAIN.reduce((a, r) => a + brProgress(r.id), 0) / MAIN.length) + '%', f, g, '🗺️', 'Ver mapa', f >= g);
+  }
+  function goalCard() {
+    const t = nextGoal(), c = coinsNow(); if (!t) return hcard('🛠 Próxima mejora', '🏆 Local completo', 'Compraste todas las mejoras', 0, 0, '', 'Ver el local');
+    return hcard('🛠 Próxima mejora', t.g.icon + ' ' + t.lv.n, c >= t.lv.price ? '¡Ya te alcanza!' : 'Monedas ahorradas', c, t.lv.price, '🪙', 'Mejorar', c >= t.lv.price);
   }
   function goalHtml() {
     const t = nextGoal(), c = coinsNow(); if (!t) return '<div class="goal"><b>🏆 Local completo</b><span>Compraste todas las mejoras.</span></div>';
@@ -4643,7 +4664,7 @@ GS.Game = (function () {
   }
   function refreshStart() {
     const n = dayNumber(), fresh = n <= GS.UNLOCKS.length ? GS.UNLOCKS[n - 1] : [];
-    $('playT').textContent = n === 1 && !GS.Store.get('introSeen') ? 'Iniciar modo carrera' : 'Seguir modo carrera'; W.setNext(GS.Store.get('final2Seen') && tierNow().at >= 1 ? 'gs2' : 'venta'); $('goalStart').innerHTML = goalHtml(); $('btnPlot').innerHTML = plotHtml();
+    $('playT').textContent = n === 1 && !GS.Store.get('introSeen') ? 'Iniciar modo carrera' : 'Seguir modo carrera'; W.setNext(GS.Store.get('final2Seen') && tierNow().at >= 1 ? 'gs2' : 'venta'); $('goalStart').innerHTML = goalCard(); $('btnPlot').innerHTML = sucCard();
     $('rankT').textContent = (DEV() ? '🛠 DEV · ' : '') + (GS.Store.get('ngp') ? '➕ NJ+' + GS.Store.get('ngp') + ' · ' : '') + '📍 ' + RG(brId()).city + ' · ⭐ ' + repTxt(repNow()) + ' · 🪙 ' + coinsNow() + ' · 🗺️ ' + fondoNow();
     $('playS').textContent = n === 1 && GS.Store.get('introSeen') ? 'Jornada 1 · ' + monthOf(1) + ' · inducción' : n > 1 ? 'Jornada ' + n + ' · ' + monthOf(n) + (fresh.length ? ' · se suma: ' + fresh.map(id => ST(id).name).join(' y ') : '') : n === 1 ? (GS.Store.get('introSeen') ? 'Jornada 1 · inducción: mostrador y caja' : 'Conocé el local, al Dueño y a tus compañeros') : 'Jornada ' + n + (fresh.length ? ' · se suma: ' + fresh.map(id => ST(id).name).join(' y ') : ' · de 10 a 19 · ⭐ ' + repTxt(repNow()));
   }
@@ -4901,7 +4922,7 @@ GS.Game = (function () {
   function boot() {
     $('logoImg').src = GS.LOGO; refreshStart();
     $('phasesStart').innerHTML = phasesCompact();
-    $('chipPhase').textContent = '🚧 Etapa ' + C.phase + ' de ' + GS.PHASES.length;
+    $('chipPhase').hidden = true; $('phasesStart').hidden = true;
     const q = GS.Store.get('quality') || 'auto';
     autoQ = autoQuality(); W.setQuality(q === 'auto' ? autoQ : q);
     if (!W.init($('c'))) {
@@ -4917,7 +4938,7 @@ GS.Game = (function () {
     $('shopFund').addEventListener('click', e => { const b = e.target.closest('[data-fund]'); if (!b) return; const c = coinsNow(), v = Math.min(c, Number(b.dataset.fund) || c); if (v <= 0) return;
       const before = fondoNow() >= goalNow(); GS.Store.set('coins', c - v); addFondo(v); A.play('cash'); GS.track('aporte_fondo', { monto: v });
       toast(!before && fondoNow() >= goalNow() ? '<b>🏠 ¡Meta alcanzada!</b>Ya alcanza para el local de al lado. Lo que sumes de más mejora el final.' : '<b>🏠 Aportaste 🪙 ' + v + '</b>Fondo: ' + fondoNow() + ' de ' + goalNow() + '.', '', 2600); renderShop(); });
-    $('btnPlot').addEventListener('click', () => { A.unlock(); A.play('click'); showMap(); });
+    $('btnPlot').addEventListener('click', () => { A.unlock(); A.play('click'); showMap(); }); $('goalStart').addEventListener('click', openShop);
     $('coachOk').addEventListener('click', () => { $('coach').hidden = true; A.play('click'); });
     $('mapX').addEventListener('click', () => { A.play('click'); closeMap(); }); $('mapLib').addEventListener('click', () => { closeMap(); showLibreta(); });
     $('mapCard').addEventListener('click', e => { const g = e.target.closest('[data-go]'), o = e.target.closest('[data-open]'); if (g) { closeMap(); leaveTo(g.dataset.go); } else if (o && !o.disabled) { closeMap(); openRegion(o.dataset.open); } });

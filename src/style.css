@@ -461,3 +461,13 @@ body.snow #rain { background-color: rgba(220, 235, 250, .06); background-image: 
 /* Reparto del día */
 .split { background: #17171c; border: 1px solid #2c2c34; border-radius: 14px; padding: 10px; } .split > b { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .6px; color: var(--warn); margin-bottom: 8px; } .split > div { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
 .split button { background: #23232a; border: 2px solid #33333c; border-radius: 12px; color: #fff; font: inherit; font-weight: 700; font-size: 13.5px; padding: 8px 4px; cursor: pointer; } .split button small { display: block; font-weight: 400; font-size: 11px; color: var(--mute); line-height: 1.2; margin-top: 2px; } .split button.on { border-color: var(--warn); background: #2a2410; }
+
+/* Tarjetas del inicio: Mis sucursales y Próxima mejora */
+.hcard { display: flex; flex-direction: column; gap: 3px; text-align: left; background: linear-gradient(170deg, rgba(34,34,40,.96), rgba(18,18,22,.96)); border: 1px solid #34343e; border-radius: 16px; padding: 10px 12px 9px; color: #fff; font: inherit; cursor: pointer; width: 100%; height: 100%; box-shadow: 0 4px 0 rgba(0,0,0,.35); }
+.hcard:active { transform: translateY(2px); box-shadow: 0 2px 0 rgba(0,0,0,.35); } .hc-l { font-size: 11px !important; font-weight: 800; letter-spacing: .8px; text-transform: uppercase; color: var(--warn); }
+.hc-b { font-family: var(--display); font-size: 19px !important; line-height: 1.1 !important; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-height: 22px; } .hc-s { font-size: 12px !important; color: #b9b9c4; }
+.hc-d { display: inline-flex; gap: 4px; } .hc-d i { width: 11px; height: 11px; border-radius: 50%; background: #3a3a44; } .hc-d i.on { background: #e10600; } .hc-d i.cur { box-shadow: 0 0 0 2px var(--warn); }
+.hc-p { display: block; height: 9px; border-radius: 5px; background: #2e2e36; overflow: hidden; margin-top: 3px; } .hc-p i { display: block; height: 100%; min-width: 4px; background: linear-gradient(90deg, var(--warn), #ffe27a); border-radius: 5px; }
+.hc-n { font-size: 13px !important; font-weight: 700; } .hc-n em { font-style: normal; font-weight: 400; color: #9a9aa6; } .hc-n.ok { color: #6fe08a; }
+.hc-c { margin-top: auto; align-self: stretch; text-align: center; background: var(--warn); color: #17130a; font-weight: 800; font-size: 13.5px !important; border-radius: 10px; padding: 6px 8px; }
+.duo .hcard .hc-b { font-size: 18px !important; } .duo .hcard .hc-l { font-size: 11px !important; } .duo .hcard .hc-n { font-size: 13px !important; } .duo .hcard .hc-c { font-size: 13.5px !important; }
