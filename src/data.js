@@ -7,7 +7,7 @@
 const GS = {};
 
 GS.CONFIG = {
-  version: '0.36.1',
+  version: '0.37.0',
   phase: 8,
   phaseNote: 'Juego completo de punta a punta. Falta tu playtest con 5 personas y encender el lanzamiento (launched: true)',                       // fase actual del proyecto (1 a 5)
   links: { tienda: 'https://www.gameshop.com.ar', instagram: '' },   // botones del inicio y del cierre (vacío = no se muestra)
@@ -309,28 +309,28 @@ GS.REGIONS = [
   { id: 'pampeana', name: 'Pampeana', city: 'Buenos Aires', cost: 0, prov: ['Ciudad de Buenos Aires', 'Buenos Aires', 'Córdoba', 'Santa Fe', 'Entre Ríos', 'La Pampa'], clima: 'Templado y húmedo, con las cuatro estaciones bien marcadas. Los días malos son de lluvia.', decor: 'ciudad', why: 'El local original, en Av. de los Incas. Desde acá salen los envíos a Buenos Aires, Córdoba, Santa Fe, Entre Ríos y La Pampa.', hi: [] },
   { id: 'cuyo', name: 'Cuyo', city: 'Mendoza', cost: 2600, prov: ['Mendoza', 'San Juan', 'San Luis'], clima: 'Seco y soleado al pie de la cordillera: veranos calurosos, inviernos fríos y viento Zonda. Acá los días malos no son de lluvia: son de nieve.', floor: 0xf3d9c4, wall: 0xf6ead8, decor: 'cuyo', why: 'Con base en Mendoza, los envíos a San Juan y San Luis salen en el día.',
     hi: ['¡Buenas! Vengo después de la siesta, como corresponde.', 'Hola, ¿todo bien? Está lindo para unas tortitas con mate.', '¡Qué calor que hace! Menos mal que acá hay sombra.', 'Buenas, vecino. Vengo antes de la Vendimia, que después no hay tiempo.', 'Hola. Dejé la bici en la acequia, no tardo.'],
-    rival: { name: 'Zonda Gamer', owner: 'Don Ulises', rule: 'Cuando sopla el Zonda, baja los precios y te lleva clientes.' },
+    rival: { name: 'Zonda Gamer', owner: 'Don Ulises', rule: 'Cuando sopla el Zonda, baja los precios y te lleva clientes.', fx: 'Los días de Zonda (casi la mitad), los clientes tienen 20% menos de paciencia.' },
     crew: [{ id: 'maru', name: 'Maru', d: 'Ordenada: etiqueta hasta el mate.', look: { skin: 0xe0ac7e, hair: 0x5a2d0c, hairStyle: 'largo', glasses: false } }, { id: 'nacho', name: 'Nacho', d: 'Sabe de PC más que el manual.', look: { skin: 0xf2c9a0, hair: 0x1b1b1f, hairStyle: 'corto', glasses: true } },
       { id: 'flor', name: 'Flor', d: 'Vende hielo en la cordillera.', look: { skin: 0xc68a5c, hair: 0xd9a514, hairStyle: 'rodete', glasses: false } }, { id: 'tomi', name: 'Tomi', d: 'Lento pero no se le escapa una.', look: { skin: 0xf6d7bd, hair: 0xb5651d, hairStyle: 'rulos', glasses: false } }] },
   { id: 'noa', name: 'NOA', city: 'Salta', cost: 1600, prov: ['Jujuy', 'Salta', 'Tucumán', 'Catamarca', 'La Rioja', 'Santiago del Estero'], clima: 'Seco y de altura en los valles y la puna, cálido en el llano. Mucho sol, y las lluvias llegan en verano.', floor: 0xf0cdb0, wall: 0xf7e3cf, decor: 'noa', why: 'Desde Salta se llega fácil a Jujuy, Tucumán, Catamarca, La Rioja y Santiago del Estero.',
     hi: ['Buen día, chango. ¿Cómo anda?', '¡Buenas! Vengo de comer unas empanadas, no me apure.', 'Hola, changuito. Qué lindo local, che.', 'Buenas tardes. A la noche hay peña, pero antes paso por acá.', 'Hola. Bajé del cerro nomás para esto.'],
-    rival: { name: 'Pachamama Play', owner: 'Doña Ramona', rule: 'Regala una empanada con cada compra. Difícil competir con eso.' },
+    rival: { name: 'Pachamama Play', owner: 'Doña Ramona', rule: 'Regala una empanada con cada compra. Difícil competir con eso.', fx: 'Cada cliente que se va sin comprar le cuesta más a tu reputación: se va derecho a lo de Ramona.' },
     crew: [{ id: 'coya', name: 'Mayra', d: 'Tranquila: nada la apura ni la altera.', look: { skin: 0x9a643c, hair: 0x1b1b1f, hairStyle: 'largo', glasses: false } }, { id: 'rami', name: 'Ramiro', d: 'Canta coplas mientras repone.', look: { skin: 0xc68a5c, hair: 0x1b1b1f, hairStyle: 'corto', glasses: false } },
       { id: 'lucia', name: 'Lucía', d: 'Cobra más rápido que el viento.', look: { skin: 0xe0ac7e, hair: 0x5a2d0c, hairStyle: 'rodete', glasses: true } }, { id: 'beto', name: 'Beto', d: 'Conoce a todo el barrio por el nombre.', look: { skin: 0x9a643c, hair: 0x3a2a1a, hairStyle: 'rulos', glasses: false } }] },
   { id: 'nea', name: 'NEA', city: 'Posadas', cost: 1600, prov: ['Misiones', 'Corrientes', 'Chaco', 'Formosa'], clima: 'Subtropical: calor y humedad casi todo el año, lluvias fuertes y siesta obligada.', floor: 0xeab59a, wall: 0xf3ecd6, decor: 'nea', why: 'Desde Posadas se cubre Misiones, Corrientes, Chaco y Formosa.',
     hi: ['¡Hola, chamigo! ¿Todo bien?', 'Buenas. Traje el tereré, ¿querés?', '¡Qué calor, chamigo! Menos mal el aire.', 'Hola. Vengo con chipá recién hecha, convido después.', 'Buenas, che. Crucé el río nomás para venir.'],
-    rival: { name: 'Yacaré Games', owner: 'El Tío Chelo', rule: 'A la hora de la siesta no cierra. Dice que duerme con un ojo.' },
+    rival: { name: 'Yacaré Games', owner: 'El Tío Chelo', rule: 'A la hora de la siesta no cierra. Dice que duerme con un ojo.', fx: 'A la hora de la siesta te saca un cliente del local; a cambio entra una compra más por la página.' },
     crew: [{ id: 'yami', name: 'Yamila', d: 'Ceba tereré y despacha a la vez.', look: { skin: 0xc68a5c, hair: 0x1b1b1f, hairStyle: 'largo', glasses: false } }, { id: 'guille', name: 'Guille', d: 'Arregla cualquier cosa con cinta.', look: { skin: 0xe0ac7e, hair: 0x5a2d0c, hairStyle: 'corto', glasses: false } },
       { id: 'ani', name: 'Ani', d: 'Le sonríe hasta al proveedor.', look: { skin: 0xf2c9a0, hair: 0xb5651d, hairStyle: 'rulos', glasses: true } }, { id: 'pocho', name: 'Pocho', d: 'Nunca faltó. Ni cuando llovió tres días.', look: { skin: 0x9a643c, hair: 0x3a2a1a, hairStyle: 'pelado', glasses: false } }] },
   { id: 'patagonia', name: 'Patagonia', city: 'Bariloche', cost: 1800, prov: ['Neuquén', 'Río Negro', 'Chubut', 'Santa Cruz', 'Tierra del Fuego'], clima: 'Frío y ventoso, con inviernos largos. Los días malos son de nieve y la gente anda abrigada.', floor: 0xdfe6ee, wall: 0xeaf2f8, decor: 'patagonia', why: 'Desde Bariloche salen los envíos a Neuquén, Río Negro, Chubut, Santa Cruz y Tierra del Fuego.',
     hi: ['¡Buenas! Afuera el viento te despeina hasta las ideas.', 'Hola. Está fresquito, ¿no? Apenas dos bajo cero.', 'Buenas. Vine caminando: son veinte cuadras, acá es cerquita.', 'Hola, vecino. Después paso por un chocolate, ¿venís?', 'Buenas. Cerré la tranquera y me vine.'],
-    rival: { name: 'Ventisca Gaming', owner: 'El Ruso Iván', rule: 'Vende todo con campera de regalo. Nadie sabe de dónde saca las camperas.' },
+    rival: { name: 'Ventisca Gaming', owner: 'El Ruso Iván', rule: 'Vende todo con campera de regalo. Nadie sabe de dónde saca las camperas.', fx: 'Para competir con la campera hay que ajustar precios: cada jornada deja 15% menos de monedas.' },
     crew: [{ id: 'sol', name: 'Sol', d: 'Atiende con guantes y no erra un precio.', look: { skin: 0xf6d7bd, hair: 0xd9a514, hairStyle: 'largo', glasses: false } }, { id: 'lauti', name: 'Lauti', d: 'Hace los envíos aunque nieve.', look: { skin: 0xf2c9a0, hair: 0x5a2d0c, hairStyle: 'rulos', glasses: false } },
       { id: 'ema', name: 'Ema', d: 'Sabe de consolas y de fogones.', look: { skin: 0xe0ac7e, hair: 0x1b1b1f, hairStyle: 'rodete', glasses: true } }, { id: 'vasco', name: 'El Vasco', d: 'Habla poco. Vende mucho.', look: { skin: 0xf6d7bd, hair: 0xb4b4bd, hairStyle: 'corto', glasses: false } }] },
   /* Final oculto: aparece en el mapa recién cuando las 5 regiones están completas. */
   { id: 'malvinas', secret: true, name: 'Malvinas', city: 'Puerto Argentino', cost: 3000, prov: ['Islas Malvinas'], clima: 'Frío oceánico, viento casi todos los días y llovizna. Todo el mundo abrigado.', floor: 0xdfe8e2, wall: 0xeef3f1, decor: 'malvinas', why: 'La sucursal más austral y la más esperada. Los envíos llegan en barco, con viento a favor.',
     hi: ['¡Buenas! Con este viento, llegué antes de lo que pensaba.', 'Hola. Dejé las ovejas mirando la vidriera.', 'Buen día. Qué lindo ver este cartel acá.', 'Hola, vecino. Afuera hay un pingüino esperando turno.'],
-    rival: { name: 'Pirata Gaming', owner: 'El Capitán Tormenta', rule: 'Dice que las islas son suyas porque llegó en barco. Te "toma prestados" los carteles, los toldos y a veces los pedidos.' },
+    rival: { name: 'Pirata Gaming', owner: 'El Capitán Tormenta', rule: 'Dice que las islas son suyas porque llegó en barco. Te "toma prestados" los carteles, los toldos y a veces los pedidos.', fx: 'Cada jornada se "lleva prestado" algo: hay una tarea más para resolver.' },
     crew: [{ id: 'malena', name: 'Malena', d: 'Ata todo dos veces, por el viento.', look: { skin: 0xf2c9a0, hair: 0x5a2d0c, hairStyle: 'largo', glasses: false } }, { id: 'fermin', name: 'Fermín', d: 'Fue farero: no se le pasa un barco ni un pedido.', look: { skin: 0xe0ac7e, hair: 0xb4b4bd, hairStyle: 'corto', glasses: false } },
       { id: 'isla', name: 'Isla', d: 'Nació acá. Conoce a cada vecino y a cada oveja.', look: { skin: 0xf6d7bd, hair: 0xd9a514, hairStyle: 'rodete', glasses: true } }, { id: 'nahuel', name: 'Nahuel', d: 'Vino por una semana. Hace dos años.', look: { skin: 0xc68a5c, hair: 0x1b1b1f, hairStyle: 'rulos', glasses: false } }] }
 ];
@@ -386,6 +386,8 @@ GS.TIPS = {
   errores: 'Desde hoy, ojo: si le das <b>otro producto</b>, el cliente se va. Y cobrar mal baja la reputación.',
   sucursal: 'Sucursal nueva: empezás con un local humilde. Mejoralo, enseñale al equipo y llevalo a 5 estrellas. Yo te llamo cada tanto.',
   evento: 'A veces pasa algo inesperado. Elegí con criterio: lo que decidas deja huella en la reputación o en la caja.',
+  rival: '⚔️ Mientras el rival de la zona siga dando pelea, su regla te complica cada jornada. Cuando venga al mostrador, <b>ganale</b>: la regla se va y esta sucursal rinde 10% más.',
+  reparto: 'Cada cierre elegís a dónde va lo del día: <b>al local</b> (más monedas para mejoras) o <b>a la expansión</b> (más fondos para abrir sucursales). No alcanza para todo a la vez.',
   arcade: '🕹️ Ganaste un juego nuevo. Está en <b>Arcade</b>, en el inicio: si llegás a la meta, te llevás un premio para tu personaje.'
 };
 GS.MONTHS = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];   // 1 jornada = 1 mes

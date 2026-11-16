@@ -457,3 +457,7 @@ body.snow #rain { background-color: rgba(220, 235, 250, .06); background-image: 
 
 .wv1 { animation: wv 5s linear infinite; } .wv2 { animation: wv 7s linear infinite reverse; } @keyframes wv { to { transform: translateX(60px); } }
 .sail { animation: sail 14s ease-in forwards; } @keyframes sail { to { transform: translate(34px, -10px) scale(.72); } }
+
+/* Reparto del día */
+.split { background: #17171c; border: 1px solid #2c2c34; border-radius: 14px; padding: 10px; } .split > b { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .6px; color: var(--warn); margin-bottom: 8px; } .split > div { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.split button { background: #23232a; border: 2px solid #33333c; border-radius: 12px; color: #fff; font: inherit; font-weight: 700; font-size: 13.5px; padding: 8px 4px; cursor: pointer; } .split button small { display: block; font-weight: 400; font-size: 11px; color: var(--mute); line-height: 1.2; margin-top: 2px; } .split button.on { border-color: var(--warn); background: #2a2410; }

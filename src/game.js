@@ -70,8 +70,10 @@ GS.Game = (function () {
   const warm = o => ((GS.Store.get('branch') === 'patagonia' || GS.Store.get('branch') === 'malvinas') && !o.hat ? Object.assign({}, o, { hat: 'lana', scarf: true }) : o);
   const coinsNow = () => DEV() ? 999999 : GS.Store.get('coins') || 0;
   const monthOf = n => GS.MONTHS[(n - 1) % 12] + ', año ' + (Math.floor((n - 1) / 12) + 1);
-  const coinMult = () => { const u = upNow(); return 1 + 0.1 * ((u.mesa || 0) + (u.isla || 0) + (u.gondola || 0) + (u.luces || 0) + (u.web >= 3 ? 1 : 0)); };
-  const patMult = () => { const u = upNow(); return (1 + 0.15 * (u.escritorio || 0) + 0.1 * (u.sillas || 0) + 0.1 * (u.cafetera || 0)) * (modNow() === 'apuro' ? 0.75 : 1); };
+  // El rival de la zona: su regla complica las jornadas de esa sucursal hasta que se le gana en el mostrador; después, la sucursal rinde 10% más
+  const rivalId = () => GS.Store.get('branch') || 'pampeana', rivalDone = () => !!((GS.Store.get('hist') || {})['rival_' + rivalId()] || {}).done, rivalOn = () => rivalId() !== 'pampeana' && !rivalDone() && GS.STORIES.some(S => S.id === 'rival_' + rivalId());
+  const coinMult = () => { const u = upNow(); return (1 + 0.1 * ((u.mesa || 0) + (u.isla || 0) + (u.gondola || 0) + (u.luces || 0) + (u.web >= 3 ? 1 : 0)) + (rivalId() !== 'pampeana' && rivalDone() ? 0.1 : 0)) * (rivalOn() && rivalId() === 'patagonia' ? 0.85 : 1); };
+  const patMult = () => { const u = upNow(); return (1 + 0.15 * (u.escritorio || 0) + 0.1 * (u.sillas || 0) + 0.1 * (u.cafetera || 0)) * (modNow() === 'apuro' ? 0.75 : 1) * (day && day.zonda ? 0.8 : 1); };
   const modNow = () => GS.Store.get('mod') || '';
   function conditionFor(n) {
     const forced = GS.Store.get('testCond'); if (forced) return forced === 'ninguna' ? null : forced;             // fechas especiales fijas y lluvia al azar (nunca en las primeras jornadas)
@@ -90,9 +92,11 @@ GS.Game = (function () {
     for (let i = 0; i < extraMl; i++) plan[1 + (i % (nw - 1))].ml++;
     if (un.indexOf('cierre') >= 0) plan.push({ c: 0, t: 1, ml: 0, final: true });
     plan.bonus = 1 + (want - cust) * 0.07;
+    if (rivalOn() && rivalId() === 'nea') { const w = plan.find((x, i) => i >= 1 && !x.final && x.c > 1); if (w) { w.c--; if (un.indexOf('ml') >= 0) w.ml = (w.ml || 0) + 1; } }           // la siesta de Yacaré Games
+    if (rivalOn() && rivalId() === 'malvinas' && pool.length) { const w = plan.filter(x => !x.final); w[w.length - 1].t++; }                                               // lo que se "lleva prestado" el pirata
     return plan;
   }
-  function addRep(d) { GS.Store.set('rep', U.clamp((GS.Store.get('rep') == null ? 3 : GS.Store.get('rep')) + d, 0, 5)); }
+  function addRep(d) { if (d < 0 && rivalOn() && rivalId() === 'noa') d *= 1.6; GS.Store.set('rep', U.clamp((GS.Store.get('rep') == null ? 3 : GS.Store.get('rep')) + d, 0, 5)); }
   const repNow = () => (GS.Store.get('rep') == null ? 3 : GS.Store.get('rep'));
   const repTxt = v => v.toFixed(1).replace('.', ',');
   // El Dueño sale del depósito, camina hasta el salón, dice lo suyo y se vuelve
@@ -212,6 +216,7 @@ GS.Game = (function () {
     const cond = conditionFor(n);
     day = newDay({ relaxed, n, cond, unlocked: un, plan: planDay(n, cond), rest: 5.5 }); state = 'day'; enterPlay(); $('jobs').hidden = false;
     A.setMood(cond === 'lluvia' ? 'rain' : cond ? 'party' : 'day');
+    if (rivalOn() && !relaxed) { const R = RG(rivalId()); day.zonda = rivalId() === 'cuyo' && Math.random() < 0.45; if (rivalId() !== 'cuyo' || day.zonda) setTimeout(() => { if (state === 'day') toast('<b>⚔️ ' + (day.zonda ? 'Hoy sopla el Zonda' : R.rival.name) + '</b>' + R.rival.fx, '', 5200); }, 6500); setTimeout(() => coach('rival'), 9000); }
     W.setXmas(cond === 'navidad' ? (GS.Store.get('xmas') || { a: 0, g: 0, l: 0 }) : null); W.setHats(cond === 'navidad');
     if (!relaxed) { const nw = day.plan.filter(w => !w.final).length; day.visits = dueStories(n).map((S, i) => ({ S, wave: Math.min(nw - 1, i + (nw > 2 ? 1 : 0)) })); }
     const d = day, msg = n === 1 ? 'Bienvenido a GameShop. Abrimos de 10 a 19. Hoy: mostrador y caja. Vos tocá el pedido, que tu personaje va solo.'
@@ -385,7 +390,7 @@ GS.Game = (function () {
     if (!open) return '<div class="suc lock"><b>🔒 ' + r.name + ' · ' + r.city + '</b><small>🗺️ ' + r.prov.join(' · ') + '</small><small>🌦️ ' + r.clima + '</small><small>⚔️ Zona de <b>' + r.rival.name + '</b></small><button class="btn alt" data-open="' + id + '"' + (f < r.cost ? ' disabled' : '') + '>' + (f < r.cost ? 'Faltan ' + (r.cost - f) + ' fondos · cuesta 🗺️ ' + r.cost : 'Abrir sucursal · 🗺️ ' + r.cost) + '</button></div>';
     const rp = me ? repNow() : (b.rep == null ? 3 : b.rep), pr = brProgress(id), up = me ? upNow() : b.up || {}, pend = GS.UPGRADES.reduce((a, g) => a + g.levels.length - Math.min(g.levels.length, up[g.id] || 0), 0);
     return '<div class="suc' + (me ? ' me' : '') + '"><b>' + r.name + ' · ' + r.city + (pr >= 100 ? ' ✅' : '') + '</b><span class="pb"><i style="width:' + pr + '%"></i></span><small>⭐ ' + repTxt(rp) + ' · ' + STAGE[brStage(id)] + ' · ' + pr + '%' + (b.manager ? ' · encargado: ' + b.manager : '') + '</small>' +
-      (me ? '<small class="al">' + (pend ? '🛠 ' + pend + ' mejoras pendientes' : '🛠 mejoras completas') + (rp < 4.8 ? ' · ⭐ falta llegar a 5' : '') + ((up.flota || 0) < 3 ? ' · 🚚 falta el camión' : '') + ' · 📖 historias ' + ss.filter(S => h[S.id] && h[S.id].done).length + ' de ' + ss.length + '</small><button class="btn ghost" disabled>Estás acá</button>'
+      (me ? '<small class="al">' + (pend ? '🛠 ' + pend + ' mejoras pendientes' : '🛠 mejoras completas') + (rp < 4.8 ? ' · ⭐ falta llegar a 5' : '') + ((up.flota || 0) < 3 ? ' · 🚚 falta el camión' : '') + ' · 📖 historias ' + ss.filter(S => h[S.id] && h[S.id].done).length + ' de ' + ss.length + '</small>' + (r.rival ? '<small>' + ((h['rival_' + id] || {}).done ? '🏆 Le ganaste a ' + r.rival.name + ': +10% de monedas acá' : '⚔️ ' + r.rival.name + ': ' + (r.rival.fx || r.rival.rule)) + '</small>' : '') + '<button class="btn ghost" disabled>Estás acá</button>'
         : '<small><i>"' + LN.freeze + '"</i></small><button class="btn" data-go="' + id + '">Viajar a ' + r.city + '</button>') + '</div>';
   }
   // Consejos del Dueño: una sola vez cada uno, sin frenar el juego
@@ -561,6 +566,7 @@ GS.Game = (function () {
       if (fx.flag) st.flags[fx.flag] = 1;
       if (fx.gflag) { gf[fx.gflag] = 1; GS.Store.set('gflags', gf); }
       st.last = day.n; day.moment = S.name + ': "' + o.r + '"';
+      if (S.steps[st.step] && S.steps[st.step].end && /^rival_/.test(S.id)) setTimeout(() => { A.play('fanfare'); toast('<b>🏆 Le ganaste a ' + RG(brId()).rival.name + '</b>Se terminó su regla. Desde ahora esta sucursal deja 10% más de monedas.', '', 6000); }, 1800);
       if (waiting) st.waits = (st.waits || 0) + 1;                 // todavía falta algo que depende de otra historia: vuelve más adelante
       else if (!o.stay) { st.step++; st.notes.push(o.note || step.note); if (step.end || st.step >= S.steps.length) st.done = true; }
       h[S.id] = st; GS.Store.set('hist', h); GS.track('visita', { quien: S.id, paso: st.step }); A.play(fx.rep < 0 || fx.fondo < 0 ? 'error' : 'ok'); A.babble(o.r, cu.person.voice);
@@ -964,6 +970,7 @@ GS.Game = (function () {
     const lostSale = d.lostSale || 0, ask = d.served + d.lost + lostSale, perfect = !errs && !d.lost && !lostSale && !d.tasksLate && !d.relaxed, dirty = d.dirt >= 3;
     if (dirty) addRep(-0.1);                                                        // cerrar con el piso sucio se nota
     const earned = Math.max(0, Math.round(d.score / 20 * coinMult() * (d.plan.bonus || 1) * (modNow() === 'sinrespiro' ? 1.3 : 1)) - (d.coinLoss || 0) * (modNow() === 'lupa' ? 2 : 1)); GS.Store.set('coins', coinsNow() + earned);
+    const SPLIT = { local: [1.4, 0.6, '🛠 Al local', 'Más monedas para mejoras'], parejo: [1, 1, '⚖️ Parejo', 'Mitad y mitad'], expa: [0.6, 1.4, '🗺️ A la expansión', 'Más fondos para abrir sucursales'] }; let split = 'parejo';
     const fEarn = d.relaxed ? 0 : Math.round(d.sales / 6500 * (0.5 + repNow() / 5) * (modNow() === 'apuro' || modNow() === 'lupa' ? 1.5 : 1)); addFondo(fEarn);     // fondos de expansión: salen de la facturación y la reputación
     { const t = statsNow(); delete t.rep; delete t.flota; t.c += d.served; t.d++; t.caught += d.caught || 0; t.web += (d.okBy && d.okBy.ml) || 0; t.clean += d.cleaned; t.sales += d.sales;
       if (perfect) { t.perfect++; t.streak++; } else if (!d.relaxed) t.streak = 0; if (d.vueltoMal) t.vueltoMal++; if (!d.dirt && !d.relaxed) t.limpio++; if (dirty) t.sucio++; if (d.santaSold) t.santa++; GS.Store.set('tot', t); }
@@ -983,12 +990,13 @@ GS.Game = (function () {
       (d.caught ? row(true, 'Comprobantes truchos frenados', d.caught) : '') +
       row(!dirty, 'Limpieza', dirty ? 'piso sucio' : d.cleaned ? d.cleaned + (d.cleaned === 1 ? ' mancha limpiada' : ' manchas limpiadas') : 'impecable') +
       '<hr><p class="tot"><span>🪙 Monedas</span><b id="sumCoins">+0</b></p>' + (d.coinLoss ? '<p class="no"><span>Se fue en errores de caja</span><b>−🪙 ' + d.coinLoss + '</b></p>' : '') +
-      '<p><span>🗺️ Fondos de expansión</span><b>+' + fEarn + '</b></p><p><span>⭐ Reputación</span><b>' + repTxt(rv) + ' (' + (rd >= 0 ? '+' : '−') + repTxt(Math.abs(rd)) + ')</b></p>' +
+      '<p><span>🗺️ Fondos de expansión</span><b id="sumFondo">+' + fEarn + '</b></p><p><span>⭐ Reputación</span><b>' + repTxt(rv) + ' (' + (rd >= 0 ? '+' : '−') + repTxt(Math.abs(rd)) + ')</b></p>' +
       '<p><span>Facturación (ficticia)</span><b>' + U.money(d.sales) + '</b></p></div></div>' +
       '<div style="display:flex;flex-direction:column;gap:10px;margin-top:8px">' +
       GS.ARCADE.filter(a => a.from === d.n && !GS.Store.get('testDay')).map(a => '<div class="newrec">🕹️ Premio de la jornada: <b>' + a.name + '</b><small>Juego nuevo en el Arcade (desde el inicio). ' + a.d + '</small></div>').join('') +
       fresh.map(a => '<div class="newrec">' + a.ic + ' Logro: <b>' + a.name + '</b><small>' + a.d + '</small></div>').join('') +
       '<div class="quote"><b>' + (d.moment ? 'El momento del día' : 'El Dueño opina') + '</b>' + (d.moment || comment) + '</div>' +
+      (d.relaxed ? '' : '<div class="split"><b>¿A dónde va lo de hoy?</b><div>' + Object.keys(SPLIT).map(k => '<button data-split="' + k + '" class="' + (k === 'parejo' ? 'on' : '') + '">' + SPLIT[k][2] + '<small>' + SPLIT[k][3] + '</small></button>').join('') + '</div></div>') +
       '<div class="hook"><i>' + hook[0] + '</i><span><b>Lo que viene</b>' + hook[1] + '</span></div>' +
       '<button class="btn" id="endAgain">Siguiente jornada</button>' +
       '<div class="row"><button class="btn alt" id="endShop" style="font-size:16px">🛠 Mejorar</button><button class="btn ghost" id="endMap">🗺️ Mapa</button><button class="btn ghost" id="endRecs">🏅 Logros</button></div>' +
@@ -1001,6 +1009,9 @@ GS.Game = (function () {
     $('end').hidden = false; $('end').scrollTop = 0; coach(GS.ARCADE.some(a => a.from === d.n) ? 'arcade' : 'resumen');
     if (allDone() && !GS.Store.get('finalN') && !GS.Store.get('testDay')) { GS.Store.set('finalN', 1); setTimeout(() => showFinal(), 1600); }
     else if (brProgress('malvinas') >= 100 && !GS.Store.get('finalM') && !GS.Store.get('testDay')) { GS.Store.set('finalM', 1); applyBranch(); setTimeout(showFinalM, 1600); }
+    $('endCol').querySelectorAll('[data-split]').forEach(b => b.addEventListener('click', () => { const k = b.dataset.split; if (k === split) return; const c0 = Math.round(earned * SPLIT[split][0]), f0 = Math.round(fEarn * SPLIT[split][1]), c1 = Math.round(earned * SPLIT[k][0]), f1 = Math.round(fEarn * SPLIT[k][1]);
+      GS.Store.set('coins', coinsNow() + c1 - c0); addFondo(f1 - f0); split = k; GS.Store.set('split', k); $('sumCoins').textContent = '+' + c1; $('sumFondo').textContent = '+' + f1; $('endCol').querySelectorAll('[data-split]').forEach(x => x.classList.toggle('on', x === b)); A.play('cash'); refreshStart(); }));
+    if (!d.relaxed && d.n >= 2) setTimeout(() => coach('reparto'), 2600);
     { const el = $('sumCoins'), t0 = performance.now(); (function tick(t) { const k = Math.min(1, (t - t0) / 900); if (!el.isConnected) return; el.textContent = '+' + Math.round(earned * k); if (k < 1) requestAnimationFrame(tick); else { el.classList.add('pop'); if (earned) A.play('cash'); } })(t0); }   // las monedas suben
   }
   // Gancho para la jornada siguiente: lo próximo que vale la pena esperar
