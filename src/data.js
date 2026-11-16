@@ -7,7 +7,7 @@
 const GS = {};
 
 GS.CONFIG = {
-  version: '0.23.0',
+  version: '0.24.0',
   phase: 8,
   phaseNote: 'Juego completo de punta a punta. Falta tu playtest con 5 personas y encender el lanzamiento (launched: true)',                       // fase actual del proyecto (1 a 5)
   links: { tienda: 'https://www.gameshop.com.ar', instagram: '' },   // botones del inicio y del cierre (vacío = no se muestra)
@@ -276,6 +276,7 @@ GS.UPGRADES = [
 GS.RANKS = [[1, 'Vendedor nuevo'], [3, 'Vendedor'], [5, 'Vendedor senior'], [8, 'Encargado'], [11, 'Mano derecha del Dueño']];
 /* Condiciones del día: cambian cuánta gente viene y cuántos pedidos salen */
 GS.CONDITIONS = {
+  nieve: { name: '❄️ Día de nieve', say: 'Con la nieve va a venir menos gente al local, pero van a entrar más compras por la página.', cust: -2, ml: 2 },      // en Cuyo y Patagonia, la lluvia es nieve
   lluvia: { name: '🌧️ Día de lluvia', say: 'Va a venir menos gente al local, pero van a entrar más compras por la página.', cust: -2, ml: 2 },
   blackfriday: { name: '🏷️ Black Friday', say: 'Viene más gente y entran muchas compras por la página. Tranquilos, que se puede.', cust: 2, ml: 2 },
   navidad: { name: '🎄 Semana de Navidad', say: 'Todos compran regalos a último momento. Paciencia y buena cara.', cust: 2, ml: 1 }
@@ -305,7 +306,7 @@ GS.EXPLAIN = {
 /* Clientes: arquetipos inventados (ninguno es una persona real) */
 /* Regiones: una sucursal por región. Cada una con su ciudad, su paleta, sus modismos (siempre con cariño), su rival y 4 candidatos (se eligen 2). */
 GS.REGIONS = [
-  { id: 'pampeana', name: 'Pampeana', city: 'Buenos Aires', cost: 0, why: 'El local original, en Av. de los Incas. Desde acá salen los envíos a Buenos Aires, Córdoba, Santa Fe, Entre Ríos y La Pampa.', hi: [] },
+  { id: 'pampeana', name: 'Pampeana', city: 'Buenos Aires', cost: 0, decor: 'ciudad', why: 'El local original, en Av. de los Incas. Desde acá salen los envíos a Buenos Aires, Córdoba, Santa Fe, Entre Ríos y La Pampa.', hi: [] },
   { id: 'cuyo', name: 'Cuyo', city: 'Mendoza', cost: 2600, floor: 0xf3d9c4, wall: 0xf6ead8, decor: 'cuyo', why: 'Con base en Mendoza, los envíos a San Juan y San Luis salen en el día.',
     hi: ['¡Buenas! Vengo después de la siesta, como corresponde.', 'Hola, ¿todo bien? Está lindo para unas tortitas con mate.', '¡Qué calor que hace! Menos mal que acá hay sombra.', 'Buenas, vecino. Vengo antes de la Vendimia, que después no hay tiempo.', 'Hola. Dejé la bici en la acequia, no tardo.'],
     rival: { name: 'Zonda Gamer', owner: 'Don Ulises', rule: 'Cuando sopla el Zonda, baja los precios y te lleva clientes.' },

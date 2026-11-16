@@ -96,6 +96,7 @@ GS.Game = (function () {
   // El Dueño sale del depósito, camina hasta el salón, dice lo suyo y se vuelve
   function duenoSpeak(text, call) {
     const d = day; if (!d || d.arcade || state !== 'day') return;
+    if (d.cond === 'lluvia' && snowy()) text = text.replace(/Día de lluvia/g, 'Día de nieve').replace(/esta lluvia/g, 'esta nieve').replace(/Llueve/g, 'Nieva').replace(/llueva/g, 'nieve').replace(/lluvia/g, 'nieve').replace(/paraguas/g, 'gorro');
     if (!bossHere()) { if (call) toast('<b>📞 El Dueño, desde Incas</b>' + text, '', 4200); return; }       // lejos de la casa central solo llama
     const p = W.boss(), back = () => { if (day !== d || d.sayQ.some(q => q.cls === 'boss')) return; p.walk([[7.3, -0.3], W.BOSS_HOME], () => { p.face(0); d.dueno = null; }); };
     if (d.dueno) { sayAt(p, text, 0, 'boss', false, false, back); return; }
@@ -217,7 +218,8 @@ GS.Game = (function () {
     setTimeout(() => { if (day === d) duenoSpeak(msg); }, 500);
     if (brId() !== 'pampeana') { const dd = day; setTimeout(() => { if (day !== dd) return; if (bossHere()) duenoSpeak(LN.duenoCame); else if ((brNow().days || 0) % 2 === 1) duenoSpeak(U.pick(LN.duenoCall), true); }, 2600); }   // lejos de Incas: llama cada dos jornadas, o viene si la reputación baja de 4
     if (n >= 2 && !relaxed && !GS.Store.get('plotIntro') && n <= C.finalDay) { GS.Store.set('plotIntro', true); setTimeout(() => { if (day === d) duenoSpeak(PL.intro.replace('{n}', C.finalDay)); }, 3200); }
-    $('rain').hidden = cond !== 'lluvia'; $('chipCond').hidden = !cond; if (cond) { $('chipCond').textContent = GS.CONDITIONS[cond].name; toast('<b>Hoy</b>' + GS.CONDITIONS[cond].name, 'dueno', 3800); }
+    document.body.classList.toggle('snow', snowy());
+    $('rain').hidden = cond !== 'lluvia'; $('chipCond').hidden = !cond; if (cond) { $('chipCond').textContent = condInfo(cond).name; toast('<b>Hoy</b>' + condInfo(cond).name, 'dueno', 3800); }
     $('clockS').textContent = relaxed ? 'Turno tranquilo' : 'Abrimos';
     updateHud();
     GS.track('inicio_partida', { modo: relaxed ? 'tranquilo' : 'normal' });
@@ -342,7 +344,7 @@ GS.Game = (function () {
 
   /* ---------------- TRAMA: el fondo para el local de al lado ---------------- */
   const PL = GS.PLOT;
-  const fondoNow = () => DEV() ? 999999 : GS.Store.get('fondo') || 0, goalNow = () => { const all = brAll(), l = GS.REGIONS.filter(r => !(all[r.id] && all[r.id].open) && (!r.secret || allDone())); return l.length ? Math.min.apply(0, l.map(r => r.cost)) : 0; };
+  const fondoNow = () => DEV() ? 999999 : GS.Store.get('fondo') || 0, goalNow = () => { const all = brAll(), l = GS.REGIONS.filter(r => !(all[r.id] && all[r.id].open) && (!r.secret || malvOk())); return l.length ? Math.min.apply(0, l.map(r => r.cost)) : 0; };
   const tierNow = () => { const r = fondoNow() / goalNow(); let t = PL.tiers[0]; PL.tiers.forEach(x => { if (r >= x.at) t = x; }); return t; };
   const daysLeft = () => Math.max(0, C.finalDay - dayNumber() + 1);
   function addFondo(v) { GS.Store.set('fondo', Math.max(0, fondoNow() + v)); }
@@ -374,7 +376,7 @@ GS.Game = (function () {
     applyBranch(); refreshStart(); GS.track('sucursal', { id });
   }
   // Mapa del país en 3D: se toca una región y abajo aparece su tarjeta (viajar, abrir o ver qué le falta)
-  const mapState = lit => { const all = brAll(), o = {}; GS.REGIONS.forEach(r => { const b = all[r.id], open = (lit && !r.secret) || !!(b && b.open); if (r.secret && !open && !allDone()) { o[r.id] = { hidden: true }; return; } o[r.id] = { flag: !!r.secret && open && brProgress(r.id) >= 100, open, can: !open && fondoNow() >= r.cost, cur: !lit && r.id === brId(), stage: lit ? 3 : open ? brStage(r.id) : 0 }; }); return o; };
+  const mapState = lit => { const all = brAll(), o = {}; GS.REGIONS.forEach(r => { const b = all[r.id], open = (lit && !r.secret) || !!(b && b.open); if (r.secret && !open && !malvOk()) { o[r.id] = { hidden: true }; return; } o[r.id] = { flag: !!r.secret && open && brProgress(r.id) >= 100, open, can: !open && fondoNow() >= r.cost, cur: !lit && r.id === brId(), stage: lit ? 3 : open ? brStage(r.id) : 0 }; }); return o; };
   function mapCard(id) {
     const all = brAll(), cur = brId(), f = fondoNow(), r = RG(id), b = all[id], open = b && b.open, me = id === cur, h = histAll(), ss = GS.STORIES.filter(S => !S.once && (S.reg || 'pampeana') === id);
     if (!open) return '<div class="suc lock"><b>🔒 ' + r.name + ' · ' + r.city + '</b><small>' + r.why + '</small><small>Zona de <b>' + r.rival.name + '</b></small><button class="btn alt" data-open="' + id + '"' + (f < r.cost ? ' disabled' : '') + '>' + (f < r.cost ? 'Faltan ' + (r.cost - f) + ' fondos · cuesta 🗺️ ' + r.cost : 'Abrir sucursal · 🗺️ ' + r.cost) + '</button></div>';
@@ -413,6 +415,8 @@ GS.Game = (function () {
   }
   /* ---------------- FINAL: el país completo. Cambia según cómo se llegó; después, Nuevo Juego+ ---------------- */
   const allDone = () => MAIN.every(r => brProgress(r.id) >= 100);
+  const malvOk = () => allDone() || (DEV() && MAIN.every(r => (brAll()[r.id] || {}).open));        // en modo desarrollador alcanza con tener las 5 abiertas
+  const snowy = () => brId() === 'cuyo' || brId() === 'patagonia', condInfo = c => GS.CONDITIONS[c === 'lluvia' && snowy() ? 'nieve' : c];
   function showFinal(preview) {
     const st = statsNow(), d = GS.Store.get('days') || 0, F = GS.FINALS.find(f => f.test(st, d)), SH = ['40,10 105,10 100,95 55,110 35,70', '105,10 175,25 185,75 140,105 100,95', '35,112 78,104 84,190 45,200 30,150', '80,104 140,107 170,150 150,215 86,205 84,190', '45,202 86,207 150,217 120,300 100,385 70,390 55,300'], CT = [[70, 58], [142, 62], [58, 152], [122, 160], [96, 270]];
     A.play('fanfare'); GS.track('final', { tipo: F.id, jornadas: d });
@@ -1231,7 +1235,7 @@ GS.Game = (function () {
   let fpsT = 0, fpsN = 0, autoQ = 'media', skyKey = '';
   // La vereda y el fondo acompañan la hora del juego: mañana fresca, mediodía claro, tarde dorada y anochecer con el farol prendido
   function setSky(f, rain) {
-    f = U.clamp(f, 0, 1); const reg = brId() !== 'pampeana', key = Math.round(f * 60) + (rain ? 'r' : '') + brId(); if (key === skyKey) return; skyKey = key;
+    f = U.clamp(f, 0, 1); const reg = true, key = Math.round(f * 60) + (rain ? 'r' : '') + brId(); if (key === skyKey) return; skyKey = key;
     const stops = [[0, [34, 62, 92]], [0.35, [46, 86, 128]], [0.62, [118, 70, 34]], [0.85, [92, 40, 52]], [1, [22, 18, 52]]]; let c = stops[0][1];
     for (let i = 1; i < stops.length; i++) if (f <= stops[i][0]) { const a = stops[i - 1], b = stops[i], k = (f - a[0]) / (b[0] - a[0]); c = a[1].map((v, j) => Math.round(v + (b[1][j] - v) * k)); break; }
     if (rain) c = c.map(v => Math.round(v * 0.45 + 30));
