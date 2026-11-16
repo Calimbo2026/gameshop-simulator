@@ -7,7 +7,7 @@
 const GS = {};
 
 GS.CONFIG = {
-  version: '0.20.0',
+  version: '0.21.0',
   phase: 8,
   phaseNote: 'Juego completo de punta a punta. Falta tu playtest con 5 personas y encender el lanzamiento (launched: true)',                       // fase actual del proyecto (1 a 5)
   links: { tienda: 'https://www.gameshop.com.ar', instagram: '' },   // botones del inicio y del cierre (vacío = no se muestra)
@@ -325,7 +325,13 @@ GS.REGIONS = [
     hi: ['¡Buenas! Afuera el viento te despeina hasta las ideas.', 'Hola. Está fresquito, ¿no? Apenas dos bajo cero.', 'Buenas. Vine caminando: son veinte cuadras, acá es cerquita.', 'Hola, vecino. Después paso por un chocolate, ¿venís?', 'Buenas. Cerré la tranquera y me vine.'],
     rival: { name: 'Ventisca Gaming', owner: 'El Ruso Iván', rule: 'Vende todo con campera de regalo. Nadie sabe de dónde saca las camperas.' },
     crew: [{ id: 'sol', name: 'Sol', d: 'Atiende con guantes y no erra un precio.', look: { skin: 0xf6d7bd, hair: 0xd9a514, hairStyle: 'largo', glasses: false } }, { id: 'lauti', name: 'Lauti', d: 'Hace los envíos aunque nieve.', look: { skin: 0xf2c9a0, hair: 0x5a2d0c, hairStyle: 'rulos', glasses: false } },
-      { id: 'ema', name: 'Ema', d: 'Sabe de consolas y de fogones.', look: { skin: 0xe0ac7e, hair: 0x1b1b1f, hairStyle: 'rodete', glasses: true } }, { id: 'vasco', name: 'El Vasco', d: 'Habla poco. Vende mucho.', look: { skin: 0xf6d7bd, hair: 0xb4b4bd, hairStyle: 'corto', glasses: false } }] }
+      { id: 'ema', name: 'Ema', d: 'Sabe de consolas y de fogones.', look: { skin: 0xe0ac7e, hair: 0x1b1b1f, hairStyle: 'rodete', glasses: true } }, { id: 'vasco', name: 'El Vasco', d: 'Habla poco. Vende mucho.', look: { skin: 0xf6d7bd, hair: 0xb4b4bd, hairStyle: 'corto', glasses: false } }] },
+  /* Final oculto: aparece en el mapa recién cuando las 5 regiones están completas. */
+  { id: 'malvinas', secret: true, name: 'Malvinas', city: 'Puerto Argentino', cost: 3000, floor: 0xdfe8e2, wall: 0xeef3f1, decor: 'malvinas', why: 'La sucursal más austral y la más esperada. Los envíos llegan en barco, con viento a favor.',
+    hi: ['¡Buenas! Con este viento, llegué antes de lo que pensaba.', 'Hola. Dejé las ovejas mirando la vidriera.', 'Buen día. Qué lindo ver este cartel acá.', 'Hola, vecino. Afuera hay un pingüino esperando turno.'],
+    rival: { name: 'El Viento', owner: 'El viento', rule: 'Acá no hay otro local: el rival es el viento, que se lleva los carteles, los toldos y a veces los pedidos.' },
+    crew: [{ id: 'malena', name: 'Malena', d: 'Ata todo dos veces, por el viento.', look: { skin: 0xf2c9a0, hair: 0x5a2d0c, hairStyle: 'largo', glasses: false } }, { id: 'fermin', name: 'Fermín', d: 'Fue farero: no se le pasa un barco ni un pedido.', look: { skin: 0xe0ac7e, hair: 0xb4b4bd, hairStyle: 'corto', glasses: false } },
+      { id: 'isla', name: 'Isla', d: 'Nació acá. Conoce a cada vecino y a cada oveja.', look: { skin: 0xf6d7bd, hair: 0xd9a514, hairStyle: 'rodete', glasses: true } }, { id: 'nahuel', name: 'Nahuel', d: 'Vino por una semana. Hace dos años.', look: { skin: 0xc68a5c, hair: 0x1b1b1f, hairStyle: 'rulos', glasses: false } }] }
 ];
 /* Finales: según cómo se conquistó el país. test(st, días). El primero que cumple, gana. El secreto no se anuncia. */
 GS.FINALS = [
@@ -335,6 +341,7 @@ GS.FINALS = [
   { id: 'ponchazos', ic: '🤠', t: 'A los ponchazos', d: 'Hubo ventas perdidas, vueltos generosos y algún piso dudoso. Pero el cartel está encendido en todo el país, y eso no te lo saca nadie.', test: () => true }
 ];
 /* Nuevo Juego+: se vuelve a empezar con los premios y logros, y un modificador a elección. */
+GS.FINAL_M = { t: 'Las islas', d: 'La sucursal más austral quedó completa: mejoras, cinco estrellas, camión y hasta el farero de cliente. Al cierre, todo el equipo salió a la vereda y plantó la bandera. El viento, por una vez, ayudó: la dejó bien extendida.' };
 GS.MODS = [
   { id: 'apuro', ic: '⏱️', name: 'Clientes apurados', d: 'Esperan un 25% menos. A cambio, 50% más de fondos de expansión.' },
   { id: 'sinrespiro', ic: '🔥', name: 'Sin respiros', d: 'Los respiros duran la mitad. A cambio, 30% más de monedas.' },
@@ -794,6 +801,9 @@ GS.STORIES = [
     { m: 'talk', t: 'Yo regalo campera con cada consola. Acá sin campera nadie compra nada. Suerte.', note: 'El Ruso Iván regala camperas con cada consola.', opts: [{ b: 'Nosotros mandamos el pedido a tu casa: no hace falta salir', r: '...No había pensado en eso.', rm: 'surprised', fx: { rep: 0.1 } } , { b: '¿De dónde saca tantas camperas?', r: 'Esa pregunta no se hace.', rm: 'nervous', fx: { rep: 0.05 } }] },
     { m: 'nervous', t: 'Alguien les dejó un muñeco de nieve en la puerta, ¿no? Con cartel de "cerrado". Los chicos de ahora.', note: 'Un muñeco de nieve con cartel de "cerrado" en la puerta.', opts: [{ b: 'Le pusimos remera roja: ahora es el empleado del mes', r: 'Le queda mejor que a mí la campera. Me voy.', rm: 'sad', fx: { rep: 0.15, fondo: 100 } } , { b: 'Tiene nieve en los guantes, Iván', r: 'Acá todos tenemos nieve en los guantes.', rm: 'nervous', fx: { rep: 0.05 } }] },
     { m: 'talk', t: 'Es el último local que les falta, ¿no? Entonces el desafío es grande: el que haga llegar un paquete a Ushuaia primero, gana el sur.', note: 'El desafío más grande: un envío a Ushuaia contra el Ruso Iván.', end: true, opts: [{ b: 'Sale hoy, con seguimiento y camión propio', r: '...Llegó antes que mi campera. Ganaron el sur. Y el país, me parece.', rm: 'happy', fx: { rep: 0.3, fondo: 400 } }] }] },
+  { id: 'm_farero', reg: 'malvinas', name: 'Don Evaristo', tag: 'El farero', from: 1, gap: 2, look: { shirt: 0x2d6cdf, hair: 0xc9c9d6, hairStyle: 'corto', skin: 0xe0ac7e, beard: true }, steps: [
+    { m: 'talk', t: 'Cuido el faro hace treinta años. De noche se ve hasta el continente, si uno tiene ganas. Quiero una radio que agarre todo.', note: 'El farero quiere una radio que agarre todo.', opts: [{ b: 'Este parlante con radio, y pilas de sobra', r: 'Con pilas de sobra. Acá todo se pide de sobra. Vuelvo cuando la pruebe.', rm: 'happy', fx: { rep: 0.15 } }, { b: 'Mejor una tele', r: 'La tele no se escucha desde arriba del faro, m\'hijo.', rm: 'normal', fx: {} }] },
+    { m: 'happy', t: 'Anoche agarré un partido, un chamamé y a un señor de Jujuy que saludaba. Desde el faro vi su cartel prendido. Queda lindo.', note: 'Desde el faro se ve el cartel de GameShop prendido.', end: true, opts: [{ b: 'Lo dejamos prendido toda la noche', r: 'Entonces ya son dos faros.', rm: 'happy', fx: { rep: 0.3, fondo: 200 } }] }] },
   // visitas sueltas: cosas raras que pasan una sola vez
   { id: 'loro', name: 'La señora del loro', tag: 'Un cliente raro', once: true, from: 4, look: { shirt: 0x21a0a0, hair: 0xd9a514, hairStyle: 'rulos', skin: 0xf6d7bd, lips: true }, steps: [
     { m: 'talk', t: 'Mi loro dice "tres cuotas sin interés". Lo aprendió pasando por acá. ¿Hay descuento por la publicidad?', note: 'Su loro repite "tres cuotas sin interés".', end: true, opts: [

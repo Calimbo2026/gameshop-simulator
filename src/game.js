@@ -339,15 +339,16 @@ GS.Game = (function () {
 
   /* ---------------- TRAMA: el fondo para el local de al lado ---------------- */
   const PL = GS.PLOT;
-  const fondoNow = () => GS.Store.get('fondo') || 0, goalNow = () => { const all = brAll(), l = GS.REGIONS.filter(r => !(all[r.id] && all[r.id].open)); return l.length ? Math.min.apply(0, l.map(r => r.cost)) : 0; };
+  const fondoNow = () => GS.Store.get('fondo') || 0, goalNow = () => { const all = brAll(), l = GS.REGIONS.filter(r => !(all[r.id] && all[r.id].open) && (!r.secret || allDone())); return l.length ? Math.min.apply(0, l.map(r => r.cost)) : 0; };
   const tierNow = () => { const r = fondoNow() / goalNow(); let t = PL.tiers[0]; PL.tiers.forEach(x => { if (r >= x.at) t = x; }); return t; };
   const daysLeft = () => Math.max(0, C.finalDay - dayNumber() + 1);
   function addFondo(v) { GS.Store.set('fondo', Math.max(0, fondoNow() + v)); }
   function plotHtml() {
-    const f = fondoNow(), g = goalNow(), all = brAll(), open = GS.REGIONS.filter(r => all[r.id] && all[r.id].open).length, glob = Math.round(GS.REGIONS.reduce((a, r) => a + brProgress(r.id), 0) / GS.REGIONS.length);
+    const f = fondoNow(), g = goalNow(), all = brAll(), open = MAIN.filter(r => all[r.id] && all[r.id].open).length, glob = Math.round(MAIN.reduce((a, r) => a + brProgress(r.id), 0) / MAIN.length);
     return '<b>🗺️ ' + PL.name + ' · ' + glob + '%</b><span class="pb"><i style="width:' + glob + '%"></i></span><small>Sucursales: ' + open + ' de 5 · ' + (g ? 'fondos ' + f + ' de ' + g + ' para la próxima' : 'todas abiertas') + ' · tocá para ver el mapa</small>';
   }
   /* ---------------- SUCURSALES: una por región. La activa guarda sus mejoras y su reputación; las demás quedan congeladas con su encargado ---------------- */
+  const MAIN = GS.REGIONS.filter(r => !r.secret);          // las 5 regiones; Malvinas es el final oculto
   const RG = id => GS.REGIONS.find(r => r.id === id), brId = () => GS.Store.get('branch') || 'pampeana', brAll = () => GS.Store.get('branches') || { pampeana: { open: 1 } }, brNow = () => brAll()[brId()] || {};
   function brSave(patch) { const all = brAll(), id = brId(); all[id] = Object.assign(all[id] || { open: 1 }, { up: upNow(), rep: repNow() }, patch || {}); GS.Store.set('branches', all); }
   function brProgress(id) {
@@ -360,7 +361,7 @@ GS.Game = (function () {
   const brCrew = id => id === 'pampeana' ? ['Lucho', 'Brian'] : ((brAll()[id] || {}).staff || []).map(c => (RG(id).crew.find(x => x.id === c) || {}).name);
   const bossHere = () => brId() === 'pampeana' || repNow() < 4;
   function applyBranch() {
-    const id = brId(), R = RG(id), ps = W.staff(); W.setRegion(R, brStage(id)); skyKey = ''; setSky(0.3, false); W.setUpgrades(upNow()); W.bossVisible(bossHere());
+    const id = brId(), R = RG(id), ps = W.staff(); W.setRegion(R, brStage(id), id === 'malvinas' && brProgress(id) >= 100); skyKey = ''; setSky(0.3, false); W.setUpgrades(upNow()); W.bossVisible(bossHere());
     if (id === 'pampeana') { luchoLook(dayNumber()); ps[1].look({ skin: GS.SKINS[0], hair: 0x2d6cdf, hairStyle: 'corto', glasses: false }); }
     else (brNow().staff || []).forEach((c, i) => { const e = R.crew.find(x => x.id === c); if (e && ps[i]) ps[i].look(e.look); });
   }
@@ -370,7 +371,7 @@ GS.Game = (function () {
     applyBranch(); refreshStart(); GS.track('sucursal', { id });
   }
   // Mapa del país en 3D: se toca una región y abajo aparece su tarjeta (viajar, abrir o ver qué le falta)
-  const mapState = lit => { const all = brAll(), o = {}; GS.REGIONS.forEach(r => { const b = all[r.id], open = lit || !!(b && b.open); o[r.id] = { open, can: !open && fondoNow() >= r.cost, cur: !lit && r.id === brId(), stage: lit ? 3 : open ? brStage(r.id) : 0 }; }); return o; };
+  const mapState = lit => { const all = brAll(), o = {}; GS.REGIONS.forEach(r => { const b = all[r.id], open = (lit && !r.secret) || !!(b && b.open); if (r.secret && !open && !allDone()) { o[r.id] = { hidden: true }; return; } o[r.id] = { flag: !!r.secret && open && brProgress(r.id) >= 100, open, can: !open && fondoNow() >= r.cost, cur: !lit && r.id === brId(), stage: lit ? 3 : open ? brStage(r.id) : 0 }; }); return o; };
   function mapCard(id) {
     const all = brAll(), cur = brId(), f = fondoNow(), r = RG(id), b = all[id], open = b && b.open, me = id === cur, h = histAll(), ss = GS.STORIES.filter(S => !S.once && (S.reg || 'pampeana') === id);
     if (!open) return '<div class="suc lock"><b>🔒 ' + r.name + ' · ' + r.city + '</b><small>' + r.why + '</small><small>Zona de <b>' + r.rival.name + '</b></small><button class="btn alt" data-open="' + id + '"' + (f < r.cost ? ' disabled' : '') + '>' + (f < r.cost ? 'Faltan ' + (r.cost - f) + ' fondos · cuesta 🗺️ ' + r.cost : 'Abrir sucursal · 🗺️ ' + r.cost) + '</button></div>';
@@ -383,7 +384,7 @@ GS.Game = (function () {
   function closeMap() { GS.Map3D.close(); $('map').hidden = true; if (mapWasDay) paused = false; mapWasDay = false; }
   function mapPick(id) { GS.Map3D.select(id); $('mapCard').innerHTML = mapCard(id); A.play('click'); }
   function showMap() {
-    const all = brAll(), n = GS.REGIONS.filter(r => all[r.id] && all[r.id].open).length; mapWasDay = state === 'day'; if (mapWasDay) paused = true;
+    const all = brAll(), n = MAIN.filter(r => all[r.id] && all[r.id].open).length; mapWasDay = state === 'day'; if (mapWasDay) paused = true;
     $('modal').hidden = true; $('map').hidden = false; $('mapSub').textContent = 'Sucursales ' + n + ' de 5 · fondos de expansión 🗺️ ' + fondoNow() + ' · tocá una región';
     if (!GS.Map3D.open($('mapCv'), mapState(), mapPick)) { closeMap(); return toast('<b>Ups</b>No se pudo dibujar el mapa en este navegador.', '', 2600); }
     GS.Map3D.select(brId()); $('mapCard').innerHTML = mapCard(brId());
@@ -408,7 +409,7 @@ GS.Game = (function () {
     }));
   }
   /* ---------------- FINAL: el país completo. Cambia según cómo se llegó; después, Nuevo Juego+ ---------------- */
-  const allDone = () => GS.REGIONS.every(r => brProgress(r.id) >= 100);
+  const allDone = () => MAIN.every(r => brProgress(r.id) >= 100);
   function showFinal(preview) {
     const st = statsNow(), d = GS.Store.get('days') || 0, F = GS.FINALS.find(f => f.test(st, d)), SH = ['40,10 105,10 100,95 55,110 35,70', '105,10 175,25 185,75 140,105 100,95', '35,112 78,104 84,190 45,200 30,150', '80,104 140,107 170,150 150,215 86,205 84,190', '45,202 86,207 150,217 120,300 100,385 70,390 55,300'], CT = [[70, 58], [142, 62], [58, 152], [122, 160], [96, 270]];
     A.play('fanfare'); GS.track('final', { tipo: F.id, jornadas: d });
@@ -417,8 +418,16 @@ GS.Game = (function () {
       '<p>' + d + ' jornadas · ' + st.c + ' clientes atendidos · ' + (GS.Store.get('ach') || []).length + ' logros</p>' +
       '<p class="cred">Un juego de GameShop · Av. de los Incas 4552, CABA<br>Personajes inventados. Los precios y el stock, también.</p>' +
       '<div class="cta"><b>Esto fue un juego. El local es real.</b><a class="btn alt" href="' + C.links.tienda + '" target="_blank" rel="noopener">Conocé www.gameshop.com.ar</a></div>' +
-      '<div class="row"><button class="btn ghost" id="finShare">📸 Compartir</button><button class="btn" id="finNg">Nuevo Juego+</button></div><button class="btn ghost" data-close>Seguir en esta partida</button></div>');
+      '<p><small>...¿O no era todo? Dicen que en el mapa apareció algo nuevo, bien al sur.</small></p><div class="row"><button class="btn ghost" id="finShare">📸 Compartir</button><button class="btn" id="finNg">Nuevo Juego+</button></div><button class="btn ghost" data-close>Seguir en esta partida</button></div>');
     GS.Map3D.open($('finMap'), mapState(true), null); modalOnClose = () => GS.Map3D.close();
+    $('finShare').addEventListener('click', () => showCard()); $('finNg').addEventListener('click', showNgPlus);
+  }
+  // Final oculto: la sucursal de Malvinas completa y la bandera plantada
+  function showFinalM() {
+    A.play('fanfare'); GS.track('final', { tipo: 'malvinas', jornadas: GS.Store.get('days') || 0 }); const F = GS.FINAL_M;
+    modal('<div class="fin2"><h2>🇦🇷 ' + F.t + '</h2><canvas id="finMap"></canvas><div class="quote"><b>🗝️ Final oculto</b>' + F.d + '</div><p class="cred">GameShop · de La Quiaca a Puerto Argentino</p>' +
+      '<div class="row"><button class="btn ghost" id="finShare">📸 Compartir</button><button class="btn" id="finNg">Nuevo Juego+</button></div><button class="btn ghost" data-close>Seguir en esta partida</button></div>');
+    GS.Map3D.open($('finMap'), mapState(), null, 'malvinas'); modalOnClose = () => GS.Map3D.close();
     $('finShare').addEventListener('click', () => showCard()); $('finNg').addEventListener('click', showNgPlus);
   }
   function showNgPlus() {
@@ -877,6 +886,7 @@ GS.Game = (function () {
     $('endHome').addEventListener('click', goHome); $('endRecs').addEventListener('click', showLogros); $('endShop').addEventListener('click', openShop);
     $('end').hidden = false; $('end').scrollTop = 0;
     if (allDone() && !GS.Store.get('finalN') && !GS.Store.get('testDay')) { GS.Store.set('finalN', 1); setTimeout(() => showFinal(), 1600); }
+    else if (brProgress('malvinas') >= 100 && !GS.Store.get('finalM') && !GS.Store.get('testDay')) { GS.Store.set('finalM', 1); applyBranch(); setTimeout(showFinalM, 1600); }
     { const el = $('sumCoins'), t0 = performance.now(); (function tick(t) { const k = Math.min(1, (t - t0) / 900); if (!el.isConnected) return; el.textContent = '+' + Math.round(earned * k); if (k < 1) requestAnimationFrame(tick); else { el.classList.add('pop'); if (earned) A.play('cash'); } })(t0); }   // las monedas suben
   }
   // Gancho para la jornada siguiente: lo próximo que vale la pena esperar
@@ -1065,7 +1075,7 @@ GS.Game = (function () {
       if (im[1]) { g.save(); g.beginPath(); g.arc(W_ / 2, 560, 204, 0, 7); g.clip(); try { g.drawImage(im[1], W_ / 2 - 190, 372, 380, 472); } catch (e) {} g.restore(); }
       g.lineWidth = 10; g.strokeStyle = '#ff0000'; g.beginPath(); g.arc(W_ / 2, 560, 223, 0, 7); g.stroke();
       // rango
-      const rk = (GS.REGIONS.filter(r => (brAll()[r.id] || {}).open).length + ' de 5 sucursales · jornada ' + n).toUpperCase(); g.font = F(64); const rw = Math.min(940, g.measureText(rk).width + 90);
+      const rk = (MAIN.filter(r => (brAll()[r.id] || {}).open).length + ' de 5 sucursales · jornada ' + n).toUpperCase(); g.font = F(64); const rw = Math.min(940, g.measureText(rk).width + 90);
       g.fillStyle = '#f5c518'; g.beginPath(); g.moveTo(W_ / 2 - rw / 2 + 24, 770); g.lineTo(W_ / 2 + rw / 2, 770); g.lineTo(W_ / 2 + rw / 2 - 24, 868); g.lineTo(W_ / 2 - rw / 2, 868); g.fill();
       g.fillStyle = '#000'; g.fillText(rk, W_ / 2, 843, 860);
       g.fillStyle = '#fff'; g.font = F(50, '700'); g.fillText(GS.FINAL.card[0].replace('{n}', n), W_ / 2, 946, 980);

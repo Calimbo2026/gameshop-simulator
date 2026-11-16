@@ -2,7 +2,7 @@
    vista en ángulo como el local. Cada región abierta muestra una miniatura de su sucursal; las cerradas, un candado.
    GS.Map3D.open(canvas, estado, onPick)   estado = { id: { open, can, cur, stage } }   ·   select(id)   ·   close() */
 GS.Map3D = (() => {
-  const T = THREE; let renderer = null, scene, camera, cv, raf = 0, onPick = null, tops = {}, bob = [], sel = null, cvOf = null;
+  const T = THREE; let renderer = null, scene, camera, cv, raf = 0, onPick = null, tops = {}, bob = [], sel = null, cvOf = null, zc = null;
   // Fronteras (longitud, latitud). Se arman las regiones uniendo tramos, así los bordes internos coinciden.
   const S = {
     nNoa: [[-67.18, -22.82], [-66.3, -21.8], [-65.2, -22.1], [-64.4, -22.7], [-63.9, -22.0], [-62.8, -22.0], [-62.35, -22.45]],
@@ -28,9 +28,10 @@ GS.Map3D = (() => {
     pampeana: { col: 0x8bbf4a, at: [-61.6, -35.0], polys: [join(S.neaPam, S.ePam, rv(S.pamPat), rv(S.cuyPam), rv(S.noaPam))] },
     patagonia: { col: 0x8fb9dc, at: [-68.7, -43.6], polys: [join(S.pamPat, S.ePat, S.wPat, rv(S.cuyPat)),
       [[-68.6, -52.65], [-68.1, -53.1], [-67.6, -53.9], [-66.6, -54.45], [-65.15, -54.65], [-66.4, -55.0], [-67.6, -54.9], [-68.6, -54.9]],                 // Tierra del Fuego
-      [[-64.7, -54.72], [-63.85, -54.72], [-64.2, -54.9]],                                                                                                    // Isla de los Estados
-      [[-61.3, -51.45], [-60.5, -51.3], [-59.75, -51.45], [-59.9, -52.0], [-60.6, -52.25], [-61.1, -51.95]],                                                  // Malvinas: Gran Malvina
-      [[-59.55, -51.4], [-58.6, -51.25], [-57.75, -51.55], [-58.3, -52.0], [-59.0, -52.35], [-59.6, -52.0]]] }                                                // Malvinas: Soledad
+      [[-64.7, -54.72], [-63.85, -54.72], [-64.2, -54.9]]                                                                                                     // Isla de los Estados
+      ] },
+    malvinas: { col: 0x7fb07a, at: [-58.75, -51.75], polys: [[[-61.3, -51.45], [-60.5, -51.3], [-59.75, -51.45], [-59.9, -52.0], [-60.6, -52.25], [-61.1, -51.95]],      // Gran Malvina
+      [[-59.55, -51.4], [-58.6, -51.25], [-57.75, -51.55], [-58.3, -52.0], [-59.0, -52.35], [-59.6, -52.0]]] }                                                           // Soledad
   };
   const X = lon => (lon + 64.6) * 0.8, Y = lat => lat + 38.6;              // proyección simple: 1 grado de latitud = 1 unidad
   const M = (c, o) => new T.MeshLambertMaterial(Object.assign({ color: c }, o || {}));
@@ -64,18 +65,20 @@ GS.Map3D = (() => {
     scene.add(new T.HemisphereLight(0xffffff, 0x5a6a80, 0.62)); const d = new T.DirectionalLight(0xffffff, 0.42); d.position.set(8, 20, 12); scene.add(d);
     const sea = new T.Mesh(new T.PlaneGeometry(200, 200), new T.MeshBasicMaterial({ color: 0x12304f })); sea.rotation.x = -Math.PI / 2; sea.position.y = -0.05; scene.add(sea);
     for (const id in REG) {
-      const R = REG[id], st = state[id] || {}, h = st.open ? (st.cur ? 1.25 : 0.9) : 0.45, top = M(st.open ? R.col : 0x565a66), side = M(st.open ? new T.Color(R.col).multiplyScalar(0.62) : 0x363944), grp = new T.Group(); grp.userData.h = h; scene.add(grp); tops[id] = { grp, top, base: top.color.clone(), meshes: [] };
+      const R = REG[id], st = state[id] || {}, h = st.open ? (st.cur ? 1.25 : 0.9) : 0.45, top = M(st.open ? R.col : st.hidden ? 0x7d8794 : 0x565a66), side = M(st.open ? new T.Color(R.col).multiplyScalar(0.62) : 0x363944), grp = new T.Group(); grp.userData.h = h; scene.add(grp); tops[id] = { grp, top, base: top.color.clone(), meshes: [] };
       R.polys.forEach(poly => { const sh = new T.Shape(); poly.forEach((p, i) => i ? sh.lineTo(X(p[0]), Y(p[1])) : sh.moveTo(X(p[0]), Y(p[1])));
-        const geo = new T.ExtrudeGeometry(sh, { depth: h, bevelEnabled: false }); geo.rotateX(-Math.PI / 2); const m = new T.Mesh(geo, [top, side]); m.userData.reg = id; grp.add(m); tops[id].meshes.push(m); });
-      const px = X(R.at[0]), pz = -Y(R.at[1]), it = st.open ? miniShop(id, st.stage || 1) : padlock(st.can); it.position.set(px, h, pz); it.traverse(o => { o.userData.reg = id; }); grp.add(it); tops[id].meshes.push(it);
+        const geo = new T.ExtrudeGeometry(sh, { depth: h, bevelEnabled: false }); geo.rotateX(-Math.PI / 2); const m = new T.Mesh(geo, [top, side]); if (!st.hidden) m.userData.reg = id; grp.add(m); tops[id].meshes.push(m); });
+      if (st.hidden) continue;                                   // las islas se ven, pero sin candado ni cartel hasta que se destraban
+      const px = X(R.at[0]), pz = -Y(R.at[1]), it = st.open ? miniShop(id, st.stage || 1) : padlock(st.can); if (id === 'malvinas') it.scale.setScalar(0.62); it.position.set(px, h, pz); it.traverse(o => { o.userData.reg = id; }); grp.add(it); tops[id].meshes.push(it);
+      if (st.flag) { const fx = px - 1.6, fz = pz + 0.2; box(grp, 0.12, 4.2, 0.12, 0xe8e8e8, fx, h, fz); [0x74acdf, 0xffffff, 0x74acdf].forEach((c, i) => box(grp, 2.1, 0.42, 0.06, new T.MeshBasicMaterial({ color: c }), fx + 1.1, h + 3.75 - i * 0.42, fz)); const sun = new T.Mesh(new T.CircleGeometry(0.15, 12), new T.MeshBasicMaterial({ color: 0xf5c518 })); sun.position.set(fx + 1.1, h + 3.54, fz + 0.04); grp.add(sun); }   // la bandera
       if (!st.open) bob.push({ o: it, y: h + 0.3, a: st.can ? 0.35 : 0.08, sp: st.can ? 4 : 1.5 });
       if (st.cur) { const pin = cone(grp, 0.5, 1.0, 0xf5c518, px, 0, pz, 4); pin.rotation.x = Math.PI; bob.push({ o: pin, y: h + 4.1, a: 0.3, sp: 3, spin: 2 }); }
       const g = (GS.REGIONS.find(r => r.id === id) || {}), lb = label((g.name || id).toUpperCase(), st.open ? g.city : st.can ? '¡Se puede abrir!' : ''); lb.position.set(px, h + (st.open ? 3.3 : 2.6), pz + 0.2); grp.add(lb);
     }
-    const mv = label('ISLAS MALVINAS', '', 40); mv.scale.set(4.5, 1.5, 1); mv.position.set(X(-59.5), 1.6, -Y(-51.0)); scene.add(mv);
+    if ((state.malvinas || {}).hidden) { const mv = label('ISLAS MALVINAS', '', 40); mv.scale.set(4.5, 1.5, 1); mv.position.set(X(-59.5), 1.6, -Y(-51.0)); scene.add(mv); }
   }
   function fit() {
-    const w = cv.clientWidth || 300, h = cv.clientHeight || 400, a = w / h, half = Math.max(14.6, 10.2 / a);       // el país entra entero, parado o apaisado
+    const w = cv.clientWidth || 300, h = cv.clientHeight || 400, a = w / h, half = zc ? 4.2 : Math.max(14.6, 10.2 / a);       // el país entra entero, parado o apaisado
     renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1)); renderer.setSize(w, h, false);
     camera.left = -half * a; camera.right = half * a; camera.top = half; camera.bottom = -half; camera.updateProjectionMatrix();
   }
@@ -89,11 +92,12 @@ GS.Map3D = (() => {
     const r = cv.getBoundingClientRect(), v = new T.Vector2((e.clientX - r.left) / r.width * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1), rc = new T.Raycaster(); rc.setFromCamera(v, camera);
     const hit = rc.intersectObjects(scene.children, true).find(h => h.object.userData.reg); if (hit && onPick) onPick(hit.object.userData.reg);
   }
-  function open(canvas, state, cb) {
+  function open(canvas, state, cb, zoomTo) {
     close(); cv = canvas; onPick = cb; sel = null;
     try { renderer = new T.WebGLRenderer({ canvas, antialias: true, alpha: true }); } catch (e) { renderer = null; return false; }
     camera = new T.OrthographicCamera(-10, 10, 10, -10, 0.1, 400); const c = new T.Vector3(0.9, 0, 0.4), el = 48 * Math.PI / 180, az = -6 * Math.PI / 180, D = 120;
     camera.position.set(c.x + Math.sin(az) * Math.cos(el) * D, Math.sin(el) * D, c.z + Math.cos(az) * Math.cos(el) * D); camera.lookAt(c);
+    if (zoomTo && REG[zoomTo]) { zc = [X(REG[zoomTo].at[0]), -Y(REG[zoomTo].at[1])]; camera.position.x += zc[0] - c.x; camera.position.z += zc[1] - c.z; } else zc = null;
     build(state); fit(); cvOf = pick; canvas.addEventListener('click', pick); window.addEventListener('resize', fit); raf = requestAnimationFrame(frame); return true;
   }
   function close() { if (raf) cancelAnimationFrame(raf); raf = 0; if (cv && cvOf) cv.removeEventListener('click', cvOf); window.removeEventListener('resize', fit); if (renderer) { renderer.dispose(); renderer = null; } cv = null; }

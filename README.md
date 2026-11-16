@@ -199,3 +199,9 @@ Tres juegos en `src/arcade.js`, que se ganan al terminar las jornadas 3, 8 y 14 
 - **Mejoras**: tocar cualquier nivel lo muestra en el local aunque no alcancen las monedas.
 - Se quitó el local de al lado.
 - **Paisajes regionales**: terreno, calle, cerros facetados con nieve o estratos de colores lejos del local, y vegetación suelta. Prueba: `test/v19.py`.
+
+### v0.21.0
+
+- La vereda y la calle siguen a lo largo de toda la cuadra (en todas las sucursales).
+- **Techo**: al alejar la cámara al máximo aparece el techo del local; al acercar apenas, se abre y se ve el interior.
+- **Final oculto**: con las 5 regiones completas aparece Malvinas en el mapa (`secret: true` en `GS.REGIONS`). Al completar esa sucursal se planta la bandera y se ve el final `GS.FINAL_M`. Prueba: `test/v20.py`.
