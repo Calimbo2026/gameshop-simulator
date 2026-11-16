@@ -1072,7 +1072,7 @@ GS.Game = (function () {
     const nh = a.hair == null ? 0x3a2a1a : Number(a.hair), ns = Number(a.skin || 0xe0ac7e), nt = Number(a.shirt || 0xe10600), id = 'a' + (++avN);
     const h = 'url(#h' + id + ')', sk = hex(ns), top = hex(nt), ink = hex(a.pants || 0x23232b), brow = sh(nh, nh > 0x909090 ? -0.35 : -0.3), FT = '<g transform="translate(50 44) scale(0.9) translate(-50 -48)">';
     const st = a.hairStyle || 'corto', m = mood || 'normal', hat = a.hat;
-    const cap = '<path d="M21 50 A29 29 0 0 1 79 50 L75.500 50 Q73 33 50 33 Q27 33 24.500 50z" fill="' + h + '"/>';
+    const cap = '<path d="M20.500 50 A29.500 ' + (hat === 'lana' || hat === 'gorro' ? 29 : 34.500) + ' 0 0 1 79.500 50 L75.500 50 Q73 33 50 33 Q27 33 24.500 50z" fill="' + h + '"/>';      // llega hasta arriba de la cabeza: no queda piel entre el pelo de adelante y el de atrás
     let v = '<svg viewBox="0 0 100 124" width="120" height="149"><defs><radialGradient id="s' + id + '" cx="38%" cy="30%" r="80%"><stop offset="0" stop-color="' + sh(ns, 0.22) + '"/><stop offset=".55" stop-color="' + sk + '"/><stop offset="1" stop-color="' + sh(ns, -0.2) + '"/></radialGradient>' +
       '<linearGradient id="h' + id + '" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="' + sh(nh, 0.22) + '"/><stop offset=".5" stop-color="' + hex(nh) + '"/><stop offset="1" stop-color="' + sh(nh, -0.3) + '"/></linearGradient>' +
       '<linearGradient id="t' + id + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + sh(nt, 0.16) + '"/><stop offset="1" stop-color="' + sh(nt, -0.22) + '"/></linearGradient></defs>';
