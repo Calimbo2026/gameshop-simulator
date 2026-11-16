@@ -66,6 +66,8 @@ GS.Game = (function () {
   /* Modo desarrollador (Opciones, o ?dev=1 en la dirección): monedas y fondos infinitos. No toca los valores guardados de la partida. */
   const DEV = () => !!GS.Store.get('dev');
   { const set0 = GS.Store.set; GS.Store.set = function (k, v) { if ((k === 'coins' || k === 'fondo') && DEV()) return; return set0.call(GS.Store, k, v); }; if (/[?&]dev=1/.test(location.search)) set0.call(GS.Store, 'dev', true); if (/[?&]dev=0/.test(location.search)) set0.call(GS.Store, 'dev', false); }
+  // En Patagonia y Malvinas la gente anda abrigada: gorro de lana y bufanda
+  const warm = o => ((GS.Store.get('branch') === 'patagonia' || GS.Store.get('branch') === 'malvinas') && !o.hat ? Object.assign({}, o, { hat: 'lana', scarf: true }) : o);
   const coinsNow = () => DEV() ? 999999 : GS.Store.get('coins') || 0;
   const monthOf = n => GS.MONTHS[(n - 1) % 12] + ', año ' + (Math.floor((n - 1) / 12) + 1);
   const coinMult = () => { const u = upNow(); return 1 + 0.1 * ((u.mesa || 0) + (u.isla || 0) + (u.gondola || 0) + (u.luces || 0) + (u.web >= 3 ? 1 : 0)); };
@@ -246,7 +248,7 @@ GS.Game = (function () {
     if (!day.archBag.length) day.archBag = U.shuffle(GS.CUSTOMERS);
     const req = day.reqBag.pop(), arche = day.cond === 'navidad' && !day.santa && day.spawned >= 2 ? (day.santa = 1, GS.SANTA) : day.archBag.pop(), product = GS.CATALOG.find(p => p.id === req.p);
     const k = arche.id.charCodeAt(0) + arche.id.length * 7;   // cada personaje mantiene su look
-    const look = lookOf(arche), person = W.makePerson(look);
+    const look = warm(lookOf(arche)), person = W.makePerson(look);
     const dx = L.puerta.x; person.setPos(dx + U.rnd(-0.5, 0.5), day.spawned === 0 ? L.salon.zMax + 1 : L.galeria.zMax + 2.4);
     person.voice = 230 + (k % 7) * 45;
     const cu = { id: ++uid, arche, look, request: (RG(brId()).hi.length && Math.random() < 0.6 ? U.pick(RG(brId()).hi) + ' ' : '') + req.t, product, st: 'entering', pat: 1, person, slotM: slot, slotC: -1, label: makeLabel('❓') };
@@ -268,7 +270,7 @@ GS.Game = (function () {
   }
   function spawnLooker() {
     const sp = freeSpot(); if (!sp) return; day.spots[sp.i] = 1;
-    const p = W.makePerson({ shirt: U.pick([0x6b7a8f, 0x3d7a4a, 0xd9a514, 0x4a6fb5, 0xb86fa8, 0x21a0a0, 0x7b4fd1, 0xe07a5f]), hair: U.pick(GS.HAIRS), hairStyle: U.pick(GS.HAIRSTYLES)[0], glasses: Math.random() < 0.3, beard: Math.random() < 0.2, lips: Math.random() < 0.4, speed: U.rnd(2.2, 2.9) });
+    const p = W.makePerson(warm({ shirt: U.pick([0x6b7a8f, 0x3d7a4a, 0xd9a514, 0x4a6fb5, 0xb86fa8, 0x21a0a0, 0x7b4fd1, 0xe07a5f]), hair: U.pick(GS.HAIRS), hairStyle: U.pick(GS.HAIRSTYLES)[0], glasses: Math.random() < 0.3, beard: Math.random() < 0.2, lips: Math.random() < 0.4, speed: U.rnd(2.2, 2.9) }));
     p.voice = U.rnd(230, 480); p.setPos(L.puerta.x + U.rnd(-0.4, 0.4), L.galeria.zMax + 2.4); day.extras.push(p);
     const lk = { p, sp, st: 'in', wait: 0, hops: 0 }; day.lookers.push(lk); day.wv.lookers = (day.wv.lookers || 0) + 1;
     p.walk(sp.via.concat([sp.p]), () => { lk.st = 'look'; lk.wait = U.rnd(3, 5.5); p.face(sp.f); });
@@ -464,7 +466,7 @@ GS.Game = (function () {
   function spawnVisit(S) {
     const slot = freeSlot('slotM', L.colaMostrador.length);
     if (slot < 0 || day.closing) { if (!day.closing) { day.queue.push({ kind: 'v', v: S, t: 4 }); day.queue.sort((a, b) => a.t - b.t); } return; }
-    const look = Object.assign({ skin: 0xe0ac7e }, S.look), person = W.makePerson(look), dx = L.puerta.x;
+    const look = warm(Object.assign({ skin: 0xe0ac7e }, S.look)), person = W.makePerson(look), dx = L.puerta.x;
     person.voice = 240 + S.id.length * 30; person.setPos(dx, L.galeria.zMax + 2.4);
     const cu = { id: ++uid, arche: { id: S.id, name: S.name, tag: S.tag, face: '📖', bye: '', lost: '' }, look, story: S, st: 'entering', pat: 1, person, slotM: slot, slotC: -1, label: makeLabel('📖') };
     day.customers.push(cu); toCounter(cu, [[dx, L.salon.zMax + 0.2]]); setTimeout(() => A.play('bell'), 900);
@@ -966,6 +968,7 @@ GS.Game = (function () {
     }
     if (a.beard) v += '<path d="M21.500 52 A28.500 28.500 0 0 0 78.500 52 Q73 62 61 59 Q50 54 39 59 Q27 62 21.500 52z" fill="' + h + '"/>';
     // sombreros de los disfraces
+    if (hat === 'lana') v += '<path d="M21 46 Q22 15 50 14 Q78 15 79 46z" fill="' + top + '"/><path d="M19 44 Q50 32 81 44 L80 53 Q50 41 20 53z" fill="' + ink + '"/><circle cx="50" cy="12" r="6" fill="' + ink + '"/>';
     if (hat === 'gorro') v += '<path d="M20 44 Q22 14 52 12 Q76 12 84 30 L78 34 Q70 24 62 30 Q76 36 80 46z" fill="#d81e2c"/><path d="M18 46 Q50 30 82 46 L81 54 Q50 39 19 54z" fill="#fff"/><circle cx="84" cy="31" r="6" fill="#fff"/>';
     if (hat === 'orejas') v += '<ellipse cx="29" cy="22" rx="8" ry="9" fill="' + h + '"/><ellipse cx="71" cy="22" rx="8" ry="9" fill="' + h + '"/>';
     if (hat === 'casco') v += '<path d="M17 52 A33 33 0 0 1 83 52 L78 52 Q76 36 50 36 Q24 36 22 52z" fill="' + top + '"/><rect x="76" y="14" width="3.500" height="16" fill="' + top + '"/><circle cx="77.700" cy="12" r="4.200" fill="' + h + '"/>';
@@ -1256,7 +1259,7 @@ GS.Game = (function () {
     if (!paused && (walkT -= dt) <= 0 && walkers < 4) {                 // peatones: pasan por la vereda y siguen de largo
       walkT = U.rnd(3, 7) * (day && day.cond === 'lluvia' ? 2.2 : 1); walkers++;
       const dir = Math.random() < 0.5 ? 1 : -1, z = L.galeria.zMax + U.rnd(1.6, 2.6), hs = U.pick(GS.HAIRSTYLES)[0];
-      const w = W.makePerson({ shirt: U.pick([0x6b7a8f, 0x3d7a4a, 0xd9a514, 0x4a6fb5, 0xb86fa8, 0x21a0a0, 0x555560]), hair: U.pick(GS.HAIRS), hairStyle: hs, glasses: Math.random() < 0.3, beard: Math.random() < 0.2, speed: U.rnd(1.3, 2) });
+      const w = W.makePerson(warm({ shirt: U.pick([0x6b7a8f, 0x3d7a4a, 0xd9a514, 0x4a6fb5, 0xb86fa8, 0x21a0a0, 0x555560]), hair: U.pick(GS.HAIRS), hairStyle: hs, glasses: Math.random() < 0.3, beard: Math.random() < 0.2, speed: U.rnd(1.3, 2) }));
       w.setPos(-7.5 * dir, z); w.walk([[7.5 * dir, z]], () => { w.remove(); walkers--; });
     }
     W.update(paused ? 0 : dt); W.render();
