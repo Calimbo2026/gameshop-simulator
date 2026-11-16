@@ -3421,22 +3421,28 @@ GS.Map3D = (() => {
     const s = new T.Sprite(new T.SpriteMaterial({ map: new T.CanvasTexture(c), depthTest: false, transparent: true })); s.scale.set(6, 2, 1); s.renderOrder = 9; return s;
   }
   // Miniatura caricaturizada de la sucursal, con algo típico de la región al lado
-  // Texturas compartidas de la miniatura: el logo de GameShop y el toldo a rayas
-  let logoTex = null, awnTex = null;
-  function shopTex() {
-    if (!logoTex) { const c = document.createElement('canvas'); c.width = 512; c.height = 160; const g = c.getContext('2d'); g.fillStyle = '#000'; g.fillRect(0, 0, 512, 160); logoTex = new T.CanvasTexture(c);
-      const im = new Image(); im.onload = () => { const w = 480, h = w * im.height / im.width; g.drawImage(im, (512 - w) / 2, (160 - h) / 2, w, h); logoTex.needsUpdate = true; }; im.src = GS.LOGO; }
-    if (!awnTex) { const c = document.createElement('canvas'); c.width = 256; c.height = 32; const g = c.getContext('2d'); for (let i = 0; i < 8; i++) { g.fillStyle = i % 2 ? '#ffffff' : '#e10600'; g.fillRect(i * 32, 0, 32, 32); } awnTex = new T.CanvasTexture(c); }
+  // Miniatura de la sucursal: una tiendita dibujada de frente (como un ícono) que siempre mira a la cámara, con el logo de GameShop en el cartel
+  const shopT = {}; let logoIm = null;
+  function shopTex(gold) {
+    const key = gold ? 'g' : 'n'; if (shopT[key]) return shopT[key];
+    const c = document.createElement('canvas'); c.width = 256; c.height = 256; const g = c.getContext('2d'), t = shopT[key] = new T.CanvasTexture(c);
+    const draw = () => { g.clearRect(0, 0, 256, 256); const rr = (x, y, w, h, r, f) => { g.fillStyle = f; g.beginPath(); g.roundRect(x, y, w, h, r); g.fill(); };
+      rr(26, 96, 204, 142, 0, '#fbe3c3'); rr(26, 96, 204, 10, 0, '#eec892');                                                  // pared
+      rr(18, 226, 220, 16, 2, '#ffffff'); rr(26, 222, 204, 5, 0, '#eec892');                                                  // zócalo
+      rr(46, 150, 62, 92, 2, '#0d5c63'); rr(54, 158, 46, 46, 1, '#9fd8c4'); rr(54, 210, 46, 24, 1, '#5f8f8f'); g.fillStyle = '#ffd23a'; g.beginPath(); g.arc(103, 198, 3.4, 0, 7); g.fill();   // puerta
+      g.save(); g.beginPath(); g.rect(54, 158, 46, 46); g.clip(); g.strokeStyle = 'rgba(255,255,255,.55)'; g.lineWidth = 7; g.beginPath(); g.moveTo(50, 196); g.lineTo(96, 150); g.moveTo(62, 212); g.lineTo(108, 166); g.stroke(); g.restore();
+      rr(124, 152, 96, 60, 2, '#0d5c63'); rr(130, 158, 39, 48, 1, '#9fd8c4'); rr(175, 158, 39, 48, 1, '#9fd8c4'); rr(120, 212, 104, 9, 1, '#ffffff'); rr(124, 221, 96, 4, 0, '#eec892');                 // vidriera
+      g.save(); g.beginPath(); g.rect(130, 158, 84, 48); g.clip(); g.strokeStyle = 'rgba(255,255,255,.55)'; g.lineWidth = 7; g.beginPath(); g.moveTo(126, 200); g.lineTo(170, 156); g.moveTo(172, 204); g.lineTo(216, 160); g.stroke(); g.restore();
+      for (let k = 0; k < 8; k++) { const x0 = 14 + k * 28.5, red = k % 2 === 0; g.fillStyle = red ? '#f0103c' : '#ffffff'; g.beginPath(); g.moveTo(26 + k * 25.5, 96); g.lineTo(26 + (k + 1) * 25.5, 96); g.lineTo(x0 + 28.5, 132); g.lineTo(x0, 132); g.fill();
+        g.fillStyle = red ? '#a80a2a' : '#dfe5ea'; g.beginPath(); g.arc(x0 + 14.25, 132, 14.25, 0, Math.PI); g.fill(); }                                                                            // toldo a rayas con festón
+      rr(18, 84, 220, 13, 2, '#ffffff');                                                                                      // cornisa
+      rr(10, 18, 236, 66, 9, gold ? '#f5c518' : '#ffffff'); rr(14, 22, 228, 58, 7, '#0b0b0d'); if (logoIm) { const w = 214, h = w * logoIm.height / logoIm.width; g.drawImage(logoIm, 128 - w / 2, 51 - h / 2, w, h); }   // cartel con el logo
+      t.needsUpdate = true; };
+    draw(); if (!logoIm) { const im = new Image(); im.onload = () => { logoIm = im; for (const k in shopT) shopT[k].redraw(); }; im.src = GS.LOGO; } t.redraw = draw; return t;
   }
-  // Miniatura de la sucursal: una tiendita bien simple (paredes claras, toldo a rayas, puerta y vidriera) con el cartel de GameShop grande arriba, y algo típico de la región al lado
   function miniShop(id, stage) {
-    shopTex(); const g = new T.Group(), W = 2.7, D = 1.7, H = 1.25;
-    box(g, W, H, D, 0xf7f3ea, 0, 0, 0); box(g, W + 0.16, 0.14, D + 0.16, 0xd9d2c2, 0, H, 0);                                             // paredes y techo plano
-    box(g, 0.55, 0.85, 0.08, 0x3a2a1a, -0.72, 0, D / 2 + 0.01); box(g, 1.25, 0.6, 0.08, 0x7fd4ff, 0.5, 0.22, D / 2 + 0.01); box(g, 1.35, 0.08, 0.1, 0xffffff, 0.5, 0.18, D / 2 + 0.02);   // puerta y vidriera
-    { const a = new T.Mesh(new T.BoxGeometry(W + 0.1, 0.07, 0.75), [M(0xe10600), M(0xe10600), new T.MeshBasicMaterial({ map: awnTex }), M(0xb00000), M(0xe10600), M(0xe10600)]); a.position.set(0, H - 0.1, D / 2 + 0.3); a.rotation.x = 0.42; g.add(a); }      // toldo
-    { const sg = new T.Group(); sg.position.set(0, H + 0.14, -0.1); sg.rotation.x = -0.5; g.add(sg); box(sg, W + 0.5, 1.02, 0.14, 0x0b0b0d, 0, 0, 0); const lp = new T.Mesh(new T.PlaneGeometry(W + 0.36, (W + 0.36) * 160 / 512), new T.MeshBasicMaterial({ map: logoTex })); lp.position.set(0, 0.51, 0.08); sg.add(lp);
-      if (stage >= 2) box(sg, W + 0.6, 0.08, 0.2, 0xf5c518, 0, 1.02, 0); }                                                                 // cartel con el logo, inclinado hacia la cámara
-    if (stage >= 3) { const st = new T.Mesh(new T.OctahedronGeometry(0.42), new T.MeshBasicMaterial({ color: 0xf5c518 })); st.position.set(0, 3.0, -0.4); g.add(st); bob.push({ o: st, y: 3.0, a: 0.18, spin: 1 }); }
+    const g = new T.Group(), sp = new T.Sprite(new T.SpriteMaterial({ map: shopTex(stage >= 2), transparent: true, alphaTest: 0.05 })); sp.center.set(0.5, 0.04); sp.scale.set(3.3, 3.3, 1); sp.position.set(0, 0, 0.3); g.add(sp);
+    if (stage >= 3) { const st = new T.Mesh(new T.OctahedronGeometry(0.36), new T.MeshBasicMaterial({ color: 0xf5c518 })); st.position.set(1.5, 3.3, 0.3); g.add(st); bob.push({ o: st, y: 3.3, a: 0.16, spin: 1 }); }
     if (id === 'pampeana') { box(g, 0.34, 2.4, 0.34, 0xffffff, 1.9, 0, 0.2); cone(g, 0.26, 0.5, 0xffffff, 1.9, 2.4, 0.2, 4).rotation.y = Math.PI / 4; }                                    // obelisco
     if (id === 'cuyo') { cone(g, 1.3, 2.4, 0x8a7a6a, -1.9, 0, -0.5, 6); cone(g, 0.5, 0.9, 0xffffff, -1.9, 1.52, -0.5, 6); box(g, 0.4, 0.5, 0.4, 0x7a4a22, 1.7, 0, 0.5); box(g, 0.3, 0.3, 0.3, 0x6a2d7a, 1.7, 0.5, 0.5); }   // cordillera, barrica y uvas
     if (id === 'noa') { cone(g, 1.4, 1.8, 0xc2452d, -1.9, 0, -0.5, 7); cone(g, 1.0, 1.3, 0xe3c34a, -1.9, 0.52, -0.5, 7); cone(g, 0.55, 0.75, 0x8e4a8f, -1.9, 1.08, -0.5, 7); box(g, 0.22, 1.3, 0.22, 0x2f8f3a, 1.7, 0, 0.4); box(g, 0.6, 0.18, 0.18, 0x2f8f3a, 1.7, 0.6, 0.4); box(g, 0.18, 0.4, 0.18, 0x2f8f3a, 1.98, 0.6, 0.4); box(g, 0.18, 0.5, 0.18, 0x2f8f3a, 1.42, 0.6, 0.4); }   // cerro de colores y cardón
@@ -3461,8 +3467,8 @@ GS.Map3D = (() => {
       const px = X(R.at[0]), pz = -Y(R.at[1]), it = st.open ? miniShop(id, st.stage || 1) : padlock(st.can); if (id === 'malvinas') it.scale.setScalar(K > 1 ? 1 : 0.62); it.position.set(px, h, pz); it.traverse(o => { o.userData.reg = id; }); grp.add(it); tops[id].meshes.push(it);
       if (st.flag) { const fx = K > 1 ? PX([-60.75, 0]) : px - 1.6, fz = K > 1 ? -PY([0, -51.85]) : pz + 0.2; /* en la imagen grande, la bandera va en la isla del oeste */ box(grp, 0.12, 4.2, 0.12, 0xe8e8e8, fx, h, fz); [0x74acdf, 0xffffff, 0x74acdf].forEach((c, i) => box(grp, 2.1, 0.42, 0.06, new T.MeshBasicMaterial({ color: c }), fx + 1.1, h + 3.75 - i * 0.42, fz)); const sun = new T.Mesh(new T.CircleGeometry(0.15, 12), new T.MeshBasicMaterial({ color: 0xf5c518 })); sun.position.set(fx + 1.1, h + 3.54, fz + 0.04); grp.add(sun); }   // la bandera
       if (!st.open) bob.push({ o: it, y: h + 0.3, a: st.can ? 0.35 : 0.08, sp: st.can ? 4 : 1.5 });
-      if (st.cur) { const pin = cone(grp, 0.5, 1.0, 0xf5c518, px, 0, pz, 4); pin.rotation.x = Math.PI; bob.push({ o: pin, y: h + 6.6, a: 0.3, sp: 3, spin: 2 }); }
-      const g = (GS.REGIONS.find(r => r.id === id) || {}), lb = label((g.name || id).toUpperCase(), st.open ? g.city : st.can ? '¡Se puede abrir!' : ''); lb.position.set(K > 1 ? PX([-59.55, 0]) : px, h + (st.open ? 4.7 : 2.6) + (K > 1 ? 1.4 : 0), pz - (st.open ? 0.9 : -0.2) - (K > 1 ? 2.2 : 0)); grp.add(lb);
+      if (st.cur) { const pin = cone(grp, 0.5, 1.0, 0xf5c518, px, 0, pz, 4); pin.rotation.x = Math.PI; bob.push({ o: pin, y: h + 6.9, a: 0.3, sp: 3, spin: 2 }); }
+      const g = (GS.REGIONS.find(r => r.id === id) || {}), lb = label((g.name || id).toUpperCase(), st.open ? g.city : st.can ? '¡Se puede abrir!' : ''); lb.position.set(K > 1 ? PX([-59.55, 0]) : px, h + (st.open ? 5.0 : 2.6) + (K > 1 ? 1.1 : 0), pz - (st.open ? 0.4 : -0.2) - (K > 1 ? 2.2 : 0)); grp.add(lb);
     }
     if ((state.malvinas || {}).hidden) { const mv = label('ISLAS MALVINAS', '', 40); mv.scale.set(4.5, 1.5, 1); mv.position.set(X(-59.5), 1.6, -Y(-51.0)); scene.add(mv); }
   }
