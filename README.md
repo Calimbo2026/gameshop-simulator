@@ -205,3 +205,8 @@ Tres juegos en `src/arcade.js`, que se ganan al terminar las jornadas 3, 8 y 14 
 - La vereda y la calle siguen a lo largo de toda la cuadra (en todas las sucursales).
 - **Techo**: al alejar la cámara al máximo aparece el techo del local; al acercar apenas, se abre y se ve el interior.
 - **Final oculto**: con las 5 regiones completas aparece Malvinas en el mapa (`secret: true` en `GS.REGIONS`). Al completar esa sucursal se planta la bandera y se ve el final `GS.FINAL_M`. Prueba: `test/v20.py`.
+
+### v0.23.0
+
+- Techo: logo corpóreo sobre el faldón del frente ("Game" en negro, "Shop" en rojo).
+- **Modo desarrollador**: Opciones → Modo desarrollador (o `?dev=1` en la dirección; `?dev=0` lo apaga). Da monedas y fondos de expansión infinitos sin tocar los valores guardados de la partida, y suma el botón "Completar esta sucursal".

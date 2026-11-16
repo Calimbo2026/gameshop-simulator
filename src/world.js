@@ -433,8 +433,14 @@ GS.World = (function () {
     const y = s.wallH + 0.45, w = s.xMax - s.xMin + 0.4, zN = s.zMin - 0.2, zS = L.galeria.zMax + 0.4;
     mansard(0, (zN + zS) / 2, w, zS - zN, y, 1.9, 0.62, [4, 6]); mansard(8.95, 0.65, 5.2, 15.7, y - 0.5, 1.3, 0.55, [2, 5]);
     [[-1.6, -2.4], [1.4, -2.4], [0, 4.6]].forEach(q => { box(g, 1.5, 0.6, 1.1, light, q[0], y + 1.97, q[1]); box(g, 1.0, 0.08, 0.7, grey, q[0], y + 2.57, q[1]); });     // equipos de aire arriba
-    const tm = new T.MeshBasicMaterial({ map: textTex('GameShop', { bg: '#c4452f', fg: '#ffd23a', w: 1024, h: 256, font: '900 200px Impact, "Arial Narrow", sans-serif' }), transparent: true }); roofMats.push(tm);
-    const sg = plane(g, 7.6, 1.9, tm, 0, y + 1.25, zS - 1.5, 0, -0.62);                                                                              // el nombre, apoyado en el faldón del frente
+    // Logo corpóreo: letras con volumen paradas sobre el faldón del frente. "Game" en negro y "Shop" en rojo.
+    const logo = (side) => canvasTex(1024, 256, (c, W, H) => { c.font = 'italic 900 190px Impact, "Arial Narrow", "Arial Black", sans-serif'; c.textBaseline = 'middle'; c.lineJoin = 'round';
+      const a = c.measureText('Game').width, b = c.measureText('Shop').width, x0 = (W - a - b - 8) / 2; c.lineWidth = 16; c.strokeStyle = side ? '#6b6e78' : '#ffffff'; c.strokeText('Game', x0, H / 2 + 6); c.strokeText('Shop', x0 + a + 8, H / 2 + 6);
+      c.fillStyle = side ? '#050506' : '#141416'; c.fillText('Game', x0, H / 2 + 6); c.fillStyle = side ? '#8f0400' : '#e10600'; c.fillText('Shop', x0 + a + 8, H / 2 + 6); });
+    const lf = new T.MeshBasicMaterial({ map: logo(false), transparent: true, alphaTest: 0.08 }), ls = new T.MeshBasicMaterial({ map: logo(true), transparent: true, alphaTest: 0.08 }); roofMats.push(lf, ls);
+    const lg = new T.Group(); lg.position.set(0, y + 1.55, zS - 2.5); lg.rotation.x = -0.85; g.add(lg);
+    for (let i = 0; i < 18; i++) plane(lg, 11.6, 2.9, i === 17 ? lf : ls, 0, 0, i * 0.04);
+    [-4, 0, 4].forEach(x => { const b = box(lg, 0.16, 0.16, 1.1, grey, x, -0.9, -0.5); });                                                                          // parantes
   }
   function setRegion(R, stage, flag) {
     if (regG) { scene.remove(regG); regG = null; } critters = [];
