@@ -429,7 +429,12 @@ GS.World = (function () {
     box(root, 0.2, s.wallH, zG - s.zMax + 0.1, wall, s.xMin - 0.1, 0, (s.zMax + zG) / 2 + 0.05); box(root, 0.02, 0.9, zG - s.zMax, 0x16161a, s.xMin + 0.011, 0, (s.zMax + zG) / 2);                    // la pared del costado sigue hasta la vidriera
     box(root, 0.24, 0.34, 15.9, low, x1 + 0.1, 0, 0.7); [-7.1, t.zB + 0.1].forEach(z => box(root, 0.34, 0.5, 0.34, 0xbfc1c7, x1 + 0.1, 0, z));                                                       // muro bajo corrido del lado del estacionamiento
     box(root, x1 - 6.5, 0.36, 0.3, low, (6.5 + x1) / 2, 0, -1.05 + 0.02); box(root, x1 - 6.5, 0.36, 0.34, low, (6.5 + x1) / 2, 0, 3.775);                                                              // tabiques entre depósito, oficina y taller
-    box(root, 0.3, 0.5, zG - s.zMax, low, s.xMax + 0.2, 0, (s.zMax + zG) / 2); plane(root, zG - s.zMax, 1.9, glass, s.xMax + 0.2, 1.45, (s.zMax + zG) / 2, Math.PI / 2); box(root, 0.3, 0.12, zG - s.zMax, 0x0c0c0c, s.xMax + 0.2, 2.4, (s.zMax + zG) / 2);   // cierre de la vidriera del lado del taller: zócalo, vidrio y dintel
+    { const gz = (s.zMax + zG) / 2, gd = zG - s.zMax, gx = s.xMax + 0.15; glass.side = T.DoubleSide; glass.opacity = 0.3;                              // pared de la vidriera del lado del taller: media pared, vidrio con marco negro y dintel
+      box(root, 0.3, 1.05, gd, wall, gx, 0, gz); box(root, 0.32, 0.3, gd + 0.02, 0x16161a, gx, 0, gz); box(root, 0.34, 0.08, gd, 0x0c0c0c, gx, 1.05, gz);
+      plane(root, gd, 1.5, glass, gx, 1.88, gz, Math.PI / 2); box(root, 0.3, 0.14, gd, 0x0c0c0c, gx, 2.62, gz); [s.zMax + 0.1, gz, zG - 0.1].forEach(z => box(root, 0.16, 1.5, 0.16, 0x0c0c0c, gx, 1.13, z)); }
+    // unión del salón con el depósito: un pilar que empalma las dos paredes del fondo, y el remate de la pared del depósito a la misma altura
+    box(root, 0.55, s.wallH, 0.34, wall, s.xMax + 0.27, 0, s.zMin - 0.1); box(root, 0.6, 0.12, 0.4, 0xdcdcdc, s.xMax + 0.27, s.wallH, s.zMin - 0.1);
+    box(root, x1 - 6.5 + 0.2, s.wallH - 2.6, 0.2, 0xd8d8d4, (6.5 + x1) / 2 + 0.1, 2.6, s.zMin - 0.1); box(root, 0.3, s.wallH, 0.3, 0xd8d8d4, x1 + 0.1, 0, s.zMin - 0.1);   // cierre de la vidriera del lado del taller: zócalo, vidrio y dintel
     box(root, 0.12, 0.012, s.zMax - s.zMin, 0x8d9199, s.xMax + 0.25, 0.006, (s.zMin + s.zMax) / 2);                                                                                                     // umbral metálico entre el salón y los ambientes
   }
   // Techo: aparece al alejar la cámara al máximo; al acercar apenas, se abre y se ve el interior
