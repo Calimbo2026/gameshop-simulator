@@ -3448,10 +3448,10 @@ GS.Map3D = (() => {
         const geo = new T.ExtrudeGeometry(sh, { depth: h, bevelEnabled: false }); geo.rotateX(-Math.PI / 2); const m = new T.Mesh(geo, [top, side]); if (!st.hidden) m.userData.reg = id; grp.add(m); tops[id].meshes.push(m); });
       if (st.hidden) continue;                                   // las islas se ven, pero sin candado ni cartel hasta que se destraban
       const px = X(R.at[0]), pz = -Y(R.at[1]), it = st.open ? miniShop(id, st.stage || 1) : padlock(st.can); if (id === 'malvinas') it.scale.setScalar(K > 1 ? 1 : 0.62); it.position.set(px, h, pz); it.traverse(o => { o.userData.reg = id; }); grp.add(it); tops[id].meshes.push(it);
-      if (st.flag) { const fx = K > 1 ? px + 2.5 : px - 1.6, fz = pz + (K > 1 ? 0.8 : 0.2); box(grp, 0.12, 4.2, 0.12, 0xe8e8e8, fx, h, fz); [0x74acdf, 0xffffff, 0x74acdf].forEach((c, i) => box(grp, 2.1, 0.42, 0.06, new T.MeshBasicMaterial({ color: c }), fx + 1.1, h + 3.75 - i * 0.42, fz)); const sun = new T.Mesh(new T.CircleGeometry(0.15, 12), new T.MeshBasicMaterial({ color: 0xf5c518 })); sun.position.set(fx + 1.1, h + 3.54, fz + 0.04); grp.add(sun); }   // la bandera
+      if (st.flag) { const fx = K > 1 ? PX([-60.75, 0]) : px - 1.6, fz = K > 1 ? -PY([0, -51.85]) : pz + 0.2; /* en la imagen grande, la bandera va en la isla del oeste */ box(grp, 0.12, 4.2, 0.12, 0xe8e8e8, fx, h, fz); [0x74acdf, 0xffffff, 0x74acdf].forEach((c, i) => box(grp, 2.1, 0.42, 0.06, new T.MeshBasicMaterial({ color: c }), fx + 1.1, h + 3.75 - i * 0.42, fz)); const sun = new T.Mesh(new T.CircleGeometry(0.15, 12), new T.MeshBasicMaterial({ color: 0xf5c518 })); sun.position.set(fx + 1.1, h + 3.54, fz + 0.04); grp.add(sun); }   // la bandera
       if (!st.open) bob.push({ o: it, y: h + 0.3, a: st.can ? 0.35 : 0.08, sp: st.can ? 4 : 1.5 });
       if (st.cur) { const pin = cone(grp, 0.5, 1.0, 0xf5c518, px, 0, pz, 4); pin.rotation.x = Math.PI; bob.push({ o: pin, y: h + 4.1, a: 0.3, sp: 3, spin: 2 }); }
-      const g = (GS.REGIONS.find(r => r.id === id) || {}), lb = label((g.name || id).toUpperCase(), st.open ? g.city : st.can ? '¡Se puede abrir!' : ''); lb.position.set(px, h + (st.open ? 3.3 : 2.6) + (K > 1 ? 2.6 : 0), pz + 0.2 - (K > 1 ? 2.2 : 0)); grp.add(lb);
+      const g = (GS.REGIONS.find(r => r.id === id) || {}), lb = label((g.name || id).toUpperCase(), st.open ? g.city : st.can ? '¡Se puede abrir!' : ''); lb.position.set(K > 1 ? PX([-59.55, 0]) : px, h + (st.open ? 3.3 : 2.6) + (K > 1 ? 2.6 : 0), pz + 0.2 - (K > 1 ? 2.2 : 0)); grp.add(lb);
     }
     if ((state.malvinas || {}).hidden) { const mv = label('ISLAS MALVINAS', '', 40); mv.scale.set(4.5, 1.5, 1); mv.position.set(X(-59.5), 1.6, -Y(-51.0)); scene.add(mv); }
   }
@@ -3475,7 +3475,7 @@ GS.Map3D = (() => {
     try { renderer = new T.WebGLRenderer({ canvas, antialias: true, alpha: true }); } catch (e) { renderer = null; return false; }
     camera = new T.OrthographicCamera(-10, 10, 10, -10, 0.1, 400); const c = new T.Vector3(0.9, 0, 0.4), el = 48 * Math.PI / 180, az = -6 * Math.PI / 180, D = 120;
     camera.position.set(c.x + Math.sin(az) * Math.cos(el) * D, Math.sin(el) * D, c.z + Math.cos(az) * Math.cos(el) * D); camera.lookAt(c);
-    if (zoomTo && REG[zoomTo]) { zc = [X(REG[zoomTo].at[0]), -Y(REG[zoomTo].at[1])]; camera.position.x += zc[0] - c.x; camera.position.z += zc[1] - 1.6 - c.z; } else zc = null;
+    if (zoomTo && REG[zoomTo]) { zc = [X(REG[zoomTo].at[0]) + (big ? (X(-59.55) - X(REG[zoomTo].at[0])) * 2.5 : 0), -Y(REG[zoomTo].at[1])]; /* con las islas grandes, se centra entre las dos */ camera.position.x += zc[0] - c.x; camera.position.z += zc[1] - (big ? 2.9 : 1.6) - c.z; } else zc = null;
     build(state); fit(); cvOf = pick; canvas.addEventListener('click', pick); window.addEventListener('resize', fit); if (window.ResizeObserver) { ro = new ResizeObserver(() => { if (renderer) fit(); }); ro.observe(canvas); } raf = requestAnimationFrame(frame); return true;
   }
   function close() { if (raf) cancelAnimationFrame(raf); raf = 0; if (cv && cvOf) cv.removeEventListener('click', cvOf); window.removeEventListener('resize', fit); if (ro) { ro.disconnect(); ro = null; } if (renderer) { renderer.dispose(); renderer = null; } cv = null; }
