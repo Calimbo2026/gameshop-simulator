@@ -90,8 +90,9 @@ GS.Game = (function () {
   const repNow = () => (GS.Store.get('rep') == null ? 3 : GS.Store.get('rep'));
   const repTxt = v => v.toFixed(1).replace('.', ',');
   // El Dueño sale del depósito, camina hasta el salón, dice lo suyo y se vuelve
-  function duenoSpeak(text) {
+  function duenoSpeak(text, call) {
     const d = day; if (!d || d.arcade || state !== 'day') return;
+    if (!bossHere()) { if (call) toast('<b>📞 El Dueño, desde Incas</b>' + text, '', 4200); return; }       // lejos de la casa central solo llama
     const p = W.boss(), back = () => { if (day !== d || d.sayQ.some(q => q.cls === 'boss')) return; p.walk([[7.3, -0.3], W.BOSS_HOME], () => { p.face(0); d.dueno = null; }); };
     if (d.dueno) { sayAt(p, text, 0, 'boss', false, false, back); return; }
     d.dueno = p;
@@ -192,7 +193,7 @@ GS.Game = (function () {
     A.unlock();
     if (!GS.Store.get('avatar')) return showAvatar(() => startDay(relaxed));
     A.play('click'); clearDay(); W.setUpgrades(upNow());
-    const n = dayNumber(); luchoLook(n);
+    const n = dayNumber(); applyBranch();
     const un = unlockedFor(n), fresh = n <= GS.UNLOCKS.length ? GS.UNLOCKS[n - 1] : [];
     const cond = conditionFor(n);
     day = newDay({ relaxed, n, cond, unlocked: un, plan: planDay(n, cond), rest: 5.5 }); state = 'day'; enterPlay(); $('jobs').hidden = false;
@@ -203,6 +204,7 @@ GS.Game = (function () {
       : cond ? GS.CONDITIONS[cond].name.slice(3) + '. ' + GS.CONDITIONS[cond].say
       : fresh.length ? 'Jornada ' + n + '. Hoy sumamos: ' + fresh.map(id => ST(id).name).join(' y ') + '. Cuando aparezcan, te explico.' : 'Jornada ' + n + '. ' + duenoLine();
     setTimeout(() => { if (day === d) duenoSpeak(msg); }, 500);
+    if (brId() !== 'pampeana') { const dd = day; setTimeout(() => { if (day !== dd) return; if (bossHere()) duenoSpeak(LN.duenoCame); else if ((brNow().days || 0) % 2 === 1) duenoSpeak(U.pick(LN.duenoCall), true); }, 2600); }   // lejos de Incas: llama cada dos jornadas, o viene si la reputación baja de 4
     if (n >= 2 && !relaxed && !GS.Store.get('plotIntro') && n <= C.finalDay) { GS.Store.set('plotIntro', true); setTimeout(() => { if (day === d) duenoSpeak(PL.intro.replace('{n}', C.finalDay)); }, 3200); }
     $('rain').hidden = cond !== 'lluvia'; $('chipCond').hidden = !cond; if (cond) { $('chipCond').textContent = GS.CONDITIONS[cond].name; toast('<b>Hoy</b>' + GS.CONDITIONS[cond].name, 'dueno', 3800); }
     $('clockS').textContent = relaxed ? 'Turno tranquilo' : 'Abrimos';
@@ -234,7 +236,7 @@ GS.Game = (function () {
     const look = lookOf(arche), person = W.makePerson(look);
     const dx = L.puerta.x; person.setPos(dx + U.rnd(-0.5, 0.5), day.spawned === 0 ? L.salon.zMax + 1 : L.galeria.zMax + 2.4);
     person.voice = 230 + (k % 7) * 45;
-    const cu = { id: ++uid, arche, look, request: req.t, product, st: 'entering', pat: 1, person, slotM: slot, slotC: -1, label: makeLabel('❓') };
+    const cu = { id: ++uid, arche, look, request: (RG(brId()).hi.length && Math.random() < 0.6 ? U.pick(RG(brId()).hi) + ' ' : '') + req.t, product, st: 'entering', pat: 1, person, slotM: slot, slotC: -1, label: makeLabel('❓') };
     day.customers.push(cu); day.spawned++;
     const sp = day.spawned > 1 && Math.random() < 0.45 ? freeSpot() : null;
     if (sp) { day.spots[sp.i] = 1; cu.spot = sp; person.walk(sp.via.concat([sp.p]), () => { cu.st = 'browse'; cu.wait = U.rnd(2.6, 4.6); person.face(sp.f); }); }   // primero mira un rato y después se acerca
@@ -329,13 +331,76 @@ GS.Game = (function () {
 
   /* ---------------- TRAMA: el fondo para el local de al lado ---------------- */
   const PL = GS.PLOT;
-  const fondoNow = () => GS.Store.get('fondo') || 0, goalNow = () => Math.max(3000, PL.goal + (GS.Store.get('goalAdj') || 0));
+  const fondoNow = () => GS.Store.get('fondo') || 0, goalNow = () => { const all = brAll(), l = GS.REGIONS.filter(r => !(all[r.id] && all[r.id].open)); return l.length ? Math.min.apply(0, l.map(r => r.cost)) : 0; };
   const tierNow = () => { const r = fondoNow() / goalNow(); let t = PL.tiers[0]; PL.tiers.forEach(x => { if (r >= x.at) t = x; }); return t; };
   const daysLeft = () => Math.max(0, C.finalDay - dayNumber() + 1);
   function addFondo(v) { GS.Store.set('fondo', Math.max(0, fondoNow() + v)); }
   function plotHtml() {
-    const f = fondoNow(), g = goalNow();
-    return '<b>🗺️ ' + PL.name + '</b><span class="pb"><i style="width:' + Math.min(100, f / g * 100).toFixed(0) + '%"></i></span><small>Sucursales: 1 de 5 · fondos de expansión ' + f + ' de ' + g + ' para abrir Cuyo</small>';
+    const f = fondoNow(), g = goalNow(), all = brAll(), open = GS.REGIONS.filter(r => all[r.id] && all[r.id].open).length, glob = Math.round(GS.REGIONS.reduce((a, r) => a + brProgress(r.id), 0) / GS.REGIONS.length);
+    return '<b>🗺️ ' + PL.name + ' · ' + glob + '%</b><span class="pb"><i style="width:' + glob + '%"></i></span><small>Sucursales: ' + open + ' de 5 · ' + (g ? 'fondos ' + f + ' de ' + g + ' para la próxima' : 'todas abiertas') + ' · tocá para ver el mapa</small>';
+  }
+  /* ---------------- SUCURSALES: una por región. La activa guarda sus mejoras y su reputación; las demás quedan congeladas con su encargado ---------------- */
+  const RG = id => GS.REGIONS.find(r => r.id === id), brId = () => GS.Store.get('branch') || 'pampeana', brAll = () => GS.Store.get('branches') || { pampeana: { open: 1 } }, brNow = () => brAll()[brId()] || {};
+  function brSave(patch) { const all = brAll(), id = brId(); all[id] = Object.assign(all[id] || { open: 1 }, { up: upNow(), rep: repNow() }, patch || {}); GS.Store.set('branches', all); }
+  function brProgress(id) {
+    const b = brAll()[id]; if (!b || !b.open) return 0; const me = id === brId(), up = me ? upNow() : b.up || {}, r = me ? repNow() : (b.rep == null ? 3 : b.rep);
+    let have = 0, tot = 0; GS.UPGRADES.forEach(g => { tot += g.levels.length; have += Math.min(g.levels.length, up[g.id] || 0); });
+    return Math.round((have / tot * 0.6 + Math.min(1, r / 4.8) * 0.4) * 100);
+  }
+  const brStage = id => { const p = brProgress(id); return p < 45 ? 1 : p < 80 ? 2 : 3; }, STAGE = ['', 'Humilde', 'Mejorado', 'Estrella'];
+  const brCrew = id => id === 'pampeana' ? ['Lucho', 'Brian'] : ((brAll()[id] || {}).staff || []).map(c => (RG(id).crew.find(x => x.id === c) || {}).name);
+  const bossHere = () => brId() === 'pampeana' || repNow() < 4;
+  function applyBranch() {
+    const id = brId(), R = RG(id), ps = W.staff(); W.setRegion(R, brStage(id)); W.setUpgrades(upNow()); W.bossVisible(bossHere());
+    if (id === 'pampeana') { luchoLook(dayNumber()); ps[1].look({ skin: GS.SKINS[0], hair: 0x2d6cdf, hairStyle: 'corto', glasses: false }); }
+    else (brNow().staff || []).forEach((c, i) => { const e = R.crew.find(x => x.id === c); if (e && ps[i]) ps[i].look(e.look); });
+  }
+  function switchBranch(id) {
+    brSave(); const web = upNow().web, b = brAll()[id]; GS.Store.set('branch', id);
+    GS.Store.set('up', Object.assign({}, b.up || {}, web ? { web } : {})); GS.Store.set('rep', b.rep == null ? 4 : b.rep);     // la marca (la web) vale en todas
+    applyBranch(); refreshStart(); GS.track('sucursal', { id });
+  }
+  function showMap() {
+    const all = brAll(), cur = brId(), f = fondoNow(), wasDay = state === 'day'; if (wasDay) paused = true;
+    const SH = { noa: '40,10 105,10 100,95 55,110 35,70', nea: '105,10 175,25 185,75 140,105 100,95', cuyo: '35,112 78,104 84,190 45,200 30,150', pampeana: '80,104 140,107 170,150 150,215 86,205 84,190', patagonia: '45,202 86,207 150,217 120,300 100,385 70,390 55,300' },
+      CT = { noa: [70, 58], nea: [142, 62], cuyo: [58, 152], pampeana: [122, 160], patagonia: [96, 270] };
+    const svg = '<svg viewBox="0 0 220 400" class="mapa">' + GS.REGIONS.map(r => { const b = all[r.id], open = b && b.open, can = !open && f >= r.cost, c = CT[r.id];
+      return '<g data-reg="' + r.id + '" class="' + (open ? 'open' : can ? 'can' : 'lock') + (r.id === cur ? ' cur' : '') + '"><polygon points="' + SH[r.id] + '"/>' +
+        (open ? '<rect x="' + (c[0] - 26) + '" y="' + (c[1] - 9) + '" width="52" height="13" rx="3" class="cartel"/><text x="' + c[0] + '" y="' + (c[1] + 1) + '" class="ct">GAMESHOP</text>' : '<text x="' + c[0] + '" y="' + c[1] + '" class="lk">' + (can ? '🔓' : '🔒') + '</text>') +
+        '<text x="' + c[0] + '" y="' + (c[1] + 17) + '" class="nm">' + r.name + '</text></g>'; }).join('') + '</svg>';
+    const cards = GS.REGIONS.map(r => { const b = all[r.id], open = b && b.open, me = r.id === cur;
+      if (!open) return '<div class="suc lock"><b>' + r.name + ' · ' + r.city + '</b><small>' + r.why + '</small><small>Zona de <b>' + r.rival.name + '</b></small><button class="btn alt" data-open="' + r.id + '"' + (f < r.cost ? ' disabled' : '') + '>Abrir · 🗺️ ' + r.cost + '</button></div>';
+      const rp = me ? repNow() : (b.rep == null ? 3 : b.rep), pr = brProgress(r.id), up = me ? upNow() : b.up || {}, pend = GS.UPGRADES.reduce((a, g) => a + g.levels.length - Math.min(g.levels.length, up[g.id] || 0), 0);
+      return '<div class="suc' + (me ? ' me' : '') + '"><b>' + r.name + ' · ' + r.city + (pr >= 100 ? ' ✅' : '') + '</b><span class="pb"><i style="width:' + pr + '%"></i></span><small>⭐ ' + repTxt(rp) + ' · ' + STAGE[brStage(r.id)] + ' · ' + pr + '%' + (b.manager ? ' · encargado: ' + b.manager : '') + '</small>' +
+        (me ? '<small class="al">' + (pend ? '🛠 ' + pend + ' mejoras pendientes' : '🛠 mejoras completas') + (rp < 4.8 ? ' · ⭐ falta llegar a 5' : '') + ((up.flota || 0) < 3 ? ' · 🚚 falta el camión' : '') + '</small><button class="btn ghost" disabled>Estás acá</button>'
+          : '<small><i>"' + LN.freeze + '"</i></small><button class="btn" data-go="' + r.id + '">Viajar</button>') + '</div>'; }).join('');
+    modal('<h2>🗺️ GameShop a todo el país</h2><p>Fondos de expansión: <b>🗺️ ' + f + '</b>. Desde cada región se envía más fácil a sus provincias. Una sucursal está completa con todas las mejoras, 5 estrellas y camión propio.</p>' + svg + '<div class="sucs">' + cards + '</div><div class="row"><button class="btn ghost" id="mapLib">📖 Libreta</button><button class="btn" data-close>Cerrar</button></div>', () => { if (wasDay) paused = false; });
+    $('mapLib').addEventListener('click', showLibreta);
+    $('sheet').querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => leaveTo(b.dataset.go)));
+    $('sheet').querySelectorAll('[data-open]').forEach(b => b.addEventListener('click', () => openRegion(b.dataset.open)));
+    $('sheet').querySelectorAll('g[data-reg]').forEach(g => g.addEventListener('click', () => { const id = g.dataset.reg, b = all[id]; if (id === cur) return; if (b && b.open) leaveTo(id); else if (f >= RG(id).cost) openRegion(id); else toast('<b>🔒 ' + RG(id).name + '</b>Faltan ' + (RG(id).cost - f) + ' fondos de expansión.', '', 2400); }));
+  }
+  // Antes de irse hay que dejar un encargado. La sucursal queda congelada tal como estaba.
+  function pickManager(then) {
+    if (brNow().manager) return then(); const names = brCrew(brId());
+    modal('<h2>¿Quién queda de encargado?</h2><p>Te vas de <b>' + RG(brId()).city + '</b>. La sucursal queda tal como la dejás hasta que vuelvas.</p><div class="row">' + names.map(n => '<button class="btn" data-mg="' + n + '">' + n + '</button>').join('') + '</div>');
+    $('sheet').querySelectorAll('[data-mg]').forEach(b => b.addEventListener('click', () => { brSave({ manager: b.dataset.mg }); A.play('ok'); toast('<b>' + b.dataset.mg + ', encargado</b>"' + LN.freeze + '"', '', 3400); then(); }));
+  }
+  function leaveTo(id) { if (state === 'day') return toast('<b>Terminá la jornada</b>Se viaja entre jornadas.', '', 2200); pickManager(() => { switchBranch(id); $('modal').hidden = true; if (state === 'end') goHome(); toast('<b>✈️ ' + RG(id).city + '</b>Sucursal ' + RG(id).name + '.', '', 2600); }); }
+  function openRegion(id) {
+    if (state === 'day') return toast('<b>Terminá la jornada</b>Las sucursales se abren entre jornadas.', '', 2200);
+    const R = RG(id), sel = [];
+    modal('<h2>Sucursal ' + R.name + ' · ' + R.city + '</h2><p>' + R.why + '</p><div class="quote"><b>⚔️ Ojo: es zona de ' + R.rival.name + '</b>' + R.rival.owner + ' no va a regalar nada. ' + R.rival.rule + '</div><p><b>Elegí 2 empleados</b> de los 4 que se presentaron. Después vas a tener que enseñarles.</p><div class="crew">' +
+      R.crew.map(c => '<button class="cand" data-c="' + c.id + '">' + GS.faceSvg(Object.assign({ shirt: 0xe10600 }, c.look), 'happy') + '<b>' + c.name + '</b><small>' + c.d + '</small></button>').join('') + '</div><div class="row"><button class="btn ghost" data-close>Todavía no</button><button class="btn" id="regOk" disabled>Abrir · 🗺️ ' + R.cost + '</button></div>');
+    $('sheet').querySelectorAll('.cand').forEach(b => b.addEventListener('click', () => { const c = b.dataset.c, k = sel.indexOf(c); if (k >= 0) sel.splice(k, 1); else if (sel.length < 2) sel.push(c); $('sheet').querySelectorAll('.cand').forEach(x => x.classList.toggle('on', sel.indexOf(x.dataset.c) >= 0)); $('regOk').disabled = sel.length !== 2; A.play('click'); }));
+    $('regOk').addEventListener('click', () => pickManager(() => {
+      addFondo(-R.cost); const all = brAll(); all[id] = { open: 1, staff: sel.slice(), up: {}, rep: 4, train: 0, days: 0 }; GS.Store.set('branches', all); switchBranch(id); if (state === 'end') goHome();
+      A.play('fanfare'); W.showAll(); GS.track('abre_sucursal', { id });
+      modal('<div class="inaug"><div class="glob">🎈🎈🎈</div><h2>¡Inauguración!</h2><p class="cinta">GAMESHOP ' + R.city.toUpperCase() + '</p><p>Hay fila desde la esquina. ' + brCrew(id).join(' y ') + ' están con la remera recién planchada.</p><p><small>Empezás con un local humilde: mejoralo, enseñale al equipo y llevalo a 5 estrellas.</small></p><button class="btn" data-close>✂️ Cortar la cinta</button></div>');
+    }));
+  }
+  function teach() {
+    const t = brNow().train || 0, p = W.staff()[t % 2]; day.taught = 1; day.jobSig = ''; brSave({ train: t + 1 }); A.play('ok'); fx('🎓 Equipo nivel ' + (t + 1)); day.score += 60; sayAt(p, U.pick(LN.teach), 0); yoGo('H'); day.beat = 1;
   }
   /* ---------------- VISITAS CON HISTORIA: clientes que vuelven, con decisiones chiquitas que dejan marca ---------------- */
   const histAll = () => GS.Store.get('hist') || {};
@@ -457,6 +522,7 @@ GS.Game = (function () {
       else if (c.st === 'waitC') jobs.push({ key: 'c' + c.id + 'k', type: 'caja', ref: c, pat: c.pat, icon: '💵', title: 'Caja', sub: 'Cobrar a ' + c.arche.name });
     }
     for (const t of day.tasks) if (t.st === 'wait') jobs.push({ key: 't' + t.id, type: t.station.id, ref: t, pat: t.pat, icon: t.station.icon, title: t.station.short || t.station.name, sub: t.station.task.name });
+    if (brId() !== 'pampeana' && !day.arcade && !day.taught && (brNow().train || 0) < 3 && day.stage === 'rest' && day.wave >= 0) jobs.push({ key: 'teach', type: 'ensenar', ref: null, pat: 1, icon: '🎓', title: 'Enseñarle al equipo', sub: 'Nivel ' + (brNow().train || 0) + ' de 3 · después resuelven tareas solos' });
     if (day.dirt && !day.arcade && (day.stage === 'rest' || !jobs.length || day.dirt >= 3)) jobs.push({ key: 'dirt' + day.dirt, type: 'limpiar', ref: null, pat: 1, icon: '🧹', title: 'Limpiar el piso', sub: day.dirt + (day.dirt === 1 ? ' mancha' : ' manchas') + ' · un toque y listo' });
     return jobs.sort((a, b) => a.pat - b.pat);
   }
@@ -494,6 +560,7 @@ GS.Game = (function () {
     if (state !== 'day' || paused || MG.isOpen() || day.closing || day.beat > 0) return;
     if (job.type === 'historia') return openStory(job.ref);
     if (job.type === 'limpiar') return cleanUp();
+    if (job.type === 'ensenar') return teach();
     A.unlock(); A.play('click');
     const ref = job.ref, isCust = job.type === 'mostrador' || job.type === 'caja';
     ref.st = isCust ? (job.type === 'mostrador' ? 'inM' : 'inC') : 'in'; ref.pat = Math.max(ref.pat, 0.55);
@@ -577,6 +644,9 @@ GS.Game = (function () {
         }
       }
       for (const t of day.tasks.slice()) {
+        if (t.st === 'wait' && t.pat < 0.6 && (day.deleg || 0) < (brId() === 'pampeana' ? 0 : brNow().train || 0)) {      // delegar: el equipo que aprendió resuelve tareas solo
+          day.deleg = (day.deleg || 0) + 1; day.tasksDone++; day.score += 60; day.jobSig = ''; fx('🤝 Lo resolvió ' + (brCrew(brId())[day.deleg % 2] || 'el equipo')); A.play('ok'); removeTask(t); continue;
+        }
         if (t.st === 'wait') t.pat -= dt / cfg.taskPatience;
         else if (!MG.isResolving()) t.pat -= dt / (cfg.patienceGame * 1.3);
         if (t.pat <= 0) {
@@ -723,6 +793,7 @@ GS.Game = (function () {
     else { if (missed <= 2) stars = 2; if (missed === 0 && errs <= 3) stars = 3; }
     const comment = U.pick(stars === 3 ? LN.duenoEndGood : stars === 2 ? LN.duenoEndMid : LN.duenoEndBad);
     if (!GS.Store.get('testDay')) GS.Store.set('days', Math.max(GS.Store.get('days') || 0, d.n));
+    brSave({ days: (brNow().days || 0) + 1 });
     const lostSale = d.lostSale || 0, ask = d.served + d.lost + lostSale, perfect = !errs && !d.lost && !lostSale && !d.tasksLate && !d.relaxed, dirty = d.dirt >= 3;
     if (dirty) addRep(-0.1);                                                        // cerrar con el piso sucio se nota
     const earned = Math.max(0, Math.round(d.score / 20 * coinMult() * (d.plan.bonus || 1)) - (d.coinLoss || 0)); GS.Store.set('coins', coinsNow() + earned);
@@ -752,11 +823,11 @@ GS.Game = (function () {
       '<div class="quote"><b>' + (d.moment ? 'El momento del día' : 'El Dueño opina') + '</b>' + (d.moment || comment) + '</div>' +
       '<div class="hook"><i>' + hook[0] + '</i><span><b>Lo que viene</b>' + hook[1] + '</span></div>' +
       '<button class="btn" id="endAgain">Siguiente jornada</button>' +
-      '<div class="row"><button class="btn alt" id="endShop" style="font-size:16px">🛠 Mejorar</button><button class="btn ghost" id="endRecs">🏅 Logros</button></div>' +
+      '<div class="row"><button class="btn alt" id="endShop" style="font-size:16px">🛠 Mejorar</button><button class="btn ghost" id="endMap">🗺️ Mapa</button><button class="btn ghost" id="endRecs">🏅 Logros</button></div>' +
       '<div class="row"><button class="btn ghost" id="endCard">📸 Compartir</button><button class="btn ghost" id="endLib">📖 Libreta</button><button class="btn ghost" id="endHome">Inicio</button></div>' +
       '<button class="phases" id="phasesEnd"' + (C.launched ? ' hidden' : '') + '></button></div>';
     $('phasesEnd').innerHTML = phasesCompact(); $('phasesEnd').addEventListener('click', showPhases);
-    $('endCard').addEventListener('click', () => showCard()); $('endLib').addEventListener('click', showLibreta);
+    $('endMap').addEventListener('click', showMap); $('endCard').addEventListener('click', () => showCard()); $('endLib').addEventListener('click', showLibreta);
     $('endAgain').addEventListener('click', () => startDay(d.relaxed));
     $('endHome').addEventListener('click', goHome); $('endRecs').addEventListener('click', showLogros); $('endShop').addEventListener('click', openShop);
     $('end').hidden = false; $('end').scrollTop = 0;
@@ -768,8 +839,8 @@ GS.Game = (function () {
     if (m === 0) return ['🎄', 'La próxima es diciembre: semana de Navidad. Dicen que viene alguien de rojo a comprar.'];
     const h = histAll(), back = GS.STORIES.filter(S => h[S.id] && !h[S.id].done && n >= h[S.id].last + (S.gap || 1));
     if (back.length) return ['📖', back[0].name + ' dijo que volvía. Puede aparecer en la próxima jornada.'];
-    const f = goalNow() - fondoNow(); if (f <= 0) return ['🗺️', 'Ya están los fondos para abrir la sucursal de Cuyo. El mapa del país llega en la próxima etapa del juego.'];
-    if (f < 1000) return ['🗺️', 'Faltan ' + f + ' fondos de expansión para abrir la sucursal de Cuyo.'];
+    const f = goalNow() - fondoNow(); if (goalNow() && f <= 0) return ['🗺️', 'Ya están los fondos para abrir otra sucursal. Abrí el mapa y elegí la región.'];
+    if (goalNow() && f < 1000) return ['🗺️', 'Faltan ' + f + ' fondos de expansión para abrir la próxima sucursal.'];
     const t = nextGoal(); if (t) return [t.g.icon, (coinsNow() >= t.lv.price ? 'Ya te alcanza para: ' : 'Te faltan 🪙 ' + (t.lv.price - coinsNow()) + ' para: ') + t.lv.n + '.'];
     return ['☕', 'Mañana abrimos de 10 a 19, como siempre.'];
   }
@@ -875,7 +946,7 @@ GS.Game = (function () {
   function refreshStart() {
     const n = dayNumber(), fresh = n <= GS.UNLOCKS.length ? GS.UNLOCKS[n - 1] : [];
     $('playT').textContent = n === 1 && !GS.Store.get('introSeen') ? 'Iniciar modo carrera' : 'Seguir modo carrera'; W.setNext(GS.Store.get('final2Seen') && tierNow().at >= 1 ? 'gs2' : 'venta'); $('goalStart').innerHTML = goalHtml(); $('btnPlot').innerHTML = plotHtml();
-    $('rankT').textContent = '⭐ ' + repTxt(repNow()) + ' · 🪙 ' + coinsNow() + ' · 🗺️ ' + fondoNow();
+    $('rankT').textContent = '📍 ' + RG(brId()).city + ' · ⭐ ' + repTxt(repNow()) + ' · 🪙 ' + coinsNow() + ' · 🗺️ ' + fondoNow();
     $('playS').textContent = n === 1 && GS.Store.get('introSeen') ? 'Jornada 1 · ' + monthOf(1) + ' · inducción' : n > 1 ? 'Jornada ' + n + ' · ' + monthOf(n) + (fresh.length ? ' · se suma: ' + fresh.map(id => ST(id).name).join(' y ') : '') : n === 1 ? (GS.Store.get('introSeen') ? 'Jornada 1 · inducción: mostrador y caja' : 'Conocé el local, al Dueño y a tus compañeros') : 'Jornada ' + n + (fresh.length ? ' · se suma: ' + fresh.map(id => ST(id).name).join(' y ') : ' · de 10 a 19 · ⭐ ' + repTxt(repNow()));
   }
   function goHome() {
@@ -1131,7 +1202,7 @@ GS.Game = (function () {
       modal('<h2>Ups</h2><p>Este navegador no pudo iniciar los gráficos 3D. Probá actualizarlo o abrir el juego en otro navegador.</p>');
       return;
     }
-    staffInit(); luchoLook(dayNumber()); setSky(0.3, false); document.body.classList.toggle('big', !!GS.Store.get('big')); if (C.launched) { $('phasesStart').hidden = true; $('chipPhase').hidden = true; document.querySelector('.fine').firstChild.textContent = 'Precios y stock ficticios.'; }
+    staffInit(); applyBranch(); setSky(0.3, false); document.body.classList.toggle('big', !!GS.Store.get('big')); if (C.launched) { $('phasesStart').hidden = true; $('chipPhase').hidden = true; document.querySelector('.fine').firstChild.textContent = 'Precios y stock ficticios.'; }
     GS.track.init(); GS.track('abrir_juego', { jornada: dayNumber() }); window.addEventListener('error', e => GS.track('error_js', { msg: String(e.message).slice(0, 80) }));
     if (C.links.tienda) { $('btnStore').hidden = false; $('btnStore').href = C.links.tienda; $('btnStore').addEventListener('click', () => GS.track('click_tienda', { desde: 'inicio' })); }
     setCalm(!!GS.Store.get('calm')); syncMute(); W.showAll(); W.setUpgrades(upNow()); W.setPlayerLook(GS.Store.get('avatar'));
@@ -1139,7 +1210,7 @@ GS.Game = (function () {
     $('shopFund').addEventListener('click', e => { const b = e.target.closest('[data-fund]'); if (!b) return; const c = coinsNow(), v = Math.min(c, Number(b.dataset.fund) || c); if (v <= 0) return;
       const before = fondoNow() >= goalNow(); GS.Store.set('coins', c - v); addFondo(v); A.play('cash'); GS.track('aporte_fondo', { monto: v });
       toast(!before && fondoNow() >= goalNow() ? '<b>🏠 ¡Meta alcanzada!</b>Ya alcanza para el local de al lado. Lo que sumes de más mejora el final.' : '<b>🏠 Aportaste 🪙 ' + v + '</b>Fondo: ' + fondoNow() + ' de ' + goalNow() + '.', '', 2600); renderShop(); });
-    $('btnPlot').addEventListener('click', showLibreta);
+    $('btnPlot').addEventListener('click', () => { A.unlock(); A.play('click'); showMap(); });
     const shopStep = k => { if (state !== 'shop') return; shopSel = (shopSel + k + GS.UPGRADES.length) % GS.UPGRADES.length; A.play('click'); renderShop(); const on = $('shopSlots').querySelector('.on'); if (on && on.scrollIntoView) on.scrollIntoView({ block: 'nearest', inline: 'center' }); };
     $('shopPrev').addEventListener('click', () => shopStep(-1)); $('shopNext').addEventListener('click', () => shopStep(1));
     $('shopSlots').addEventListener('wheel', e => { if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) { $('shopSlots').scrollLeft += e.deltaY; e.preventDefault(); } }, { passive: false });

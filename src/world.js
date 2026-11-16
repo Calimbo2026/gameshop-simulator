@@ -145,7 +145,7 @@ GS.World = (function () {
     });
     tile.wrapS = tile.wrapT = T.RepeatWrapping; tile.repeat.set(8, 12);
     const fw = s.xMax - s.xMin, fd = zMax - s.zMin;
-    plane(root, fw, fd, new T.MeshLambertMaterial({ map: tile }), 0, 0, (s.zMin + zMax) / 2, 0, -Math.PI / 2);
+    floorMat = new T.MeshLambertMaterial({ map: tile }); plane(root, fw, fd, floorMat, 0, 0, (s.zMin + zMax) / 2, 0, -Math.PI / 2);
     // base de maqueta + vereda
     box(root, fw + 1.2, 0.5, fd + 4.2, 0x18181b, 0, -0.52, (s.zMin + zMax) / 2 + 1.5);
     sky.side = new T.MeshLambertMaterial({ color: 0x8d8d92 }); sky.joint = new T.MeshLambertMaterial({ color: 0x77777c });
@@ -402,6 +402,27 @@ GS.World = (function () {
     box(lid, 0.03, 0.34, 0.5, 0x2a2a2e, 0, 0, 0); box(lid, 0.012, 0.28, 0.44, 0x56d6ff, 0.02, 0.03, 0, { emissive: 0x2a8aa0 });
   }
 
+  // Capa regional: misma base de local, con paleta, paisaje y fachada de cada región. stage 1..3 = humilde, mejorado, estrella.
+  let floorMat = null, regG = null;
+  function setRegion(R, stage) {
+    if (regG) { scene.remove(regG); regG = null; }
+    floorMat.color.set(R && R.floor || 0xffffff); mat(0xf4f4f2).color.set(R && R.wall || 0xf4f4f2);
+    if (!R || !R.decor) return;
+    const g = regG = new T.Group(), s = L.salon, zF = L.galeria.zMax + 2.3, zB = s.zMin - 3.4, xW = s.xMin - 3.6; scene.add(g);
+    const cone = (r, h, c, x, y, z, seg) => { const m = new T.Mesh(new T.ConeGeometry(r, h, seg || 6), mat(c)); m.position.set(x, y + h / 2, z); g.add(m); return m; };
+    const cyl = (r, h, c, x, y, z) => { const m = new T.Mesh(new T.CylinderGeometry(r, r, h, 8), mat(c)); m.position.set(x, y + h / 2, z); g.add(m); return m; };
+    const range = (cols, snow) => [[-7, 6.5], [-3.2, 8.2], [0.8, 6.8], [4.6, 8.6], [8.4, 6.2]].forEach((q, i) => { cone(3.4, q[1], cols[i % cols.length], q[0], -0.5, zB - (i % 2) * 1.2, 5); if (snow) cone(1.25, q[1] * 0.36, 0xffffff, q[0], -0.5 + q[1] * 0.65, zB - (i % 2) * 1.2, 5); cone(3.0, q[1] * 0.8, cols[(i + 1) % cols.length], xW - (i % 2), -0.5, -6 + i * 3.4, 5); if (snow) cone(1.1, q[1] * 0.29, 0xffffff, xW - (i % 2), -0.5 + q[1] * 0.52, -6 + i * 3.4, 5); });
+    box(g, 0.16, 2.1, 0.16, 0x0c0c0c, -4.9, 0, zF); sign(g, 'SUCURSAL ' + R.city.toUpperCase(), 2.9, 0.5, -4.9, 2.35, zF + 0.1);     // tótem de la sucursal
+    if (R.decor === 'cuyo') { range([0x8a7a6a, 0x9c8b78, 0x7b6c5e], true); [[-2.6, 0], [-1.9, 0.5]].forEach(q => { cyl(0.36, 0.8, 0x7a4a22, q[0], 0, zF + q[1]); cyl(0.38, 0.08, 0x2b2b2b, q[0], 0.2, zF + q[1]); cyl(0.38, 0.08, 0x2b2b2b, q[0], 0.55, zF + q[1]); });
+      [1.6, 2.4, 3.2].forEach(x => { box(g, 0.08, 1.2, 0.08, 0x6b4a2a, x, 0, zF + 0.6); box(g, 0.7, 0.5, 0.4, 0x3f8f3a, x, 0.9, zF + 0.6); box(g, 0.16, 0.2, 0.16, 0x6a2d7a, x + 0.1, 0.72, zF + 0.75); }); }
+    if (R.decor === 'noa') { range([0xc2452d, 0xe08a3c, 0x8e4a8f, 0xe3c34a, 0xb0563a]); [[-2.4, 0.2], [1.8, 0.6], [3.4, 0.1]].forEach(q => { cyl(0.2, 1.7, 0x3f8f3a, q[0], 0, zF + q[1]); cyl(0.12, 0.7, 0x3f8f3a, q[0] + 0.36, 0.8, zF + q[1]); box(g, 0.3, 0.12, 0.12, 0x3f8f3a, q[0] + 0.2, 0.8, zF + q[1]); cyl(0.12, 0.55, 0x3f8f3a, q[0] - 0.36, 0.55, zF + q[1]); box(g, 0.3, 0.12, 0.12, 0x3f8f3a, q[0] - 0.2, 0.55, zF + q[1]); }); }
+    if (R.decor === 'nea') { [[-7, -9], [-2, -10], [3, -9.5], [8, -10], [-9.5, -4], [-10, 1], [-9.5, 6]].forEach(q => { cyl(0.22, 3.4, 0x7a5a36, q[0], -0.5, q[1]); for (let k = 0; k < 6; k++) { const l = box(g, 1.7, 0.08, 0.42, 0x2f9a48, q[0] + Math.cos(k) * 0.7, 2.86, q[1] + Math.sin(k) * 0.7); l.rotation.y = -k; l.rotation.z = -0.35; } });
+      [[-2.4, 0.2], [2.2, 0.5]].forEach(q => { cyl(0.16, 2.2, 0x7a5a36, q[0], 0, zF + q[1]); for (let k = 0; k < 6; k++) { const l = box(g, 1.2, 0.06, 0.32, 0x2f9a48, q[0] + Math.cos(k) * 0.5, 2.16, zF + q[1] + Math.sin(k) * 0.5); l.rotation.y = -k; l.rotation.z = -0.35; } }); }
+    if (R.decor === 'patagonia') { range([0x6f7f95, 0x8494a8, 0x5d6d83], true); [[-2.5, 0.3], [1.7, 0.6], [3.3, 0.1]].forEach(q => { cyl(0.12, 0.5, 0x6b4a2a, q[0], 0, zF + q[1]); [0, 1, 2].forEach(k => cone(0.62 - k * 0.15, 0.8, 0x1f6a3a, q[0], 0.4 + k * 0.5, zF + q[1], 7)); });
+      [[-1, 0.4], [0.6, 0.9], [2.6, 1.0], [-3.6, 0.8]].forEach(q => { const m = new T.Mesh(new T.CircleGeometry(0.6, 9), mat(0xffffff)); m.rotation.x = -Math.PI / 2; m.position.set(q[0], 0.02, zF + q[1]); g.add(m); }); }
+    if (stage >= 2) [-1.25, 1.25].forEach(dx => { box(g, 0.5, 0.4, 0.5, 0xb5651d, L.puerta.x + dx, 0, zF - 1.1); box(g, 0.42, 0.34, 0.42, 0x3f8f3a, L.puerta.x + dx, 0.4, zF - 1.1); box(g, 0.14, 0.14, 0.14, 0xff5fa2, L.puerta.x + dx, 0.74, zF - 1.1); });   // mejorado: canteros
+    if (stage >= 3) { box(g, 1.5, 0.03, 2.4, 0xb00000, L.puerta.x, 0, zF - 0.6); const st = new T.Mesh(new T.OctahedronGeometry(0.34), new T.MeshBasicMaterial({ color: 0xf5c518 })); st.position.set(-4.9, 2.95, zF); g.add(st); }   // estrella: alfombra roja y estrella en el tótem
+  }
   // Flota de envíos, estacionada sobre la vereda: moto, camioneta o camión (se ve solo el nivel actual)
   function buildFleet(root) {
     const z = L.galeria.zMax + 2.1, x = 4.6, wheel = (g, wx, wz, r) => { const w = new T.Mesh(new T.CylinderGeometry(r, r, 0.12, 12), mat(0x111111)); w.rotation.x = Math.PI / 2; w.position.set(wx, r, wz); g.add(w); };
@@ -813,7 +834,8 @@ GS.World = (function () {
     setXmas,
     setHats(on) { [yo, lucho, brian, boss].forEach(p => { if (p) p.look({ hat: on ? 'gorro' : null }); }); },
     setNext() {},
-    addDirt, clearDirt,
+    addDirt, clearDirt, setRegion,
+    bossVisible(v) { if (boss) boss.group.visible = v; },
     boss: () => boss,
     staff: () => [lucho, brian],
     player: () => yo,

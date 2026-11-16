@@ -7,9 +7,9 @@
 const GS = {};
 
 GS.CONFIG = {
-  version: '0.15.0',
-  phase: 4,
-  phaseNote: 'Listas para probar: resumen de jornada, dos recursos, flota, web, limpieza, logros y calendario. Sigue el mapa del país',                       // fase actual del proyecto (1 a 5)
+  version: '0.16.0',
+  phase: 5,
+  phaseNote: 'Ya están el mapa del país, las sucursales por región, los empleados y enseñar al equipo. Siguen las historias y la competencia',                       // fase actual del proyecto (1 a 5)
   links: { tienda: 'https://www.gameshop.com.ar', instagram: '' },   // botones del inicio y del cierre (vacío = no se muestra)
   // Analítica: pegá acá el ID de medición de Google Analytics 4 (G-XXXXXXXXXX) y el juego empieza a contar jugadores. Vacío = no se envía nada.
   analytics: { ga4: '' },
@@ -303,6 +303,30 @@ GS.EXPLAIN = {
 };
 
 /* Clientes: arquetipos inventados (ninguno es una persona real) */
+/* Regiones: una sucursal por región. Cada una con su ciudad, su paleta, sus modismos (siempre con cariño), su rival y 4 candidatos (se eligen 2). */
+GS.REGIONS = [
+  { id: 'pampeana', name: 'Pampeana', city: 'Buenos Aires', cost: 0, why: 'El local original, en Av. de los Incas. Desde acá salen los envíos a Buenos Aires, Córdoba, Santa Fe, Entre Ríos y La Pampa.', hi: [] },
+  { id: 'cuyo', name: 'Cuyo', city: 'Mendoza', cost: 2600, floor: 0xf3d9c4, wall: 0xf6ead8, decor: 'cuyo', why: 'Con base en Mendoza, los envíos a San Juan y San Luis salen en el día.',
+    hi: ['¡Buenas! Vengo después de la siesta, como corresponde.', 'Hola, ¿todo bien? Está lindo para unas tortitas con mate.', '¡Qué calor que hace! Menos mal que acá hay sombra.', 'Buenas, vecino. Vengo antes de la Vendimia, que después no hay tiempo.', 'Hola. Dejé la bici en la acequia, no tardo.'],
+    rival: { name: 'Zonda Gamer', owner: 'Don Ulises', rule: 'Cuando sopla el Zonda, baja los precios y te lleva clientes.' },
+    crew: [{ id: 'maru', name: 'Maru', d: 'Ordenada: etiqueta hasta el mate.', look: { skin: 0xe0ac7e, hair: 0x5a2d0c, hairStyle: 'largo', glasses: false } }, { id: 'nacho', name: 'Nacho', d: 'Sabe de PC más que el manual.', look: { skin: 0xf2c9a0, hair: 0x1b1b1f, hairStyle: 'corto', glasses: true } },
+      { id: 'flor', name: 'Flor', d: 'Vende hielo en la cordillera.', look: { skin: 0xc68a5c, hair: 0xd9a514, hairStyle: 'rodete', glasses: false } }, { id: 'tomi', name: 'Tomi', d: 'Lento pero no se le escapa una.', look: { skin: 0xf6d7bd, hair: 0xb5651d, hairStyle: 'rulos', glasses: false } }] },
+  { id: 'noa', name: 'NOA', city: 'Salta', cost: 1600, floor: 0xf0cdb0, wall: 0xf7e3cf, decor: 'noa', why: 'Desde Salta se llega fácil a Jujuy, Tucumán, Catamarca, La Rioja y Santiago del Estero.',
+    hi: ['Buen día, chango. ¿Cómo anda?', '¡Buenas! Vengo de comer unas empanadas, no me apure.', 'Hola, changuito. Qué lindo local, che.', 'Buenas tardes. A la noche hay peña, pero antes paso por acá.', 'Hola. Bajé del cerro nomás para esto.'],
+    rival: { name: 'Pachamama Play', owner: 'Doña Ramona', rule: 'Regala una empanada con cada compra. Difícil competir con eso.' },
+    crew: [{ id: 'coya', name: 'Mayra', d: 'Tranquila: nada la apura ni la altera.', look: { skin: 0x9a643c, hair: 0x1b1b1f, hairStyle: 'largo', glasses: false } }, { id: 'rami', name: 'Ramiro', d: 'Canta coplas mientras repone.', look: { skin: 0xc68a5c, hair: 0x1b1b1f, hairStyle: 'corto', glasses: false } },
+      { id: 'lucia', name: 'Lucía', d: 'Cobra más rápido que el viento.', look: { skin: 0xe0ac7e, hair: 0x5a2d0c, hairStyle: 'rodete', glasses: true } }, { id: 'beto', name: 'Beto', d: 'Conoce a todo el barrio por el nombre.', look: { skin: 0x9a643c, hair: 0x3a2a1a, hairStyle: 'rulos', glasses: false } }] },
+  { id: 'nea', name: 'NEA', city: 'Posadas', cost: 1600, floor: 0xeab59a, wall: 0xf3ecd6, decor: 'nea', why: 'Desde Posadas se cubre Misiones, Corrientes, Chaco y Formosa.',
+    hi: ['¡Hola, chamigo! ¿Todo bien?', 'Buenas. Traje el tereré, ¿querés?', '¡Qué calor, chamigo! Menos mal el aire.', 'Hola. Vengo con chipá recién hecha, convido después.', 'Buenas, che. Crucé el río nomás para venir.'],
+    rival: { name: 'Yacaré Games', owner: 'El Tío Chelo', rule: 'A la hora de la siesta no cierra. Dice que duerme con un ojo.' },
+    crew: [{ id: 'yami', name: 'Yamila', d: 'Ceba tereré y despacha a la vez.', look: { skin: 0xc68a5c, hair: 0x1b1b1f, hairStyle: 'largo', glasses: false } }, { id: 'guille', name: 'Guille', d: 'Arregla cualquier cosa con cinta.', look: { skin: 0xe0ac7e, hair: 0x5a2d0c, hairStyle: 'corto', glasses: false } },
+      { id: 'ani', name: 'Ani', d: 'Le sonríe hasta al proveedor.', look: { skin: 0xf2c9a0, hair: 0xb5651d, hairStyle: 'rulos', glasses: true } }, { id: 'pocho', name: 'Pocho', d: 'Nunca faltó. Ni cuando llovió tres días.', look: { skin: 0x9a643c, hair: 0x3a2a1a, hairStyle: 'pelado', glasses: false } }] },
+  { id: 'patagonia', name: 'Patagonia', city: 'Bariloche', cost: 1800, floor: 0xdfe6ee, wall: 0xeaf2f8, decor: 'patagonia', why: 'Desde Bariloche salen los envíos a Neuquén, Río Negro, Chubut, Santa Cruz y Tierra del Fuego.',
+    hi: ['¡Buenas! Afuera el viento te despeina hasta las ideas.', 'Hola. Está fresquito, ¿no? Apenas dos bajo cero.', 'Buenas. Vine caminando: son veinte cuadras, acá es cerquita.', 'Hola, vecino. Después paso por un chocolate, ¿venís?', 'Buenas. Cerré la tranquera y me vine.'],
+    rival: { name: 'Ventisca Gaming', owner: 'El Ruso Iván', rule: 'Vende todo con campera de regalo. Nadie sabe de dónde saca las camperas.' },
+    crew: [{ id: 'sol', name: 'Sol', d: 'Atiende con guantes y no erra un precio.', look: { skin: 0xf6d7bd, hair: 0xd9a514, hairStyle: 'largo', glasses: false } }, { id: 'lauti', name: 'Lauti', d: 'Hace los envíos aunque nieve.', look: { skin: 0xf2c9a0, hair: 0x5a2d0c, hairStyle: 'rulos', glasses: false } },
+      { id: 'ema', name: 'Ema', d: 'Sabe de consolas y de fogones.', look: { skin: 0xe0ac7e, hair: 0x1b1b1f, hairStyle: 'rodete', glasses: true } }, { id: 'vasco', name: 'El Vasco', d: 'Habla poco. Vende mucho.', look: { skin: 0xf6d7bd, hair: 0xb4b4bd, hairStyle: 'corto', glasses: false } }] }
+];
 GS.MONTHS = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];   // 1 jornada = 1 mes
 GS.SANTA = { id: 'santa', name: 'Papá Noel', face: '🎅', shirt: 0xd81e2c, hair: 0xffffff, tag: 'Compras de último momento',
   look: { hairStyle: 'corto', beard: true, glasses: true, lips: false, lashes: false, hat: 'gorro', pants: 0x23232b, skin: 0xf2c9a0 },
@@ -354,6 +378,10 @@ GS.CUSTOMERS = [
 ];
 
 GS.LINES = {
+  duenoCall: ['¿Cómo viene esa sucursal? Acá en Incas todo bien. Cualquier cosa me llamás.', 'Te llamo cortito: me contaron que el local está quedando lindo. Seguí así.', 'Acordate: 10% en efectivo o transferencia, acá y en todo el país.', 'Si preguntan por envíos, decí que sí: para eso abrimos ahí.'],
+  duenoCame: 'La reputación bajó de 4 estrellas, así que me vine. Me quedo hasta que la levantemos.',
+  teach: ['Ahhh, era así. Yo lo hacía al revés.', 'Anotado. Mañana lo hago solo, vas a ver.', '¿Y si el cliente pregunta otra cosa? ...Bueno, improviso.', 'Listo, ya entendí. Creo. Sí, sí, entendí.'],
+  freeze: 'Tranqui, hacemos todo como nos enseñaste.',
   /* Producto equivocado: el cliente se va y se pierde la venta (desde la jornada 2) */
   lostSale: ['Eso no es lo que pedí. Voy a ver a otro lado.', 'No, no era eso. Dejá, lo busco por la página.', 'Me parece que no me escuchaste. Chau.', 'Eso no. Y ya se me fueron las ganas.', 'Casi. Pero casi no juega. Me voy.'],
   dirtEnd: ['El Dueño pisó algo pegajoso al cerrar. Te miró. No dijo nada.', 'Un cliente dijo "qué lindo local" mirando para otro lado del piso.'],
@@ -624,8 +652,8 @@ GS.INTERRUPTS = [
 /* TRAMA CENTRAL: "El local de al lado". El dueño del edificio vende el local pegado. Si para la jornada final se juntó el fondo,
    se abre GameShop 2. Las monedas se aportan desde "Mejorar el local" y algunas visitas suman (o complican).
    tiers: desde cuánto fondo (en proporción a la meta) se llega a cada final. */
-GS.PLOT = { goal: 3000, name: 'GameShop a todo el país',
-  intro: 'Te contraté para algo grande: llevar GameShop a todo el país. Con los fondos de expansión que deja cada jornada vamos a abrir una sucursal en cada región. La primera, Cuyo.',
+GS.PLOT = { goal: 2600, name: 'GameShop a todo el país',
+  intro: 'Te contraté para algo grande: llevar GameShop a todo el país. Con los fondos de expansión que deja cada jornada vamos a abrir una sucursal en cada región. Mirá el mapa.',
   tiers: [
     { at: 0,    key: 'chico',   title: 'Mano derecha del Dueño',      line: 'No llegamos al local de al lado. Pero el nuestro quedó hecho un lujo, y eso también es tuyo.' },
     { at: 0.5,  key: 'medio',   title: 'Jefe del punto de retiro',    line: 'No alcanzó para todo el local, pero alquilamos la mitad: ahí va el punto de retiro de las compras por la página. Y lo manejás vos.' },

@@ -163,3 +163,14 @@ Decisiones tomadas: tres métricas (estrellas, monedas y fondos; el arcade premi
 - **Calendario**: 1 jornada = 1 mes. Black Friday en noviembre (jornada 11), Navidad en diciembre (12, 24, 36) con Papá Noel de cliente. Gorros navideños por encima del pelo.
 - El Dueño cambió el mohicano por pelo corto con una franja apenas más larga al medio. Preguntas del barrio: estación Incas del subte B y la parada del 80.
 - Pruebas: `test/v8.py` (jornada completa), `test/v13.py` (capturas).
+
+### Etapa 4 · Mapa y sucursales (v0.16.0)
+
+- **Mapa del país** por regiones (se abre desde el inicio y desde el resumen): bloqueadas en gris, disponibles en amarillo, abiertas con cartel. Debajo, el tablero con una tarjeta por sucursal (alertas solo en la activa).
+- **Abrir sucursal** con fondos de expansión: aviso del rival de la zona, elegir 2 empleados entre 4, dejar encargado en la que te vas e inauguración. Costos en `GS.REGIONS` (`cost`).
+- Cada sucursal guarda sus mejoras y su reputación; al irte queda congelada. La página web (marca) vale en todas.
+- **Capa regional**: misma base de local con paleta, paisaje y tótem propios (Mendoza, Salta, Posadas, Bariloche) y 3 etapas (humilde, mejorado, estrella) según el avance.
+- **Enseñar al equipo** (una vez por jornada, en un respiro): hasta nivel 3; el equipo resuelve solo esa cantidad de tareas que se estén por vencer.
+- El Dueño queda en Incas: llama cada dos jornadas y viene en persona si la reputación baja de 4.
+- Clientes con saludos de cada región. Prueba: `test/v15.py`.
+- Pendiente de esta etapa: plantas de local distintas por sucursal (taller, depósito y oficina siguen en el mismo lugar).

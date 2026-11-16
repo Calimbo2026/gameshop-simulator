@@ -398,6 +398,15 @@ body.calm .fx { animation-duration: .01s; }
 .newrec small { display: block; font-weight: 400; font-size: 12.5px; opacity: .85; }
 .ach { display: grid; gap: 6px; } .ach > div { display: flex; gap: 10px; align-items: center; background: #1b1b20; border-radius: 12px; padding: 8px 10px; opacity: .55; } .ach > div.on { opacity: 1; border: 1px solid var(--warn); } .ach i { font-size: 24px; font-style: normal; } .ach b { display: block; font-size: 14.5px; } .ach small { font-size: 12.5px; color: var(--mute); }
 
+/* ---------- Etapa 4: mapa del país y sucursales ---------- */
+.mapa { display: block; flex: none; width: 200px; height: 364px; margin: 4px auto 10px; filter: drop-shadow(0 6px 14px rgba(0,0,0,.5)); } .mapa polygon { stroke: #0b0b0d; stroke-width: 2.5; stroke-linejoin: round; cursor: pointer; }
+.mapa .lock polygon { fill: #3a3a42; opacity: .55; } .mapa .can polygon { fill: #f5c518; animation: mpulse 1.2s infinite alternate; } .mapa .open polygon { fill: #b00000; } .mapa .cur polygon { fill: #e10600; stroke: #f5c518; stroke-width: 4; }
+@keyframes mpulse { to { opacity: .6; } } .mapa text { text-anchor: middle; pointer-events: none; font-family: var(--display); } .mapa .nm { font-size: 11px; fill: #fff; paint-order: stroke; stroke: #000; stroke-width: 3px; } .mapa .lk { font-size: 16px; } .mapa .cartel { fill: #111; stroke: #f5c518; stroke-width: 1; } .mapa .ct { font-size: 8px; fill: #fff; }
+.sucs { display: grid; gap: 8px; margin-bottom: 10px; } .suc { background: #1b1b20; border-radius: 14px; padding: 10px 12px; display: grid; gap: 4px; border: 1px solid #2c2c34; } .suc.me { border-color: var(--warn); } .suc.lock { opacity: .85; } .suc b { font-size: 15px; } .suc small { font-size: 12.5px; color: var(--mute); line-height: 1.3; } .suc small.al { color: var(--warn); } .suc .btn { font-size: 15px; padding: 8px; margin-top: 4px; }
+.suc .pb, .plot .pb { display: block; height: 8px; background: #33333b; border-radius: 6px; overflow: hidden; } .suc .pb i { display: block; height: 100%; background: var(--warn); }
+.crew { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 8px 0 12px; } .cand { background: #1b1b20; border: 2px solid #2c2c34; border-radius: 14px; padding: 8px; color: #fff; display: grid; justify-items: center; gap: 2px; font: inherit; cursor: pointer; } .cand svg { width: 64px; height: 64px; } .cand.on { border-color: var(--warn); background: #2a2410; } .cand small { font-size: 12px; color: var(--mute); line-height: 1.25; }
+.inaug { text-align: center; } .inaug .glob { font-size: 44px; animation: glob 1.6s ease-in-out infinite alternate; } @keyframes glob { to { transform: translateY(-10px); } } .inaug .cinta { background: #e10600; color: #fff; font-family: var(--display); font-size: 20px; padding: 8px; margin: 10px -6px; transform: rotate(-2deg); box-shadow: 0 4px 0 #7a0000; }
+
 </style>
 </head>
 <body>
@@ -493,9 +502,9 @@ const GS = {};
 GS.LOGO = "data:image/png;base64,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";
 
 GS.CONFIG = {
-  version: '0.15.0',
-  phase: 4,
-  phaseNote: 'Listas para probar: resumen de jornada, dos recursos, flota, web, limpieza, logros y calendario. Sigue el mapa del país',                       // fase actual del proyecto (1 a 5)
+  version: '0.16.0',
+  phase: 5,
+  phaseNote: 'Ya están el mapa del país, las sucursales por región, los empleados y enseñar al equipo. Siguen las historias y la competencia',                       // fase actual del proyecto (1 a 5)
   links: { tienda: 'https://www.gameshop.com.ar', instagram: '' },   // botones del inicio y del cierre (vacío = no se muestra)
   // Analítica: pegá acá el ID de medición de Google Analytics 4 (G-XXXXXXXXXX) y el juego empieza a contar jugadores. Vacío = no se envía nada.
   analytics: { ga4: '' },
@@ -789,6 +798,30 @@ GS.EXPLAIN = {
 };
 
 /* Clientes: arquetipos inventados (ninguno es una persona real) */
+/* Regiones: una sucursal por región. Cada una con su ciudad, su paleta, sus modismos (siempre con cariño), su rival y 4 candidatos (se eligen 2). */
+GS.REGIONS = [
+  { id: 'pampeana', name: 'Pampeana', city: 'Buenos Aires', cost: 0, why: 'El local original, en Av. de los Incas. Desde acá salen los envíos a Buenos Aires, Córdoba, Santa Fe, Entre Ríos y La Pampa.', hi: [] },
+  { id: 'cuyo', name: 'Cuyo', city: 'Mendoza', cost: 2600, floor: 0xf3d9c4, wall: 0xf6ead8, decor: 'cuyo', why: 'Con base en Mendoza, los envíos a San Juan y San Luis salen en el día.',
+    hi: ['¡Buenas! Vengo después de la siesta, como corresponde.', 'Hola, ¿todo bien? Está lindo para unas tortitas con mate.', '¡Qué calor que hace! Menos mal que acá hay sombra.', 'Buenas, vecino. Vengo antes de la Vendimia, que después no hay tiempo.', 'Hola. Dejé la bici en la acequia, no tardo.'],
+    rival: { name: 'Zonda Gamer', owner: 'Don Ulises', rule: 'Cuando sopla el Zonda, baja los precios y te lleva clientes.' },
+    crew: [{ id: 'maru', name: 'Maru', d: 'Ordenada: etiqueta hasta el mate.', look: { skin: 0xe0ac7e, hair: 0x5a2d0c, hairStyle: 'largo', glasses: false } }, { id: 'nacho', name: 'Nacho', d: 'Sabe de PC más que el manual.', look: { skin: 0xf2c9a0, hair: 0x1b1b1f, hairStyle: 'corto', glasses: true } },
+      { id: 'flor', name: 'Flor', d: 'Vende hielo en la cordillera.', look: { skin: 0xc68a5c, hair: 0xd9a514, hairStyle: 'rodete', glasses: false } }, { id: 'tomi', name: 'Tomi', d: 'Lento pero no se le escapa una.', look: { skin: 0xf6d7bd, hair: 0xb5651d, hairStyle: 'rulos', glasses: false } }] },
+  { id: 'noa', name: 'NOA', city: 'Salta', cost: 1600, floor: 0xf0cdb0, wall: 0xf7e3cf, decor: 'noa', why: 'Desde Salta se llega fácil a Jujuy, Tucumán, Catamarca, La Rioja y Santiago del Estero.',
+    hi: ['Buen día, chango. ¿Cómo anda?', '¡Buenas! Vengo de comer unas empanadas, no me apure.', 'Hola, changuito. Qué lindo local, che.', 'Buenas tardes. A la noche hay peña, pero antes paso por acá.', 'Hola. Bajé del cerro nomás para esto.'],
+    rival: { name: 'Pachamama Play', owner: 'Doña Ramona', rule: 'Regala una empanada con cada compra. Difícil competir con eso.' },
+    crew: [{ id: 'coya', name: 'Mayra', d: 'Tranquila: nada la apura ni la altera.', look: { skin: 0x9a643c, hair: 0x1b1b1f, hairStyle: 'largo', glasses: false } }, { id: 'rami', name: 'Ramiro', d: 'Canta coplas mientras repone.', look: { skin: 0xc68a5c, hair: 0x1b1b1f, hairStyle: 'corto', glasses: false } },
+      { id: 'lucia', name: 'Lucía', d: 'Cobra más rápido que el viento.', look: { skin: 0xe0ac7e, hair: 0x5a2d0c, hairStyle: 'rodete', glasses: true } }, { id: 'beto', name: 'Beto', d: 'Conoce a todo el barrio por el nombre.', look: { skin: 0x9a643c, hair: 0x3a2a1a, hairStyle: 'rulos', glasses: false } }] },
+  { id: 'nea', name: 'NEA', city: 'Posadas', cost: 1600, floor: 0xeab59a, wall: 0xf3ecd6, decor: 'nea', why: 'Desde Posadas se cubre Misiones, Corrientes, Chaco y Formosa.',
+    hi: ['¡Hola, chamigo! ¿Todo bien?', 'Buenas. Traje el tereré, ¿querés?', '¡Qué calor, chamigo! Menos mal el aire.', 'Hola. Vengo con chipá recién hecha, convido después.', 'Buenas, che. Crucé el río nomás para venir.'],
+    rival: { name: 'Yacaré Games', owner: 'El Tío Chelo', rule: 'A la hora de la siesta no cierra. Dice que duerme con un ojo.' },
+    crew: [{ id: 'yami', name: 'Yamila', d: 'Ceba tereré y despacha a la vez.', look: { skin: 0xc68a5c, hair: 0x1b1b1f, hairStyle: 'largo', glasses: false } }, { id: 'guille', name: 'Guille', d: 'Arregla cualquier cosa con cinta.', look: { skin: 0xe0ac7e, hair: 0x5a2d0c, hairStyle: 'corto', glasses: false } },
+      { id: 'ani', name: 'Ani', d: 'Le sonríe hasta al proveedor.', look: { skin: 0xf2c9a0, hair: 0xb5651d, hairStyle: 'rulos', glasses: true } }, { id: 'pocho', name: 'Pocho', d: 'Nunca faltó. Ni cuando llovió tres días.', look: { skin: 0x9a643c, hair: 0x3a2a1a, hairStyle: 'pelado', glasses: false } }] },
+  { id: 'patagonia', name: 'Patagonia', city: 'Bariloche', cost: 1800, floor: 0xdfe6ee, wall: 0xeaf2f8, decor: 'patagonia', why: 'Desde Bariloche salen los envíos a Neuquén, Río Negro, Chubut, Santa Cruz y Tierra del Fuego.',
+    hi: ['¡Buenas! Afuera el viento te despeina hasta las ideas.', 'Hola. Está fresquito, ¿no? Apenas dos bajo cero.', 'Buenas. Vine caminando: son veinte cuadras, acá es cerquita.', 'Hola, vecino. Después paso por un chocolate, ¿venís?', 'Buenas. Cerré la tranquera y me vine.'],
+    rival: { name: 'Ventisca Gaming', owner: 'El Ruso Iván', rule: 'Vende todo con campera de regalo. Nadie sabe de dónde saca las camperas.' },
+    crew: [{ id: 'sol', name: 'Sol', d: 'Atiende con guantes y no erra un precio.', look: { skin: 0xf6d7bd, hair: 0xd9a514, hairStyle: 'largo', glasses: false } }, { id: 'lauti', name: 'Lauti', d: 'Hace los envíos aunque nieve.', look: { skin: 0xf2c9a0, hair: 0x5a2d0c, hairStyle: 'rulos', glasses: false } },
+      { id: 'ema', name: 'Ema', d: 'Sabe de consolas y de fogones.', look: { skin: 0xe0ac7e, hair: 0x1b1b1f, hairStyle: 'rodete', glasses: true } }, { id: 'vasco', name: 'El Vasco', d: 'Habla poco. Vende mucho.', look: { skin: 0xf6d7bd, hair: 0xb4b4bd, hairStyle: 'corto', glasses: false } }] }
+];
 GS.MONTHS = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];   // 1 jornada = 1 mes
 GS.SANTA = { id: 'santa', name: 'Papá Noel', face: '🎅', shirt: 0xd81e2c, hair: 0xffffff, tag: 'Compras de último momento',
   look: { hairStyle: 'corto', beard: true, glasses: true, lips: false, lashes: false, hat: 'gorro', pants: 0x23232b, skin: 0xf2c9a0 },
@@ -840,6 +873,10 @@ GS.CUSTOMERS = [
 ];
 
 GS.LINES = {
+  duenoCall: ['¿Cómo viene esa sucursal? Acá en Incas todo bien. Cualquier cosa me llamás.', 'Te llamo cortito: me contaron que el local está quedando lindo. Seguí así.', 'Acordate: 10% en efectivo o transferencia, acá y en todo el país.', 'Si preguntan por envíos, decí que sí: para eso abrimos ahí.'],
+  duenoCame: 'La reputación bajó de 4 estrellas, así que me vine. Me quedo hasta que la levantemos.',
+  teach: ['Ahhh, era así. Yo lo hacía al revés.', 'Anotado. Mañana lo hago solo, vas a ver.', '¿Y si el cliente pregunta otra cosa? ...Bueno, improviso.', 'Listo, ya entendí. Creo. Sí, sí, entendí.'],
+  freeze: 'Tranqui, hacemos todo como nos enseñaste.',
   /* Producto equivocado: el cliente se va y se pierde la venta (desde la jornada 2) */
   lostSale: ['Eso no es lo que pedí. Voy a ver a otro lado.', 'No, no era eso. Dejá, lo busco por la página.', 'Me parece que no me escuchaste. Chau.', 'Eso no. Y ya se me fueron las ganas.', 'Casi. Pero casi no juega. Me voy.'],
   dirtEnd: ['El Dueño pisó algo pegajoso al cerrar. Te miró. No dijo nada.', 'Un cliente dijo "qué lindo local" mirando para otro lado del piso.'],
@@ -1110,8 +1147,8 @@ GS.INTERRUPTS = [
 /* TRAMA CENTRAL: "El local de al lado". El dueño del edificio vende el local pegado. Si para la jornada final se juntó el fondo,
    se abre GameShop 2. Las monedas se aportan desde "Mejorar el local" y algunas visitas suman (o complican).
    tiers: desde cuánto fondo (en proporción a la meta) se llega a cada final. */
-GS.PLOT = { goal: 3000, name: 'GameShop a todo el país',
-  intro: 'Te contraté para algo grande: llevar GameShop a todo el país. Con los fondos de expansión que deja cada jornada vamos a abrir una sucursal en cada región. La primera, Cuyo.',
+GS.PLOT = { goal: 2600, name: 'GameShop a todo el país',
+  intro: 'Te contraté para algo grande: llevar GameShop a todo el país. Con los fondos de expansión que deja cada jornada vamos a abrir una sucursal en cada región. Mirá el mapa.',
   tiers: [
     { at: 0,    key: 'chico',   title: 'Mano derecha del Dueño',      line: 'No llegamos al local de al lado. Pero el nuestro quedó hecho un lujo, y eso también es tuyo.' },
     { at: 0.5,  key: 'medio',   title: 'Jefe del punto de retiro',    line: 'No alcanzó para todo el local, pero alquilamos la mitad: ahí va el punto de retiro de las compras por la página. Y lo manejás vos.' },
@@ -1625,7 +1662,7 @@ GS.World = (function () {
     });
     tile.wrapS = tile.wrapT = T.RepeatWrapping; tile.repeat.set(8, 12);
     const fw = s.xMax - s.xMin, fd = zMax - s.zMin;
-    plane(root, fw, fd, new T.MeshLambertMaterial({ map: tile }), 0, 0, (s.zMin + zMax) / 2, 0, -Math.PI / 2);
+    floorMat = new T.MeshLambertMaterial({ map: tile }); plane(root, fw, fd, floorMat, 0, 0, (s.zMin + zMax) / 2, 0, -Math.PI / 2);
     // base de maqueta + vereda
     box(root, fw + 1.2, 0.5, fd + 4.2, 0x18181b, 0, -0.52, (s.zMin + zMax) / 2 + 1.5);
     sky.side = new T.MeshLambertMaterial({ color: 0x8d8d92 }); sky.joint = new T.MeshLambertMaterial({ color: 0x77777c });
@@ -1882,6 +1919,27 @@ GS.World = (function () {
     box(lid, 0.03, 0.34, 0.5, 0x2a2a2e, 0, 0, 0); box(lid, 0.012, 0.28, 0.44, 0x56d6ff, 0.02, 0.03, 0, { emissive: 0x2a8aa0 });
   }
 
+  // Capa regional: misma base de local, con paleta, paisaje y fachada de cada región. stage 1..3 = humilde, mejorado, estrella.
+  let floorMat = null, regG = null;
+  function setRegion(R, stage) {
+    if (regG) { scene.remove(regG); regG = null; }
+    floorMat.color.set(R && R.floor || 0xffffff); mat(0xf4f4f2).color.set(R && R.wall || 0xf4f4f2);
+    if (!R || !R.decor) return;
+    const g = regG = new T.Group(), s = L.salon, zF = L.galeria.zMax + 2.3, zB = s.zMin - 3.4, xW = s.xMin - 3.6; scene.add(g);
+    const cone = (r, h, c, x, y, z, seg) => { const m = new T.Mesh(new T.ConeGeometry(r, h, seg || 6), mat(c)); m.position.set(x, y + h / 2, z); g.add(m); return m; };
+    const cyl = (r, h, c, x, y, z) => { const m = new T.Mesh(new T.CylinderGeometry(r, r, h, 8), mat(c)); m.position.set(x, y + h / 2, z); g.add(m); return m; };
+    const range = (cols, snow) => [[-7, 6.5], [-3.2, 8.2], [0.8, 6.8], [4.6, 8.6], [8.4, 6.2]].forEach((q, i) => { cone(3.4, q[1], cols[i % cols.length], q[0], -0.5, zB - (i % 2) * 1.2, 5); if (snow) cone(1.25, q[1] * 0.36, 0xffffff, q[0], -0.5 + q[1] * 0.65, zB - (i % 2) * 1.2, 5); cone(3.0, q[1] * 0.8, cols[(i + 1) % cols.length], xW - (i % 2), -0.5, -6 + i * 3.4, 5); if (snow) cone(1.1, q[1] * 0.29, 0xffffff, xW - (i % 2), -0.5 + q[1] * 0.52, -6 + i * 3.4, 5); });
+    box(g, 0.16, 2.1, 0.16, 0x0c0c0c, -4.9, 0, zF); sign(g, 'SUCURSAL ' + R.city.toUpperCase(), 2.9, 0.5, -4.9, 2.35, zF + 0.1);     // tótem de la sucursal
+    if (R.decor === 'cuyo') { range([0x8a7a6a, 0x9c8b78, 0x7b6c5e], true); [[-2.6, 0], [-1.9, 0.5]].forEach(q => { cyl(0.36, 0.8, 0x7a4a22, q[0], 0, zF + q[1]); cyl(0.38, 0.08, 0x2b2b2b, q[0], 0.2, zF + q[1]); cyl(0.38, 0.08, 0x2b2b2b, q[0], 0.55, zF + q[1]); });
+      [1.6, 2.4, 3.2].forEach(x => { box(g, 0.08, 1.2, 0.08, 0x6b4a2a, x, 0, zF + 0.6); box(g, 0.7, 0.5, 0.4, 0x3f8f3a, x, 0.9, zF + 0.6); box(g, 0.16, 0.2, 0.16, 0x6a2d7a, x + 0.1, 0.72, zF + 0.75); }); }
+    if (R.decor === 'noa') { range([0xc2452d, 0xe08a3c, 0x8e4a8f, 0xe3c34a, 0xb0563a]); [[-2.4, 0.2], [1.8, 0.6], [3.4, 0.1]].forEach(q => { cyl(0.2, 1.7, 0x3f8f3a, q[0], 0, zF + q[1]); cyl(0.12, 0.7, 0x3f8f3a, q[0] + 0.36, 0.8, zF + q[1]); box(g, 0.3, 0.12, 0.12, 0x3f8f3a, q[0] + 0.2, 0.8, zF + q[1]); cyl(0.12, 0.55, 0x3f8f3a, q[0] - 0.36, 0.55, zF + q[1]); box(g, 0.3, 0.12, 0.12, 0x3f8f3a, q[0] - 0.2, 0.55, zF + q[1]); }); }
+    if (R.decor === 'nea') { [[-7, -9], [-2, -10], [3, -9.5], [8, -10], [-9.5, -4], [-10, 1], [-9.5, 6]].forEach(q => { cyl(0.22, 3.4, 0x7a5a36, q[0], -0.5, q[1]); for (let k = 0; k < 6; k++) { const l = box(g, 1.7, 0.08, 0.42, 0x2f9a48, q[0] + Math.cos(k) * 0.7, 2.86, q[1] + Math.sin(k) * 0.7); l.rotation.y = -k; l.rotation.z = -0.35; } });
+      [[-2.4, 0.2], [2.2, 0.5]].forEach(q => { cyl(0.16, 2.2, 0x7a5a36, q[0], 0, zF + q[1]); for (let k = 0; k < 6; k++) { const l = box(g, 1.2, 0.06, 0.32, 0x2f9a48, q[0] + Math.cos(k) * 0.5, 2.16, zF + q[1] + Math.sin(k) * 0.5); l.rotation.y = -k; l.rotation.z = -0.35; } }); }
+    if (R.decor === 'patagonia') { range([0x6f7f95, 0x8494a8, 0x5d6d83], true); [[-2.5, 0.3], [1.7, 0.6], [3.3, 0.1]].forEach(q => { cyl(0.12, 0.5, 0x6b4a2a, q[0], 0, zF + q[1]); [0, 1, 2].forEach(k => cone(0.62 - k * 0.15, 0.8, 0x1f6a3a, q[0], 0.4 + k * 0.5, zF + q[1], 7)); });
+      [[-1, 0.4], [0.6, 0.9], [2.6, 1.0], [-3.6, 0.8]].forEach(q => { const m = new T.Mesh(new T.CircleGeometry(0.6, 9), mat(0xffffff)); m.rotation.x = -Math.PI / 2; m.position.set(q[0], 0.02, zF + q[1]); g.add(m); }); }
+    if (stage >= 2) [-1.25, 1.25].forEach(dx => { box(g, 0.5, 0.4, 0.5, 0xb5651d, L.puerta.x + dx, 0, zF - 1.1); box(g, 0.42, 0.34, 0.42, 0x3f8f3a, L.puerta.x + dx, 0.4, zF - 1.1); box(g, 0.14, 0.14, 0.14, 0xff5fa2, L.puerta.x + dx, 0.74, zF - 1.1); });   // mejorado: canteros
+    if (stage >= 3) { box(g, 1.5, 0.03, 2.4, 0xb00000, L.puerta.x, 0, zF - 0.6); const st = new T.Mesh(new T.OctahedronGeometry(0.34), new T.MeshBasicMaterial({ color: 0xf5c518 })); st.position.set(-4.9, 2.95, zF); g.add(st); }   // estrella: alfombra roja y estrella en el tótem
+  }
   // Flota de envíos, estacionada sobre la vereda: moto, camioneta o camión (se ve solo el nivel actual)
   function buildFleet(root) {
     const z = L.galeria.zMax + 2.1, x = 4.6, wheel = (g, wx, wz, r) => { const w = new T.Mesh(new T.CylinderGeometry(r, r, 0.12, 12), mat(0x111111)); w.rotation.x = Math.PI / 2; w.position.set(wx, r, wz); g.add(w); };
@@ -2293,7 +2351,8 @@ GS.World = (function () {
     setXmas,
     setHats(on) { [yo, lucho, brian, boss].forEach(p => { if (p) p.look({ hat: on ? 'gorro' : null }); }); },
     setNext() {},
-    addDirt, clearDirt,
+    addDirt, clearDirt, setRegion,
+    bossVisible(v) { if (boss) boss.group.visible = v; },
     boss: () => boss,
     staff: () => [lucho, brian],
     player: () => yo,
@@ -2911,8 +2970,9 @@ GS.Game = (function () {
   const repNow = () => (GS.Store.get('rep') == null ? 3 : GS.Store.get('rep'));
   const repTxt = v => v.toFixed(1).replace('.', ',');
   // El Dueño sale del depósito, camina hasta el salón, dice lo suyo y se vuelve
-  function duenoSpeak(text) {
+  function duenoSpeak(text, call) {
     const d = day; if (!d || d.arcade || state !== 'day') return;
+    if (!bossHere()) { if (call) toast('<b>📞 El Dueño, desde Incas</b>' + text, '', 4200); return; }       // lejos de la casa central solo llama
     const p = W.boss(), back = () => { if (day !== d || d.sayQ.some(q => q.cls === 'boss')) return; p.walk([[7.3, -0.3], W.BOSS_HOME], () => { p.face(0); d.dueno = null; }); };
     if (d.dueno) { sayAt(p, text, 0, 'boss', false, false, back); return; }
     d.dueno = p;
@@ -3013,7 +3073,7 @@ GS.Game = (function () {
     A.unlock();
     if (!GS.Store.get('avatar')) return showAvatar(() => startDay(relaxed));
     A.play('click'); clearDay(); W.setUpgrades(upNow());
-    const n = dayNumber(); luchoLook(n);
+    const n = dayNumber(); applyBranch();
     const un = unlockedFor(n), fresh = n <= GS.UNLOCKS.length ? GS.UNLOCKS[n - 1] : [];
     const cond = conditionFor(n);
     day = newDay({ relaxed, n, cond, unlocked: un, plan: planDay(n, cond), rest: 5.5 }); state = 'day'; enterPlay(); $('jobs').hidden = false;
@@ -3024,6 +3084,7 @@ GS.Game = (function () {
       : cond ? GS.CONDITIONS[cond].name.slice(3) + '. ' + GS.CONDITIONS[cond].say
       : fresh.length ? 'Jornada ' + n + '. Hoy sumamos: ' + fresh.map(id => ST(id).name).join(' y ') + '. Cuando aparezcan, te explico.' : 'Jornada ' + n + '. ' + duenoLine();
     setTimeout(() => { if (day === d) duenoSpeak(msg); }, 500);
+    if (brId() !== 'pampeana') { const dd = day; setTimeout(() => { if (day !== dd) return; if (bossHere()) duenoSpeak(LN.duenoCame); else if ((brNow().days || 0) % 2 === 1) duenoSpeak(U.pick(LN.duenoCall), true); }, 2600); }   // lejos de Incas: llama cada dos jornadas, o viene si la reputación baja de 4
     if (n >= 2 && !relaxed && !GS.Store.get('plotIntro') && n <= C.finalDay) { GS.Store.set('plotIntro', true); setTimeout(() => { if (day === d) duenoSpeak(PL.intro.replace('{n}', C.finalDay)); }, 3200); }
     $('rain').hidden = cond !== 'lluvia'; $('chipCond').hidden = !cond; if (cond) { $('chipCond').textContent = GS.CONDITIONS[cond].name; toast('<b>Hoy</b>' + GS.CONDITIONS[cond].name, 'dueno', 3800); }
     $('clockS').textContent = relaxed ? 'Turno tranquilo' : 'Abrimos';
@@ -3055,7 +3116,7 @@ GS.Game = (function () {
     const look = lookOf(arche), person = W.makePerson(look);
     const dx = L.puerta.x; person.setPos(dx + U.rnd(-0.5, 0.5), day.spawned === 0 ? L.salon.zMax + 1 : L.galeria.zMax + 2.4);
     person.voice = 230 + (k % 7) * 45;
-    const cu = { id: ++uid, arche, look, request: req.t, product, st: 'entering', pat: 1, person, slotM: slot, slotC: -1, label: makeLabel('❓') };
+    const cu = { id: ++uid, arche, look, request: (RG(brId()).hi.length && Math.random() < 0.6 ? U.pick(RG(brId()).hi) + ' ' : '') + req.t, product, st: 'entering', pat: 1, person, slotM: slot, slotC: -1, label: makeLabel('❓') };
     day.customers.push(cu); day.spawned++;
     const sp = day.spawned > 1 && Math.random() < 0.45 ? freeSpot() : null;
     if (sp) { day.spots[sp.i] = 1; cu.spot = sp; person.walk(sp.via.concat([sp.p]), () => { cu.st = 'browse'; cu.wait = U.rnd(2.6, 4.6); person.face(sp.f); }); }   // primero mira un rato y después se acerca
@@ -3150,13 +3211,76 @@ GS.Game = (function () {
 
   /* ---------------- TRAMA: el fondo para el local de al lado ---------------- */
   const PL = GS.PLOT;
-  const fondoNow = () => GS.Store.get('fondo') || 0, goalNow = () => Math.max(3000, PL.goal + (GS.Store.get('goalAdj') || 0));
+  const fondoNow = () => GS.Store.get('fondo') || 0, goalNow = () => { const all = brAll(), l = GS.REGIONS.filter(r => !(all[r.id] && all[r.id].open)); return l.length ? Math.min.apply(0, l.map(r => r.cost)) : 0; };
   const tierNow = () => { const r = fondoNow() / goalNow(); let t = PL.tiers[0]; PL.tiers.forEach(x => { if (r >= x.at) t = x; }); return t; };
   const daysLeft = () => Math.max(0, C.finalDay - dayNumber() + 1);
   function addFondo(v) { GS.Store.set('fondo', Math.max(0, fondoNow() + v)); }
   function plotHtml() {
-    const f = fondoNow(), g = goalNow();
-    return '<b>🗺️ ' + PL.name + '</b><span class="pb"><i style="width:' + Math.min(100, f / g * 100).toFixed(0) + '%"></i></span><small>Sucursales: 1 de 5 · fondos de expansión ' + f + ' de ' + g + ' para abrir Cuyo</small>';
+    const f = fondoNow(), g = goalNow(), all = brAll(), open = GS.REGIONS.filter(r => all[r.id] && all[r.id].open).length, glob = Math.round(GS.REGIONS.reduce((a, r) => a + brProgress(r.id), 0) / GS.REGIONS.length);
+    return '<b>🗺️ ' + PL.name + ' · ' + glob + '%</b><span class="pb"><i style="width:' + glob + '%"></i></span><small>Sucursales: ' + open + ' de 5 · ' + (g ? 'fondos ' + f + ' de ' + g + ' para la próxima' : 'todas abiertas') + ' · tocá para ver el mapa</small>';
+  }
+  /* ---------------- SUCURSALES: una por región. La activa guarda sus mejoras y su reputación; las demás quedan congeladas con su encargado ---------------- */
+  const RG = id => GS.REGIONS.find(r => r.id === id), brId = () => GS.Store.get('branch') || 'pampeana', brAll = () => GS.Store.get('branches') || { pampeana: { open: 1 } }, brNow = () => brAll()[brId()] || {};
+  function brSave(patch) { const all = brAll(), id = brId(); all[id] = Object.assign(all[id] || { open: 1 }, { up: upNow(), rep: repNow() }, patch || {}); GS.Store.set('branches', all); }
+  function brProgress(id) {
+    const b = brAll()[id]; if (!b || !b.open) return 0; const me = id === brId(), up = me ? upNow() : b.up || {}, r = me ? repNow() : (b.rep == null ? 3 : b.rep);
+    let have = 0, tot = 0; GS.UPGRADES.forEach(g => { tot += g.levels.length; have += Math.min(g.levels.length, up[g.id] || 0); });
+    return Math.round((have / tot * 0.6 + Math.min(1, r / 4.8) * 0.4) * 100);
+  }
+  const brStage = id => { const p = brProgress(id); return p < 45 ? 1 : p < 80 ? 2 : 3; }, STAGE = ['', 'Humilde', 'Mejorado', 'Estrella'];
+  const brCrew = id => id === 'pampeana' ? ['Lucho', 'Brian'] : ((brAll()[id] || {}).staff || []).map(c => (RG(id).crew.find(x => x.id === c) || {}).name);
+  const bossHere = () => brId() === 'pampeana' || repNow() < 4;
+  function applyBranch() {
+    const id = brId(), R = RG(id), ps = W.staff(); W.setRegion(R, brStage(id)); W.setUpgrades(upNow()); W.bossVisible(bossHere());
+    if (id === 'pampeana') { luchoLook(dayNumber()); ps[1].look({ skin: GS.SKINS[0], hair: 0x2d6cdf, hairStyle: 'corto', glasses: false }); }
+    else (brNow().staff || []).forEach((c, i) => { const e = R.crew.find(x => x.id === c); if (e && ps[i]) ps[i].look(e.look); });
+  }
+  function switchBranch(id) {
+    brSave(); const web = upNow().web, b = brAll()[id]; GS.Store.set('branch', id);
+    GS.Store.set('up', Object.assign({}, b.up || {}, web ? { web } : {})); GS.Store.set('rep', b.rep == null ? 4 : b.rep);     // la marca (la web) vale en todas
+    applyBranch(); refreshStart(); GS.track('sucursal', { id });
+  }
+  function showMap() {
+    const all = brAll(), cur = brId(), f = fondoNow(), wasDay = state === 'day'; if (wasDay) paused = true;
+    const SH = { noa: '40,10 105,10 100,95 55,110 35,70', nea: '105,10 175,25 185,75 140,105 100,95', cuyo: '35,112 78,104 84,190 45,200 30,150', pampeana: '80,104 140,107 170,150 150,215 86,205 84,190', patagonia: '45,202 86,207 150,217 120,300 100,385 70,390 55,300' },
+      CT = { noa: [70, 58], nea: [142, 62], cuyo: [58, 152], pampeana: [122, 160], patagonia: [96, 270] };
+    const svg = '<svg viewBox="0 0 220 400" class="mapa">' + GS.REGIONS.map(r => { const b = all[r.id], open = b && b.open, can = !open && f >= r.cost, c = CT[r.id];
+      return '<g data-reg="' + r.id + '" class="' + (open ? 'open' : can ? 'can' : 'lock') + (r.id === cur ? ' cur' : '') + '"><polygon points="' + SH[r.id] + '"/>' +
+        (open ? '<rect x="' + (c[0] - 26) + '" y="' + (c[1] - 9) + '" width="52" height="13" rx="3" class="cartel"/><text x="' + c[0] + '" y="' + (c[1] + 1) + '" class="ct">GAMESHOP</text>' : '<text x="' + c[0] + '" y="' + c[1] + '" class="lk">' + (can ? '🔓' : '🔒') + '</text>') +
+        '<text x="' + c[0] + '" y="' + (c[1] + 17) + '" class="nm">' + r.name + '</text></g>'; }).join('') + '</svg>';
+    const cards = GS.REGIONS.map(r => { const b = all[r.id], open = b && b.open, me = r.id === cur;
+      if (!open) return '<div class="suc lock"><b>' + r.name + ' · ' + r.city + '</b><small>' + r.why + '</small><small>Zona de <b>' + r.rival.name + '</b></small><button class="btn alt" data-open="' + r.id + '"' + (f < r.cost ? ' disabled' : '') + '>Abrir · 🗺️ ' + r.cost + '</button></div>';
+      const rp = me ? repNow() : (b.rep == null ? 3 : b.rep), pr = brProgress(r.id), up = me ? upNow() : b.up || {}, pend = GS.UPGRADES.reduce((a, g) => a + g.levels.length - Math.min(g.levels.length, up[g.id] || 0), 0);
+      return '<div class="suc' + (me ? ' me' : '') + '"><b>' + r.name + ' · ' + r.city + (pr >= 100 ? ' ✅' : '') + '</b><span class="pb"><i style="width:' + pr + '%"></i></span><small>⭐ ' + repTxt(rp) + ' · ' + STAGE[brStage(r.id)] + ' · ' + pr + '%' + (b.manager ? ' · encargado: ' + b.manager : '') + '</small>' +
+        (me ? '<small class="al">' + (pend ? '🛠 ' + pend + ' mejoras pendientes' : '🛠 mejoras completas') + (rp < 4.8 ? ' · ⭐ falta llegar a 5' : '') + ((up.flota || 0) < 3 ? ' · 🚚 falta el camión' : '') + '</small><button class="btn ghost" disabled>Estás acá</button>'
+          : '<small><i>"' + LN.freeze + '"</i></small><button class="btn" data-go="' + r.id + '">Viajar</button>') + '</div>'; }).join('');
+    modal('<h2>🗺️ GameShop a todo el país</h2><p>Fondos de expansión: <b>🗺️ ' + f + '</b>. Desde cada región se envía más fácil a sus provincias. Una sucursal está completa con todas las mejoras, 5 estrellas y camión propio.</p>' + svg + '<div class="sucs">' + cards + '</div><div class="row"><button class="btn ghost" id="mapLib">📖 Libreta</button><button class="btn" data-close>Cerrar</button></div>', () => { if (wasDay) paused = false; });
+    $('mapLib').addEventListener('click', showLibreta);
+    $('sheet').querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => leaveTo(b.dataset.go)));
+    $('sheet').querySelectorAll('[data-open]').forEach(b => b.addEventListener('click', () => openRegion(b.dataset.open)));
+    $('sheet').querySelectorAll('g[data-reg]').forEach(g => g.addEventListener('click', () => { const id = g.dataset.reg, b = all[id]; if (id === cur) return; if (b && b.open) leaveTo(id); else if (f >= RG(id).cost) openRegion(id); else toast('<b>🔒 ' + RG(id).name + '</b>Faltan ' + (RG(id).cost - f) + ' fondos de expansión.', '', 2400); }));
+  }
+  // Antes de irse hay que dejar un encargado. La sucursal queda congelada tal como estaba.
+  function pickManager(then) {
+    if (brNow().manager) return then(); const names = brCrew(brId());
+    modal('<h2>¿Quién queda de encargado?</h2><p>Te vas de <b>' + RG(brId()).city + '</b>. La sucursal queda tal como la dejás hasta que vuelvas.</p><div class="row">' + names.map(n => '<button class="btn" data-mg="' + n + '">' + n + '</button>').join('') + '</div>');
+    $('sheet').querySelectorAll('[data-mg]').forEach(b => b.addEventListener('click', () => { brSave({ manager: b.dataset.mg }); A.play('ok'); toast('<b>' + b.dataset.mg + ', encargado</b>"' + LN.freeze + '"', '', 3400); then(); }));
+  }
+  function leaveTo(id) { if (state === 'day') return toast('<b>Terminá la jornada</b>Se viaja entre jornadas.', '', 2200); pickManager(() => { switchBranch(id); $('modal').hidden = true; if (state === 'end') goHome(); toast('<b>✈️ ' + RG(id).city + '</b>Sucursal ' + RG(id).name + '.', '', 2600); }); }
+  function openRegion(id) {
+    if (state === 'day') return toast('<b>Terminá la jornada</b>Las sucursales se abren entre jornadas.', '', 2200);
+    const R = RG(id), sel = [];
+    modal('<h2>Sucursal ' + R.name + ' · ' + R.city + '</h2><p>' + R.why + '</p><div class="quote"><b>⚔️ Ojo: es zona de ' + R.rival.name + '</b>' + R.rival.owner + ' no va a regalar nada. ' + R.rival.rule + '</div><p><b>Elegí 2 empleados</b> de los 4 que se presentaron. Después vas a tener que enseñarles.</p><div class="crew">' +
+      R.crew.map(c => '<button class="cand" data-c="' + c.id + '">' + GS.faceSvg(Object.assign({ shirt: 0xe10600 }, c.look), 'happy') + '<b>' + c.name + '</b><small>' + c.d + '</small></button>').join('') + '</div><div class="row"><button class="btn ghost" data-close>Todavía no</button><button class="btn" id="regOk" disabled>Abrir · 🗺️ ' + R.cost + '</button></div>');
+    $('sheet').querySelectorAll('.cand').forEach(b => b.addEventListener('click', () => { const c = b.dataset.c, k = sel.indexOf(c); if (k >= 0) sel.splice(k, 1); else if (sel.length < 2) sel.push(c); $('sheet').querySelectorAll('.cand').forEach(x => x.classList.toggle('on', sel.indexOf(x.dataset.c) >= 0)); $('regOk').disabled = sel.length !== 2; A.play('click'); }));
+    $('regOk').addEventListener('click', () => pickManager(() => {
+      addFondo(-R.cost); const all = brAll(); all[id] = { open: 1, staff: sel.slice(), up: {}, rep: 4, train: 0, days: 0 }; GS.Store.set('branches', all); switchBranch(id); if (state === 'end') goHome();
+      A.play('fanfare'); W.showAll(); GS.track('abre_sucursal', { id });
+      modal('<div class="inaug"><div class="glob">🎈🎈🎈</div><h2>¡Inauguración!</h2><p class="cinta">GAMESHOP ' + R.city.toUpperCase() + '</p><p>Hay fila desde la esquina. ' + brCrew(id).join(' y ') + ' están con la remera recién planchada.</p><p><small>Empezás con un local humilde: mejoralo, enseñale al equipo y llevalo a 5 estrellas.</small></p><button class="btn" data-close>✂️ Cortar la cinta</button></div>');
+    }));
+  }
+  function teach() {
+    const t = brNow().train || 0, p = W.staff()[t % 2]; day.taught = 1; day.jobSig = ''; brSave({ train: t + 1 }); A.play('ok'); fx('🎓 Equipo nivel ' + (t + 1)); day.score += 60; sayAt(p, U.pick(LN.teach), 0); yoGo('H'); day.beat = 1;
   }
   /* ---------------- VISITAS CON HISTORIA: clientes que vuelven, con decisiones chiquitas que dejan marca ---------------- */
   const histAll = () => GS.Store.get('hist') || {};
@@ -3278,6 +3402,7 @@ GS.Game = (function () {
       else if (c.st === 'waitC') jobs.push({ key: 'c' + c.id + 'k', type: 'caja', ref: c, pat: c.pat, icon: '💵', title: 'Caja', sub: 'Cobrar a ' + c.arche.name });
     }
     for (const t of day.tasks) if (t.st === 'wait') jobs.push({ key: 't' + t.id, type: t.station.id, ref: t, pat: t.pat, icon: t.station.icon, title: t.station.short || t.station.name, sub: t.station.task.name });
+    if (brId() !== 'pampeana' && !day.arcade && !day.taught && (brNow().train || 0) < 3 && day.stage === 'rest' && day.wave >= 0) jobs.push({ key: 'teach', type: 'ensenar', ref: null, pat: 1, icon: '🎓', title: 'Enseñarle al equipo', sub: 'Nivel ' + (brNow().train || 0) + ' de 3 · después resuelven tareas solos' });
     if (day.dirt && !day.arcade && (day.stage === 'rest' || !jobs.length || day.dirt >= 3)) jobs.push({ key: 'dirt' + day.dirt, type: 'limpiar', ref: null, pat: 1, icon: '🧹', title: 'Limpiar el piso', sub: day.dirt + (day.dirt === 1 ? ' mancha' : ' manchas') + ' · un toque y listo' });
     return jobs.sort((a, b) => a.pat - b.pat);
   }
@@ -3315,6 +3440,7 @@ GS.Game = (function () {
     if (state !== 'day' || paused || MG.isOpen() || day.closing || day.beat > 0) return;
     if (job.type === 'historia') return openStory(job.ref);
     if (job.type === 'limpiar') return cleanUp();
+    if (job.type === 'ensenar') return teach();
     A.unlock(); A.play('click');
     const ref = job.ref, isCust = job.type === 'mostrador' || job.type === 'caja';
     ref.st = isCust ? (job.type === 'mostrador' ? 'inM' : 'inC') : 'in'; ref.pat = Math.max(ref.pat, 0.55);
@@ -3398,6 +3524,9 @@ GS.Game = (function () {
         }
       }
       for (const t of day.tasks.slice()) {
+        if (t.st === 'wait' && t.pat < 0.6 && (day.deleg || 0) < (brId() === 'pampeana' ? 0 : brNow().train || 0)) {      // delegar: el equipo que aprendió resuelve tareas solo
+          day.deleg = (day.deleg || 0) + 1; day.tasksDone++; day.score += 60; day.jobSig = ''; fx('🤝 Lo resolvió ' + (brCrew(brId())[day.deleg % 2] || 'el equipo')); A.play('ok'); removeTask(t); continue;
+        }
         if (t.st === 'wait') t.pat -= dt / cfg.taskPatience;
         else if (!MG.isResolving()) t.pat -= dt / (cfg.patienceGame * 1.3);
         if (t.pat <= 0) {
@@ -3544,6 +3673,7 @@ GS.Game = (function () {
     else { if (missed <= 2) stars = 2; if (missed === 0 && errs <= 3) stars = 3; }
     const comment = U.pick(stars === 3 ? LN.duenoEndGood : stars === 2 ? LN.duenoEndMid : LN.duenoEndBad);
     if (!GS.Store.get('testDay')) GS.Store.set('days', Math.max(GS.Store.get('days') || 0, d.n));
+    brSave({ days: (brNow().days || 0) + 1 });
     const lostSale = d.lostSale || 0, ask = d.served + d.lost + lostSale, perfect = !errs && !d.lost && !lostSale && !d.tasksLate && !d.relaxed, dirty = d.dirt >= 3;
     if (dirty) addRep(-0.1);                                                        // cerrar con el piso sucio se nota
     const earned = Math.max(0, Math.round(d.score / 20 * coinMult() * (d.plan.bonus || 1)) - (d.coinLoss || 0)); GS.Store.set('coins', coinsNow() + earned);
@@ -3573,11 +3703,11 @@ GS.Game = (function () {
       '<div class="quote"><b>' + (d.moment ? 'El momento del día' : 'El Dueño opina') + '</b>' + (d.moment || comment) + '</div>' +
       '<div class="hook"><i>' + hook[0] + '</i><span><b>Lo que viene</b>' + hook[1] + '</span></div>' +
       '<button class="btn" id="endAgain">Siguiente jornada</button>' +
-      '<div class="row"><button class="btn alt" id="endShop" style="font-size:16px">🛠 Mejorar</button><button class="btn ghost" id="endRecs">🏅 Logros</button></div>' +
+      '<div class="row"><button class="btn alt" id="endShop" style="font-size:16px">🛠 Mejorar</button><button class="btn ghost" id="endMap">🗺️ Mapa</button><button class="btn ghost" id="endRecs">🏅 Logros</button></div>' +
       '<div class="row"><button class="btn ghost" id="endCard">📸 Compartir</button><button class="btn ghost" id="endLib">📖 Libreta</button><button class="btn ghost" id="endHome">Inicio</button></div>' +
       '<button class="phases" id="phasesEnd"' + (C.launched ? ' hidden' : '') + '></button></div>';
     $('phasesEnd').innerHTML = phasesCompact(); $('phasesEnd').addEventListener('click', showPhases);
-    $('endCard').addEventListener('click', () => showCard()); $('endLib').addEventListener('click', showLibreta);
+    $('endMap').addEventListener('click', showMap); $('endCard').addEventListener('click', () => showCard()); $('endLib').addEventListener('click', showLibreta);
     $('endAgain').addEventListener('click', () => startDay(d.relaxed));
     $('endHome').addEventListener('click', goHome); $('endRecs').addEventListener('click', showLogros); $('endShop').addEventListener('click', openShop);
     $('end').hidden = false; $('end').scrollTop = 0;
@@ -3589,8 +3719,8 @@ GS.Game = (function () {
     if (m === 0) return ['🎄', 'La próxima es diciembre: semana de Navidad. Dicen que viene alguien de rojo a comprar.'];
     const h = histAll(), back = GS.STORIES.filter(S => h[S.id] && !h[S.id].done && n >= h[S.id].last + (S.gap || 1));
     if (back.length) return ['📖', back[0].name + ' dijo que volvía. Puede aparecer en la próxima jornada.'];
-    const f = goalNow() - fondoNow(); if (f <= 0) return ['🗺️', 'Ya están los fondos para abrir la sucursal de Cuyo. El mapa del país llega en la próxima etapa del juego.'];
-    if (f < 1000) return ['🗺️', 'Faltan ' + f + ' fondos de expansión para abrir la sucursal de Cuyo.'];
+    const f = goalNow() - fondoNow(); if (goalNow() && f <= 0) return ['🗺️', 'Ya están los fondos para abrir otra sucursal. Abrí el mapa y elegí la región.'];
+    if (goalNow() && f < 1000) return ['🗺️', 'Faltan ' + f + ' fondos de expansión para abrir la próxima sucursal.'];
     const t = nextGoal(); if (t) return [t.g.icon, (coinsNow() >= t.lv.price ? 'Ya te alcanza para: ' : 'Te faltan 🪙 ' + (t.lv.price - coinsNow()) + ' para: ') + t.lv.n + '.'];
     return ['☕', 'Mañana abrimos de 10 a 19, como siempre.'];
   }
@@ -3696,7 +3826,7 @@ GS.Game = (function () {
   function refreshStart() {
     const n = dayNumber(), fresh = n <= GS.UNLOCKS.length ? GS.UNLOCKS[n - 1] : [];
     $('playT').textContent = n === 1 && !GS.Store.get('introSeen') ? 'Iniciar modo carrera' : 'Seguir modo carrera'; W.setNext(GS.Store.get('final2Seen') && tierNow().at >= 1 ? 'gs2' : 'venta'); $('goalStart').innerHTML = goalHtml(); $('btnPlot').innerHTML = plotHtml();
-    $('rankT').textContent = '⭐ ' + repTxt(repNow()) + ' · 🪙 ' + coinsNow() + ' · 🗺️ ' + fondoNow();
+    $('rankT').textContent = '📍 ' + RG(brId()).city + ' · ⭐ ' + repTxt(repNow()) + ' · 🪙 ' + coinsNow() + ' · 🗺️ ' + fondoNow();
     $('playS').textContent = n === 1 && GS.Store.get('introSeen') ? 'Jornada 1 · ' + monthOf(1) + ' · inducción' : n > 1 ? 'Jornada ' + n + ' · ' + monthOf(n) + (fresh.length ? ' · se suma: ' + fresh.map(id => ST(id).name).join(' y ') : '') : n === 1 ? (GS.Store.get('introSeen') ? 'Jornada 1 · inducción: mostrador y caja' : 'Conocé el local, al Dueño y a tus compañeros') : 'Jornada ' + n + (fresh.length ? ' · se suma: ' + fresh.map(id => ST(id).name).join(' y ') : ' · de 10 a 19 · ⭐ ' + repTxt(repNow()));
   }
   function goHome() {
@@ -3952,7 +4082,7 @@ GS.Game = (function () {
       modal('<h2>Ups</h2><p>Este navegador no pudo iniciar los gráficos 3D. Probá actualizarlo o abrir el juego en otro navegador.</p>');
       return;
     }
-    staffInit(); luchoLook(dayNumber()); setSky(0.3, false); document.body.classList.toggle('big', !!GS.Store.get('big')); if (C.launched) { $('phasesStart').hidden = true; $('chipPhase').hidden = true; document.querySelector('.fine').firstChild.textContent = 'Precios y stock ficticios.'; }
+    staffInit(); applyBranch(); setSky(0.3, false); document.body.classList.toggle('big', !!GS.Store.get('big')); if (C.launched) { $('phasesStart').hidden = true; $('chipPhase').hidden = true; document.querySelector('.fine').firstChild.textContent = 'Precios y stock ficticios.'; }
     GS.track.init(); GS.track('abrir_juego', { jornada: dayNumber() }); window.addEventListener('error', e => GS.track('error_js', { msg: String(e.message).slice(0, 80) }));
     if (C.links.tienda) { $('btnStore').hidden = false; $('btnStore').href = C.links.tienda; $('btnStore').addEventListener('click', () => GS.track('click_tienda', { desde: 'inicio' })); }
     setCalm(!!GS.Store.get('calm')); syncMute(); W.showAll(); W.setUpgrades(upNow()); W.setPlayerLook(GS.Store.get('avatar'));
@@ -3960,7 +4090,7 @@ GS.Game = (function () {
     $('shopFund').addEventListener('click', e => { const b = e.target.closest('[data-fund]'); if (!b) return; const c = coinsNow(), v = Math.min(c, Number(b.dataset.fund) || c); if (v <= 0) return;
       const before = fondoNow() >= goalNow(); GS.Store.set('coins', c - v); addFondo(v); A.play('cash'); GS.track('aporte_fondo', { monto: v });
       toast(!before && fondoNow() >= goalNow() ? '<b>🏠 ¡Meta alcanzada!</b>Ya alcanza para el local de al lado. Lo que sumes de más mejora el final.' : '<b>🏠 Aportaste 🪙 ' + v + '</b>Fondo: ' + fondoNow() + ' de ' + goalNow() + '.', '', 2600); renderShop(); });
-    $('btnPlot').addEventListener('click', showLibreta);
+    $('btnPlot').addEventListener('click', () => { A.unlock(); A.play('click'); showMap(); });
     const shopStep = k => { if (state !== 'shop') return; shopSel = (shopSel + k + GS.UPGRADES.length) % GS.UPGRADES.length; A.play('click'); renderShop(); const on = $('shopSlots').querySelector('.on'); if (on && on.scrollIntoView) on.scrollIntoView({ block: 'nearest', inline: 'center' }); };
     $('shopPrev').addEventListener('click', () => shopStep(-1)); $('shopNext').addEventListener('click', () => shopStep(1));
     $('shopSlots').addEventListener('wheel', e => { if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) { $('shopSlots').scrollLeft += e.deltaY; e.preventDefault(); } }, { passive: false });
