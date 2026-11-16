@@ -1,4 +1,4 @@
-# GameShop Simulator
+# GameShop: La Expansión
 
 Juego web (un solo HTML) que simula una jornada de trabajo en GameShop. Pieza de marca para `juego.gameshop.com.ar`.
 

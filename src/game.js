@@ -1220,7 +1220,7 @@ GS.Game = (function () {
       g.save(); g.globalAlpha = 0.9; stripe(120, 46, '#ff0000'); stripe(196, 30, '#fff'); stripe(W_ - 20, 46, '#ff0000'); stripe(W_ - 96, 30, '#fff'); g.restore();
       g.textAlign = 'center'; g.textBaseline = 'alphabetic';
       if (im[0]) { const lw = 600, lh = lw * im[0].height / im[0].width; g.drawImage(im[0], (W_ - lw) / 2, 78, lw, lh); }
-      g.fillStyle = '#fff'; g.font = F(58, '400'); g.fillText('S I M U L A T O R', W_ / 2, 300);
+      g.fillStyle = '#fff'; g.font = F(58, '400'); g.fillText('L A   E X P A N S I Ó N', W_ / 2, 300);
       // personaje en un círculo
       g.fillStyle = '#fff'; g.beginPath(); g.arc(W_ / 2, 560, 218, 0, 7); g.fill(); g.fillStyle = '#e9e9ee'; g.beginPath(); g.arc(W_ / 2, 560, 204, 0, 7); g.fill();
       if (im[1]) { g.save(); g.beginPath(); g.arc(W_ / 2, 560, 204, 0, 7); g.clip(); try { g.drawImage(im[1], W_ / 2 - 190, 372, 380, 472); } catch (e) {} g.restore(); }
@@ -1244,14 +1244,14 @@ GS.Game = (function () {
     drawCard(fin).then(cv => {
       let data = ''; try { data = cv.toDataURL('image/png'); } catch (e) {}
       if (!data) return modal('<h2>Tu tarjeta</h2><p>Este navegador no pudo armar la imagen. Probá con una captura de pantalla del cierre de caja.</p><button class="btn" data-close>Cerrar</button>');
-      modal('<h2>Tu tarjeta</h2><img class="cardimg" id="cardImg" alt="Tarjeta de GameShop Simulator" src="' + data + '"><button class="btn" id="cardShare" hidden>Compartir</button>' +
-        '<a class="btn ' + (navigator.share ? 'ghost' : '') + '" id="cardDown" download="gameshop-simulator.png" href="' + data + '">Descargar imagen</a><button class="btn ghost" data-close>Cerrar</button>');
+      modal('<h2>Tu tarjeta</h2><img class="cardimg" id="cardImg" alt="Tarjeta de GameShop: La Expansión" src="' + data + '"><button class="btn" id="cardShare" hidden>Compartir</button>' +
+        '<a class="btn ' + (navigator.share ? 'ghost' : '') + '" id="cardDown" download="gameshop-la-expansion.png" href="' + data + '">Descargar imagen</a><button class="btn ghost" data-close>Cerrar</button>');
       cv.toBlob(blob => {
         if (!blob || !navigator.share || !window.File || !$('cardShare')) return;
-        const file = new File([blob], 'gameshop-simulator.png', { type: 'image/png' });
+        const file = new File([blob], 'gameshop-la-expansion.png', { type: 'image/png' });
         if (navigator.canShare && !navigator.canShare({ files: [file] })) return;
         $('cardShare').hidden = false;
-        $('cardShare').addEventListener('click', () => { GS.track('compartir', {}); navigator.share({ files: [file], title: 'GameShop Simulator', text: GS.FINAL.card[0].replace('{n}', Math.max(1, GS.Store.get('days') || 0)) + ' ¿Te animás a un turno?' }).catch(() => {}); });
+        $('cardShare').addEventListener('click', () => { GS.track('compartir', {}); navigator.share({ files: [file], title: 'GameShop: La Expansión', text: GS.FINAL.card[0].replace('{n}', Math.max(1, GS.Store.get('days') || 0)) + ' ¿Te animás a un turno?' }).catch(() => {}); });
       }, 'image/png');
     });
   }
@@ -1260,7 +1260,7 @@ GS.Game = (function () {
   function showMetrics() {
     const ms = GS.Store.get('metrics') || [], mmss = v => Math.floor(v / 60) + ':' + String(v % 60).padStart(2, '0'), avg = k => ms.length ? Math.round(ms.reduce((a, m) => a + m[k], 0) / ms.length) : 0;
     const by = {}; ms.forEach(m => { for (const k in m.mt) { const b = by[k] = by[k] || { n: 0, s: 0, e: 0 }; b.n += m.mt[k].n; b.s += m.mt[k].s; b.e += m.mt[k].e; } });
-    const txt = 'GameShop Simulator ' + C.version + ' · datos de prueba\n' + ms.map(m => 'J' + m.n + ' ' + m.modo + ' · ' + mmss(m.seg) + ' (minijuegos ' + mmss(m.mg) + ') · monedas ' + m.monedas + ' · atendidos ' + m.at + ' · perdidos ' + m.per + ' · tareas ' + m.tar + ' (tarde ' + m.tarde + ') · errores ' + m.err + ' · rep ' + m.rep).join('\n') +
+    const txt = 'GameShop: La Expansión ' + C.version + ' · datos de prueba\n' + ms.map(m => 'J' + m.n + ' ' + m.modo + ' · ' + mmss(m.seg) + ' (minijuegos ' + mmss(m.mg) + ') · monedas ' + m.monedas + ' · atendidos ' + m.at + ' · perdidos ' + m.per + ' · tareas ' + m.tar + ' (tarde ' + m.tarde + ') · errores ' + m.err + ' · rep ' + m.rep).join('\n') +
       '\n' + Object.keys(by).map(k => k + ': ' + by[k].n + ' veces, ' + (by[k].s / Math.max(1, by[k].n)).toFixed(1) + ' s c/u, ' + by[k].e + ' errores').join('\n');
     modal('<h2>Datos de prueba</h2>' + (ms.length ? '<p>Últimas ' + ms.length + ' jornadas. Promedio: <b>' + mmss(avg('seg')) + '</b> por jornada y <b>🪙 ' + avg('monedas') + '</b>. La meta es unos 3:00.</p>' +
       '<div class="mtable"><table><tr><th>Jorn.</th><th>Duración</th><th>🪙</th><th>Atend.</th><th>Perd.</th><th>Errores</th></tr>' + ms.slice().reverse().map(m => '<tr><td>' + m.n + (m.modo === 'Tranquilo' ? ' 🧘' : '') + '</td><td>' + mmss(m.seg) + '</td><td>' + m.monedas + '</td><td>' + m.at + '</td><td>' + m.per + '</td><td>' + m.err + '</td></tr>').join('') + '</table></div>' +

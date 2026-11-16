@@ -906,7 +906,7 @@ GS.FINAL = {
     'Gracias por jugar. Y acordate: 10% OFF en efectivo y transferencia. Eso no cambia nunca.'
   ],
   crowd: ['¡Bravo!', '¡Grande!', '¡Ídolo!', '¡Así se atiende!', '¡Que hable!', '¡Aplausos!', '¿Hay descuento por el festejo?', '¡Esto lo subo a mi canal!'],
-  card: ['Sobreviví a {n} jornadas en GameShop.', 'Atendí {c} clientes y sigo en pie.', 'Mi cordura: {k}%. La de Brian: sin datos.']
+  card: ['Sobreviví a {n} jornadas en GameShop.', 'Atendí {c} clientes y sigo en pie.', 'Llevando GameShop a todo el país. Brian: durmiendo.']
 };
 
 /* Datos de los minijuegos nuevos */

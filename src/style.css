@@ -480,3 +480,5 @@ body.snow #rain { background-color: rgba(220, 235, 250, .06); background-image: 
 .wb-n { font-size: 13px; font-weight: 800; white-space: nowrap; } .wb-n em { font-style: normal; font-weight: 500; color: #77777f; } .wb-n.ok { color: #0a8a3d; } .wbtn .hc-d i { background: #cfcfd6; } .wbtn .hc-d i.on { background: #e10600; } .wbtn .hc-d i.cur { box-shadow: 0 0 0 2px #f5c518; }
 .wb-m > b { flex-wrap: nowrap; white-space: nowrap; } .wbtn .hc-d { flex: none; }
 .wb-m { overflow: hidden; } .wb-m > * { min-width: 0; } .wb-m > b { font-size: clamp(17px, 5.4vw, 21px); } .wb-m > small { display: flex; align-items: center; gap: 7px; } .wb-m > small .hc-d { flex: none; }
+
+.sub { letter-spacing: 6px; margin-left: 6px; white-space: nowrap; }
