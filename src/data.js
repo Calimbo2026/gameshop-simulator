@@ -12,7 +12,7 @@ GS.CONFIG = {
   phaseNote: 'Juego completo de punta a punta. Falta tu playtest con 5 personas y encender el lanzamiento (launched: true)',                       // fase actual del proyecto (1 a 5)
   links: { tienda: 'https://www.gameshop.com.ar', instagram: '' },   // botones del inicio y del cierre (vacío = no se muestra)
   // Analítica: pegá acá el ID de medición de Google Analytics 4 (G-XXXXXXXXXX) y el juego empieza a contar jugadores. Vacío = no se envía nada.
-  analytics: { ga4: '' },
+  analytics: { ga4: 'G-4YSB8FZCJ3' },
   launched: false,                // true = se oculta el cartel de "en construcción" y los buscadores pueden indexar el juego
   shareUrl: '',                   // dirección que se imprime en la tarjeta para compartir (vacío = la dirección desde donde se juega)
   finalDay: 20,                   // jornada que cierra la temporada y dispara la escena final
