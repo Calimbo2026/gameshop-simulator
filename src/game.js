@@ -1086,8 +1086,12 @@ GS.Game = (function () {
     GS.track('fin_jornada', { puntaje: d.score, atendidos: d.served, tareas: d.tasksDone, perdidos: missed + lostSale, modo: mode, segundos: Math.round(d.tt || 0), monedas: earned, fondos: fEarn });
     { const ms = GS.Store.get('metrics') || []; ms.push({ n: d.n, modo: mode, seg: Math.round(d.tt || 0), mg: Math.round(d.tj || 0), monedas: earned, at: d.served, per: d.lost + lostSale, tar: d.tasksDone, tarde: d.tasksLate, err: errs, rep: Math.round(rv * 10) / 10, mt: d.mt || {} }); GS.Store.set('metrics', ms.slice(-40)); }
     const hook = nextHook(d.n + 1), ob = d.okBy || {}, row = (ok, label, val) => '<p class="' + (ok ? 'ok' : 'no') + '"><span>' + (ok ? '✔' : '✖') + ' ' + label + '</span><b>' + val + '</b></p>';
-    const rec = (() => { const u = upNow(), c = coinsNow(), fl = GS.UPGRADES.find(g => g.id === 'flota'), lv = fl.levels[u.flota || 0], t = lv ? { g: fl, lv } : nextGoal(); if (!t) return ''; const ok = c >= t.lv.price;          /* una sola mejora recomendada: la flota si falta el camión; si no, la más barata */
-      return '<div class="recm' + (ok ? ' ok' : '') + '"><i>' + t.g.icon + '</i><span><small>' + (ok ? '¡Ya te alcanza!' : 'Mejora recomendada') + '</small><b>' + t.lv.n + '</b><em>' + (lv ? 'Es parte de la flota: hace falta llegar al camión para conquistar la región.' : 'Suma al avance de la sucursal.') + ' ' + (ok ? '' : 'Te faltan 🪙 ' + (t.lv.price - c) + '.') + '</em></span><button class="btn' + (ok ? ' pulse' : ' ghost') + '" id="endShop">' + (ok ? 'Comprar · 🪙 ' + t.lv.price : 'Ver mejoras') + '</button></div>'; })() || '<button class="btn ghost" id="endShop">🛠 Mejoras</button>';
+    /* pantalla de mejoras dentro del cierre: todo lo que se puede comprar, con las monedas recién cobradas */
+    const upHtml = () => { const u = upNow(), c = coinsNow(); let have = 0, tot = 0; const items = GS.UPGRADES.map(g => { tot += g.levels.length; const own = Math.min(g.levels.length, u[g.id] || 0); have += own; return { g, own, lv: g.levels[own] }; });
+      const card = (it, key) => { const ok = c >= it.lv.price; return '<div class="upc' + (ok ? ' ok' : '') + (key ? ' key' : '') + '"><i>' + it.g.icon + '</i><span><b>' + it.lv.n + (it.g.levels.length > 1 ? ' <u>nivel ' + (it.own + 1) + ' de ' + it.g.levels.length + '</u>' : '') + '</b><small>' + it.lv.d + '</small>' + (ok ? '' : '<em><u style="width:' + Math.max(3, c / it.lv.price * 100).toFixed(0) + '%"></u></em>') + '</span><button class="btn' + (ok ? '' : ' ghost') + '" data-up="' + it.g.id + '"' + (ok ? '' : ' disabled') + '>' + (ok ? 'Comprar' : 'Faltan') + '<br>🪙 ' + (ok ? it.lv.price : it.lv.price - c) + '</button></div>'; };
+      const fl = items.filter(x => x.g.id === 'flota')[0], rest = items.filter(x => x.g.id !== 'flota' && x.lv).sort((a, b) => a.lv.price - b.lv.price), done = items.filter(x => !x.lv);
+      return '<div class="pay-t"><b>Tenés</b><span>🪙 ' + c + '</span><span class="upn">' + have + ' de ' + tot + ' mejoras</span></div>' + (fl && fl.lv ? '<h5>🚚 Para conquistar la región</h5>' + card(fl, 1) : '') + (rest.length ? '<h5>🛠 Para que el local rinda más</h5>' + rest.map(x => card(x)).join('') : '<p class="pay-n">🏆 Local completo: compraste todas las mejoras.</p>') +
+        (done.length ? '<p class="pay-n">Ya tenés: ' + done.map(x => x.g.icon + ' ' + x.g.name).join(' · ') + '</p>' : '') + '<button class="sumSkip" id="endShop">Ver las mejoras dentro del local</button>'; };
     const head = (k, t) => '<div class="sum-head"><small>' + k + '</small><b>' + t + '</b></div>', place = RG(brId()).city + ' · ' + monthOf(d.n) + (d.cond ? ' · ' + condInfo(d.cond).name : '') + (d.relaxed ? ' · turno tranquilo' : '');
     $('endCol').innerHTML = '<div class="sumS" id="sumS">' +
       /* 1 · cómo te fue */
@@ -1112,26 +1116,33 @@ GS.Game = (function () {
       (d.coinLoss ? '<p class="pay-n no">Se fueron 🪙 ' + d.coinLoss + ' en errores de caja.</p>' : '') + (d.relaxed ? '<p class="pay-n">En el turno tranquilo no se suman fondos de expansión.</p>' : '') +
       '<div class="pay-t"><b>Ahora tenés</b><span>🪙 ' + coinsNow() + '</span><span>🗺️ ' + fondoNow() + '</span></div>' +
       '<p class="pay-n">Las monedas salen del puntaje del día: atender rápido y sin errores paga más. Los fondos salen de lo facturado y suben con la reputación.</p></section>' +
-      /* 3 · qué sigue */
-      '<section class="sumP">' + head('Jornada ' + (d.n + 1) + ' · ' + monthOf(d.n + 1), 'Qué sigue') + expCard() + rec +
+      /* 3 · mejoras */
+      '<section class="sumP">' + head('Antes de seguir', 'Mejorá el local') + '<p class="pay-n">Las mejoras quedan para siempre en esta sucursal. No hace falta comprar ahora: las monedas se guardan.</p><div id="upBox" class="upbox">' + upHtml() + '</div></section>' +
+      /* 4 · qué sigue */
+      '<section class="sumP">' + head('Jornada ' + (d.n + 1) + ' · ' + monthOf(d.n + 1), 'Qué sigue') + '<div id="expBox">' + expCard() + '</div>' +
       '<div class="hook"><i>' + hook[0] + '</i><span><b>Lo que viene</b>' + hook[1] + '</span></div>' +
       '<div class="row3"><button class="btn ghost" id="endMap">🗺️ Mapa</button><button class="btn ghost" id="endRecs">🏅 Logros</button><button class="btn ghost" id="endLib">📖 Libreta</button><button class="btn ghost" id="endCard">📸 Compartir</button><button class="btn ghost" id="endHome">← Inicio</button></div>' +
       '<button class="phases" id="phasesEnd" hidden></button></section></div>' +
-      '<div class="sumN"><span class="sumD" id="sumD"><i class="on"></i><i></i><i></i></span><div class="row"><button class="btn ghost" id="sumBack" hidden>‹ Atrás</button><button class="btn" id="sumNext">Siguiente ›</button><button class="btn" id="endAgain" hidden>Siguiente jornada ›</button></div>' + ((GS.Store.get('days') || 0) >= 7 ? '<button class="sumSkip" id="sumSkip">Saltar al final</button>' : '') + '</div>';
+      '<div class="sumN"><span class="sumD" id="sumD"><i class="on"></i><i></i><i></i><i></i></span><div class="row"><button class="btn ghost" id="sumBack" hidden>‹ Atrás</button><button class="btn" id="sumNext">Siguiente ›</button><button class="btn" id="endAgain" hidden>Siguiente jornada ›</button></div>' + ((GS.Store.get('days') || 0) >= 7 ? '<button class="sumSkip" id="sumSkip">Saltar al final</button>' : '') + '</div>';
     $('phasesEnd').innerHTML = phasesCompact(); $('phasesEnd').addEventListener('click', showPhases);
     $('endMap').addEventListener('click', showMap); $('endCard').addEventListener('click', () => showCard()); $('endLib').addEventListener('click', showLibreta);
     $('endAgain').addEventListener('click', () => startDay(d.relaxed));
-    $('endHome').addEventListener('click', goHome); $('endRecs').addEventListener('click', showLogros); $('endShop').addEventListener('click', openShop);
+    $('endHome').addEventListener('click', goHome); $('endRecs').addEventListener('click', showLogros);
+    $('upBox').addEventListener('click', e => { if (e.target.closest('#endShop')) return openShop(); const b = e.target.closest('[data-up]'); if (!b || b.disabled) return;
+      const g = GS.UPGRADES.filter(x => x.id === b.dataset.up)[0], u = upNow(), i = u[g.id] || 0, lv = g.levels[i]; if (!lv || coinsNow() < lv.price) return;
+      u[g.id] = i + 1; GS.Store.set('up', u); GS.Store.set('newUp', true); GS.Store.set('coins', coinsNow() - lv.price); brSave(); W.setUpgrades(upNow()); A.play('cash'); toast('<b>¡Mejora comprada!</b>' + lv.n, '', 2400); refreshStart();
+      $('upBox').innerHTML = upHtml(); $('expBox').innerHTML = expCard();
+      if (g.id === 'flota' && i === 2 && repNow() < 4.8) setTimeout(() => toast('<b>🚚 Camión listo</b>Para conquistar la región solo falta llegar a 5 estrellas (vas ' + repTxt(repNow()) + ').', '', 5000), 2500); });
     { const t = GS.Store.get('tot') || {}; if (brProgress(brId()) >= 100 && !brNow().plat) { brSave({ plat: 1 }); t.platino = (t.platino || 0) + 1; GS.Store.set('tot', t); checkLogros(); } }
     /* los festejos (región conquistada, finales) esperan a la última pantalla del resumen */
     let cele = false; const celebrate = () => { if (cele || state !== 'end' || GS.Store.get('testDay')) return; cele = true;
       if (allDone() && !GS.Store.get('finalN')) { GS.Store.set('finalN', 1); showFinal(); } else if (malvWon() && !GS.Store.get('finalM')) { GS.Store.set('finalM', 1); applyBranch(); showFinalM(); } else checkConquest(); };
     let page = 0, counted = false; const S = $('sumS'), go = i => { S.scrollTo({ left: i * S.clientWidth, behavior: 'smooth' }); A.play('click'); };
-    const onPage = () => { const i = Math.max(0, Math.min(2, Math.round(S.scrollLeft / Math.max(1, S.clientWidth)))); if (i === page && counted !== null) { if (i !== 1 || counted) return; } page = i;
-      [].forEach.call($('sumD').children, (x, k) => x.classList.toggle('on', k === i)); $('sumBack').hidden = i === 0; $('sumNext').hidden = i === 2; $('endAgain').hidden = i !== 2; if ($('sumSkip')) $('sumSkip').hidden = i === 2;
+    const onPage = () => { const i = Math.max(0, Math.min(3, Math.round(S.scrollLeft / Math.max(1, S.clientWidth)))); if (i === page && counted !== null) { if (i !== 1 || counted) return; } page = i;
+      [].forEach.call($('sumD').children, (x, k) => x.classList.toggle('on', k === i)); $('sumBack').hidden = i === 0; $('sumNext').hidden = i === 3; $('endAgain').hidden = i !== 3; if ($('sumSkip')) $('sumSkip').hidden = i === 3; if (i === 2) $('upBox').innerHTML = upHtml();
       if (i === 1 && !counted) { counted = true; const el = $('sumCoins'), t0 = performance.now(); (function tick(t) { const k = Math.min(1, (t - t0) / 900); if (!el.isConnected) return; el.textContent = '+' + Math.round(earned * k); if (k < 1) requestAnimationFrame(tick); else { el.classList.add('pop'); if (earned) A.play('cash'); } })(t0); }   /* las monedas suben */
-      if (i === 2) setTimeout(celebrate, 700); };
-    S.addEventListener('scroll', onPage, { passive: true }); $('sumNext').addEventListener('click', () => go(page + 1)); $('sumBack').addEventListener('click', () => go(page - 1)); if ($('sumSkip')) $('sumSkip').addEventListener('click', () => go(2));
+      if (i === 3) setTimeout(celebrate, 700); };
+    S.addEventListener('scroll', onPage, { passive: true }); $('sumNext').addEventListener('click', () => go(page + 1)); $('sumBack').addEventListener('click', () => go(page - 1)); if ($('sumSkip')) $('sumSkip').addEventListener('click', () => go(3));
     $('end').hidden = false; $('end').scrollTop = 0; S.scrollLeft = 0; coach(GS.ARCADE.some(a => a.from === d.n) ? 'arcade' : 'resumen');
   }
   // Gancho para la jornada siguiente: lo próximo que vale la pena esperar

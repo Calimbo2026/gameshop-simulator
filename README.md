@@ -33,6 +33,9 @@ El juego base (las cinco etapas de abajo) está terminado. Ahora crece hacia "ll
 - Se quitó la elección de reparto: monedas y fondos van siempre parejos.
 - Los festejos (región conquistada, finales) aparecen al llegar a la última pantalla.
 
+## v0.52 · Mejoras dentro del cierre del día
+- El cierre suma una pantalla "Mejorá el local" entre el cobro y "Qué sigue": todas las mejoras, con compra directa.
+
 ## Juego base (terminado)
 
 | # | Etapa | Qué incluye | Estado |
