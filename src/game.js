@@ -535,10 +535,11 @@ GS.Game = (function () {
   const progBox = (id, title) => { const x = brData(id); return '<div class="prog">' + (title ? '<b class="prog-t">' + title + (brProgress(id) >= 100 ? ' · 💎 platino' : conquered(id) ? ' · ✅ conquistada' : '') + '</b>' : '') +
     bar('⭐', 'Reputación', repTxt(x.rep) + ' de 5', x.rep / 4.8) + bar('🚚', 'Logística', ['sin flota', 'moto', 'camioneta', 'camión'][x.flota], x.flota / 3) + bar('🛠', 'Mejoras del local', x.have + ' de ' + x.tot, x.have / x.tot) + bar('📖', 'Historias de clientes', x.sd + ' de ' + x.st, x.st ? x.sd / x.st : 1) + '</div>'; };
   function checkConquest() {
-    const id = brId(), b = brNow(); if (b.cqSeen || !conquered(id) || !canExpand() || !goalNow() || fondoNow() < goalNow() || state === 'day') return false;
+    const id = brId(), b = brNow(); if (b.cqSeen || !conquered(id) || state === 'day') return false;
+    const g = goalNow(), miss = g ? Math.max(0, g - fondoNow()) : 0, others = pendingOpen(), ready = g && !miss && canExpand();
     brSave({ cqSeen: 1 }); const x = brData(id), R = RG(id), left = x.have < x.tot || x.sd < x.st; A.play('fanfare'); GS.track('region_conquistada', { id });
     modal('<div class="inaug"><div class="glob">🏆</div><h2>¡' + R.city + ' es nuestra!</h2><p class="cinta">REGIÓN ' + R.name.toUpperCase() + ' CONQUISTADA</p>' +
-      '<p>Acá ya nos conocen por nuestra reputación, y con la flota propia llegamos a cada rincón de la región. <b>Es hora de abrir una sucursal nueva, donde vos elijas.</b></p>' +
+      '<p>Acá ya nos conocen por nuestra reputación, y con la flota propia llegamos a cada rincón de la región. <b>' + (ready ? 'Es hora de abrir una sucursal nueva, donde vos elijas.' : !g ? 'Con esta, GameShop ya está en todas las regiones.' : others.length ? 'Para abrir otra sucursal falta conquistar también ' + others.map(o => o.city).join(' y ') + '.' : 'Para abrir la próxima sucursal faltan 🗺️ ' + miss + ' fondos de expansión: se juntan con las próximas jornadas.') + '</b></p>' +
       progBox(id) +
       (left ? '<p><small>Lo que falta no frena la expansión: sirve para dejar esta sucursal en 💎 platino, y cada mejora sigue dando su ventaja.</small></p>' : '<p><small>💎 Y además la dejaste en platino: no le falta nada.</small></p>') +
       '<button class="btn" id="cqMap">🗺️ Ver el mapa de sucursales</button>' + (left ? '<button class="btn ghost" data-close>Seguir y completar esta zona</button>' : '') + '</div>');
@@ -1001,6 +1002,7 @@ GS.Game = (function () {
     const rv = repNow(), rd = rv - d.rep0; refreshStart();
     GS.track('fin_jornada', { puntaje: d.score, atendidos: d.served, tareas: d.tasksDone, perdidos: missed + lostSale, modo: mode, segundos: Math.round(d.tt || 0), monedas: earned, fondos: fEarn });
     { const ms = GS.Store.get('metrics') || []; ms.push({ n: d.n, modo: mode, seg: Math.round(d.tt || 0), mg: Math.round(d.tj || 0), monedas: earned, at: d.served, per: d.lost + lostSale, tar: d.tasksDone, tarde: d.tasksLate, err: errs, rep: Math.round(rv * 10) / 10, mt: d.mt || {} }); GS.Store.set('metrics', ms.slice(-40)); }
+    const afford = (() => { const u = upNow(), c = coinsNow(), fl = GS.UPGRADES.find(g => g.id === 'flota'), lv = fl.levels[u.flota || 0]; if (lv && c >= lv.price) return lv.n; const t = nextGoal(); return t && c >= t.lv.price ? t.lv.n : ''; })();       // con las monedas en la mano, el resumen dice qué se puede comprar ya
     const hook = nextHook(d.n + 1), ob = d.okBy || {}, row = (ok, label, val) => '<p class="' + (ok ? 'ok' : 'no') + '"><span>' + (ok ? '✔' : '✖') + ' ' + label + '</span><b>' + val + '</b></p>';
     $('endCol').innerHTML =
       '<div><div class="ticket"><h3>RESUMEN DE LA JORNADA</h3><div class="c">Jornada ' + d.n + ' · ' + monthOf(d.n) + (d.cond ? ' · ' + GS.CONDITIONS[d.cond].name : '') + (d.relaxed ? ' · turno tranquilo' : '') + '</div>' +
@@ -1021,7 +1023,7 @@ GS.Game = (function () {
       (d.relaxed ? '' : '<div class="split"><b>¿A dónde va lo de hoy?</b><div>' + Object.keys(SPLIT).map(k => '<button data-split="' + k + '" class="' + (k === 'parejo' ? 'on' : '') + '">' + SPLIT[k][2] + '<small>' + SPLIT[k][3] + '</small></button>').join('') + '</div></div>') +
       '<div class="hook"><i>' + hook[0] + '</i><span><b>Lo que viene</b>' + hook[1] + '</span></div>' +
       '<button class="btn" id="endAgain">Siguiente jornada</button>' +
-      '<div class="row"><button class="btn alt" id="endShop" style="font-size:16px">🛠 Mejorar</button><button class="btn ghost" id="endMap">🗺️ Mapa</button><button class="btn ghost" id="endRecs">🏅 Logros</button></div>' +
+      '<div class="row"><button class="btn alt' + (afford ? ' pulse' : '') + '" id="endShop" style="font-size:16px">🛠 ' + (afford ? '¡Comprá: ' + afford + '!' : 'Mejorar') + '</button><button class="btn ghost" id="endMap">🗺️ Mapa</button><button class="btn ghost" id="endRecs">🏅 Logros</button></div>' +
       '<div class="row"><button class="btn ghost" id="endCard">📸 Compartir</button><button class="btn ghost" id="endLib">📖 Libreta</button><button class="btn ghost" id="endHome">Inicio</button></div>' +
       '<button class="phases" id="phasesEnd" hidden></button></div>';
     $('phasesEnd').innerHTML = phasesCompact(); $('phasesEnd').addEventListener('click', showPhases);
@@ -1097,6 +1099,7 @@ GS.Game = (function () {
   function buy(i) {
     const u = upNow(), g = GS.UPGRADES[shopSel], lv = g.levels[i]; if ((u[g.id] || 0) !== i || coinsNow() < lv.price) return;
     u[g.id] = i + 1; GS.Store.set('up', u); GS.Store.set('newUp', true); GS.Store.set('coins', coinsNow() - lv.price); A.play('cash'); toast('<b>¡Mejora comprada!</b>' + lv.n, '', 2600); renderShop();
+    if (g.id === 'flota' && i === 2) { if (repNow() >= 4.8) setTimeout(() => { if (!$('shop').hidden) closeShop(); }, 1500); else setTimeout(() => toast('<b>🚚 Camión listo</b>Para conquistar la región solo falta llegar a 5 estrellas (vas ' + repTxt(repNow()) + ').', '', 5000), 2700); }      // el camión era lo último: el festejo es ahora, no una jornada después
   }
   function closeShop() { $('shop').hidden = true; W.setUpgrades(upNow()); state = 'menu'; $('start').hidden = false; refreshStart(); W.showAll(); A.play('click'); brSave(); checkConquest(); }
   // Cara y busto de un personaje, en el mismo estilo que el muñeco 3D (4 colores: piel, pelo, remera y pantalón).

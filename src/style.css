@@ -494,3 +494,13 @@ body.snow #rain { background-color: rgba(220, 235, 250, .06); background-image: 
 .camp-head { border-radius: 16px; padding: 10px 14px; display: grid; gap: 1px; box-shadow: 0 4px 0 rgba(0,0,0,.35); } .camp-head small { font-size: 11.5px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; opacity: .9; } .camp-head b { font-family: var(--display); font-size: 26px; text-transform: uppercase; line-height: 1; } .camp-head span { font-size: 14px; font-weight: 700; }
 .prog { background: rgba(22,22,27,.94); border: 1px solid #34343e; border-radius: 14px; padding: 8px 12px 6px; } .prog-t { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .6px; color: var(--warn); margin-bottom: 2px; } .prog .cq { margin: 5px 0; } .prog .cq > i { font-size: 18px; width: 24px; } .prog .cq b { font-size: 13px; margin-bottom: 2px; } .prog .cq .pb { height: 7px; }
 .suc .prog { background: rgba(0,0,0,.25); border-color: #2c2c34; padding: 4px 8px; }
+
+/* Logo: placa de marca (negro del logo, filete fino, subtítulo entre dos líneas rojas) */
+.brand { width: min(86%, 360px); margin: 0 auto 6px; background: #000; border-radius: 22px; padding: 12px 18px 12px; box-shadow: 0 0 0 2px rgba(255,255,255,.14), 0 14px 34px rgba(0,0,0,.6); box-sizing: border-box; }
+.brand .logo, #start .brand .logo { width: 100% !important; max-width: none !important; margin: 0; display: block; }
+.brand .sub, #start .brand .sub { display: flex; align-items: center; gap: 12px; margin: 2px 4px 0 !important; font-family: "Arial Black", "Helvetica Neue", Inter, system-ui, sans-serif; font-weight: 900; font-size: clamp(11px, 3.6vw, 15px) !important; letter-spacing: .5em; color: #fff; text-shadow: none; white-space: nowrap; }
+.brand .sub:before, .brand .sub:after { content: ""; flex: 1; height: 2px; background: #e10600; } .brand .sub span { margin-right: -.5em; }
+@media (orientation: portrait) and (max-height: 820px) { .brand { width: min(72%, 300px); padding: 9px 14px 10px; border-radius: 18px; } }
+@media (orientation: portrait) and (max-height: 700px) { .brand { width: min(62%, 240px); } }
+.btn.pulse { animation: pulse 1.1s ease-in-out infinite alternate; } @keyframes pulse { to { box-shadow: 0 5px 0 #b9b9c0, 0 0 0 5px rgba(245,197,24,.55); } }
+@media (max-width: 480px) { .brand .sub, #start .brand .sub { letter-spacing: .32em; gap: 9px; } .brand .sub span { margin-right: -.32em; } }
