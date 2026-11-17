@@ -404,7 +404,7 @@ GS.Game = (function () {
   const BOSS_LOOK = { shirt: 0x111111, hair: 0xb4b4bd, hairStyle: 'cresta', skin: 0xe0ac7e }; let coachT = 0;
   function coach(id) {
     const seen = GS.Store.get('seen') || {}; if (seen['t_' + id] || !GS.TIPS[id]) return; seen['t_' + id] = 1; GS.Store.set('seen', seen);
-    $('coachFace').innerHTML = avatarSvg(BOSS_LOOK, 'talk'); $('coachTxt').innerHTML = GS.TIPS[id]; $('coach').hidden = false; clearTimeout(coachT); coachT = setTimeout(() => { $('coach').hidden = true; }, 14000);
+    $('coachFace').innerHTML = avatarSvg(BOSS_LOOK, 'talk'); $('coachTxt').innerHTML = GS.TIPS[id]; const big = state !== 'day'; $('coach').classList.toggle('big', big); $('coach').hidden = false; clearTimeout(coachT); if (!big) coachT = setTimeout(() => { $('coach').hidden = true; }, 16000);   /* fuera de la jornada: tarjeta grande que se cierra con el botón */
   }
   // Primera vez: el mapa, con el Dueño explicando la misión. Termina tocando Buenos Aires.
   let onb = -1, onbThen = null;

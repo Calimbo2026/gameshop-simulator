@@ -432,7 +432,7 @@ body.snow #rain { background-color: rgba(220, 235, 250, .06); background-image: 
 /* Consejos del Dueño (primera vez) y guía sobre el mapa */
 #coach { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(96px + env(safe-area-inset-bottom)); z-index: 70; width: min(94%, 460px); display: flex; gap: 10px; align-items: center; background: #17171c; border: 2px solid var(--warn); border-radius: 16px; padding: 10px 12px; box-shadow: 0 10px 30px rgba(0,0,0,.6); animation: coachIn .35s ease-out; }
 #coach[hidden] { display: none; } @keyframes coachIn { from { opacity: 0; transform: translate(-50%, 20px); } } .coach-face { flex: none; width: 52px; height: 52px; border-radius: 50%; background: #e9e9ee; overflow: hidden; } .coach-face svg { width: 52px; height: 64px; margin-top: -2px; }
-.coach-txt { flex: 1; min-width: 0; font-size: 14px; line-height: 1.35; } .coach-txt b:first-child { display: block; font-size: 11.5px; text-transform: uppercase; letter-spacing: .6px; color: var(--warn); } #coach .btn { flex: none; width: auto; font-size: 14px; padding: 8px 12px; }
+.coach-txt { flex: 1; min-width: 0; font-size: 14px; line-height: 1.35; } .coach-txt > b { display: block; font-size: 11.5px; text-transform: uppercase; letter-spacing: .6px; color: var(--warn); } #coach .btn { flex: none; width: auto; font-size: 14px; padding: 8px 12px; }
 .guide { display: flex; gap: 12px; align-items: center; background: rgba(16,16,20,.94); border: 2px solid var(--warn); border-radius: 16px; padding: 12px; } .guide .coach-face { width: 64px; height: 64px; } .guide .coach-face svg { width: 64px; height: 79px; } .guide p { margin: 0 0 8px; font-size: 15.5px; line-height: 1.4; } .guide small { color: var(--mute); } .guide .btn { font-size: 16px; padding: 10px; }
 #map.onb .map-bot .row, #map.onb .map-top small { display: none; }
 
@@ -565,3 +565,11 @@ body.calm .brand:after { animation: none; display: none; }
 .ep-city small { display: block; font-family: system-ui, sans-serif; font-size: 10.5px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: #fff; margin-bottom: 3px; }
 .ep-inaug .ep-fila { margin-bottom: 4px; }
 .ep-city.lg { font-size: clamp(17px, 5.4vw, 26px); white-space: nowrap; }
+
+/* Consejos del Dueño: más visibles; fuera de la jornada, tarjeta grande al centro */
+#coach { padding: 12px 14px; gap: 12px; border-width: 3px; } .coach-face { width: 66px; height: 66px; border-radius: 18px; background: linear-gradient(160deg, #6fb2f2, #3f7fd0); border: 2px solid #fff; } .coach-face svg { width: 100%; height: auto; margin-top: 0; display: block; }
+.coach-txt { font-size: 15.5px; } .coach-txt > b { font-size: 12.5px; }
+#coach.big { z-index: 95; top: 50%; bottom: auto; transform: translate(-50%, -50%); flex-direction: column; text-align: center; width: min(90%, 400px); padding: 22px 18px 16px; gap: 12px; border-radius: 24px; background: linear-gradient(170deg, #26262e, #121216); box-shadow: 0 0 0 100vmax rgba(0,0,0,.78), 0 0 40px rgba(245,197,24,.35); animation: coachBig .3s ease-out; }
+@keyframes coachBig { from { opacity: 0; transform: translate(-50%, -46%) scale(.94); } }
+#coach.big .coach-face { width: 132px; height: 132px; border-radius: 32px; border: 4px solid #f5c518; } #coach.big .coach-txt { font-size: 18px; line-height: 1.4; } #coach.big .coach-txt > b { font-family: var(--display); font-size: 24px; letter-spacing: 2px; margin-bottom: 6px; }
+#coach.big .btn { width: 100%; font-size: 18px; padding: 13px 12px; }
