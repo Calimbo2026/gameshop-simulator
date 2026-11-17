@@ -4985,7 +4985,7 @@ GS.Game = (function () {
       '<section class="sumP">' + head('Antes de seguir', 'Mejorá el local') + '<p class="pay-n">Las mejoras quedan para siempre en esta sucursal. No hace falta comprar ahora: las monedas se guardan.</p><div id="upBox" class="upbox">' + upHtml() + '</div></section>' +
       /* 4 · qué sigue */
       '<section class="sumP">' + head('Jornada ' + (d.n + 1) + ' · ' + monthOf(d.n + 1), 'Qué sigue') + '<div id="expBox">' + expCard() + '</div>' +
-      '<div class="hook"><i>' + hook[0] + '</i><span><b>Lo que viene</b>' + hook[1] + '</span></div>' +
+      '<div class="hook" id="hookBox"><i>' + hook[0] + '</i><span><b>Lo que viene</b>' + hook[1] + '</span></div>' +
       '<div class="row3"><button class="btn ghost" id="endMap">🗺️ Mapa</button><button class="btn ghost" id="endRecs">🏅 Logros</button><button class="btn ghost" id="endLib">📖 Libreta</button><button class="btn ghost" id="endCard">📸 Compartir</button><button class="btn ghost" id="endHome">← Inicio</button></div>' +
       '<button class="phases" id="phasesEnd" hidden></button></section></div>' +
       '<div class="sumN"><span class="sumD" id="sumD"><i class="on"></i><i></i><i></i><i></i></span><div class="row"><button class="btn ghost" id="sumBack" hidden>‹ Atrás</button><button class="btn" id="sumNext">Siguiente ›</button><button class="btn" id="endAgain" hidden>Siguiente jornada ›</button></div>' + ((GS.Store.get('days') || 0) >= 7 ? '<button class="sumSkip" id="sumSkip">Saltar al final</button>' : '') + '</div>';
@@ -4996,7 +4996,7 @@ GS.Game = (function () {
     $('upBox').addEventListener('click', e => { if (e.target.closest('#endShop')) return openShop(); const b = e.target.closest('[data-up]'); if (!b || b.disabled) return;
       const g = GS.UPGRADES.filter(x => x.id === b.dataset.up)[0], u = upNow(), i = u[g.id] || 0, lv = g.levels[i]; if (!lv || coinsNow() < lv.price) return;
       u[g.id] = i + 1; GS.Store.set('up', u); GS.Store.set('newUp', true); GS.Store.set('coins', coinsNow() - lv.price); brSave(); W.setUpgrades(upNow()); A.play('cash'); toast('<b>¡Mejora comprada!</b>' + lv.n, '', 2400); refreshStart();
-      $('upBox').innerHTML = upHtml(); $('expBox').innerHTML = expCard();
+      $('upBox').innerHTML = upHtml(); $('expBox').innerHTML = expCard(); { const h2 = nextHook(d.n + 1); $('hookBox').innerHTML = '<i>' + h2[0] + '</i><span><b>Lo que viene</b>' + h2[1] + '</span>'; }
       if (g.id === 'flota' && i === 2 && repNow() < 4.8) setTimeout(() => toast('<b>🚚 Camión listo</b>Para conquistar la región solo falta llegar a 5 estrellas (vas ' + repTxt(repNow()) + ').', '', 5000), 2500); });
     { const t = GS.Store.get('tot') || {}; if (brProgress(brId()) >= 100 && !brNow().plat) { brSave({ plat: 1 }); t.platino = (t.platino || 0) + 1; GS.Store.set('tot', t); checkLogros(); } }
     /* los festejos (región conquistada, finales) esperan a la última pantalla del resumen */
