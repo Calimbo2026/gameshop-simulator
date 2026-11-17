@@ -395,9 +395,10 @@ GS.Game = (function () {
     if (!open) { const pend = pendingOpen(), ok = canExpand(), need = !ok ? 'Primero conquistá ' + pend.map(x => x.city).join(' y ') + ': 5 estrellas y camión' : f < r.cost ? 'Faltan ' + (r.cost - f) + ' fondos · cuesta 🗺️ ' + r.cost : 'Abrir sucursal · 🗺️ ' + r.cost;
       return '<div class="suc lock"><b>🔒 ' + r.name + ' · ' + r.city + '</b><small>🗺️ ' + r.prov.join(' · ') + '</small><small>🌦️ ' + r.clima + '</small><small>⚔️ Zona de <b>' + r.rival.name + '</b></small><button class="btn alt" data-open="' + id + '"' + (f < r.cost || !ok ? ' disabled' : '') + '>' + need + '</button></div>'; }
     const rp = me ? repNow() : (b.rep == null ? 3 : b.rep), pr = brProgress(id), up = me ? upNow() : b.up || {}, pend = GS.UPGRADES.reduce((a, g) => a + g.levels.length - Math.min(g.levels.length, up[g.id] || 0), 0);
-    return '<div class="suc' + (me ? ' me' : '') + '"><b>' + r.name + ' · ' + r.city + (pr >= 100 ? ' 💎' : conquered(id) ? ' ✅' : '') + '</b>' + (conquered(id) ? '<small class="al">✅ Región conquistada' + (pr >= 100 ? ' · 💎 platino' : '') + '</small>' : '<small class="al">Para conquistarla: ' + (rp < 4.8 ? '⭐ llegar a 5 estrellas' : '⭐ listo') + ' · ' + ((up.flota || 0) < 3 ? '🚚 comprar el camión' : '🚚 listo') + '</small>') + '<span class="pb"><i style="width:' + pr + '%"></i></span><small>⭐ ' + repTxt(rp) + ' · ' + STAGE[brStage(id)] + ' · ' + pr + '%' + (b.manager ? ' · encargado: ' + b.manager : '') + '</small>' +
-      (me ? '<small class="al">' + (pend ? '🛠 ' + pend + ' mejoras pendientes' : '🛠 mejoras completas') + (rp < 4.8 ? ' · ⭐ falta llegar a 5' : '') + ((up.flota || 0) < 3 ? ' · 🚚 falta el camión' : '') + ' · 📖 historias ' + ss.filter(S => h[S.id] && h[S.id].done).length + ' de ' + ss.length + '</small>' + (r.rival ? '<small>' + ((h['rival_' + id] || {}).done ? '🏆 Le ganaste a ' + r.rival.name + ': +10% de monedas acá' : '⚔️ ' + r.rival.name + ': ' + (r.rival.fx || r.rival.rule)) + '</small>' : '') + '<button class="btn ghost" disabled>Estás acá</button>'
-        : '<small><i>"' + LN.freeze + '"</i></small><button class="btn" data-go="' + id + '">Viajar a ' + r.city + '</button>') + '</div>';
+    return '<div class="suc' + (me ? ' me' : '') + '"><b>' + r.name + ' · ' + r.city + (pr >= 100 ? ' 💎' : conquered(id) ? ' ✅' : '') + '</b>' +
+      '<small class="al">' + (conquered(id) ? '✅ Región conquistada' + (pr >= 100 ? ' · 💎 platino' : '') : 'Para conquistarla: ' + (rp < 4.8 ? '⭐ llegar a 5 estrellas' : '⭐ listo') + ' · ' + ((up.flota || 0) < 3 ? '🚚 comprar el camión' : '🚚 listo')) + (b.manager && !me ? ' · encargado: ' + b.manager : '') + '</small>' + progBox(id) +
+      (r.rival ? '<small>' + ((h['rival_' + id] || {}).done ? '🏆 Le ganaste a ' + r.rival.name + ': +10% de monedas acá' : '⚔️ ' + r.rival.name + ': ' + (r.rival.fx || r.rival.rule)) + '</small>' : '') +
+      (me ? '<button class="btn ghost" disabled>Estás acá</button>' : '<button class="btn" data-go="' + id + '">Viajar a ' + r.city + '</button>') + '</div>';
   }
   // Consejos del Dueño: una sola vez cada uno, sin frenar el juego
   const BOSS_LOOK = { shirt: 0x111111, hair: 0xb4b4bd, hairStyle: 'cresta', skin: 0xe0ac7e }; let coachT = 0;
@@ -531,12 +532,14 @@ GS.Game = (function () {
     }));
   }
   const bar = (ic, label, val, k) => '<div class="cq"><i>' + ic + '</i><span><b>' + label + '<em>' + val + '</em></b><span class="pb"><i style="width:' + Math.round(Math.min(1, k) * 100) + '%"></i></span></span></div>';
+  const progBox = (id, title) => { const x = brData(id); return '<div class="prog">' + (title ? '<b class="prog-t">' + title + (brProgress(id) >= 100 ? ' · 💎 platino' : conquered(id) ? ' · ✅ conquistada' : '') + '</b>' : '') +
+    bar('⭐', 'Reputación', repTxt(x.rep) + ' de 5', x.rep / 4.8) + bar('🚚', 'Logística', ['sin flota', 'moto', 'camioneta', 'camión'][x.flota], x.flota / 3) + bar('🛠', 'Mejoras del local', x.have + ' de ' + x.tot, x.have / x.tot) + bar('📖', 'Historias de clientes', x.sd + ' de ' + x.st, x.st ? x.sd / x.st : 1) + '</div>'; };
   function checkConquest() {
     const id = brId(), b = brNow(); if (b.cqSeen || !conquered(id) || !canExpand() || !goalNow() || fondoNow() < goalNow() || state === 'day') return false;
     brSave({ cqSeen: 1 }); const x = brData(id), R = RG(id), left = x.have < x.tot || x.sd < x.st; A.play('fanfare'); GS.track('region_conquistada', { id });
     modal('<div class="inaug"><div class="glob">🏆</div><h2>¡' + R.city + ' es nuestra!</h2><p class="cinta">REGIÓN ' + R.name.toUpperCase() + ' CONQUISTADA</p>' +
       '<p>Acá ya nos conocen por nuestra reputación, y con la flota propia llegamos a cada rincón de la región. <b>Es hora de abrir una sucursal nueva, donde vos elijas.</b></p>' +
-      bar('⭐', 'Reputación', repTxt(x.rep) + ' de 5', x.rep / 4.8) + bar('🚚', 'Logística', ['sin flota', 'moto', 'camioneta', 'camión'][x.flota], x.flota / 3) + bar('🛠', 'Mejoras del local', x.have + ' de ' + x.tot, x.have / x.tot) + bar('📖', 'Historias de clientes', x.sd + ' de ' + x.st, x.st ? x.sd / x.st : 1) +
+      progBox(id) +
       (left ? '<p><small>Lo que falta no frena la expansión: sirve para dejar esta sucursal en 💎 platino, y cada mejora sigue dando su ventaja.</small></p>' : '<p><small>💎 Y además la dejaste en platino: no le falta nada.</small></p>') +
       '<button class="btn" id="cqMap">🗺️ Ver el mapa de sucursales</button>' + (left ? '<button class="btn ghost" data-close>Seguir y completar esta zona</button>' : '') + '</div>');
     $('cqMap').addEventListener('click', () => { $('modal').hidden = true; showMap(); }); return true;
@@ -1011,7 +1014,7 @@ GS.Game = (function () {
       '<hr><p class="tot"><span>🪙 Monedas</span><b id="sumCoins">+0</b></p>' + (d.coinLoss ? '<p class="no"><span>Se fue en errores de caja</span><b>−🪙 ' + d.coinLoss + '</b></p>' : '') +
       '<p><span>🗺️ Fondos de expansión</span><b id="sumFondo">+' + fEarn + '</b></p><p><span>⭐ Reputación</span><b>' + repTxt(rv) + ' (' + (rd >= 0 ? '+' : '−') + repTxt(Math.abs(rd)) + ')</b></p>' +
       '<p><span>Facturación (ficticia)</span><b>' + U.money(d.sales) + '</b></p></div></div>' +
-      '<div style="display:flex;flex-direction:column;gap:10px;margin-top:8px">' +
+      '<div style="display:flex;flex-direction:column;gap:10px;margin-top:8px">' + progBox(brId(), 'Avance de ' + RG(brId()).city) +
       GS.ARCADE.filter(a => a.from === d.n && !GS.Store.get('testDay')).map(a => '<div class="newrec">🕹️ Premio de la jornada: <b>' + a.name + '</b><small>Juego nuevo en el Arcade (desde el inicio). ' + a.d + '</small></div>').join('') +
       fresh.map(a => '<div class="newrec">' + a.ic + ' Logro: <b>' + a.name + '</b><small>' + a.d + '</small></div>').join('') +
       '<div class="quote"><b>' + (d.moment ? 'El momento del día' : 'El Dueño opina') + '</b>' + (d.moment || comment) + '</div>' +
@@ -1173,16 +1176,22 @@ GS.Game = (function () {
     $('avAcc').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; a[b.dataset.v] = !a[b.dataset.v]; b.classList.toggle('on', a[b.dataset.v]); paint(); });
     paint();
   }
+  // Menú de inicio (Campaña, Arcade, Logros, Cómo se juega, Opciones) y ventana de la campaña (jornada, sucursales, mejoras y avance de la sucursal donde estás)
+  const ACC = { pampeana: '#e10600', cuyo: '#b9783f', noa: '#d9683c', nea: '#2f9a48', patagonia: '#3f86c9', malvinas: '#4f9a78' }; let menuView = 'main';
+  const started = () => !!GS.Store.get('introSeen') || (GS.Store.get('days') || 0) > 0;
+  function setMenu(v) { menuView = v === 'camp' && started() ? 'camp' : 'main'; $('menuMain').hidden = menuView !== 'main'; $('menuCamp').hidden = menuView !== 'camp'; $('start').scrollTop = 0; }
   function refreshStart() {
-    const n = dayNumber(), fresh = n <= GS.UNLOCKS.length ? GS.UNLOCKS[n - 1] : [];
-    $('playT').textContent = n === 1 && !GS.Store.get('introSeen') ? 'Iniciar modo carrera' : 'Seguir modo carrera'; W.setNext(GS.Store.get('final2Seen') && tierNow().at >= 1 ? 'gs2' : 'venta'); $('btnShop').innerHTML = goalCard(); $('btnPlot').innerHTML = sucCard();
-    $('rankT').textContent = (DEV() ? '🛠 DEV · ' : '') + (GS.Store.get('ngp') ? '➕ NJ+' + GS.Store.get('ngp') + ' · ' : '') + '📍 ' + RG(brId()).city + ' · ⭐ ' + repTxt(repNow()) + ' · 🪙 ' + coinsNow() + ' · 🗺️ ' + fondoNow();
-    $('playS').textContent = n === 1 && GS.Store.get('introSeen') ? 'Jornada 1 · ' + monthOf(1) + ' · inducción' : n > 1 ? 'Jornada ' + n + ' · ' + monthOf(n) + (fresh.length ? ' · se suma: ' + fresh.map(id => ST(id).name).join(' y ') : '') : n === 1 ? (GS.Store.get('introSeen') ? 'Jornada 1 · inducción: mostrador y caja' : 'Conocé el local, al Dueño y a tus compañeros') : 'Jornada ' + n + (fresh.length ? ' · se suma: ' + fresh.map(id => ST(id).name).join(' y ') : ' · de 10 a 19 · ⭐ ' + repTxt(repNow()));
+    const n = dayNumber(), fresh = n <= GS.UNLOCKS.length ? GS.UNLOCKS[n - 1] : [], R = RG(brId());
+    $('campT').textContent = started() ? 'Seguir campaña' : 'Iniciar campaña'; $('campS').textContent = started() ? 'Jornada ' + n + ' · ' + R.city + ' · ' + MAIN.filter(r => (brAll()[r.id] || {}).open).length + ' de 5 sucursales' : 'Llevá GameShop a todo el país';
+    $('playT').textContent = 'Comenzar jornada ' + n; $('playS').textContent = monthOf(n) + (n === 1 ? ' · inducción' : fresh.length ? ' · se suma: ' + fresh.map(id => ST(id).name).join(' y ') : '');
+    $('btnShop').innerHTML = goalCard(); $('btnPlot').innerHTML = sucCard(); $('campProg').innerHTML = progBox(brId(), 'Avance de ' + R.city);
+    $('campHead').style.background = 'linear-gradient(100deg, ' + ACC[R.id] + ', rgba(20,20,24,.92) 130%)'; $('campHead').innerHTML = '<small>' + (R.id === 'pampeana' ? 'Casa central' : 'Sucursal ' + R.name) + '</small><b>' + R.city + '</b><span>⭐ ' + repTxt(repNow()) + ' · 🪙 ' + (DEV() ? '∞' : coinsNow()) + ' · 🗺️ ' + (DEV() ? '∞' : fondoNow()) + '</span>';
+    $('rankT').textContent = (DEV() ? '🛠 DEV · ' : '') + (GS.Store.get('ngp') ? '➕ NJ+' + GS.Store.get('ngp') : ''); $('rankT').hidden = !$('rankT').textContent; setMenu(menuView);
   }
   function goHome() {
     A.play('click'); A.setMood('menu'); clearDay(); $('rain').hidden = true; $('final').hidden = true; $('intro').hidden = true; setSky(0.3, false);
     day = null; state = 'menu'; paused = false;
-    $('end').hidden = true; $('hud').hidden = true; $('jobs').hidden = true; $('start').hidden = false; $('toasts').innerHTML = ''; W.showAll();
+    $('end').hidden = true; $('hud').hidden = true; $('jobs').hidden = true; $('start').hidden = false; $('toasts').innerHTML = ''; W.showAll(); setMenu('camp'); refreshStart();
   }
 
   /* ---------------- Escena final: el Dueño sale, los clientes festejan y queda la tarjeta ---------------- */
@@ -1461,6 +1470,8 @@ GS.Game = (function () {
     $('shopCards').addEventListener('scroll', () => { const el = $('shopCards'), i = Math.round(el.scrollLeft / Math.max(1, el.clientWidth * 0.86)); if (el._i !== i) { el._i = i; const u = upNow(), g = GS.UPGRADES[shopSel], sh = Object.assign({}, u); sh[g.id] = Math.max(u[g.id] || 0, i + 1); W.setUpgrades(sh); } });
     W.onTap(st => openStation(st)); W.onGround(groundTap);
     $('btnPlay').addEventListener('click', careerStart);
+    $('btnCamp').addEventListener('click', () => { A.unlock(); A.play('click'); if (started()) { setMenu('camp'); refreshStart(); } else careerStart(); });
+    $('btnBack').addEventListener('click', () => { A.play('click'); setMenu('main'); });
     $('btnRelax').addEventListener('click', () => startDay(true));
     $('btnArcade').addEventListener('click', () => { A.unlock(); A.play('click'); showArcade(); });
     $('btnHow').addEventListener('click', () => { A.unlock(); A.play('click'); showHow(false); });

@@ -68,16 +68,22 @@
       <p class="tag">Entrá. Elegí. Sobreviví al turno.</p>
       <p class="rank" id="rankT"></p>
     </div>
-    <div style="display:flex;flex-direction:column;gap:12px">
-      <button class="btn" id="btnPlay"><span id="playT">Jugar la jornada 1</span><small id="playS">De 10 a 19 · en tandas, con respiros</small></button>
+    <div id="menuMain" class="menu">
+      <button class="btn" id="btnCamp"><span id="campT">Campaña</span><small id="campS"></small></button>
+      <button class="mbtn" id="btnArcade"><i>🕹️</i>Arcade</button>
+      <button class="mbtn" id="btnRecs"><i>🏅</i>Logros</button>
+      <button class="mbtn" id="btnHow"><i>❓</i>Cómo se juega</button>
+      <button class="mbtn" id="btnOpts"><i>⚙️</i>Opciones</button>
+    </div>
+    <div id="menuCamp" class="menu" hidden>
+      <div class="camp-head" id="campHead"></div>
+      <button class="btn" id="btnPlay"><span id="playT">Comenzar jornada</span><small id="playS"></small></button>
       <button class="wbtn" id="btnPlot" aria-label="Mis sucursales: ver el mapa"></button>
-      <button class="wbtn" id="btnShop" aria-label="Mejorar el local"></button>
-      <div class="row"><button class="btn ghost" id="btnRelax">Turno tranquilo</button><button class="btn ghost" id="btnArcade">🕹️ Arcade</button></div>
-      <div class="row">
-        <button class="btn ghost" id="btnHow">Cómo se juega</button>
-        <button class="btn ghost" id="btnRecs">🏅 Logros</button>
-        <button class="btn ghost" id="btnOpts">Opciones</button>
-      </div>
+      <button class="wbtn" id="btnShop" aria-label="Mejoras del local"></button>
+      <div id="campProg"></div>
+      <div class="row"><button class="btn ghost" id="btnRelax">Turno tranquilo</button><button class="btn ghost" id="btnBack">← Menú</button></div>
+    </div>
+    <div>
       <a class="btn ghost" id="btnStore" target="_blank" rel="noopener" hidden>🛒 Ir a la tienda de verdad</a>
       <button class="phases" id="phasesStart" aria-label="Etapas del proyecto" hidden></button>
       <p class="fine" id="fineT">Precios y stock ficticios.<br>Personajes inventados: cualquier parecido es pura coincidencia.</p>
