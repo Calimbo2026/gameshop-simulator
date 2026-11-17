@@ -7,7 +7,7 @@
 const GS = {};
 
 GS.CONFIG = {
-  version: '0.50.0',
+  version: '0.50.1',
   phase: 8,
   phaseNote: 'Juego completo de punta a punta. Falta tu playtest con 5 personas y encender el lanzamiento (launched: true)',                       // fase actual del proyecto (1 a 5)
   links: { tienda: 'https://www.gameshop.com.ar', instagram: '' },   // botones del inicio y del cierre (vacío = no se muestra)
@@ -298,7 +298,7 @@ GS.EXPLAIN = {
   stock: 'Contá lo que hay de verdad en la góndola. El sistema a veces sueña.',
   ml: 'Son las compras que entran por www.gameshop.com.ar. Caja del tamaño justo, cinta de punta a punta y la etiqueta correcta. Lo que se compra antes de las 14 sale en el día.',
   proveedor: 'Compará el remito con lo que bajó de la carreta. Si falta algo, no firmes.',
-  pc: 'En el taller: elegí cada pieza y tocá dónde va en la placa. Si una viene al revés, tocala de nuevo para girarla.',
+  pc: 'En el taller: arrastrá cada pieza a su lugar dentro del gabinete y después tocá Encender. Si no prende, hay algo mal puesto. Si una pieza está al revés, tocala para girarla.',
   service: 'En el taller: diagnosticá con criterio, limpiá con paciencia y encajá la memoria justo en la ranura.',
   devol: 'Para una devolución mirá las tres reglas: ticket, plazo y estado. Si cumple, se acepta con una sonrisa.'
 };

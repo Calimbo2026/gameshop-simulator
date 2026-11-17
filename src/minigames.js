@@ -191,50 +191,66 @@ GS.Minigames = (function () {
       '<g id="pcIn"></g><path d="M7 60L70 7H110L7 100Z" fill="#fff" opacity=".04"/></svg>';
   }
   function pc(job) {
-    const parts = GS.PC_PARTS, tray = U.shuffle(parts), flipped = U.pick(parts).id, me = cur; let sel = null, placed = 0, drag = null, noClick = 0;
+    const parts = GS.PC_PARTS, tray = U.shuffle(parts), flipped = U.pick(parts).id, me = cur, P = {}; let sel = null, drag = null, noClick = 0;
     const pct = (v, t) => (v / t * 100).toFixed(2) + '%';
     root().innerHTML = head(job, 'Armado de PC') +
       '<div class="pcb pcase" id="mgPcb">' + pcCase() +
-      parts.map((p, i) => { const q = PCS[p.id]; return '<button class="pslot s-' + p.id + '" data-id="' + p.id + '" style="left:' + pct(q[0], 320) + ';top:' + pct(q[1], 200) + ';width:' + pct(q[2], 320) + ';height:' + pct(q[3], 200) + '"><kbd>' + 'ABCDE'[i] + '</kbd><em>' + esc(p.short || p.name) + '</em></button>'; }).join('') + '</div>' +
-      '<div class="rule" id="mgBubble">Arrastrá cada pieza a su lugar en el gabinete.</div>' +
+      parts.map((p, i) => { const q = PCS[p.id]; return '<button class="pslot s-' + p.id + '" data-id="' + p.id + '" style="left:' + pct(q[0], 320) + ';top:' + pct(q[1], 200) + ';width:' + pct(q[2], 320) + ';height:' + pct(q[3], 200) + '"><kbd>' + 'ABCDE'[i] + '</kbd><em>' + esc(p.short || p.name) + '</em></button>'; }).join('') +
+      '<button class="pcpow" id="mgPower"><i>⏻</i><span>Encender</span></button></div>' +
+      '<div class="rule" id="mgBubble">Arrastrá cada pieza a su lugar y después tocá Encender.</div>' +
       '<div class="parts">' + tray.map((p, i) => '<button class="opt part' + (p.id === flipped ? ' flip' : '') + '" data-id="' + p.id + '"><kbd>' + (i + 1) + '</kbd><span class="pi">' + p.svg + '</span><span class="n">' + esc(p.name) + '</span></button>').join('') + '</div>';
-    const slots = [...root().querySelectorAll('.pslot')], btns = [...root().querySelectorAll('.part')], pcb = document.getElementById('mgPcb');
+    const slots = [...root().querySelectorAll('.pslot')], btns = [...root().querySelectorAll('.part')], pcb = document.getElementById('mgPcb'), trayOf = id => btns.filter(b => b.dataset.id === id)[0];
+    const live = () => cur === me && !cur.done;
+    /* cada pieza sobre el gabinete: queda donde se la suelta (x, y = centro, en la grilla 320 x 200) */
+    function pieceEl(id) {
+      const q = PCS[id], W = q[2], H = q[3], svg = parts.find(p => p.id === id).svg, put = (x, y, w, h) => svg.replace('<svg ', '<svg x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" ');
+      const el = document.createElement('div'); el.className = 'pp'; el.dataset.id = id; el.style.width = pct(W, 320); el.style.height = pct(H, 200);
+      el.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '">' + (q[4] ? '<g transform="translate(' + W / 2 + ' ' + H / 2 + ') rotate(90)">' + put(-H / 2, -W / 2, H, W) + '</g>' : put(0, 0, W, H)) + '</svg>';
+      el.addEventListener('pointerdown', e => startDrag(id, e, el)); el.addEventListener('pointermove', moveDrag); el.addEventListener('pointerup', endDrag); el.addEventListener('pointercancel', endDrag);
+      pcb.appendChild(el); return el;
+    }
+    function setPos(id, x, y) { const p = P[id], q = PCS[id]; p.x = U.clamp(x, q[2] / 2 + 4, 316 - q[2] / 2); p.y = U.clamp(y, q[3] / 2 + 4, 196 - q[3] / 2); p.el.style.left = pct(p.x, 320); p.el.style.top = pct(p.y, 200); }
+    function place(id, x, y, flip) { if (!P[id]) P[id] = { el: pieceEl(id), flip: !!flip }; const p = P[id]; p.el.classList.toggle('flipd', p.flip); p.el.classList.remove('bad'); setPos(id, x, y); const t = trayOf(id); t.classList.add('used'); t.classList.remove('sel'); if (sel === t) sel = null; refresh(); }
+    function unplace(id) { if (!P[id]) return; P[id].el.remove(); delete P[id]; trayOf(id).classList.remove('used'); refresh(); }
+    function refresh() { const n = Object.keys(P).length; document.getElementById('mgPower').classList.toggle('rdy', n === parts.length); slots.forEach(s => s.classList.toggle('full', false)); }
+    const good = id => { const p = P[id], q = PCS[id]; return p && Math.abs(p.x - (q[0] + q[2] / 2)) <= q[2] * 0.32 + 7 && Math.abs(p.y - (q[1] + q[3] / 2)) <= q[3] * 0.32 + 7; };
+    const toGrid = (cx, cy) => { const r = pcb.getBoundingClientRect(); return [(cx - r.left) / r.width * 320, (cy - r.top) / r.height * 200, cx >= r.left - 10 && cx <= r.right + 10 && cy >= r.top - 10 && cy <= r.bottom + 10]; };
     function pickPart(b) {
-      if (!cur || cur.done || b.classList.contains('used')) return;
+      if (!live() || b.classList.contains('used')) return;
       if (sel === b && b.classList.contains('flip')) { b.classList.remove('flip'); GS.Audio.play('swipe'); say(U.pick(LN.flipPc) + ' Ahora arrastrala a su lugar.', false); return; }
       sel = b; btns.forEach(x => x.classList.toggle('sel', x === b)); GS.Audio.play('click');
       say(b.classList.contains('flip') ? 'Esa está al revés: tocala de nuevo para girarla.' : 'Ahora arrastrala (o tocá) dónde va.', false);
     }
-    function pickSlot(sl) {
-      if (!cur || cur.done || sl.classList.contains('full')) return;
-      if (!sel) { GS.Audio.play('error'); say('Primero elegí una pieza de abajo.', true); return; }
-      if (sel.dataset.id !== sl.dataset.id) return mistake('pc', U.pick(LN.wrongPc));
-      if (sel.classList.contains('flip')) { GS.Audio.play('error'); say('Va ahí, pero está al revés. Tocá la pieza para girarla.', true); return; }
-      const id = sl.dataset.id, q = PCS[id], svg = parts.find(p => p.id === id).svg, put = (x, y, w, h) => svg.replace('<svg ', '<svg x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" ');
-      sl.classList.add('full'); sl.innerHTML = '';
-      document.getElementById('pcIn').insertAdjacentHTML('beforeend', q[4] ? '<g transform="translate(' + (q[0] + q[2] / 2) + ' ' + (q[1] + q[3] / 2) + ') rotate(90)">' + put(-q[3] / 2, -q[2] / 2, q[3], q[2]) + '</g>' : put(q[0], q[1], q[2], q[3]));
-      sel.classList.add('used'); sel.classList.remove('sel'); sel = null; placed++; GS.Audio.play('bill');
-      if (placed === parts.length) {
-        pcb.classList.add('on'); GS.Audio.play('ok'); say('¡Prende! Y con lucecitas.', false);
-        setTimeout(() => { if (cur === me) finish(true, '¡Prendió!', 'Y con lucecitas.', {}); }, 1300);
-      } else say('¡Entró! Siguiente pieza.', false);
+    function pickSlot(sl) {            /* tocar una pieza y después un lugar también vale */
+      if (!live()) return; if (!sel) { say('Arrastrá una pieza de abajo hasta acá.', false); return; }
+      const q = PCS[sl.dataset.id], id = sel.dataset.id; place(id, q[0] + q[2] / 2, q[1] + q[3] / 2, sel.classList.contains('flip')); GS.Audio.play('bill'); say('Quedó ahí. Cuando estén todas, tocá Encender.', false);
     }
-    /* arrastre: la pieza sigue al dedo y se suelta sobre el lugar más cercano */
-    const slotAt = (x, y) => { let best = null, bd = 1e9; slots.forEach(sl => { if (sl.classList.contains('full')) return; const r = sl.getBoundingClientRect(), dx = Math.max(r.left - x, 0, x - r.right), dy = Math.max(r.top - y, 0, y - r.bottom), dd = Math.hypot(dx, dy); if (dd < 22 && dd < bd) { bd = dd; best = sl; } }); return best; };
-    const endDrag = () => { if (drag && drag.g) drag.g.remove(); slots.forEach(s => s.classList.remove('over')); pcb.classList.remove('dragging'); drag = null; };
-    btns.forEach(b => {
-      b.addEventListener('pointerdown', e => { if (!cur || cur.done || b.classList.contains('used')) return; drag = { b, x: e.clientX, y: e.clientY, g: null, id: e.pointerId }; try { b.setPointerCapture(e.pointerId); } catch (er) {} });
-      b.addEventListener('pointermove', e => { if (!drag || drag.b !== b) return;
-        if (!drag.g) { if (Math.hypot(e.clientX - drag.x, e.clientY - drag.y) < 9) return; const g = document.createElement('div'); g.className = 'pghost' + (b.classList.contains('flip') ? ' flip' : ''); g.innerHTML = parts.find(p => p.id === b.dataset.id).svg; document.body.appendChild(g); drag.g = g; sel = b; btns.forEach(x => x.classList.toggle('sel', x === b)); pcb.classList.add('dragging'); GS.Audio.play('click'); }
-        drag.g.style.left = e.clientX + 'px'; drag.g.style.top = (e.clientY - 34) + 'px'; const o = slotAt(e.clientX, e.clientY - 34); slots.forEach(s => s.classList.toggle('over', s === o)); });
-      const up = e => { if (!drag || drag.b !== b) return; const moved = !!drag.g, sl = moved ? slotAt(e.clientX, e.clientY - 34) : null; endDrag(); if (moved) { noClick = Date.now(); if (sl) pickSlot(sl); else say('Soltala sobre su lugar en el gabinete.', false); } };
-      b.addEventListener('pointerup', up); b.addEventListener('pointercancel', () => endDrag());
-      b.addEventListener('click', () => { if (Date.now() - noClick < 350) return; pickPart(b); });
-    });
+    function startDrag(id, e, src) { if (!live()) return; drag = { id, x: e.clientX, y: e.clientY, on: false, src, tray: src.classList.contains('part') }; try { src.setPointerCapture(e.pointerId); } catch (er) {} }
+    function moveDrag(e) { if (!drag) return; const lift = e.pointerType === 'mouse' ? 0 : 30;
+      if (!drag.on) { if (Math.hypot(e.clientX - drag.x, e.clientY - drag.y) < 8) return; drag.on = true; GS.Audio.play('click'); const g = toGrid(e.clientX, e.clientY - lift); if (drag.tray) { place(drag.id, g[0], g[1], drag.src.classList.contains('flip')); } P[drag.id].el.classList.add('drag'); pcb.classList.add('dragging'); }
+      const g = toGrid(e.clientX, e.clientY - lift), p = P[drag.id]; p.el.classList.remove('bad'); p.x = g[0]; p.y = g[1]; p.el.style.left = pct(g[0], 320); p.el.style.top = pct(g[1], 200); }
+    function endDrag(e) { if (!drag) return; const d = drag; drag = null; pcb.classList.remove('dragging');
+      if (!d.on) { if (!d.tray && live()) { const p = P[d.id]; p.flip = !p.flip; p.el.classList.toggle('flipd', p.flip); p.el.classList.remove('bad'); GS.Audio.play('swipe'); say(p.flip ? 'La diste vuelta.' : U.pick(LN.flipPc), false); } return; }
+      noClick = Date.now(); const lift = e.pointerType === 'mouse' ? 0 : 30, g = toGrid(e.clientX, e.clientY - lift), p = P[d.id]; p.el.classList.remove('drag');
+      if (!g[2]) { unplace(d.id); say('La pieza volvió a la bandeja.', false); return; }
+      setPos(d.id, g[0], g[1]); GS.Audio.play('bill'); say(Object.keys(P).length === parts.length ? 'Están todas. Tocá Encender.' : 'Quedó ahí. Seguí con las demás.', false); }
+    function power() {
+      if (!live()) return; const ids = parts.map(p => p.id), miss = ids.filter(id => !P[id]);
+      if (miss.length) { GS.Audio.play('error'); say(miss.length === 1 ? 'Falta una pieza. Así no enciende.' : 'Faltan ' + miss.length + ' piezas. Así no enciende.', true); return; }
+      const bad = ids.filter(id => !good(id) || P[id].flip);
+      if (bad.length) { ids.forEach(id => P[id].el.classList.toggle('bad', bad.indexOf(id) >= 0)); pcb.classList.remove('fail'); void pcb.offsetWidth; pcb.classList.add('fail');
+        const rev = bad.filter(id => good(id) && P[id].flip).length; return mistake('pc', 'No enciende. ' + (bad.length === 1 ? (rev ? 'Hay una pieza al revés: tocala para girarla.' : 'Hay una pieza fuera de lugar.') : 'Hay ' + bad.length + ' piezas mal puestas (en rojo).')); }
+      ids.forEach(id => { const q = PCS[id]; P[id].el.classList.add('snap'); setPos(id, q[0] + q[2] / 2, q[1] + q[3] / 2); }); slots.forEach(s => s.classList.add('full'));
+      pcb.classList.add('on'); GS.Audio.play('ok'); say('¡Prende! Y con lucecitas.', false); cur.locked = 1;
+      setTimeout(() => { if (cur === me) finish(true, '¡Prendió!', 'Y con lucecitas.', {}); }, 1300);
+    }
+    btns.forEach(b => { b.addEventListener('pointerdown', e => { if (!b.classList.contains('used')) startDrag(b.dataset.id, e, b); }); b.addEventListener('pointermove', moveDrag); b.addEventListener('pointerup', endDrag); b.addEventListener('pointercancel', endDrag);
+      b.addEventListener('click', () => { if (Date.now() - noClick < 350) return; pickPart(b); }); });
     slots.forEach(sl => sl.addEventListener('click', () => pickSlot(sl)));
+    document.getElementById('mgPower').addEventListener('click', power);
     cur.keys = e => {
       const n = parseInt(e.key, 10), k = 'abcde'.indexOf((e.key || '').toLowerCase());
-      if (n >= 1 && n <= btns.length) pickPart(btns[n - 1]); else if (k >= 0 && e.key.length === 1) pickSlot(slots[k]);
+      if (n >= 1 && n <= btns.length) pickPart(btns[n - 1]); else if (k >= 0 && e.key.length === 1) pickSlot(slots[k]); else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); power(); }
     };
   }
 

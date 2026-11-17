@@ -1,6 +1,6 @@
 SOLVE = r"""(()=>{const M=GS.Minigames; if(document.querySelector('#mgOk')){document.querySelector('#mgOk').click(); return 'intro';} if(!M.isOpen()||M.isResolving()) return 'idle';
  const q=s=>document.querySelector('#mg '+s), qa=s=>[...document.querySelectorAll('#mg '+s)];
- if(q('.part')){const b=q('.part:not(.used)'); if(!b) return 'pcwait'; if(!b.classList.contains('sel')) b.click(); if(b.classList.contains('flip')) b.click(); q('.pslot[data-id="'+b.dataset.id+'"]').click(); return 'pc';}
+ if(q('.part')){const b=q('.part:not(.used)'); if(!b){ if(!q('.pcase.on')) q('#mgPower').click(); return 'pcwait'; } if(!b.classList.contains('sel')) b.click(); if(b.classList.contains('flip')) b.click(); q('.pslot[data-id="'+b.dataset.id+'"]').click(); return 'pc';}
  if(q('.dust')){const d=qa('.dust:not(.gone)'); d.slice(0,3).forEach(e=>{e.classList.contains('gone')||document.getElementById('mgFan').dispatchEvent(new KeyboardEvent('x'))}); document.dispatchEvent(new KeyboardEvent('keydown',{key:' '})); return 'pelusa';}
  if(q('#mgSnap')){const m=parseFloat(q('#mgMark').style.left||0), a=parseFloat(q('.ramslot').style.left); if(Math.abs(m-a)<3){q('#mgSnap').click();return 'ram!';} return 'ram';}
  if(q('#mgTape')){document.dispatchEvent(new KeyboardEvent('keydown',{key:' '})); return 'cinta';}
