@@ -6,8 +6,8 @@ const logo = 'data:image/png;base64,' + fs.readFileSync(path.join(__dirname, 'sr
 const js = ['data.js', 'icons.js', 'audio.js', 'world.js', 'minigames.js', 'arcade.js', 'map3d.js', 'game.js'].map(f => r('src/' + f)).join('\n');
 const sub = (s, key, val) => { const i = s.indexOf(key); return s.slice(0, i) + val + s.slice(i + key.length); };
 let html = r('src/index.template.html');
-// Lanzamiento: con `launched: true` en src/data.js se quita el noindex. SITE = dirección pública (cambiarla al pasar a juego.gameshop.com.ar).
-const SITE = 'https://calimbo2026.github.io/gameshop-simulator/', launched = /^\s*launched:\s*true/m.test(r('src/data.js'));
+// Lanzamiento: con `launched: true` en src/data.js se quita el noindex. SITE = dirección pública (juga.gameshop.com.ar; el archivo CNAME de la raíz lo configura en GitHub Pages).
+const SITE = 'https://juga.gameshop.com.ar/', launched = /^\s*launched:\s*true/m.test(r('src/data.js'));
 html = sub(html, '/*__SITE__*/', SITE);
 if (launched) html = html.replace('<meta name="robots" content="noindex">\n', '<link rel="canonical" href="' + SITE + '">\n');
 html = sub(html, '/*__CSS__*/', r('src/style.css'));

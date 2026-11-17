@@ -1,6 +1,6 @@
 # GameShop: La Expansión
 
-Juego web (un solo HTML) que simula una jornada de trabajo en GameShop. Pieza de marca para `juego.gameshop.com.ar`.
+Juego web (un solo HTML) que simula una jornada de trabajo en GameShop. Pieza de marca para `juga.gameshop.com.ar`.
 
 ## Estado: Expansión nacional · etapa 1 de 8 (curva y tiempos)
 
