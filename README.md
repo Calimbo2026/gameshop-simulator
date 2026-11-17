@@ -24,6 +24,10 @@ El juego base (las cinco etapas de abajo) está terminado. Ahora crece hacia "ll
 - Los 44 productos redibujados con el mismo estilo (más detalle, brillo y sombra).
 - Primer día: arranca con un cliente ya en el mostrador y una flecha marca dónde tocar (atender, elegir el producto, cobrar).
 
+## v0.50 · Armado de PC arrastrando y explicación de recursos
+- Armado de PC: las piezas se arrastran a su lugar sobre un motherboard dentro del gabinete (también funciona tocar pieza y lugar).
+- Tarjeta "Qué falta para abrir otra sucursal" en el menú de campaña y en el resumen: 5 estrellas, camión y fondos, con para qué sirve cada recurso.
+
 ## Juego base (terminado)
 
 | # | Etapa | Qué incluye | Estado |

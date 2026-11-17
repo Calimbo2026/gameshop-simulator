@@ -581,3 +581,21 @@ body.calm .brand:after { animation: none; display: none; }
 #guide.up { flex-direction: column-reverse; } #guide.up i { border-top: 0; border-bottom: 20px solid #f5c518; margin: 0 0 -1px; filter: drop-shadow(0 -3px 0 #111); }
 @keyframes guideB { from { margin-top: -9px; } to { margin-top: 0; } }
 .guided { outline: 4px solid #f5c518 !important; outline-offset: 2px; box-shadow: 0 0 0 9px rgba(245,197,24,.3) !important; animation: guidedP .8s ease-in-out infinite alternate; } @keyframes guidedP { to { box-shadow: 0 0 0 3px rgba(245,197,24,.15); } }
+
+/* Armado de PC: gabinete con el motherboard; las piezas se arrastran a su lugar */
+.pcb.pcase { height: auto; aspect-ratio: 320 / 200; background: none; border: 0; border-radius: 12px; overflow: visible; } .pcsvg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.pcase .pslot { border: 2px dashed #7fd4ff; background: rgba(86,200,255,.12); color: #d8f1ff; border-radius: 6px; } .pcase .pslot em { font-size: 11px; font-weight: 800; } .pcase .pslot kbd { color: #7fd4ff; }
+.pcase .pslot::before { content: ""; position: absolute; inset: -9px; } .pcase .s-ram em { writing-mode: vertical-rl; } .pcase .s-ssd kbd, .pcase .s-ram kbd { display: none; }
+.pcase .pslot.full { border-color: transparent; background: none; pointer-events: none; } .pcase.dragging .pslot:not(.full) { animation: slotP .7s ease-in-out infinite alternate; } @keyframes slotP { to { background: rgba(86,200,255,.3); } }
+.pcase .pslot.over { border-style: solid; border-color: #f5c518; background: rgba(245,197,24,.3); box-shadow: 0 0 0 3px rgba(245,197,24,.35); }
+.part { touch-action: none; -webkit-user-select: none; user-select: none; } .pghost { position: fixed; z-index: 200; width: 92px; height: 60px; transform: translate(-50%, -50%) scale(1.08); pointer-events: none; filter: drop-shadow(0 8px 10px rgba(0,0,0,.6)); display: grid; place-items: center; } .pghost svg { max-width: 100%; max-height: 100%; } .pghost.flip svg { transform: rotate(180deg); }
+.pcb.pcase.on { animation: none; } .pcase.on .led { opacity: 1; animation: ledC 1s linear infinite; } @keyframes ledC { 0% { stroke: #ff4fa3; fill-opacity: 1; } 33% { stroke: #3aff9c; } 66% { stroke: #56c8ff; } 100% { stroke: #ff4fa3; } } .pcase.on .spin { animation: spinF .5s linear infinite; } @keyframes spinF { to { transform: rotate(360deg); } }
+.pcase.on .pcsvg { filter: drop-shadow(0 0 14px rgba(86,200,255,.7)); }
+
+/* Qué falta para abrir otra sucursal */
+.expc { background: linear-gradient(170deg, #22222a, #15151a); border: 2px solid #f5c518; border-radius: 16px; padding: 10px 12px 8px; text-align: left; display: grid; gap: 7px; margin: 0 0 8px; }
+.expc h4 { margin: 0; font-size: 12.5px; font-weight: 800; letter-spacing: .8px; text-transform: uppercase; color: #f5c518; } .expc > div { display: grid; grid-template-columns: 30px 1fr; gap: 8px; align-items: start; }
+.expc > div > i { font-style: normal; font-size: 21px; line-height: 1.1; text-align: center; } .expc > div b { display: block; font-size: 14.5px; line-height: 1.2; } .expc small { display: block; font-size: 12.5px; line-height: 1.3; color: #c9c9d2; }
+.expc > div.ok b { color: #7be0a0; } .expc > div.ok small { color: #8d9199; } .expc em { display: block; height: 6px; border-radius: 3px; background: #2b2b30; margin-top: 4px; overflow: hidden; } .expc em u { display: block; height: 100%; background: linear-gradient(90deg, #b8860b, #f5c518); }
+.expc p { margin: 0; padding-top: 6px; border-top: 1px solid #33333c; font-size: 12.5px; line-height: 1.35; color: #c9c9d2; } .expc.ready { box-shadow: 0 0 18px rgba(245,197,24,.4); } .expc.ready p { font-size: 14.5px; color: #fff; }
+.sum-head .sum-big small { text-transform: none; letter-spacing: 0; font-weight: 400; font-size: 10.5px; line-height: 1.15; color: #c9c9d2; text-align: center; padding: 0 2px; }

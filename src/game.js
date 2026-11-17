@@ -544,7 +544,7 @@ GS.Game = (function () {
     if (kind === 'conq') { el.innerHTML = '<canvas id="epicCv"></canvas><div class="ep-cup"><i>🏆</i></div>' + conf(); GS.Map3D.open($('epicCv'), mapState(), null, epicCtx.id); return; }
     if (kind === 'jefe' || kind === 'jefe2') return void (el.innerHTML = '<div class="ep-faces big boss" style="background:radial-gradient(120% 90% at 50% 30%, #e10600, #5a0000)">' + fig(BOSS_LOOK, kind === 'jefe' ? 'talk' : 'happy') + '</div>');
     if (kind === 'mapa0') { el.innerHTML = '<canvas id="epicCv"></canvas>'; GS.Map3D.open($('epicCv'), mapState(), null); return; }
-    if (kind === 'recursos') return void (el.innerHTML = '<div class="ep-res">' + [['⭐', 'Reputación', 'Atendé bien y sube. Con 5 estrellas, la región te conoce.'], ['🪙', 'Monedas', 'Para mejorar el local y comprar la flota: moto, camioneta y camión.'], ['🗺️', 'Fondos de expansión', 'Los deja cada jornada. Abren sucursales nuevas.']].map(q => '<div><i>' + q[0] + '</i><span><b>' + q[1] + '</b>' + q[2] + '</span></div>').join('') + '<p>⭐ 5 estrellas + 🚚 camión = <b>región conquistada</b></p></div>');
+    if (kind === 'recursos') return void (el.innerHTML = '<div class="ep-res">' + [['⭐', 'Reputación', 'Sube cuando atendés bien. La meta es llegar a 5 estrellas.'], ['🪙', 'Monedas', 'Las ganás con cada venta. Sirven para mejorar el local y comprar el camión.'], ['🗺️', 'Fondos de expansión', 'Se juntan solos al cerrar cada jornada. Solo sirven para abrir sucursales.']].map(q => '<div><i>' + q[0] + '</i><span><b>' + q[1] + '</b>' + q[2] + '</span></div>').join('') + '<p>⭐ 5 estrellas + 🚚 camión + 🗺️ fondos = <b>sucursal nueva</b></p></div>');
     if (kind === 'dueno') return void (el.innerHTML = '<div class="ep-faces big" style="background:linear-gradient(160deg,#26262c,#0b0b0d)">' + fig(BOSS_LOOK, 'happy') + '</div>' + conf());
     if (kind === 'duelo') return void (el.innerHTML = '<div class="ep-faces vs">' + fig(me, 'angry', 'Vos') + '<b>VS</b>' + fig(PIRATE(), 'angry', 'Capitán Tormenta') + '</div>');
     if (kind === 'equipo') { const all = brAll(), ppl = [[me, 'Vos'], [{ shirt: 0xe10600, hair: MOHAWK[1], hairStyle: 'mohicano', skin: GS.SKINS[3], glasses: true }, 'Lucho'], [{ shirt: 0xe10600, hair: 0x2d6cdf, hairStyle: 'corto', skin: GS.SKINS[0] }, 'Brian']];
@@ -1090,7 +1090,7 @@ GS.Game = (function () {
     const hook = nextHook(d.n + 1), ob = d.okBy || {}, row = (ok, label, val) => '<p class="' + (ok ? 'ok' : 'no') + '"><span>' + (ok ? '✔' : '✖') + ' ' + label + '</span><b>' + val + '</b></p>';
     $('endCol').innerHTML =
       '<div><div class="sum-head"><small>' + RG(brId()).city + ' · ' + monthOf(d.n) + (d.cond ? ' · ' + condInfo(d.cond).name : '') + (d.relaxed ? ' · turno tranquilo' : '') + '</small><b>' + (perfect ? '¡Jornada impecable!' : 'Jornada ' + d.n + ' cumplida') + '</b>' +
-        '<div class="sum-big"><span><i>🪙</i><b id="sumCoins">+0</b><em>monedas</em></span><span><i>🗺️</i><b id="sumFondo">+' + fEarn + '</b><em>fondos</em></span><span><i>⭐</i><b>' + repTxt(rv) + '</b><em>' + (rd >= 0 ? '+' : '−') + repTxt(Math.abs(rd)) + ' hoy</em></span></div></div>' +
+        '<div class="sum-big"><span><i>🪙</i><b id="sumCoins">+0</b><em>monedas</em><small>para mejorar el local</small></span><span><i>🗺️</i><b id="sumFondo">+' + fEarn + '</b><em>fondos</em><small>para abrir sucursales</small></span><span><i>⭐</i><b>' + repTxt(rv) + '</b><em>' + (rd >= 0 ? '+' : '−') + repTxt(Math.abs(rd)) + ' hoy</em><small>meta: 5 estrellas</small></span></div></div>' +
       '<div class="ticket"><h3>DETALLE DEL DÍA</h3>' +
       row(ask > 0 && d.served === ask, 'Ventas concretadas', d.served + ' de ' + ask) +
       (lostSale ? row(false, 'Se fueron por producto equivocado', lostSale) : '') + (d.lost ? row(false, 'Se cansaron de esperar', d.lost) : '') +
@@ -1106,7 +1106,7 @@ GS.Game = (function () {
       fresh.map(a => '<div class="newrec">' + a.ic + ' Logro: <b>' + a.name + '</b><small>' + a.d + '</small></div>').join('') +
       '<div class="quote"><b>' + (d.moment ? 'El momento del día' : 'El Dueño opina') + '</b>' + (d.moment || comment) + '</div>' +
       (d.relaxed ? '' : '<div class="split"><b>¿A dónde va lo de hoy?</b><div>' + Object.keys(SPLIT).map(k => '<button data-split="' + k + '" class="' + (k === 'parejo' ? 'on' : '') + '">' + SPLIT[k][2] + '<small>' + SPLIT[k][3] + '</small></button>').join('') + '</div></div>') +
-      '<div class="hook"><i>' + hook[0] + '</i><span><b>Lo que viene</b>' + hook[1] + '</span></div>' +
+      (d.arcade ? '' : expCard()) + '<div class="hook"><i>' + hook[0] + '</i><span><b>Lo que viene</b>' + hook[1] + '</span></div>' +
       '<button class="btn" id="endAgain">Siguiente jornada</button>' +
       (afford ? '<button class="btn alt pulse" id="endShop">🛠 ¡Comprá: ' + afford + '!</button><div class="row">' : '<div class="row"><button class="btn alt" id="endShop" style="font-size:16px">🛠 Mejorar</button>') + '<button class="btn ghost" id="endMap">🗺️ Mapa</button><button class="btn ghost" id="endRecs">🏅 Logros</button></div>' +
       '<div class="row"><button class="btn ghost" id="endCard">📸 Compartir</button><button class="btn ghost" id="endLib">📖 Libreta</button><button class="btn ghost" id="endHome">Inicio</button></div>' +
@@ -1146,6 +1146,18 @@ GS.Game = (function () {
   // Tarjetas del inicio: mismo armado las dos (etiqueta, dato grande, barra con su número y un botón claro)
   const wbtn = (ic, title, info, cur, tot, unit, full, extra) => '<i class="wb-i">' + ic + '</i><span class="wb-m"><b>' + title + (extra || '') + '</b><small>' + info + '</small>' +
     (tot ? '<span class="wb-r"><span class="wb-p"><i style="width:' + Math.min(100, cur / tot * 100).toFixed(0) + '%"></i></span><span class="wb-n' + (full ? ' ok' : '') + '">' + unit + ' ' + Math.min(cur, tot) + ' <em>de ' + tot + '</em></span></span>' : '') + '</span><i class="wb-a">›</i>';
+  /* Qué falta para abrir otra sucursal: tres pasos con tilde, y para qué sirve cada recurso */
+  function expCard() {
+    const g = goalNow(); if (!g) return '';
+    const id = brId(), me = brData(id), R = RG(id), f = fondoNow(), c = coinsNow(), fl = GS.UPGRADES.find(u => u.id === 'flota'), need = fl.levels.slice(me.flota).reduce((a, l) => a + l.price, 0), others = pendingOpen().filter(r => r.id !== id), ready = canExpand() && f >= g;
+    const row = (ok, ic, t, sub, pct) => '<div class="' + (ok ? 'ok' : '') + '"><i>' + (ok ? '✅' : ic) + '</i><span><b>' + t + '</b><small>' + sub + '</small>' + (pct != null && !ok ? '<em><u style="width:' + Math.max(3, Math.min(100, pct)).toFixed(0) + '%"></u></em>' : '') + '</span></div>';
+    return '<div class="expc' + (ready ? ' ready' : '') + '"><h4>' + (ready ? '🎉 ¡Ya podés abrir otra sucursal!' : '🗺️ Qué falta para abrir otra sucursal') + '</h4>' +
+      row(me.rep >= 4.8, '⭐', '1 · Llegar a 5 estrellas en ' + R.city, me.rep >= 4.8 ? 'Listo: acá ya nos conocen.' : 'Vas ' + repTxt(me.rep) + ' de 5. Sube cuando atendés sin errores y el local está limpio.', me.rep / 4.8 * 100) +
+      row(me.flota >= 3, '🚚', '2 · Comprar el camión', me.flota >= 3 ? 'Listo: llegamos a toda la región.' : need <= c ? '¡Ya te alcanza! Compralo en Mejoras → Flota de envíos.' : 'Se compra con 🪙 monedas, en Mejoras → Flota de envíos. Te faltan 🪙 ' + (need - c) + '.', c / need * 100) +
+      (others.length ? row(false, '🏪', 'Lo mismo en ' + others.map(r => r.city).join(' y '), 'Cada sucursal abierta necesita sus 5 estrellas y su camión.') : '') +
+      row(f >= g, '🗺️', '3 · Juntar ' + g + ' fondos de expansión', f >= g ? 'Listo: tenés ' + f + '.' : 'Tenés ' + f + '. Se suman solos al cerrar cada jornada; no se gastan en mejoras.', f / g * 100) +
+      '<p>' + (ready ? 'Abrí el <b>🗺️ Mapa</b> y elegí la región.' : '<b>🪙 Monedas</b>: mejoran el local y compran la flota. <b>🗺️ Fondos</b>: solo sirven para abrir sucursales, desde el Mapa.') + '</p></div>';
+  }
   function sucCard() {
     const all = brAll(), f = fondoNow(), g = goalNow(), n = MAIN.filter(r => all[r.id] && all[r.id].open).length, dots = '<span class="hc-d">' + MAIN.map(r => '<i class="' + (all[r.id] && all[r.id].open ? 'on' : '') + (r.id === brId() ? ' cur' : '') + '"></i>').join('') + '</span>';
     return wbtn('🗺️', 'Mis sucursales', dots + ' ' + n + ' de 5' + (g ? (!canExpand() ? ' · falta ' + (brData(brId()).rep < 4.8 ? '⭐ 5 estrellas' : '') + (brData(brId()).rep < 4.8 && brData(brId()).flota < 3 ? ' y ' : '') + (brData(brId()).flota < 3 ? '🚚 camión' : '') + (conquered(brId()) ? 'conquistar otra sucursal' : '') : f >= g ? ' · ¡ya podés abrir otra!' : ' · juntando fondos') : ' · avance ' + Math.round(MAIN.reduce((a, r) => a + brProgress(r.id), 0) / MAIN.length) + '%'), f, g, '🗺️', f >= g && canExpand());
@@ -1272,7 +1284,7 @@ GS.Game = (function () {
     const n = dayNumber(), fresh = n <= GS.UNLOCKS.length ? GS.UNLOCKS[n - 1] : [], R = RG(brId());
     $('campT').textContent = started() ? 'Seguir campaña' : 'Iniciar campaña'; $('campS').textContent = started() ? 'Jornada ' + n + ' · ' + R.city + ' · ' + MAIN.filter(r => (brAll()[r.id] || {}).open).length + ' de 5 sucursales' : 'Llevá GameShop a todo el país';
     $('playT').textContent = 'Comenzar jornada ' + n; $('playS').textContent = monthOf(n) + (n === 1 ? ' · inducción' : fresh.length ? ' · se suma: ' + fresh.map(id => ST(id).name).join(' y ') : '');
-    $('btnShop').innerHTML = goalCard(); $('btnPlot').innerHTML = sucCard(); $('campProg').innerHTML = progBox(brId(), 'Avance de ' + R.city);
+    $('btnShop').innerHTML = goalCard(); $('btnPlot').innerHTML = sucCard(); $('campProg').innerHTML = expCard() + progBox(brId(), 'Avance de ' + R.city);
     $('campHead').style.background = 'linear-gradient(100deg, ' + ACC[R.id] + ', rgba(20,20,24,.92) 130%)'; $('campHead').innerHTML = '<small>' + (R.id === 'pampeana' ? 'Casa central' : 'Sucursal ' + R.name) + '</small><b>' + R.city + '</b><span>⭐ ' + repTxt(repNow()) + ' · 🪙 ' + (DEV() ? '∞' : coinsNow()) + ' · 🗺️ ' + (DEV() ? '∞' : fondoNow()) + '</span>';
     $('rankT').textContent = (DEV() ? '🛠 DEV · ' : '') + (GS.Store.get('ngp') ? '➕ NJ+' + GS.Store.get('ngp') : ''); $('rankT').hidden = !$('rankT').textContent; setMenu(menuView);
   }

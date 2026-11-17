@@ -171,34 +171,66 @@ GS.Minigames = (function () {
     cur.keys = e => { const n = parseInt(e.key, 10); if (n >= 1 && n <= 4) tapRow(rb[n - 1]); else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); approve(); } };
   }
 
-  /* ---------------- 3. ARMADO DE PC: elegir la pieza y tocar en la placa dónde va (una viene al revés) ---------------- */
+  /* ---------------- 3. ARMADO DE PC: arrastrar cada pieza a su lugar en el motherboard, dentro del gabinete (una viene al revés) ----------------
+     También se puede tocar la pieza y después el lugar. Las medidas de PCS están en la grilla 320 x 200 del dibujo. */
+  const PCS = { cpu: [104, 22, 44, 44], ram: [160, 18, 24, 56, 1], ssd: [98, 72, 56, 17.5], gpu: [56, 92, 88, 55], psu: [14, 152, 54, 40] };
+  function pcCase() {
+    const fan = (cx, cy, r, c) => '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="#0c0c10" stroke="#33333c" stroke-width="1.500"/><circle class="led" cx="' + cx + '" cy="' + cy + '" r="' + (r - 3) + '" fill="none" stroke="' + c + '" stroke-width="2.200" opacity=".35"/><g class="spin" style="transform-origin:' + cx + 'px ' + cy + 'px"><path d="M' + cx + ' ' + (cy - r + 5) + 'v' + (2 * r - 10) + 'M' + (cx - r + 5) + ' ' + cy + 'h' + (2 * r - 10) + 'M' + (cx - r * 0.6) + ' ' + (cy - r * 0.6) + 'l' + r * 1.2 + ' ' + r * 1.2 + 'M' + (cx + r * 0.6) + ' ' + (cy - r * 0.6) + 'l' + (-r * 1.2) + ' ' + r * 1.2 + '" stroke="#3a3a44" stroke-width="2.400" stroke-linecap="round"/></g><circle cx="' + cx + '" cy="' + cy + '" r="3.500" fill="#26262c"/>';
+    return '<svg class="pcsvg" viewBox="0 0 320 200" preserveAspectRatio="none"><rect x="1" y="1" width="318" height="198" rx="9" fill="#1d1d23"/><rect x="7" y="7" width="306" height="186" rx="5" fill="#11131b"/><rect x="18" y="194" width="34" height="6" rx="2" fill="#0c0c10"/><rect x="268" y="194" width="34" height="6" rx="2" fill="#0c0c10"/>' +
+      '<rect x="7" y="148" width="306" height="45" fill="#0a0b10"/><path d="M7 148H313" stroke="#26262c" stroke-width="2"/><rect x="84" y="166" width="44" height="6" rx="3" fill="#e10600"/><g fill="#1a1c25">' + Array.from({ length: 9 }, (_, i) => '<rect x="' + (150 + i * 12) + '" y="158" width="6" height="26" rx="3"/>').join('') + '</g>' +
+      fan(27, 46, 15, '#56c8ff') + fan(284, 44, 24, '#ff4fa3') + fan(284, 106, 24, '#3aff9c') +
+      '<rect x="46" y="10" width="200" height="136" rx="3" fill="#182441" stroke="#0c1224" stroke-width="1.500"/><rect x="46" y="14" width="9" height="62" fill="#9aa0ad"/><g fill="#55555f"><rect x="47.500" y="18" width="6" height="8"/><rect x="47.500" y="30" width="6" height="12"/><rect x="47.500" y="46" width="6" height="8"/><rect x="47.500" y="58" width="6" height="12"/></g>' +
+      '<g fill="none" stroke="#2a3d6e" stroke-width="1.200"><path d="M150 44h8M126 68v4M126 90v4M60 84h34v-8M190 60v38h-30M200 30h30v60M150 120h60M70 20h24M214 110v26"/></g>' +
+      '<rect x="62" y="16" width="34" height="13" rx="2" fill="#2c2c33"/><path d="M66 19v7M71 19v7M76 19v7M81 19v7M86 19v7M91 19v7" stroke="#55555f" stroke-width="1.400"/><rect x="62" y="34" width="13" height="36" rx="2" fill="#2c2c33"/><path d="M65 38h7M65 43h7M65 48h7M65 53h7M65 58h7M65 63h7" stroke="#55555f" stroke-width="1.400"/>' +
+      '<rect x="100" y="18" width="52" height="52" rx="3" fill="#0e1528" stroke="#3a4a7a" stroke-width="1.200"/><rect x="190" y="18" width="5" height="56" rx="1.500" fill="#0c0c10" stroke="#3a4a7a" stroke-width=".8"/><rect x="200" y="18" width="5" height="56" rx="1.500" fill="#0c0c10" stroke="#3a4a7a" stroke-width=".8"/><rect x="158" y="14" width="28" height="64" rx="2" fill="#0e1528" stroke="#3a4a7a" stroke-width="1.200"/>' +
+      '<rect x="94" y="70" width="64" height="21" rx="2" fill="#0e1528" stroke="#3a4a7a" stroke-width="1.200"/><rect x="52" y="140" width="110" height="5" rx="1.500" fill="#0c0c10" stroke="#3a4a7a" stroke-width=".8"/><rect x="52" y="90" width="96" height="59" rx="3" fill="#0e1528" stroke="#3a4a7a" stroke-width="1.200" opacity=".85"/>' +
+      '<rect x="172" y="96" width="46" height="36" rx="4" fill="#2c2c33"/><rect class="led" x="176" y="100" width="38" height="4" rx="2" fill="#e10600" opacity=".5"/><path d="M178 112h34M178 118h34M178 124h34" stroke="#3f3f49" stroke-width="2"/><rect x="232" y="24" width="9" height="40" rx="1.500" fill="#f4f4f2"/><path d="M233.500 28h6M233.500 34h6M233.500 40h6M233.500 46h6M233.500 52h6M233.500 58h6" stroke="#55555f" stroke-width="1.600"/>' +
+      '<circle cx="226" cy="84" r="6" fill="#c5c9d2" stroke="#8d93a0" stroke-width="1"/><g fill="#0c0c10"><rect x="226" y="104" width="14" height="6" rx="1"/><rect x="226" y="114" width="14" height="6" rx="1"/><rect x="226" y="124" width="14" height="6" rx="1"/></g>' +
+      '<g fill="#c5c9d2"><circle cx="51" cy="82" r="1.800"/><circle cx="241" cy="15" r="1.800"/><circle cx="241" cy="141" r="1.800"/><circle cx="166" cy="141" r="1.800"/></g>' +
+      '<rect x="10" y="150" width="62" height="42" rx="3" fill="#0e1016" stroke="#33333c" stroke-width="1.200"/><g fill="none" stroke-linecap="round" stroke-width="2.600"><path d="M72 160q30-4 60-14" stroke="#f5c518"/><path d="M72 167q60 0 100-12t68-60" stroke="#26262c"/><path d="M72 174q70 6 110-8" stroke="#e10600" opacity=".8"/></g>' +
+      '<g id="pcIn"></g><path d="M7 60L70 7H110L7 100Z" fill="#fff" opacity=".04"/></svg>';
+  }
   function pc(job) {
-    const parts = GS.PC_PARTS, tray = U.shuffle(parts), flipped = U.pick(parts).id, me = cur; let sel = null, placed = 0;
+    const parts = GS.PC_PARTS, tray = U.shuffle(parts), flipped = U.pick(parts).id, me = cur; let sel = null, placed = 0, drag = null, noClick = 0;
+    const pct = (v, t) => (v / t * 100).toFixed(2) + '%';
     root().innerHTML = head(job, 'Armado de PC') +
-      '<div class="pcb" id="mgPcb"><i class="deco d1"></i><i class="deco d2"></i><i class="deco d3"></i>' +
-      parts.map((p, i) => '<button class="pslot s-' + p.id + '" data-id="' + p.id + '"><kbd>' + 'ABCDE'[i] + '</kbd><em>' + esc(p.name) + '</em></button>').join('') + '</div>' +
-      '<div class="rule" id="mgBubble">Elegí una pieza y después tocá en la placa dónde va.</div>' +
+      '<div class="pcb pcase" id="mgPcb">' + pcCase() +
+      parts.map((p, i) => { const q = PCS[p.id]; return '<button class="pslot s-' + p.id + '" data-id="' + p.id + '" style="left:' + pct(q[0], 320) + ';top:' + pct(q[1], 200) + ';width:' + pct(q[2], 320) + ';height:' + pct(q[3], 200) + '"><kbd>' + 'ABCDE'[i] + '</kbd><em>' + esc(p.short || p.name) + '</em></button>'; }).join('') + '</div>' +
+      '<div class="rule" id="mgBubble">Arrastrá cada pieza a su lugar en el gabinete.</div>' +
       '<div class="parts">' + tray.map((p, i) => '<button class="opt part' + (p.id === flipped ? ' flip' : '') + '" data-id="' + p.id + '"><kbd>' + (i + 1) + '</kbd><span class="pi">' + p.svg + '</span><span class="n">' + esc(p.name) + '</span></button>').join('') + '</div>';
     const slots = [...root().querySelectorAll('.pslot')], btns = [...root().querySelectorAll('.part')], pcb = document.getElementById('mgPcb');
     function pickPart(b) {
       if (!cur || cur.done || b.classList.contains('used')) return;
-      if (sel === b && b.classList.contains('flip')) { b.classList.remove('flip'); GS.Audio.play('swipe'); say(U.pick(LN.flipPc) + ' Ahora tocá dónde va.', false); return; }
+      if (sel === b && b.classList.contains('flip')) { b.classList.remove('flip'); GS.Audio.play('swipe'); say(U.pick(LN.flipPc) + ' Ahora arrastrala a su lugar.', false); return; }
       sel = b; btns.forEach(x => x.classList.toggle('sel', x === b)); GS.Audio.play('click');
-      say(b.classList.contains('flip') ? 'Esa está al revés: tocala de nuevo para girarla.' : 'Ahora tocá en la placa dónde va.', false);
+      say(b.classList.contains('flip') ? 'Esa está al revés: tocala de nuevo para girarla.' : 'Ahora arrastrala (o tocá) dónde va.', false);
     }
     function pickSlot(sl) {
       if (!cur || cur.done || sl.classList.contains('full')) return;
       if (!sel) { GS.Audio.play('error'); say('Primero elegí una pieza de abajo.', true); return; }
       if (sel.dataset.id !== sl.dataset.id) return mistake('pc', U.pick(LN.wrongPc));
-      if (sel.classList.contains('flip')) { GS.Audio.play('error'); say('Va ahí, pero está al revés. Tocá la pieza otra vez para girarla.', true); return; }
-      sl.classList.add('full'); sl.innerHTML = parts.find(p => p.id === sl.dataset.id).svg;
+      if (sel.classList.contains('flip')) { GS.Audio.play('error'); say('Va ahí, pero está al revés. Tocá la pieza para girarla.', true); return; }
+      const id = sl.dataset.id, q = PCS[id], svg = parts.find(p => p.id === id).svg, put = (x, y, w, h) => svg.replace('<svg ', '<svg x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" ');
+      sl.classList.add('full'); sl.innerHTML = '';
+      document.getElementById('pcIn').insertAdjacentHTML('beforeend', q[4] ? '<g transform="translate(' + (q[0] + q[2] / 2) + ' ' + (q[1] + q[3] / 2) + ') rotate(90)">' + put(-q[3] / 2, -q[2] / 2, q[3], q[2]) + '</g>' : put(q[0], q[1], q[2], q[3]));
       sel.classList.add('used'); sel.classList.remove('sel'); sel = null; placed++; GS.Audio.play('bill');
       if (placed === parts.length) {
         pcb.classList.add('on'); GS.Audio.play('ok'); say('¡Prende! Y con lucecitas.', false);
-        setTimeout(() => { if (cur === me) finish(true, '¡Prendió!', 'Y con lucecitas.', {}); }, 1100);
+        setTimeout(() => { if (cur === me) finish(true, '¡Prendió!', 'Y con lucecitas.', {}); }, 1300);
       } else say('¡Entró! Siguiente pieza.', false);
     }
-    btns.forEach(b => b.addEventListener('click', () => pickPart(b)));
+    /* arrastre: la pieza sigue al dedo y se suelta sobre el lugar más cercano */
+    const slotAt = (x, y) => { let best = null, bd = 1e9; slots.forEach(sl => { if (sl.classList.contains('full')) return; const r = sl.getBoundingClientRect(), dx = Math.max(r.left - x, 0, x - r.right), dy = Math.max(r.top - y, 0, y - r.bottom), dd = Math.hypot(dx, dy); if (dd < 22 && dd < bd) { bd = dd; best = sl; } }); return best; };
+    const endDrag = () => { if (drag && drag.g) drag.g.remove(); slots.forEach(s => s.classList.remove('over')); pcb.classList.remove('dragging'); drag = null; };
+    btns.forEach(b => {
+      b.addEventListener('pointerdown', e => { if (!cur || cur.done || b.classList.contains('used')) return; drag = { b, x: e.clientX, y: e.clientY, g: null, id: e.pointerId }; try { b.setPointerCapture(e.pointerId); } catch (er) {} });
+      b.addEventListener('pointermove', e => { if (!drag || drag.b !== b) return;
+        if (!drag.g) { if (Math.hypot(e.clientX - drag.x, e.clientY - drag.y) < 9) return; const g = document.createElement('div'); g.className = 'pghost' + (b.classList.contains('flip') ? ' flip' : ''); g.innerHTML = parts.find(p => p.id === b.dataset.id).svg; document.body.appendChild(g); drag.g = g; sel = b; btns.forEach(x => x.classList.toggle('sel', x === b)); pcb.classList.add('dragging'); GS.Audio.play('click'); }
+        drag.g.style.left = e.clientX + 'px'; drag.g.style.top = (e.clientY - 34) + 'px'; const o = slotAt(e.clientX, e.clientY - 34); slots.forEach(s => s.classList.toggle('over', s === o)); });
+      const up = e => { if (!drag || drag.b !== b) return; const moved = !!drag.g, sl = moved ? slotAt(e.clientX, e.clientY - 34) : null; endDrag(); if (moved) { noClick = Date.now(); if (sl) pickSlot(sl); else say('Soltala sobre su lugar en el gabinete.', false); } };
+      b.addEventListener('pointerup', up); b.addEventListener('pointercancel', () => endDrag());
+      b.addEventListener('click', () => { if (Date.now() - noClick < 350) return; pickPart(b); });
+    });
     slots.forEach(sl => sl.addEventListener('click', () => pickSlot(sl)));
     cur.keys = e => {
       const n = parseInt(e.key, 10), k = 'abcde'.indexOf((e.key || '').toLowerCase());
