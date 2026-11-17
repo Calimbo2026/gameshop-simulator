@@ -210,3 +210,10 @@ Tres juegos en `src/arcade.js`, que se ganan al terminar las jornadas 3, 8 y 14 
 
 - Techo: logo corpóreo sobre el faldón del frente ("Game" en negro, "Shop" en rojo).
 - **Modo desarrollador**: Opciones → Modo desarrollador (o `?dev=1` en la dirección; `?dev=0` lo apaga). Da monedas y fondos de expansión infinitos sin tocar los valores guardados de la partida, y suma el botón "Completar esta sucursal".
+
+### v0.42.0 · Ritmo y expansión
+
+- **Más monedas, mejoras más baratas**: cada jornada deja algo más del doble de monedas (`d.score / 9`) y los precios de las mejoras bajaron a la mitad (flota: 400 / 900 / 1600). Los fondos de expansión llegan un poco más lento (`d.sales / 9000`).
+- **Región conquistada** = 5 estrellas (4,8) + camión. Eso, más los fondos, habilita abrir otra sucursal; hace falta en todas las que estén abiertas. El resto de las mejoras y las historias quedan para el 💎 platino (100%).
+- El final del país sale al conquistar las 5 regiones; el de Malvinas, al conquistarla y ganarle al pirata.
+- Aviso grande de región conquistada, con el avance de la sucursal y la opción de seguir completándola o ir al mapa.

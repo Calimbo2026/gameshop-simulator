@@ -482,3 +482,7 @@ body.snow #rain { background-color: rgba(220, 235, 250, .06); background-image: 
 .wb-m { overflow: hidden; } .wb-m > * { min-width: 0; } .wb-m > b { font-size: clamp(17px, 5.4vw, 21px); } .wb-m > small { display: flex; align-items: center; gap: 7px; } .wb-m > small .hc-d { flex: none; }
 
 .sub { letter-spacing: 6px; margin-left: 6px; white-space: nowrap; }
+
+/* Aviso de región conquistada */
+.cq { display: flex; gap: 10px; align-items: center; text-align: left; margin: 7px 0; } .cq > i { font-style: normal; font-size: 22px; width: 28px; text-align: center; } .cq > span { flex: 1; } .cq b { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 3px; } .cq em { font-style: normal; font-weight: 600; color: var(--warn); }
+.cq .pb { display: block; height: 9px; border-radius: 5px; background: #2e2e36; overflow: hidden; } .cq .pb i { display: block; height: 100%; background: linear-gradient(90deg, var(--warn), #ffe27a); border-radius: 5px; } .inaug .btn { margin-top: 8px; }

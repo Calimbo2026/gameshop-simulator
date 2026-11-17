@@ -7,7 +7,7 @@
 const GS = {};
 
 GS.CONFIG = {
-  version: '0.38.1',
+  version: '0.42.0',
   phase: 8,
   phaseNote: 'Juego completo de punta a punta. Falta tu playtest con 5 personas y encender el lanzamiento (launched: true)',                       // fase actual del proyecto (1 a 5)
   links: { tienda: 'https://www.gameshop.com.ar', instagram: '' },   // botones del inicio y del cierre (vacío = no se muestra)
@@ -252,26 +252,26 @@ GS.SIMILAR = { ps5: 'xbox', xbox: 'ps5', switch2: 'deck', deck: 'switch2', quest
    pos = dónde hace zoom la cámara. Cada nivel es un "modelo" con su precio y su efecto. */
 GS.UPGRADES = [
   { id: 'cartel', name: 'Cartel del frente', icon: '🪧', pos: [0, 10.5], zoom: 0.6, base: 'Cartel pintado',
-    levels: [{ n: 'Cartel luminoso', d: 'Se ve desde la esquina: +1 cliente por jornada.', price: 800 }, { n: 'Cartel pantalla LED', d: 'El mejor cartel de la cuadra: +2 clientes por jornada.', price: 2500 }] },
-  { id: 'sillas', name: 'Sillas gamer', icon: '💺', pos: [-4.6, 2.9], levels: [{ n: 'Sillas gamer de exhibición', d: 'Los clientes esperan cómodos: +10% de paciencia.', price: 350 }] },
-  { id: 'mesa', name: 'Mesa de PC', icon: '💻', pos: [2.2, 1.5], levels: [{ n: 'Mesa de PC y accesorios', d: 'Más para vender: +10% de monedas por jornada.', price: 400 }] },
-  { id: 'isla', name: 'Isla Apple', icon: '🍏', pos: [-3.2, 0.4], levels: [{ n: 'Isla de productos Apple', d: 'Más para vender: +10% de monedas por jornada.', price: 500 }] },
-  { id: 'gondola', name: 'Góndola de periféricos', icon: '🎧', pos: [5.0, 2.7], levels: [{ n: 'Góndola de periféricos gamer', d: 'Más para vender: +10% de monedas por jornada.', price: 600 }] },
-  { id: 'arcade', name: 'Arcade en la entrada', icon: '🕹️', pos: [0.7, 8.3], levels: [{ n: 'Arcade en la galería', d: 'Llama la atención desde la vereda: +1 cliente por jornada.', price: 700 }] },
-  { id: 'escritorio', name: 'Escritorio gamer', icon: '🖥️', pos: [2.0, 4.6], levels: [{ n: 'Escritorio gamer para probar', d: 'Los clientes se entretienen: +15% de paciencia.', price: 900 }] },
-  { id: 'plantas', name: 'Plantas y alfombra', icon: '🪴', pos: [-3.4, 5.0], levels: [{ n: 'Plantas y alfombra de entrada', d: 'El local se ve cuidado: se ensucia la mitad.', price: 450 }] },
-  { id: 'cafetera', name: 'Cafetera', icon: '☕', pos: [0.3, -5.6], zoom: 0.3, levels: [{ n: 'Cafetera detrás del mostrador', d: 'Café para el que espera: +10% de paciencia de los clientes.', price: 550 }] },
-  { id: 'luces', name: 'Luces LED', icon: '💡', pos: [-1.5, -4.6], zoom: 0.5, levels: [{ n: 'Tiras LED en el salón', d: 'Todo se luce más: +10% de monedas por jornada.', price: 650 }] },
-  { id: 'vidluz', name: 'Vidriera iluminada', icon: '🪟', pos: [3.6, 8.5], zoom: 0.45, levels: [{ n: 'Luces en la vidriera', d: 'Se ve desde la vereda de enfrente: +1 cliente y más gente que entra por la vidriera.', price: 1000 }] },
+    levels: [{ n: 'Cartel luminoso', d: 'Se ve desde la esquina: +1 cliente por jornada.', price: 400 }, { n: 'Cartel pantalla LED', d: 'El mejor cartel de la cuadra: +2 clientes por jornada.', price: 1250 }] },
+  { id: 'sillas', name: 'Sillas gamer', icon: '💺', pos: [-4.6, 2.9], levels: [{ n: 'Sillas gamer de exhibición', d: 'Los clientes esperan cómodos: +10% de paciencia.', price: 180 }] },
+  { id: 'mesa', name: 'Mesa de PC', icon: '💻', pos: [2.2, 1.5], levels: [{ n: 'Mesa de PC y accesorios', d: 'Más para vender: +10% de monedas por jornada.', price: 200 }] },
+  { id: 'isla', name: 'Isla Apple', icon: '🍏', pos: [-3.2, 0.4], levels: [{ n: 'Isla de productos Apple', d: 'Más para vender: +10% de monedas por jornada.', price: 250 }] },
+  { id: 'gondola', name: 'Góndola de periféricos', icon: '🎧', pos: [5.0, 2.7], levels: [{ n: 'Góndola de periféricos gamer', d: 'Más para vender: +10% de monedas por jornada.', price: 300 }] },
+  { id: 'arcade', name: 'Arcade en la entrada', icon: '🕹️', pos: [0.7, 8.3], levels: [{ n: 'Arcade en la galería', d: 'Llama la atención desde la vereda: +1 cliente por jornada.', price: 350 }] },
+  { id: 'escritorio', name: 'Escritorio gamer', icon: '🖥️', pos: [2.0, 4.6], levels: [{ n: 'Escritorio gamer para probar', d: 'Los clientes se entretienen: +15% de paciencia.', price: 450 }] },
+  { id: 'plantas', name: 'Plantas y alfombra', icon: '🪴', pos: [-3.4, 5.0], levels: [{ n: 'Plantas y alfombra de entrada', d: 'El local se ve cuidado: se ensucia la mitad.', price: 220 }] },
+  { id: 'cafetera', name: 'Cafetera', icon: '☕', pos: [0.3, -5.6], zoom: 0.3, levels: [{ n: 'Cafetera detrás del mostrador', d: 'Café para el que espera: +10% de paciencia de los clientes.', price: 280 }] },
+  { id: 'luces', name: 'Luces LED', icon: '💡', pos: [-1.5, -4.6], zoom: 0.5, levels: [{ n: 'Tiras LED en el salón', d: 'Todo se luce más: +10% de monedas por jornada.', price: 320 }] },
+  { id: 'vidluz', name: 'Vidriera iluminada', icon: '🪟', pos: [3.6, 8.5], zoom: 0.45, levels: [{ n: 'Luces en la vidriera', d: 'Se ve desde la vereda de enfrente: +1 cliente y más gente que entra por la vidriera.', price: 500 }] },
   { id: 'flota', name: 'Flota de envíos', icon: '🛵', pos: [4.2, 15.6], zoom: 0.46, levels: [
-    { n: 'Moto de reparto', d: 'Envío propio en la ciudad: cada compra por la página deja 20% más y suma reputación.', price: 700 },
-    { n: 'Camioneta', d: 'Llegás a toda la provincia: 40% más por cada compra por la página.', price: 1600 },
-    { n: 'Camión GameShop', d: 'Cubrís toda la región con envío propio: 60% más por compra web. Hace falta para completar la sucursal.', price: 3200 }] },
+    { n: 'Moto de reparto', d: 'Envío propio en la ciudad: cada compra por la página deja 20% más y suma reputación.', price: 400 },
+    { n: 'Camioneta', d: 'Llegás a toda la provincia: 40% más por cada compra por la página.', price: 900 },
+    { n: 'Camión GameShop', d: 'Cubrís toda la región con envío propio: 60% más por compra web. Con el camión y 5 estrellas, la región está conquistada.', price: 1600 }] },
   { id: 'web', name: 'Página web', icon: '🌐', pos: [-3.4, -4.0], zoom: 0.3, levels: [
-    { n: 'Web con buscador', d: 'www.gameshop.com.ar se encuentra fácil: entra una compra por la página más por jornada.', price: 600 },
-    { n: 'Web con retiro en el local', d: 'Compran desde casa y pasan a buscar: más clientes (tickets más altos).', price: 1400 },
-    { n: 'Web con seguimiento de envíos', d: 'Saben dónde está su paquete: 10% más de monedas y mejor reputación.', price: 2600 }] },
-  { id: 'caja2', name: 'Segunda caja', icon: '🧾', pos: [2.6, -3.6], zoom: 0.3, levels: [{ n: 'Segunda caja con Brian', d: 'Si estás ocupado con otra tarea o se juntan clientes para pagar, Brian va a la caja y les cobra por vos. No perdés ventas por la cola.', price: 1200 }] }
+    { n: 'Web con buscador', d: 'www.gameshop.com.ar se encuentra fácil: entra una compra por la página más por jornada.', price: 300 },
+    { n: 'Web con retiro en el local', d: 'Compran desde casa y pasan a buscar: más clientes (tickets más altos).', price: 700 },
+    { n: 'Web con seguimiento de envíos', d: 'Saben dónde está su paquete: 10% más de monedas y mejor reputación.', price: 1300 }] },
+  { id: 'caja2', name: 'Segunda caja', icon: '🧾', pos: [2.6, -3.6], zoom: 0.3, levels: [{ n: 'Segunda caja con Brian', d: 'Si estás ocupado con otra tarea o se juntan clientes para pagar, Brian va a la caja y les cobra por vos. No perdés ventas por la cola.', price: 600 }] }
 ];
 GS.RANKS = [[1, 'Vendedor nuevo'], [3, 'Vendedor'], [5, 'Vendedor senior'], [8, 'Encargado'], [11, 'Mano derecha del Dueño']];
 /* Condiciones del día: cambian cuánta gente viene y cuántos pedidos salen */
@@ -350,7 +350,7 @@ GS.EPIC = {
     { art: 'yo', k: 'Av. de los Incas 4552', t: 'Todo empezó detrás de un mostrador', d: 'Un local, dos compañeros, un Dueño con una frase para cada cosa y una misión que parecía demasiado grande.' },
     { art: 'equipo', k: 'Jornada tras jornada', t: 'Cinco regiones, cinco equipos', d: 'Abriste cada sucursal, elegiste a su gente, les enseñaste el oficio y le ganaste a cada rival con lo de siempre: atender bien.' },
     { art: 'mapa', k: 'Misión cumplida', t: 'GameShop está en todo el país', d: 'De Salta a Bariloche y de Mendoza a Posadas, hay un cartel de GameShop encendido y un envío que llega más rápido.' },
-    { art: 'copa', k: 'El logro', t: 'Número uno en reputación y ventas', d: 'Cinco sucursales completas, cinco estrellas en cada una y camión propio en todas. Nadie atiende mejor ni llega más lejos.' },
+    { art: 'copa', k: 'El logro', t: 'Número uno en reputación y ventas', d: 'Cinco sucursales, cinco estrellas en cada una y camión propio en todas. Nadie atiende mejor ni llega más lejos.' },
     { art: 'dueno', k: 'El Dueño opina', t: '', d: '' },
     { art: 'sur', k: 'Un momento...', t: '¿O no era todo?', d: 'Dicen que en el mapa apareció algo nuevo, bien al sur. Y que alguien llegó en barco diciendo que es suyo.' }
   ],
@@ -380,11 +380,11 @@ GS.ONBOARD = [
 GS.TIPS = {
   resumen: 'Este es el resumen del día. Las <b>🪙 monedas</b> se gastan en "Mejorar"; los <b>🗺️ fondos</b> se juntan solos para abrir sucursales desde el Mapa.',
   tienda: 'Tocá una mejora para verla en el local. Las que tienen niveles se pueden mirar aunque todavía no te alcance.',
-  mapa: 'Tocá una región para ver su sucursal. Las que tienen candado se abren con fondos de expansión.',
+  mapa: 'Tocá una región para ver su sucursal. Para abrir una nueva hacen falta tres cosas: <b>5 estrellas</b> y <b>camión</b> en las que ya tenés, y los <b>fondos de expansión</b>.',
   mancha: '🧹 Dejaron una mancha. Cuando tengas un rato libre, tocá <b>Limpiar el piso</b>: terminar con el local sucio baja la reputación.',
   ensenar: '🎓 En las sucursales nuevas, en los respiros podés <b>enseñarle al equipo</b>. Cuanto más saben, más tareas resuelven solos.',
   errores: 'Desde hoy, ojo: si le das <b>otro producto</b>, el cliente se va. Y cobrar mal baja la reputación.',
-  sucursal: 'Sucursal nueva: empezás con un local humilde. Mejoralo, enseñale al equipo y llevalo a 5 estrellas. Yo te llamo cada tanto.',
+  sucursal: 'Sucursal nueva: empezás con un local humilde. Llevala a <b>5 estrellas</b> y comprale el <b>camión</b>: con eso la región queda conquistada. Yo te llamo cada tanto.',
   evento: 'A veces pasa algo inesperado. Elegí con criterio: lo que decidas deja huella en la reputación o en la caja.',
   rival: '⚔️ Mientras el rival de la zona siga dando pelea, su regla te complica cada jornada. Cuando venga al mostrador, <b>ganale</b>: la regla se va y esta sucursal rinde 10% más.',
   reparto: 'Cada cierre elegís a dónde va lo del día: <b>al local</b> (más monedas para mejoras) o <b>a la expansión</b> (más fondos para abrir sucursales). No alcanza para todo a la vez.',
@@ -405,6 +405,7 @@ GS.ACHIEVEMENTS = [
   { id: 'escoba', ic: '🧹', name: 'Escoba nueva barre bien', d: 'Limpiá 20 manchas.', test: st => st.clean >= 20 },
   { id: 'palos', ic: '💰', name: 'Diez palos', d: 'Facturá 10 millones (ficticios) en total.', test: st => st.sales >= 10000000 },
   { id: 'cinco', ic: '⭐', name: 'Cinco estrellas', d: 'Llevá la reputación a 4,8 o más.', test: st => st.rep >= 4.8 },
+  { id: 'platino', ic: '💎', name: 'Sucursal de platino', d: 'Completá una sucursal al 100%: todas las mejoras y todas las historias.', test: st => st.platino >= 1 },
   { id: 'camion', ic: '🚚', name: 'Con camión propio', d: 'Llevá la flota de envíos hasta el camión.', test: st => st.flota >= 3 },
   { id: 'generoso', ic: '💸', name: 'Generoso sin querer', d: 'Diste vuelto de más.', hidden: true, test: st => st.vueltoMal >= 1 },
   { id: 'piso', ic: '🍽️', name: 'Se puede comer en el piso', d: 'Cinco jornadas terminadas sin una mancha.', hidden: true, test: st => st.limpio >= 5 },
