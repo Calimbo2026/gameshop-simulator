@@ -28,6 +28,11 @@ El juego base (las cinco etapas de abajo) está terminado. Ahora crece hacia "ll
 - Armado de PC: las piezas se arrastran a su lugar sobre un motherboard dentro del gabinete (también funciona tocar pieza y lugar).
 - Tarjeta "Qué falta para abrir otra sucursal" en el menú de campaña y en el resumen: 5 estrellas, camión y fondos, con para qué sirve cada recurso.
 
+## v0.51 · Resumen en tres pantallas
+- El cierre del día se divide en tres pantallas deslizables: cómo te fue, lo que cobraste y qué sigue.
+- Se quitó la elección de reparto: monedas y fondos van siempre parejos.
+- Los festejos (región conquistada, finales) aparecen al llegar a la última pantalla.
+
 ## Juego base (terminado)
 
 | # | Etapa | Qué incluye | Estado |

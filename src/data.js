@@ -7,7 +7,7 @@
 const GS = {};
 
 GS.CONFIG = {
-  version: '0.50.1',
+  version: '0.51.0',
   phase: 8,
   phaseNote: 'Juego completo de punta a punta. Falta tu playtest con 5 personas y encender el lanzamiento (launched: true)',                       // fase actual del proyecto (1 a 5)
   links: { tienda: 'https://www.gameshop.com.ar', instagram: '' },   // botones del inicio y del cierre (vacío = no se muestra)
@@ -378,7 +378,7 @@ GS.ONBOARD = [
 ];
 /* Consejos del Dueño: aparecen una sola vez, la primera vez que pasa cada cosa. */
 GS.TIPS = {
-  resumen: 'Así cerró el día. Las <b>🪙 monedas</b> son para <b>mejorar el local</b> y comprar el camión. Los <b>🗺️ fondos</b> se juntan solos y sirven solo para <b>abrir sucursales</b>. Más abajo vas a ver siempre qué te falta para la próxima.',
+  resumen: 'El cierre del día tiene tres pantallas: <b>cómo te fue</b>, <b>lo que cobraste</b> y <b>qué sigue</b>. Deslizá o tocá Siguiente.',
   tienda: 'Tocá una mejora para verla en el local. Las que tienen niveles se pueden mirar aunque todavía no te alcance.',
   mapa: 'Tocá una región para ver su sucursal. Para abrir una nueva hacen falta tres cosas: <b>5 estrellas</b> y <b>camión</b> (se compra con 🪙 monedas) en las que ya tenés, y los <b>🗺️ fondos de expansión</b>, que se juntan solos jornada a jornada.',
   mancha: '🧹 Dejaron una mancha. Cuando tengas un rato libre, tocá <b>Limpiar el piso</b>: terminar con el local sucio baja la reputación.',
