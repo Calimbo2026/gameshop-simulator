@@ -12,6 +12,7 @@ El juego base (las cinco etapas de abajo) está terminado. Ahora crece hacia "ll
 - Presentación en el formato de imágenes grandes de la bienvenida.
 - Logros como medallas; abrir sucursal con encabezado de la región y el rival en "VS"; tarjeta para compartir con la placa dorada.
 - Libreta con texto al día; cuadro de encargado con retratos.
+- v0.47.1: la tienda de la presentación y de cada inauguración aparece en el entorno de su región (ciudad, cordillera, cerros de colores, selva, lago y nieve, costa con faro).
 
 ## Juego base (terminado)
 

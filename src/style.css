@@ -558,3 +558,10 @@ body.calm .brand:after { animation: none; display: none; }
 
 .mgrs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; } .mgrs button { background: linear-gradient(170deg, #2a2a33, #17171c); border: 2px solid #f5c518; border-radius: 18px; padding: 12px 8px 10px; color: #fff; font: inherit; display: grid; gap: 4px; justify-items: center; cursor: pointer; }
 .mgrs .pf { width: 96px; height: 96px; border-radius: 24px; overflow: hidden; background: linear-gradient(160deg, #6fb2f2, #3f7fd0); border: 3px solid #fff; } .mgrs .pf svg { width: 100%; height: auto; display: block; } .mgrs b { font-family: var(--display); font-size: 22px; text-transform: uppercase; } .mgrs small { font-size: 12px; color: #c9c9d2; } .mgrs button:active { transform: scale(.97); }
+
+/* Escenas con el entorno de cada región */
+.ep-scene { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.ep-city { top: 12px; left: 50%; right: auto; transform: translateX(-50%); width: max-content; max-width: 92%; padding: 5px 18px 7px; border-radius: 14px; background: rgba(0,0,0,.78); border: 2px solid #f5c518; box-shadow: 0 6px 16px rgba(0,0,0,.4); text-shadow: none; font-size: clamp(22px, 7.4vw, 36px); letter-spacing: 2px; line-height: 1; color: #f5c518; z-index: 2; }
+.ep-city small { display: block; font-family: system-ui, sans-serif; font-size: 10.5px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: #fff; margin-bottom: 3px; }
+.ep-inaug .ep-fila { margin-bottom: 4px; }
+.ep-city.lg { font-size: clamp(17px, 5.4vw, 26px); white-space: nowrap; }
