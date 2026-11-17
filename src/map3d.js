@@ -108,10 +108,26 @@ GS.Map3D = (() => {
     }
     if ((state.malvinas || {}).hidden) { const mv = label('ISLAS MALVINAS', '', 40); mv.scale.set(4.5, 1.5, 1); mv.position.set(X(-59.5), 1.6, -Y(-51.0)); scene.add(mv); }
   }
+  /* Zoom y arrastre del mapa (solo cuando se puede tocar): pellizco, rueda o los botones + y − */
+  let zm = 1, pan = [0, 0], base = null, hNow = 10, aNow = 1, ptrs = {}, pd = 0, z0 = 1, dragT = 0, total = 0, lst = [];
+  const EL = 48 * Math.PI / 180, cnt = () => Object.keys(ptrs).length;
+  function place() { if (!base) return; const k = 1 - 1 / zm, mx = 11 * k, mz = 17 * k; pan[0] = Math.max(-mx, Math.min(mx, pan[0])); pan[1] = Math.max(-mz, Math.min(mz, pan[1])); camera.position.set(base.x + pan[0], base.y, base.z + pan[1]); }
+  function setZoom(z) { if (!renderer) return; zm = Math.max(1, Math.min(3, z)); fit(); }
+  function gestures(on) {
+    lst.forEach(q => q[0].removeEventListener(q[1], q[2])); lst = []; ptrs = {}; if (!on) return;
+    const add = (ev, fn, o) => { cv.addEventListener(ev, fn, o); lst.push([cv, ev, fn]); }, two = () => { const p = Object.keys(ptrs).map(k => ptrs[k]); return Math.hypot(p[0].x - p[1].x, p[0].y - p[1].y); };
+    add('pointerdown', e => { ptrs[e.pointerId] = { x: e.clientX, y: e.clientY }; total = 0; if (cnt() === 2) { pd = two(); z0 = zm; } try { cv.setPointerCapture(e.pointerId); } catch (er) {} });
+    add('pointermove', e => { const p = ptrs[e.pointerId]; if (!p) return; const dx = e.clientX - p.x, dy = e.clientY - p.y; p.x = e.clientX; p.y = e.clientY;
+      if (cnt() >= 2) { if (pd > 0) { zm = Math.max(1, Math.min(3, z0 * two() / pd)); dragT = Date.now(); fit(); } return; }
+      total += Math.abs(dx) + Math.abs(dy); if (total < 8 || zm <= 1.01) return; dragT = Date.now();
+      pan[0] -= dx * (2 * hNow * aNow / (cv.clientWidth || 300)); pan[1] -= dy * (2 * hNow / (cv.clientHeight || 400)) / Math.sin(EL); place(); });
+    const up = e => { delete ptrs[e.pointerId]; pd = 0; }; add('pointerup', up); add('pointercancel', up);
+    add('wheel', e => { e.preventDefault(); setZoom(zm * (e.deltaY > 0 ? 0.87 : 1.15)); }, { passive: false });
+  }
   function fit() {
     const w = cv.clientWidth || 300, h = cv.clientHeight || 400, a = w / h, half = zc ? (big ? Math.max(8.2, 6.6 / a) : Math.max(6.4, 5.2 / a)) : Math.max(14.6, 10.2 / a);       // el país entra entero, parado o apaisado
     renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1)); renderer.setSize(w, h, false);
-    camera.left = -half * a; camera.right = half * a; camera.top = half; camera.bottom = -half; camera.updateProjectionMatrix();
+    const hz = half / zm; hNow = hz; aNow = a; camera.left = -hz * a; camera.right = hz * a; camera.top = hz; camera.bottom = -hz; camera.updateProjectionMatrix(); place();
   }
   function frame(t) {
     raf = requestAnimationFrame(frame); const s = t / 1000;
@@ -121,6 +137,7 @@ GS.Map3D = (() => {
     renderer.render(scene, camera);
   }
   function pick(e) {
+    if (Date.now() - dragT < 300) return;             /* fue un arrastre o un pellizco, no un toque */
     const r = cv.getBoundingClientRect(), v = new T.Vector2((e.clientX - r.left) / r.width * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1), rc = new T.Raycaster(); rc.setFromCamera(v, camera);
     const hit = rc.intersectObjects(scene.children, true).find(h => h.object.userData.reg); if (hit && onPick) onPick(hit.object.userData.reg);
   }
@@ -130,8 +147,9 @@ GS.Map3D = (() => {
     camera = new T.OrthographicCamera(-10, 10, 10, -10, 0.1, 400); const c = new T.Vector3(0.9, 0, 0.4), el = 48 * Math.PI / 180, az = -6 * Math.PI / 180, D = 120;
     camera.position.set(c.x + Math.sin(az) * Math.cos(el) * D, Math.sin(el) * D, c.z + Math.cos(az) * Math.cos(el) * D); camera.lookAt(c);
     if (zoomTo && REG[zoomTo]) { zc = [X(REG[zoomTo].at[0]) + (big ? (X(-59.55) - X(REG[zoomTo].at[0])) * 2.5 : 0), -Y(REG[zoomTo].at[1])]; /* con las islas grandes, se centra entre las dos */ camera.position.x += zc[0] - c.x; camera.position.z += zc[1] - (big ? 2.9 : 1.6) - c.z; } else zc = null;
+    zm = 1; pan = [0, 0]; base = camera.position.clone(); gestures(!!cb && !zoomTo); canvas.style.touchAction = cb && !zoomTo ? 'none' : '';
     build(state); fit(); cvOf = pick; canvas.addEventListener('click', pick); window.addEventListener('resize', fit); if (window.ResizeObserver) { ro = new ResizeObserver(() => { if (renderer) fit(); }); ro.observe(canvas); } raf = requestAnimationFrame(frame); return true;
   }
-  function close() { if (raf) cancelAnimationFrame(raf); raf = 0; if (cv && cvOf) cv.removeEventListener('click', cvOf); window.removeEventListener('resize', fit); if (ro) { ro.disconnect(); ro = null; } if (renderer) { renderer.dispose(); renderer = null; } cv = null; }
-  return { open, close, select(id) { sel = id; }, isOpen: () => !!renderer };
+  function close() { gestures(false); base = null; if (raf) cancelAnimationFrame(raf); raf = 0; if (cv && cvOf) cv.removeEventListener('click', cvOf); window.removeEventListener('resize', fit); if (ro) { ro.disconnect(); ro = null; } if (renderer) { renderer.dispose(); renderer = null; } cv = null; }
+  return { open, close, zoom: k => setZoom(zm * k), select(id) { sel = id; }, isOpen: () => !!renderer };
 })();

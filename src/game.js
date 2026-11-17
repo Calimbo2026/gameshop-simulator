@@ -1572,7 +1572,7 @@ GS.Game = (function () {
       toast(!before && fondoNow() >= goalNow() ? '<b>🏠 ¡Meta alcanzada!</b>Ya alcanza para el local de al lado. Lo que sumes de más mejora el final.' : '<b>🏠 Aportaste 🪙 ' + v + '</b>Fondo: ' + fondoNow() + ' de ' + goalNow() + '.', '', 2600); renderShop(); });
     $('btnPlot').addEventListener('click', () => { A.unlock(); A.play('click'); showMap(); });
     $('coachOk').addEventListener('click', () => { $('coach').hidden = true; A.play('click'); }); setInterval(guideTick, 180);
-    $('mapX').addEventListener('click', () => { A.play('click'); closeMap(); }); $('mapLib').addEventListener('click', () => { closeMap(); showLibreta(); });
+    $('mapX').addEventListener('click', () => { A.play('click'); closeMap(); }); $('mapZi').addEventListener('click', () => { A.play('click'); GS.Map3D.zoom(1.4); }); $('mapZo').addEventListener('click', () => { A.play('click'); GS.Map3D.zoom(1 / 1.4); }); $('mapLib').addEventListener('click', () => { closeMap(); showLibreta(); });
     $('mapCard').addEventListener('click', e => { const g = e.target.closest('[data-go]'), o = e.target.closest('[data-open]'); if (g) { closeMap(); leaveTo(g.dataset.go); } else if (o && !o.disabled) { closeMap(); openRegion(o.dataset.open); } });
     const shopStep = k => { if (state !== 'shop') return; shopSel = (shopSel + k + GS.UPGRADES.length) % GS.UPGRADES.length; A.play('click'); renderShop(); const on = $('shopSlots').querySelector('.on'); if (on && on.scrollIntoView) on.scrollIntoView({ block: 'nearest', inline: 'center' }); };
     $('shopPrev').addEventListener('click', () => shopStep(-1)); $('shopNext').addEventListener('click', () => shopStep(1));
