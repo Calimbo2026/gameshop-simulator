@@ -431,7 +431,8 @@ GS.Game = (function () {
   // Antes de irse hay que dejar un encargado. La sucursal queda congelada tal como estaba.
   function pickManager(then) {
     if (brNow().manager) return then(); const names = brCrew(brId());
-    modal('<h2>¿Quién queda de encargado?</h2><p>Te vas de <b>' + RG(brId()).city + '</b>. La sucursal queda tal como la dejás hasta que vuelvas.</p><div class="row">' + names.map(n => '<button class="btn" data-mg="' + n + '">' + n + '</button>').join('') + '</div>');
+    const LK = { Lucho: { hair: MOHAWK[1], hairStyle: 'mohicano', skin: GS.SKINS[3], glasses: true }, Brian: { hair: 0x2d6cdf, hairStyle: 'corto', skin: GS.SKINS[0] } }, lookOf = n => Object.assign({ shirt: 0xe10600 }, (RG(brId()).crew || []).filter(c => c.name === n).map(c => c.look)[0] || LK[n] || {});
+    modal('<div class="gold-h"><i></i><b>Encargado</b><i></i></div><p style="text-align:center">Te vas de <b>' + RG(brId()).city + '</b>. ¿Quién queda a cargo? La sucursal queda tal como la dejás hasta que vuelvas.</p><div class="mgrs">' + names.map(n => '<button data-mg="' + n + '"><div class="pf">' + avatarSvg(lookOf(n), 'happy') + '</div><b>' + n + '</b><small>Tocá para elegir</small></button>').join('') + '</div>');
     $('sheet').querySelectorAll('[data-mg]').forEach(b => b.addEventListener('click', () => { brSave({ manager: b.dataset.mg }); A.play('ok'); toast('<b>' + b.dataset.mg + ', encargado</b>"' + LN.freeze + '"', '', 3400); then(); }));
   }
   function leaveTo(id) { if (state === 'day') return toast('<b>Terminá la jornada</b>Se viaja entre jornadas.', '', 2200); pickManager(() => { switchBranch(id); $('modal').hidden = true; if (state === 'end') goHome(); toast('<b>✈️ ' + RG(id).city + '</b>Sucursal ' + RG(id).name + '.', '', 2600); }); }
@@ -439,7 +440,9 @@ GS.Game = (function () {
     if (state === 'day') return toast('<b>Terminá la jornada</b>Las sucursales se abren entre jornadas.', '', 2200);
     if (!canExpand()) return toast('<b>Todavía no</b>Primero conquistá ' + pendingOpen().map(x => x.city).join(' y ') + ': 5 estrellas y camión.', '', 3600);
     const R = RG(id), sel = [];
-    modal('<h2>Sucursal ' + R.name + ' · ' + R.city + '</h2><p>' + R.why + '</p><div class="ctx"><div><i>🗺️</i><span><b>Provincias de la región</b>' + R.prov.join(' · ') + '</span></div><div><i>🌦️</i><span><b>Clima</b>' + R.clima + '</span></div><div class="riv"><i>⚔️</i><span><b>Competencia: ' + R.rival.name + '</b>' + R.rival.owner + ' no va a regalar nada. ' + R.rival.rule + '</span></div></div><p><b>Elegí 2 empleados</b> de los 4 que se presentaron. Después vas a tener que enseñarles.</p><div class="crew">' +
+    { const rv = GS.STORIES.find(S => S.id === 'rival_' + id), me = Object.assign({ skin: GS.SKINS[2], hair: GS.HAIRS[0], hairStyle: 'corto', shirt: 0xe10600 }, GS.Store.get('avatar') || {}); var headR = '<div class="reg-head" style="background:linear-gradient(120deg, ' + ACC[id] + ', #15151a 115%)"><small>Nueva sucursal · Región ' + R.name + '</small><b>' + R.city + '</b></div>' +
+      (rv ? '<div class="vs"><figure><div class="pf">' + avatarSvg(me, 'happy') + '</div><figcaption>GameShop</figcaption></figure><b>VS</b><figure><div class="pf">' + avatarSvg(Object.assign({ skin: 0xe0ac7e }, rv.look), 'angry') + '</div><figcaption>' + R.rival.name + '</figcaption></figure></div>' : ''); }
+    modal(headR + '<p>' + R.why + '</p><div class="ctx"><div><i>🗺️</i><span><b>Provincias de la región</b>' + R.prov.join(' · ') + '</span></div><div><i>🌦️</i><span><b>Clima</b>' + R.clima + '</span></div><div class="riv"><i>⚔️</i><span><b>Competencia: ' + R.rival.name + '</b>' + R.rival.owner + ' no va a regalar nada. ' + R.rival.rule + '</span></div></div><p><b>Elegí 2 empleados</b> de los 4 que se presentaron. Después vas a tener que enseñarles.</p><div class="crew">' +
       R.crew.map(c => '<button class="cand" data-c="' + c.id + '">' + GS.faceSvg(Object.assign({ shirt: 0xe10600 }, c.look), 'happy') + '<b>' + c.name + '</b><small>' + c.d + '</small></button>').join('') + '</div><div class="row"><button class="btn ghost" data-close>Todavía no</button><button class="btn" id="regOk" disabled>Abrir · 🗺️ ' + R.cost + '</button></div>');
     $('sheet').querySelectorAll('.cand').forEach(b => b.addEventListener('click', () => { const c = b.dataset.c, k = sel.indexOf(c); if (k >= 0) sel.splice(k, 1); else if (sel.length < 2) sel.push(c); $('sheet').querySelectorAll('.cand').forEach(x => x.classList.toggle('on', sel.indexOf(x.dataset.c) >= 0)); $('regOk').disabled = sel.length !== 2; A.play('click'); }));
     $('regOk').addEventListener('click', () => pickManager(() => {
@@ -621,7 +624,7 @@ GS.Game = (function () {
   function showLibreta() {
     const h = histAll(), known = GS.STORIES.filter(S => h[S.id]), unk = GS.STORIES.length - known.length, wasDay = state === 'day'; if (wasDay) paused = true;
     A.unlock(); A.play('click');
-    modal('<h2>📖 Tu libreta</h2><div class="plot big">' + plotHtml() + '</div><p style="font-size:13.5px;color:var(--mute);margin:0">Las monedas se aportan desde "Mejorar el local". Algunas visitas también suman al fondo, o cambian lo que cuesta el local.</p>' +
+    modal('<div class="gold-h"><i></i><b>Tu libreta</b><i></i></div><p style="font-size:13.5px;color:var(--mute);margin:0 0 4px">Acá quedan anotados los clientes con historia. Cerrar sus historias suma reputación, a veces fondos, y cuenta para dejar la sucursal en 💎 platino.</p>' +
       (known.length ? known.map(S => { const st = h[S.id]; return '<div class="lib"><div class="lib-face">' + avatarSvg(Object.assign({ skin: 0xe0ac7e }, S.look), st.done ? 'happy' : 'normal') + '</div><div><b>' + S.name + '</b> <em>' + S.tag + '</em><ul>' + st.notes.map(n => '<li>' + n + '</li>').join('') + '</ul><small>' + (st.done ? '✔ Historia cerrada' : '… Dijo que vuelve') + '</small></div></div>'; }).join('') : '<p>Todavía no anotaste a nadie. Hay clientes que vuelven: cuando alguien quiera hablar, vas a ver una 📖 en los pedidos.</p>') +
       (unk ? '<p style="font-size:13.5px;color:var(--mute);margin:0">Te falta conocer a ' + unk + (unk === 1 ? ' persona.' : ' personas.') + '</p>' : '') + '<button class="btn" data-close>Cerrar</button>', () => { if (wasDay) paused = false; });
   }
@@ -1274,8 +1277,10 @@ GS.Game = (function () {
       const stripe = (x, w, c) => { g.fillStyle = c; g.beginPath(); g.moveTo(x, 0); g.lineTo(x + w, 0); g.lineTo(x + w - 150, 300); g.lineTo(x - 150, 300); g.fill(); };
       g.save(); g.globalAlpha = 0.9; stripe(120, 46, '#ff0000'); stripe(196, 30, '#fff'); stripe(W_ - 20, 46, '#ff0000'); stripe(W_ - 96, 30, '#fff'); g.restore();
       g.textAlign = 'center'; g.textBaseline = 'alphabetic';
-      if (im[0]) { const lw = 600, lh = lw * im[0].height / im[0].width; g.drawImage(im[0], (W_ - lw) / 2, 78, lw, lh); }
-      g.fillStyle = '#fff'; g.font = F(58, '400'); g.fillText('L A   E X P A N S I Ó N', W_ / 2, 300);
+      { const pw = 700, ph = 250, px = (W_ - pw) / 2, py = 58, gd = g.createLinearGradient(px, py, px + pw, py + ph); [[0, '#8a5a00'], [0.18, '#f5c518'], [0.32, '#fff3b0'], [0.46, '#f5c518'], [0.62, '#9a6a00'], [0.8, '#ffe27a'], [1, '#b8860b']].forEach(q => gd.addColorStop(q[0], q[1]));
+        g.save(); g.shadowColor = 'rgba(245,197,24,.45)'; g.shadowBlur = 40; g.fillStyle = gd; g.beginPath(); g.roundRect(px, py, pw, ph, 40); g.fill(); g.restore(); g.fillStyle = '#000'; g.beginPath(); g.roundRect(px + 9, py + 9, pw - 18, ph - 18, 32); g.fill();
+        if (im[0]) { const lw = 600, lh = lw * im[0].height / im[0].width; g.drawImage(im[0], (W_ - lw) / 2, py + 20, lw, lh); }
+        g.fillStyle = '#fff'; g.font = '900 34px "Arial Black", "Helvetica Neue", Arial, sans-serif'; const t = 'L A   E X P A N S I Ó N', tw = g.measureText(t).width; g.fillText(t, W_ / 2, py + 208); g.fillStyle = '#e10600'; g.fillRect(px + 44, py + 194, (pw - 88 - tw) / 2 - 22, 5); g.fillRect(W_ / 2 + tw / 2 + 22, py + 194, (pw - 88 - tw) / 2 - 22, 5); }
       // personaje en un círculo
       g.fillStyle = '#fff'; g.beginPath(); g.arc(W_ / 2, 560, 218, 0, 7); g.fill(); g.fillStyle = '#e9e9ee'; g.beginPath(); g.arc(W_ / 2, 560, 204, 0, 7); g.fill();
       if (im[1]) { g.save(); g.beginPath(); g.arc(W_ / 2, 560, 204, 0, 7); g.clip(); try { g.drawImage(im[1], W_ / 2 - 190, 372, 380, 472); } catch (e) {} g.restore(); }
@@ -1354,8 +1359,8 @@ GS.Game = (function () {
   function checkLogros() { const st = statsNow(), have = GS.Store.get('ach') || [], fresh = GS.ACHIEVEMENTS.filter(a => have.indexOf(a.id) < 0 && a.test(st)); if (fresh.length) GS.Store.set('ach', have.concat(fresh.map(a => a.id))); return fresh; }
   function showLogros() {
     const have = GS.Store.get('ach') || [];
-    modal('<h2>🏅 Logros</h2><p>' + have.length + ' de ' + GS.ACHIEVEMENTS.length + '. Algunos están escondidos: aparecen cuando los conseguís.</p><div class="ach">' + GS.ACHIEVEMENTS.map(a => { const ok = have.indexOf(a.id) >= 0;
-      return '<div class="' + (ok ? 'on' : '') + '"><i>' + (ok ? a.ic : a.hidden ? '❔' : '🔒') + '</i><span><b>' + (ok || !a.hidden ? a.name : '???') + '</b><small>' + (ok || !a.hidden ? a.d : 'Logro oculto') + '</small></span></div>'; }).join('') + '</div><button class="btn" data-close>Cerrar</button>');
+    modal('<div class="gold-h"><i></i><b>Logros</b><i></i></div><p class="ach-n"><b>' + have.length + '</b> de ' + GS.ACHIEVEMENTS.length + '<span class="map-bar"><i style="width:' + (have.length / GS.ACHIEVEMENTS.length * 100) + '%"></i></span></p><div class="medals">' + GS.ACHIEVEMENTS.map(a => { const ok = have.indexOf(a.id) >= 0;
+      return '<div class="' + (ok ? 'on' : '') + '"><i>' + (ok ? a.ic : a.hidden ? '❔' : '🔒') + '</i><b>' + (ok || !a.hidden ? a.name : '???') + '</b><small>' + (ok || !a.hidden ? a.d : 'Logro oculto: aparece cuando lo conseguís') + '</small></div>'; }).join('') + '</div><button class="btn" data-close>Cerrar</button>');
   }
   function showRecords() {
     const best = GS.Store.get('best') || [];

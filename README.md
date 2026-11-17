@@ -6,6 +6,13 @@ Juego web (un solo HTML) que simula una jornada de trabajo en GameShop. Pieza de
 
 El juego base (las cinco etapas de abajo) está terminado. Ahora crece hacia "llevar GameShop a todo el país" en ocho etapas nuevas: ver `GS.PHASES` en `src/data.js` y la sección "Expansión nacional" al final.
 
+## v0.47 · Pantallas con más épica
+- Inauguración de sucursal y región conquistada a pantalla completa (tienda con cinta, mapa con copa y papelitos).
+- Resumen de jornada con encabezado dorado (ciudad y mes) y monedas, fondos y reputación como datos grandes.
+- Presentación en el formato de imágenes grandes de la bienvenida.
+- Logros como medallas; abrir sucursal con encabezado de la región y el rival en "VS"; tarjeta para compartir con la placa dorada.
+- Libreta con texto al día; cuadro de encargado con retratos.
+
 ## Juego base (terminado)
 
 | # | Etapa | Qué incluye | Estado |
