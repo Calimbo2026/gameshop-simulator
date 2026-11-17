@@ -20,6 +20,10 @@ El juego base (las cinco etapas de abajo) está terminado. Ahora crece hacia "ll
 - Con el techo puesto se ven las paredes completas del lado del estacionamiento.
 - Puertas de vidrio corredizas: se abren solas cuando alguien se acerca.
 
+## v0.49 · Productos y primer día guiado
+- Los 44 productos redibujados con el mismo estilo (más detalle, brillo y sombra).
+- Primer día: arranca con un cliente ya en el mostrador y una flecha marca dónde tocar (atender, elegir el producto, cobrar).
+
 ## Juego base (terminado)
 
 | # | Etapa | Qué incluye | Estado |

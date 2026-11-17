@@ -214,12 +214,12 @@ GS.Game = (function () {
     const n = dayNumber(); applyBranch();
     const un = unlockedFor(n), fresh = n <= GS.UNLOCKS.length ? GS.UNLOCKS[n - 1] : [];
     const cond = conditionFor(n);
-    day = newDay({ relaxed, n, cond, unlocked: un, plan: planDay(n, cond), rest: 5.5 }); state = 'day'; enterPlay(); $('jobs').hidden = false;
+    day = newDay({ relaxed, n, cond, unlocked: un, plan: planDay(n, cond), rest: n === 1 ? 0.5 : 5.5 }); state = 'day'; enterPlay(); $('jobs').hidden = false;
     A.setMood(cond === 'lluvia' ? 'rain' : cond ? 'party' : 'day');
     if (rivalOn() && !relaxed) { const R = RG(rivalId()); day.zonda = rivalId() === 'cuyo' && Math.random() < 0.45; if (rivalId() !== 'cuyo' || day.zonda) setTimeout(() => { if (state === 'day') toast('<b>⚔️ ' + (day.zonda ? 'Hoy sopla el Zonda' : R.rival.name) + '</b>' + R.rival.fx, '', 5200); }, 6500); setTimeout(() => coach('rival'), 9000); }
     W.setXmas(cond === 'navidad' ? (GS.Store.get('xmas') || { a: 0, g: 0, l: 0 }) : null); W.setHats(cond === 'navidad');
     if (!relaxed) { const nw = day.plan.filter(w => !w.final).length; day.visits = dueStories(n).map((S, i) => ({ S, wave: Math.min(nw - 1, i + (nw > 2 ? 1 : 0)) })); }
-    const d = day, msg = n === 1 ? 'Bienvenido a GameShop. Abrimos de 10 a 19. Hoy: mostrador y caja. Vos tocá el pedido, que tu personaje va solo.'
+    const d = day, msg = n === 1 ? 'Bienvenido a GameShop. Ya tenés un cliente en el mostrador: tocá el pedido de abajo, que tu personaje va solo.'
       : cond ? GS.CONDITIONS[cond].name.slice(3) + '. ' + GS.CONDITIONS[cond].say
       : fresh.length ? 'Jornada ' + n + '. Hoy sumamos: ' + fresh.map(id => ST(id).name).join(' y ') + '. Cuando aparezcan, te explico.' : 'Jornada ' + n + '. ' + duenoLine();
     setTimeout(() => { if (day === d) duenoSpeak(msg); }, 500);
@@ -232,6 +232,27 @@ GS.Game = (function () {
     updateHud();
     GS.track('inicio_partida', { modo: relaxed ? 'tranquilo' : 'normal' });
     
+  }
+  /* Guía del primer día: una flecha señala dónde tocar hasta completar la primera venta y el primer cobro */
+  let guideEl = null;
+  function guideTick() {
+    const g = $('guide'); let el = null, txt = '';
+    if (state === 'day' && day && day.n === 1 && !day.arcade && !paused && !(GS.Store.get('seen') || {}).g_ok) {
+      const mg = $('mg');
+      if (MG.isOpen()) { const ok = mg.querySelector('#mgOk'), cu = MG.customer(), isM = !!mg.querySelector('.opt[data-id]'), res = mg.querySelector('.result');
+        if (!isM && !ok && !day.gProd0) day.gCaja = 1;
+        if (ok) { el = ok; txt = '-'; }                 /* '-' = solo resaltar el botón, sin tapar el texto que hay que leer */
+        else if (isM && cu && !day.gProd && !res) { day.gProd0 = 1; el = mg.querySelector('.opt[data-id="' + cu.product.id + '"]'); txt = ''; }
+        if (isM && res) day.gProd = 1; if (!isM) day.gProd0 = 0;
+      } else { if (day.gProd0) { day.gProd = 1; day.gProd0 = 0; }
+        const bs = [].slice.call($('jobs').querySelectorAll('.job:not(.idle)')), find = t => bs.filter(b => b.querySelector('b').textContent.indexOf(t) === 0)[0];
+        if (!day.gProd && find('Mostrador')) { el = find('Mostrador'); txt = 'Tocá acá para atender'; } else if (!day.gCaja && find('Caja')) { el = find('Caja'); txt = 'Ahora cobrale acá'; }
+        if (day.gProd && day.gCaja) { const sn = GS.Store.get('seen') || {}; sn.g_ok = 1; GS.Store.set('seen', sn); } }
+    }
+    if (guideEl && guideEl !== el) guideEl.classList.remove('guided'); guideEl = el;
+    if (!el) { g.hidden = true; return; }
+    const r = el.getBoundingClientRect(), up = r.top < 110; el.classList.add('guided'); g.hidden = txt === '-'; g.classList.toggle('up', up); $('guideT').textContent = txt; $('guideT').hidden = !txt;
+    g.style.left = Math.max(96, Math.min(window.innerWidth - 96, r.left + r.width / 2)) + 'px'; g.style.top = (up ? r.bottom + 6 : r.top - g.offsetHeight - 6) + 'px';
   }
   function clearDay() {
     if (day) { day.customers.forEach(c => { if (c.person) c.person.remove(); c.label.remove(); }); day.tasks.forEach(t => { t.label.remove(); if (t.boxes) t.boxes.remove(); }); day.says.forEach(x => x.el.remove()); day.extras.forEach(x => x.remove()); }
@@ -255,13 +276,13 @@ GS.Game = (function () {
     const req = day.reqBag.pop(), arche = day.cond === 'navidad' && !day.santa && day.spawned >= 2 ? (day.santa = 1, GS.SANTA) : day.archBag.pop(), product = GS.CATALOG.find(p => p.id === req.p);
     const k = arche.id.charCodeAt(0) + arche.id.length * 7;   // cada personaje mantiene su look
     const look = warm(lookOf(arche)), person = W.makePerson(look);
-    const dx = L.puerta.x; person.setPos(dx + U.rnd(-0.5, 0.5), day.spawned === 0 ? L.salon.zMax + 1 : L.galeria.zMax + 2.4);
+    const dx = L.puerta.x; person.setPos(dx + U.rnd(-0.5, 0.5), day.spawned === 0 ? (day.n === 1 ? -0.6 : L.salon.zMax + 1) : L.galeria.zMax + 2.4);
     person.voice = 230 + (k % 7) * 45;
     const cu = { id: ++uid, arche, look, request: (RG(brId()).hi.length && Math.random() < 0.6 ? U.pick(RG(brId()).hi) + ' ' : '') + req.t, product, st: 'entering', pat: 1, person, slotM: slot, slotC: -1, label: makeLabel('❓') };
     day.customers.push(cu); day.spawned++;
     const sp = day.spawned > 1 && Math.random() < 0.45 ? freeSpot() : null;
     if (sp) { day.spots[sp.i] = 1; cu.spot = sp; person.walk(sp.via.concat([sp.p]), () => { cu.st = 'browse'; cu.wait = U.rnd(2.6, 4.6); person.face(sp.f); }); }   // primero mira un rato y después se acerca
-    else toCounter(cu, [[dx, L.salon.zMax + 0.2]]);
+    else toCounter(cu, day.n === 1 && day.spawned === 1 ? [] : [[dx, L.salon.zMax + 0.2]]);          /* el primer cliente del primer día ya está frente al mostrador */
     setTimeout(() => A.play('bell'), 900);
   }
   function toCounter(cu, pre) { cu.st = 'entering'; cu.person.walk(pre.concat([[L.puerta.x, -1.3], L.colaMostrador[cu.slotM]]), () => { cu.st = 'waitM'; cu.person.face(Math.PI); }); }
@@ -1518,7 +1539,7 @@ GS.Game = (function () {
       const before = fondoNow() >= goalNow(); GS.Store.set('coins', c - v); addFondo(v); A.play('cash'); GS.track('aporte_fondo', { monto: v });
       toast(!before && fondoNow() >= goalNow() ? '<b>🏠 ¡Meta alcanzada!</b>Ya alcanza para el local de al lado. Lo que sumes de más mejora el final.' : '<b>🏠 Aportaste 🪙 ' + v + '</b>Fondo: ' + fondoNow() + ' de ' + goalNow() + '.', '', 2600); renderShop(); });
     $('btnPlot').addEventListener('click', () => { A.unlock(); A.play('click'); showMap(); });
-    $('coachOk').addEventListener('click', () => { $('coach').hidden = true; A.play('click'); });
+    $('coachOk').addEventListener('click', () => { $('coach').hidden = true; A.play('click'); }); setInterval(guideTick, 180);
     $('mapX').addEventListener('click', () => { A.play('click'); closeMap(); }); $('mapLib').addEventListener('click', () => { closeMap(); showLibreta(); });
     $('mapCard').addEventListener('click', e => { const g = e.target.closest('[data-go]'), o = e.target.closest('[data-open]'); if (g) { closeMap(); leaveTo(g.dataset.go); } else if (o && !o.disabled) { closeMap(); openRegion(o.dataset.open); } });
     const shopStep = k => { if (state !== 'shop') return; shopSel = (shopSel + k + GS.UPGRADES.length) % GS.UPGRADES.length; A.play('click'); renderShop(); const on = $('shopSlots').querySelector('.on'); if (on && on.scrollIntoView) on.scrollIntoView({ block: 'nearest', inline: 'center' }); };

@@ -573,3 +573,11 @@ body.calm .brand:after { animation: none; display: none; }
 @keyframes coachBig { from { opacity: 0; transform: translate(-50%, -46%) scale(.94); } }
 #coach.big .coach-face { width: 132px; height: 132px; border-radius: 32px; border: 4px solid #f5c518; } #coach.big .coach-txt { font-size: 18px; line-height: 1.4; } #coach.big .coach-txt > b { font-family: var(--display); font-size: 24px; letter-spacing: 2px; margin-bottom: 6px; }
 #coach.big .btn { width: 100%; font-size: 18px; padding: 13px 12px; }
+
+/* Flecha guía del primer día */
+#guide { position: fixed; z-index: 60; transform: translateX(-50%); pointer-events: none; display: flex; flex-direction: column; align-items: center; animation: guideB .7s ease-in-out infinite alternate; }
+#guide[hidden] { display: none; } #guide b { background: #f5c518; color: #111; font-weight: 900; font-size: 16px; padding: 7px 14px; border-radius: 999px; white-space: nowrap; box-shadow: 0 6px 16px rgba(0,0,0,.55); border: 2px solid #111; }
+#guide i { width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 20px solid #f5c518; filter: drop-shadow(0 3px 0 #111); margin-top: -1px; }
+#guide.up { flex-direction: column-reverse; } #guide.up i { border-top: 0; border-bottom: 20px solid #f5c518; margin: 0 0 -1px; filter: drop-shadow(0 -3px 0 #111); }
+@keyframes guideB { from { margin-top: -9px; } to { margin-top: 0; } }
+.guided { outline: 4px solid #f5c518 !important; outline-offset: 2px; box-shadow: 0 0 0 9px rgba(245,197,24,.3) !important; animation: guidedP .8s ease-in-out infinite alternate; } @keyframes guidedP { to { box-shadow: 0 0 0 3px rgba(245,197,24,.15); } }
