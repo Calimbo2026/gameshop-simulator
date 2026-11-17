@@ -14,6 +14,12 @@ El juego base (las cinco etapas de abajo) está terminado. Ahora crece hacia "ll
 - Libreta con texto al día; cuadro de encargado con retratos.
 - v0.47.1: la tienda de la presentación y de cada inauguración aparece en el entorno de su región (ciudad, cordillera, cerros de colores, selva, lago y nieve, costa con faro).
 
+## v0.48 · Exterior
+- Cartel de sucursal con la estética del logo (placa negra, marco dorado, logo real).
+- Faroles nuevos con luz en degradé de noche; contenedores con tapa, ruedas e íconos.
+- Con el techo puesto se ven las paredes completas del lado del estacionamiento.
+- Puertas de vidrio corredizas: se abren solas cuando alguien se acerca.
+
 ## Juego base (terminado)
 
 | # | Etapa | Qué incluye | Estado |

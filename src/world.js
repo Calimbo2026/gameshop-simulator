@@ -166,15 +166,32 @@ GS.World = (function () {
     for (let z = s.zMin + 0.4; z < zMax - 0.5; z += 1.05) box(root, 0.55, 0.5, 0.95, 0x3f8f3a, s.xMin - 1.05, -0.015, z);
     for (let x = s.xMin - 0.5; x < 11.4; x += 1.05) box(root, 0.95, 0.5, 0.55, 0x3f8f3a, x, -0.015, s.zMin - 1.05);
     for (let z = -6; z <= 6.5; z += 2.5) box(root, 0.9, 0.012, 0.08, 0xf2f2f2, 12.25, -0.014, z); box(root, 0.08, 0.012, 12.6, 0xf2f2f2, 11.85, -0.014, 0.2);
-    box(root, 1.3, 0.9, 0.8, 0x2f6b45, 9.6, -0.015, 9.6); box(root, 1.34, 0.08, 0.84, 0x1f4a30, 9.6, 0.885, 9.6); box(root, 1.3, 0.9, 0.8, 0x2d6cdf, 11.2, -0.015, 9.6); box(root, 1.34, 0.08, 0.84, 0x1f4a8f, 11.2, 0.885, 9.6);
+    { const bin = (bx, bz, c, c2, ic) => { const g = new T.Group(); g.position.set(bx, -0.015, bz); root.add(g);
+        const geo = new T.CylinderGeometry(Math.SQRT1_2, Math.SQRT1_2 * 0.84, 1, 4, 1); geo.rotateY(Math.PI / 4); const body = new T.Mesh(geo, mat(c, { flatShading: true })); body.scale.set(1.1, 1.0, 0.86); body.position.y = 0.64; g.add(body);
+        box(g, 1.22, 0.07, 0.98, c2, 0, 1.13, 0); box(g, 1.06, 0.07, 0.82, c, 0, 1.2, 0); box(g, 0.86, 0.05, 0.66, c2, 0, 1.27, 0);                    /* tapa en escalones */
+        box(g, 0.56, 0.05, 0.07, 0x16161a, 0, 1.13, 0.52); box(g, 0.9, 0.07, 0.07, 0x16161a, 0, 1.16, -0.5);                                             /* manija y bisagra */
+        [-0.4, 0.4].forEach(dx => { const w = new T.Mesh(new T.CylinderGeometry(0.14, 0.14, 0.1, 12), mat(0x16161a)); w.rotation.z = Math.PI / 2; w.position.set(dx, 0.14, -0.32); g.add(w); box(g, 0.1, 0.14, 0.1, 0x16161a, dx, 0, 0.3); });
+        const lb = new T.MeshBasicMaterial({ map: canvasTex(128, 128, (k, W) => { k.fillStyle = '#fff'; k.beginPath(); k.roundRect(4, 4, W - 8, W - 8, 22); k.fill(); k.fillStyle = '#' + c2.toString(16).padStart(6, '0'); k.beginPath(); k.roundRect(12, 12, W - 24, W - 24, 16); k.fill(); k.strokeStyle = k.fillStyle = '#fff'; k.lineCap = 'round'; k.translate(W / 2, W / 2);
+          if (ic === 'r') for (let a = 0; a < 3; a++) { k.save(); k.rotate(a * 2.0944); k.lineWidth = 11; k.beginPath(); k.arc(0, 0, 30, -1.35, 0.25); k.stroke(); k.rotate(0.25); k.beginPath(); k.moveTo(30 - 15, -2); k.lineTo(30 + 15, -2); k.lineTo(30, 18); k.fill(); k.restore(); }
+          else { k.fillRect(-30, -34, 60, 9); k.fillRect(-9, -42, 18, 9); k.beginPath(); k.moveTo(-25, -20); k.lineTo(25, -20); k.lineTo(19, 38); k.lineTo(-19, 38); k.fill(); k.strokeStyle = '#' + c2.toString(16).padStart(6, '0'); k.lineWidth = 5; [-10, 0, 10].forEach(x => { k.beginPath(); k.moveTo(x, -10); k.lineTo(x * 0.8, 28); k.stroke(); }); } }) });
+        plane(g, 0.46, 0.46, lb, 0, 0.72, 0.414, 0, -0.07); plane(g, 0.4, 0.4, lb, 0.527, 0.72, 0, Math.PI / 2); };
+      box(root, 3.5, 0.03, 1.5, 0xb9bcc2, 10.4, -0.015, 9.6); box(root, 3.5, 0.5, 0.1, 0x8d9199, 10.4, -0.015, 8.9);                                    /* base y murete */
+      bin(9.55, 9.6, 0x2f8f4e, 0x1f6a37, 'r'); bin(11.25, 9.6, 0x2d6cdf, 0x1f4a9f, 't'); }
     [[13.5, zMax + 3.1], [-10.4, -3], [-10.4, 3.5], [-6, -9.3], [0, -9.3], [6, -9.3], [12, -9.3], [13.6, -9.3]].forEach((q, i) => { box(root, 1.1, 0.14, 1.1, 0x5a4634, q[0], 0.0, q[1]); const tr = new T.Mesh(new T.CylinderGeometry(0.13, 0.17, 1.9, 7), mat(0x6b4a2a)); tr.position.set(q[0], 1.0, q[1]); root.add(tr);
       const top = new T.Mesh(new T.SphereGeometry(1.0, 7, 5), mat(i % 2 ? 0x3c9a48 : 0x2f8a3f, { flatShading: true })); top.scale.y = 0.85; top.position.set(q[0], 2.5, q[1]); root.add(top); });
     // luz del local que sale a la vereda y dos faroles en las esquinas: se prenden cuando cae la tarde
     sky.spill = new T.MeshBasicMaterial({ color: 0xffe2a0, transparent: true, opacity: 0, depthWrite: false }); plane(root, fw - 0.6, 1.5, sky.spill, 0, 0.022, zMax + 0.85, 0, -Math.PI / 2);
     sky.bulb = new T.MeshBasicMaterial({ color: 0x55555c }); sky.halo = new T.MeshBasicMaterial({ color: 0xffd98a, transparent: true, opacity: 0, depthWrite: false });
-    [-1, 1].forEach(sd => { const x = sd * (fw / 2 + 0.25), z = zMax + 2.65;
-      box(root, 0.09, 3.1, 0.09, 0x1c1c20, x, 0, z); box(root, 0.7, 0.07, 0.07, 0x1c1c20, x - sd * 0.3, 3.1, z); box(root, 0.34, 0.1, 0.2, sky.bulb, x - sd * 0.6, 3.0, z);
-      const h = new T.Mesh(new T.CircleGeometry(1.7, 24), sky.halo); h.rotation.x = -Math.PI / 2; h.position.set(x - sd * 0.9, 0.024, z - 0.5); root.add(h); });
+    sky.halo.map = canvasTex(128, 128, (c, W) => { const g = c.createRadialGradient(W / 2, W / 2, 2, W / 2, W / 2, W / 2); g.addColorStop(0, 'rgba(255,255,255,1)'); g.addColorStop(0.45, 'rgba(255,255,255,.5)'); g.addColorStop(1, 'rgba(255,255,255,0)'); c.fillStyle = g; c.fillRect(0, 0, W, W); });
+    sky.cone = new T.MeshBasicMaterial({ color: 0xffe9b0, transparent: true, opacity: 0, depthWrite: false, side: T.DoubleSide });
+    [-1, 1].forEach(sd => { const x = sd * (fw / 2 + 0.25), z = zMax + 2.65, dk = mat(0x1c1c20), hx = x - sd * 0.95;
+      const cyl = (r1, r2, h, y, m) => { const c = new T.Mesh(new T.CylinderGeometry(r1, r2, h, 10), m || dk); c.position.set(x, y + h / 2, z); root.add(c); return c; };
+      cyl(0.22, 0.28, 0.14, 0); cyl(0.12, 0.18, 0.52, 0.14); cyl(0.15, 0.15, 0.07, 0.66, mat(0xf5c518)); cyl(0.055, 0.08, 3.1, 0.73); cyl(0.09, 0.09, 0.08, 3.83, mat(0xf5c518));
+      box(root, 1.1, 0.08, 0.08, dk, x - sd * 0.5, 3.72, z); const br = box(root, 0.6, 0.05, 0.05, dk, x - sd * 0.24, 3.46, z); br.rotation.z = sd * -0.75;                       /* brazo y tensor */
+      box(root, 0.7, 0.12, 0.34, dk, hx, 3.58, z); box(root, 0.5, 0.08, 0.24, dk, hx, 3.7, z); box(root, 0.56, 0.05, 0.24, sky.bulb, hx, 3.535, z);                             /* cabezal y luz */
+      box(root, 0.04, 0.95, 0.5, 0xe10600, x, 2.2, z + 0.34); box(root, 0.05, 0.05, 0.56, dk, x, 3.15, z + 0.3); box(root, 0.045, 0.2, 0.5, 0xffffff, x, 2.2, z + 0.34);       /* banderín */
+      const cn = new T.Mesh(new T.ConeGeometry(1.7, 3.5, 20, 1, true), sky.cone); cn.position.set(hx, 1.78, z); root.add(cn);
+      const h = new T.Mesh(new T.CircleGeometry(2.3, 24), sky.halo); h.rotation.x = -Math.PI / 2; h.position.set(hx, 0.024, z); root.add(h); });
   }
 
   // Pared con estantes llenos de productos, a lo largo de z (para izquierda y derecha)
@@ -464,6 +481,13 @@ GS.World = (function () {
     };
     const y = s.wallH + 0.45, w = s.xMax - s.xMin + 0.4, zN = s.zMin - 0.2, zS = L.galeria.zMax + 0.4;
     mansard(0, (zN + zS) / 2, w, zS - zN, y, 1.9, 0.62, [4, 6]); mansard(8.95, 0.65, 5.2, 15.7, y - 0.5, 1.3, 0.55, [2, 5]);
+    { const x1 = 11.4, t = L.taller, zG = L.galeria.zMax, hW = y - 0.84, hM = y - 0.34, wl = RM(0xf4f4f2), base = RM(0x2b2b31), band = RM(0xe10600), frame = RM(0x16161a), win = RM(0x9fd0ee), door = RM(0x5f6670), zA = s.zMin - 0.2, zB = t.zB + 0.35, zc = (zA + zB) / 2, xw = x1 + 0.13;
+      box(g, 0.28, hW, zB - zA, wl, xw, 0, zc); box(g, 0.32, 0.42, zB - zA + 0.04, base, xw, 0, zc); box(g, 0.32, 0.14, zB - zA + 0.04, band, xw, hW - 0.5, zc);                      /* costado del estacionamiento */
+      [-5.3, -2.9, 0.6, 5.0, 7.0].forEach(z => { box(g, 0.31, 1.12, 1.52, frame, xw, 0.98, z); box(g, 0.34, 0.96, 1.36, win, xw, 1.06, z); box(g, 0.36, 0.96, 0.06, frame, xw, 1.06, z); });
+      box(g, 0.31, 2.06, 1.0, frame, xw, 0, 2.7); box(g, 0.34, 1.96, 0.86, door, xw, 0, 2.7);                                                                                     /* puerta de servicio */
+      { const xa = s.xMax + 0.3, xb = x1 + 0.27, xc = (xa + xb) / 2, zw = zB - 0.13; box(g, xb - xa, hW, 0.28, wl, xc, 0, zw); box(g, xb - xa + 0.04, 0.42, 0.32, base, xc, 0, zw); box(g, xb - xa + 0.04, 0.14, 0.32, band, xc, hW - 0.5, zw);
+        box(g, 2.9, 1.12, 0.31, frame, xc, 0.98, zw); box(g, 2.74, 0.96, 0.34, win, xc, 1.06, zw); box(g, 0.06, 0.96, 0.36, frame, xc, 1.06, zw); }                               /* frente del taller */
+      box(g, 0.3, hM - 2.7, zG + 0.2 - zB, wl, s.xMax + 0.15, 2.7, (zB + zG + 0.2) / 2); box(g, s.xMax - s.xMin + 0.4, hM - 2.4, 0.3, frame, 0, 2.4, zG + 0.05); }                /* dinteles hasta el alero */
     [[-1.6, -2.4], [1.4, -2.4], [0, 4.6]].forEach(q => { box(g, 1.5, 0.6, 1.1, light, q[0], y + 1.97, q[1]); box(g, 1.0, 0.08, 0.7, grey, q[0], y + 2.57, q[1]); });     // equipos de aire arriba
     // Logo corpóreo: letras con volumen paradas sobre el faldón del frente. "Game" en negro y "Shop" en rojo.
     // Se arma con el logo real (misma tipografía): lo blanco pasa a negro, lo rojo queda rojo y el fondo negro se vuelve transparente.
@@ -541,12 +565,19 @@ GS.World = (function () {
     const wat = [], water = (x, z, w, d, ry) => { for (let t = -1; t <= 1.001; t += Math.min(1, d / w)) { const c = [x + Math.cos(ry || 0) * w * t * 0.92, z - Math.sin(ry || 0) * w * t * 0.92, d + 1.2]; wat.push(c); mts.push(c); } const m = new T.Mesh(new T.CircleGeometry(1, 20), new T.MeshBasicMaterial({ color: 0x4aa3d8 })); m.rotation.x = -Math.PI / 2; m.rotation.z = ry || 0; m.scale.set(w, d, 1); m.position.set(x, GY + 0.03, z); g.add(m); };
     // Tótem de la sucursal: cantero, dos parantes y un cartel de dos caras, a un costado del frente para no tapar nada
     const totem = new T.Group(); totem.position.set(-9.3, 0, zF - 1.0); totem.rotation.y = 0.5; g.add(totem);
-    { box(totem, 3.6, 0.3, 1.0, 0x2b2b31, 0, 0, 0); box(totem, 3.2, 0.2, 0.7, 0x3f8f3a, 0, 0.3, 0); [-1.35, 1.35].forEach(x => box(totem, 0.16, 2.2, 0.16, 0x1b1b1f, x, 0.3, 0)); box(totem, 3.5, 1.66, 0.18, 0x111114, 0, 1.7, 0); box(totem, 3.66, 0.1, 0.26, 0xf5c518, 0, 3.36, 0);
-      const tx = canvasTex(680, 320, (c, W, H) => { c.fillStyle = '#141418'; c.fillRect(0, 0, W, H); c.fillStyle = '#e10600'; c.fillRect(0, 0, W, 92); c.textAlign = 'center'; c.textBaseline = 'middle';
-        c.font = '900 62px Impact, "Arial Narrow", sans-serif'; c.fillStyle = '#fff'; c.fillText(R.id === 'pampeana' ? 'CASA CENTRAL' : 'SUCURSAL ' + R.name.toUpperCase(), W / 2, 50, W - 40);
-        c.font = '900 112px Impact, "Arial Narrow", sans-serif'; c.fillText(R.city.toUpperCase(), W / 2, 178, W - 50); c.font = '700 34px system-ui, sans-serif'; c.fillStyle = '#f5c518'; c.fillText('www.gameshop.com.ar', W / 2, 272);
-        c.strokeStyle = '#f5c518'; c.lineWidth = 8; c.strokeRect(4, 4, W - 8, H - 8); }), tm = new T.MeshBasicMaterial({ map: tx });
-      plane(totem, 3.4, 1.6, tm, 0, 2.53, 0.1); plane(totem, 3.4, 1.6, tm, 0, 2.53, -0.1, Math.PI); }
+    { const gold = mat(0xf5c518), gold2 = mat(0xb8860b);
+      box(totem, 4.3, 0.34, 1.3, 0x2b2b31, 0, 0, 0); box(totem, 3.9, 0.2, 0.94, 0x3f8f3a, 0, 0.34, 0);                                              /* cantero */
+      [-1.7, -0.55, 0.55, 1.7].forEach(x => { const b = new T.Mesh(new T.SphereGeometry(0.26, 7, 5), mat(0x2f8a3f, { flatShading: true })); b.scale.y = 0.75; b.position.set(x, 0.62, 0.3); totem.add(b); });
+      [-1.15, 1.15].forEach(x => { box(totem, 0.4, 0.9, 0.34, 0x16161a, x, 0.5, 0); box(totem, 0.48, 0.08, 0.42, gold, x, 0.56, 0); });                 /* patas */
+      box(totem, 4.0, 2.3, 0.3, 0x0a0a0c, 0, 1.4, 0);                                                                                                /* placa negra */
+      box(totem, 4.2, 0.12, 0.36, gold, 0, 3.69, 0); box(totem, 4.2, 0.12, 0.36, gold2, 0, 1.3, 0); [-2.04, 2.04].forEach(x => box(totem, 0.12, 2.5, 0.36, gold, x, 1.3, 0));
+      const tx = logoTex(760, 430, (c, W, H, img) => { c.fillStyle = '#0a0a0c'; c.fillRect(0, 0, W, H); const iw = 500, ih = iw * img.height / img.width; c.drawImage(img, (W - iw) / 2, 22, iw, ih);
+        c.textAlign = 'center'; c.textBaseline = 'middle'; const sub = R.id === 'pampeana' ? 'CASA CENTRAL' : 'SUCURSAL ' + R.name.toUpperCase();
+        c.font = '900 30px "Arial Black", "Helvetica Neue", Arial, sans-serif'; try { c.letterSpacing = '9px'; } catch (e) {} const tw = c.measureText(sub).width; c.fillStyle = '#fff'; c.fillText(sub, W / 2 + 4, 186);
+        c.fillStyle = '#e10600'; c.fillRect(46, 183, (W - 92 - tw) / 2 - 22, 6); c.fillRect(W / 2 + tw / 2 + 22, 183, (W - 92 - tw) / 2 - 22, 6); try { c.letterSpacing = '2px'; } catch (e) {}
+        const gd = c.createLinearGradient(0, 226, 0, 346); gd.addColorStop(0, '#fff3b0'); gd.addColorStop(0.5, '#f5c518'); gd.addColorStop(1, '#b8860b'); c.font = '900 124px Impact, "Arial Narrow", sans-serif'; c.fillStyle = '#000'; c.fillText(R.city.toUpperCase(), W / 2 + 3, 296, W - 70); c.fillStyle = gd; c.fillText(R.city.toUpperCase(), W / 2, 290, W - 70);
+        try { c.letterSpacing = '1px'; } catch (e) {} c.font = '700 28px system-ui, sans-serif'; c.fillStyle = '#fff'; c.fillText('www.gameshop.com.ar', W / 2, 392); }), tm = new T.MeshBasicMaterial({ map: tx });
+      plane(totem, 3.86, 2.18, tm, 0, 2.55, 0.16); plane(totem, 3.86, 2.18, tm, 0, 2.55, -0.16, Math.PI); }
     if (R.decor === 'cuyo') { village(36, { w: [2.6, 3.6], d: [2.4, 3.2], h: [1.5, 1.9], walls: [0xd9b38c, 0xc9a37a, 0xe6d3b3, 0xb5651d], roofs: [0xb0563a, 0x9c8b78, 0xc9a777], roof: 'plano', parra: true }); land(); scatter(16, (x, z, k) => bush(x, z, k, 0x8d9a4c));         // casas bajas de adobe, algunas con parral
       for (let v = 0, k = 0; v < 2 && k < 60; k++) { const a = rr(0, 6.28), r = rr(20, 30), vx = Math.cos(a) * r, vz = Math.sin(a) * r; if (![[0, 0], [3, 0], [-3, 0], [0, 2.5], [0, -2.5], [3, 2.5], [-3, -2.5]].every(q => clear(vx + q[0], vz + q[1], 1.2))) continue; mts.push([vx, vz, 4.5]); v++; const ang = rr(0, 3.1), ca = Math.cos(ang), sa = Math.sin(ang);
         for (let r2 = 0; r2 < 5; r2++) { const len = Math.round(rr(4, 7)); for (let i2 = 0; i2 < len; i2++) { const lx = (i2 - len / 2) * rr(0.8, 1.0), lz = (r2 - 2) * 1.15 + rr(-0.08, 0.08), X = vx + lx * ca - lz * sa, Z = vz + lx * sa + lz * ca; bush(X, Z, rr(0.5, 0.72), rnd() < 0.3 ? 0x4f9a3f : 0x3f8f3a); if (i2 % 3 === 0) cyl(0.05, 0.8, 0x6b4a2a, X, GY, Z); } } }      // viñedo
@@ -684,6 +715,7 @@ GS.World = (function () {
 
   // Vidriera tipo galería: dos cajas de vidrio a los costados de un pasillo, arcade en el medio
   let vk = 0;
+  const slideDoors = []; let doorK = 0;            /* puertas de vidrio corredizas: se abren solas cuando alguien se acerca */
   function buildGallery(root) {
     const s = L.salon, zA = s.zMax, zB = L.galeria.zMax, p = L.galeria.pasillo, b = Batch(root);
     const band = textTex('www.GameShop.com.ar', { bg: '#0a0a0a', fg: '#ffffff', w: 512, h: 64, font: '900 40px Impact, "Arial Black", sans-serif' });
@@ -716,7 +748,9 @@ GS.World = (function () {
     box(g, 0.75, 0.1, 0.3, 0x2a2a30, 0, 0.92, 0.45);
     plane(g, 0.72, 0.22, new T.MeshBasicMaterial({ map: textTex('ARCADE', { bg: '#e10600', fg: '#fff', w: 256, h: 64 }) }), 0, 1.74, 0.36);
     // puertas de vidrio hacia el salón
-    [-1, 1].forEach(sd => { const dg = new T.Mesh(unitBox, glass); dg.scale.set(p - 0.1, 2.2, 0.05); dg.position.set(sd * p / 2, 1.1, zA); root.add(dg); box(root, 0.05, 0.5, 0.08, 0xc8c8c8, sd * 0.18, 0.9, zA + 0.06); });
+    [-1, 1].forEach(sd => { const dg = new T.Group(); dg.position.set(sd * p / 2, 0, zA); root.add(dg); const gm = new T.Mesh(unitBox, glass); gm.scale.set(p - 0.1, 2.2, 0.05); gm.position.y = 1.1; dg.add(gm);
+      box(dg, 0.05, 0.5, 0.08, 0xc8c8c8, -sd * (p / 2 - 0.18), 0.9, 0.06); box(dg, p - 0.1, 0.07, 0.07, 0x2b2422, 0, 2.2, 0); box(dg, 0.06, 2.2, 0.07, 0x2b2422, -sd * (p / 2 - 0.08), 0, 0); slideDoors.push({ g: dg, sd, x0: sd * p / 2 }); });
+    box(root, 2 * p + 0.3, 0.1, 0.16, 0x2b2422, 0, 2.27, zA);                                                                                           /* riel */
     b.build();
   }
 
@@ -980,6 +1014,8 @@ GS.World = (function () {
     clampCam(); applyCam();
   }
   function update(dt) {
+    if (slideDoors.length) { let near = false; const zD = L.salon.zMax, hw = L.galeria.pasillo + 0.4; for (const q of people) { const gp = q.group.position; if (q.group.visible && q.group.parent && Math.abs(gp.z - zD) < 1.6 && Math.abs(gp.x) < hw) { near = true; break; } }
+      doorK += ((near ? 1 : 0) - doorK) * Math.min(1, dt * 7); slideDoors.forEach(d => { d.g.position.x = d.x0 + d.sd * doorK * (L.galeria.pasillo - 0.3); }); }
     if (!ok) return;
     const k = reduceMotion ? 1 : 1 - Math.pow(0.002, dt);
     cam.tx += (cam.gx - cam.tx) * k; cam.tz += (cam.gz - cam.tz) * k; cam.dist += (cam.gdist - cam.dist) * k;
@@ -1011,7 +1047,7 @@ GS.World = (function () {
       sky.side.color.copy(col([0x868d98, 0x9c9ca0, 0xb0977c, 0x86687a, 0x3d4058])).multiplyScalar(wet); sky.joint.color.copy(sky.side.color).multiplyScalar(0.82);
       sky.hemi.color.copy(col([0xeaf2ff, 0xffffff, 0xfff0dc, 0xfff4ea, 0xfff6ec])); sky.hemi.intensity = num([0.66, 0.68, 0.67, 0.67, 0.68]) * (rain ? 0.9 : 1);
       sky.sun.color.copy(col([0xfff4e0, 0xffffff, 0xffdcb0, 0xffe2c0, 0xfff1dc])); sky.sun.intensity = num([0.32, 0.38, 0.36, 0.34, 0.34]) * (rain ? 0.9 : 1);   // adentro siempre a pleno: de noche lo que cambia es la vereda sky.sun.position.x = 9 - f * 11;
-      sky.spill.opacity = n * 0.34 + (rain ? 0.08 : 0); sky.halo.opacity = n * 0.42; sky.bulb.color.set(0x55555c).lerp(new T.Color(0xfff2c0), n);
+      sky.spill.opacity = n * 0.34 + (rain ? 0.08 : 0); sky.halo.opacity = n * 0.6; if (sky.cone) sky.cone.opacity = n * 0.1; sky.bulb.color.set(0x55555c).lerp(new T.Color(0xfff2c0), n);
     },
     setXmas,
     setHats(on) { [yo, lucho, brian, boss].forEach(p => { if (p) p.look({ hat: on ? 'gorro' : null }); }); },
@@ -1056,6 +1092,7 @@ GS.World = (function () {
       clampCam();
     },
     home() { cam.saved = null; cam.gx = 0; cam.gz = 0.2; cam.gdist = cam.fit; },
+    debugCam(x, z, k) { cam.saved = null; cam.gx = x; cam.gz = z; cam.gdist = cam.fit * k; },
     showAll() { cam.saved = null; cam.gx = 0; cam.gz = 2.4; cam.gdist = cam.fit * 1.28; }
   };
 })();
