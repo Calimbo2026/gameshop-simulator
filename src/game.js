@@ -409,7 +409,7 @@ GS.Game = (function () {
   // Primera vez: el mapa, con el Dueño explicando la misión. Termina tocando Buenos Aires.
   let onb = -1, onbThen = null;
   function onbMap(then) {            // recién acá aparece el mapa: solo para elegir Buenos Aires
-    onb = 1; onbThen = then; $('modal').hidden = true; $('start').hidden = true; $('map').hidden = false; $('map').classList.add('onb'); $('mapSuc').textContent = '🏪 Sucursales 1 de 5'; $('mapFon').textContent = '🗺️ Fondos 0';
+    onb = 1; onbThen = then; $('modal').hidden = true; $('start').hidden = true; $('map').hidden = false; $('map').classList.add('onb'); $('mapSuc').textContent = '🏪 Sucursales 1 de 5'; $('mapCq').textContent = '🏆 Conquistadas 0 de 5'; $('mapBar').style.width = '0%'; $('mapFon').textContent = '🗺️ Fondos 0';
     const done = () => { onb = -1; $('map').classList.remove('onb'); GS.Map3D.close(); $('map').hidden = true; GS.Store.set('introSeen', true); const f = onbThen; onbThen = null; f(); };
     if (!GS.Map3D.open($('mapCv'), mapState(), id => { if (id !== 'pampeana') return toast('<b>Todavía no</b>Primero Buenos Aires: tocá la región verde.', '', 2200); A.play('ok'); done(); })) return done();
     GS.Map3D.select('pampeana'); $('mapCard').innerHTML = '<div class="guide"><div class="coach-face">' + avatarSvg(BOSS_LOOK, 'happy') + '</div><div style="flex:1"><p><b>Tocá Buenos Aires</b> para empezar tu primera jornada.</p><small>👆 Es la región verde, con la tiendita de GameShop</small></div></div>';
@@ -425,6 +425,7 @@ GS.Game = (function () {
     const all = brAll(), n = MAIN.filter(r => all[r.id] && all[r.id].open).length; mapWasDay = state === 'day'; if (mapWasDay) paused = true;
     $('modal').hidden = true; $('map').hidden = false; $('mapSuc').textContent = '🏪 Sucursales ' + n + ' de 5'; $('mapFon').textContent = '🗺️ Fondos ' + (DEV() ? '∞' : fondoNow()); $('mapX').textContent = state === 'menu' ? '← Volver al menú' : '← Volver';
     if (!GS.Map3D.open($('mapCv'), mapState(), mapPick)) { closeMap(); return toast('<b>Ups</b>No se pudo dibujar el mapa en este navegador.', '', 2600); }
+    { const cq = MAIN.filter(r => conquered(r.id)).length; $('mapCq').textContent = '🏆 Conquistadas ' + cq + ' de 5'; $('mapBar').style.width = (cq / 5 * 100) + '%'; }
     GS.Map3D.select(brId()); $('mapCard').innerHTML = mapCard(brId()); coach('mapa');
   }
   // Antes de irse hay que dejar un encargado. La sucursal queda congelada tal como estaba.

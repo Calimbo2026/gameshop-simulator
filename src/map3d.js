@@ -2,7 +2,7 @@
    vista en ángulo como el local. Cada región abierta muestra una miniatura de su sucursal; las cerradas, un candado.
    GS.Map3D.open(canvas, estado, onPick)   estado = { id: { open, can, cur, stage } }   ·   select(id)   ·   close() */
 GS.Map3D = (() => {
-  const T = THREE; let renderer = null, scene, camera, cv, raf = 0, onPick = null, tops = {}, bob = [], sel = null, cvOf = null, zc = null, ro = null, big = false;      // big: solo para la imagen del final, las islas se dibujan más grandes
+  const T = THREE; let renderer = null, scene, camera, cv, raf = 0, onPick = null, tops = {}, bob = [], sel = null, cvOf = null, zc = null, ro = null, routes = [], big = false;      // big: solo para la imagen del final, las islas se dibujan más grandes
   // Fronteras (longitud, latitud). Se arman las regiones uniendo tramos, así los bordes internos coinciden.
   const S = {
     nNoa: [[-67.18, -22.82], [-66.3, -21.8], [-65.2, -22.1], [-64.4, -22.7], [-63.9, -22.0], [-62.8, -22.0], [-62.35, -22.45]],
@@ -80,7 +80,20 @@ GS.Map3D = (() => {
   function build(state) {
     scene = new T.Scene(); tops = {}; bob = [];
     scene.add(new T.HemisphereLight(0xffffff, 0x5a6a80, 0.62)); const d = new T.DirectionalLight(0xffffff, 0.42); d.position.set(8, 20, 12); scene.add(d);
-    const sea = new T.Mesh(new T.PlaneGeometry(200, 200), new T.MeshBasicMaterial({ color: 0x12304f })); sea.rotation.x = -Math.PI / 2; sea.position.y = -0.05; scene.add(sea);
+    { const c = document.createElement('canvas'); c.width = c.height = 1024; const g = c.getContext('2d'), gr = g.createRadialGradient(512, 512, 40, 512, 512, 560);       // mar: más claro cerca de la costa, oscuro hacia afuera, con grilla de carta náutica
+      gr.addColorStop(0, '#2a6aa8'); gr.addColorStop(0.35, '#184a80'); gr.addColorStop(0.7, '#0d2c52'); gr.addColorStop(1, '#061426'); g.fillStyle = gr; g.fillRect(0, 0, 1024, 1024);
+      g.strokeStyle = 'rgba(160,205,255,.13)'; g.lineWidth = 1.5; for (let i = 0; i <= 1024; i += 51.2) { g.beginPath(); g.moveTo(i, 0); g.lineTo(i, 1024); g.moveTo(0, i); g.lineTo(1024, i); g.stroke(); }
+      g.strokeStyle = 'rgba(160,205,255,.1)'; for (let r = 90; r < 560; r += 90) { g.beginPath(); g.arc(512, 512, r, 0, 7); g.stroke(); }
+      const sea = new T.Mesh(new T.PlaneGeometry(170, 170), new T.MeshBasicMaterial({ map: new T.CanvasTexture(c) })); sea.rotation.x = -Math.PI / 2; sea.position.set(0.9, -0.05, 0.4); scene.add(sea);
+      const far = new T.Mesh(new T.PlaneGeometry(400, 400), new T.MeshBasicMaterial({ color: 0x061426 })); far.rotation.x = -Math.PI / 2; far.position.y = -0.08; scene.add(far); }
+    { const c = document.createElement('canvas'); c.width = c.height = 256; const g = c.getContext('2d'); g.translate(128, 128); g.strokeStyle = '#f5c518'; g.fillStyle = '#f5c518'; g.lineWidth = 3; g.beginPath(); g.arc(0, 0, 92, 0, 7); g.stroke(); g.lineWidth = 1.5; g.beginPath(); g.arc(0, 0, 80, 0, 7); g.stroke();   // rosa de los vientos
+      for (let k = 0; k < 8; k++) { const L = k % 2 ? 46 : 104; g.save(); g.rotate(k * Math.PI / 4); g.globalAlpha = k % 2 ? 0.7 : 1; g.beginPath(); g.moveTo(0, -L); g.lineTo(9, 0); g.lineTo(-9, 0); g.fill(); g.restore(); }
+      g.font = '900 34px Georgia, serif'; g.textAlign = 'center'; g.fillStyle = '#fff'; g.fillText('N', 0, -104);
+      const cr = new T.Mesh(new T.PlaneGeometry(6.5, 6.5), new T.MeshBasicMaterial({ map: new T.CanvasTexture(c), transparent: true, opacity: 0.8, depthWrite: false })); cr.rotation.x = -Math.PI / 2; cr.position.set(X(-54.2), 0.02, -Y(-41.5)); scene.add(cr); }
+    // rutas de expansión: de la casa central a cada sucursal abierta, con un envío viajando
+    routes = []; if ((state.pampeana || {}).open) for (const id in REG) { if (id === 'pampeana' || !(state[id] || {}).open) continue; const a = REG.pampeana.at, b = REG[id].at, A3 = new T.Vector3(X(a[0]), 1.5, -Y(a[1])), B3 = new T.Vector3(X(b[0]), 1.3, -Y(b[1])), M3 = A3.clone().add(B3).multiplyScalar(0.5); M3.y = 5.2;
+      const cv3 = new T.QuadraticBezierCurve3(A3, M3, B3), gm = new T.MeshBasicMaterial({ color: 0xffd23a }), gg = new T.SphereGeometry(0.11, 6, 5); for (let k = 1; k < 26; k++) { const d = new T.Mesh(gg, gm); d.position.copy(cv3.getPoint(k / 26)); scene.add(d); }
+      const dot = new T.Mesh(new T.SphereGeometry(0.3, 10, 8), new T.MeshBasicMaterial({ color: 0xffffff })); scene.add(dot); routes.push({ c: cv3, dot, off: routes.length * 0.31 }); }
     for (const id in REG) {
       const R = REG[id], st = state[id] || {}, h = st.open ? (st.cur ? 1.25 : 0.9) : 0.45, top = M(st.open ? R.col : st.hidden ? 0x7d8794 : 0x565a66), side = M(st.open ? new T.Color(R.col).multiplyScalar(0.62) : 0x363944), grp = new T.Group(); grp.userData.h = h; scene.add(grp); tops[id] = { grp, top, base: top.color.clone(), meshes: [] };
       const K = big && id === 'malvinas' ? 2.5 : 1, kx = X(R.at[0]), ky = Y(R.at[1]), PX = p => kx + (X(p[0]) - kx) * K, PY = p => ky + (Y(p[1]) - ky) * K;
@@ -103,6 +116,7 @@ GS.Map3D = (() => {
   function frame(t) {
     raf = requestAnimationFrame(frame); const s = t / 1000;
     bob.forEach(b => { b.o.position.y = b.y + Math.sin(s * (b.sp || 2)) * b.a; if (b.spin) b.o.rotation.y = s * b.spin; });
+    routes.forEach(r => { r.dot.position.copy(r.c.getPoint((s * 0.22 + r.off) % 1)); });
     for (const id in tops) { const k = id === sel ? 0.1 + Math.sin(s * 5) * 0.05 : 0; tops[id].top.emissive.setScalar(k); }
     renderer.render(scene, camera);
   }
