@@ -30,7 +30,7 @@ async def main():
         await pg.goto('file://'+ROOT+'/dist/index.html'); await pg.wait_for_timeout(1000)
         await pg.evaluate("GS.Store.set('avatar',{skin:GS.SKINS[1],hair:0,hairStyle:'corto'}); GS.Store.set('days',%s-1); GS.Store.set('quality','baja'); GS.Store.set('testCond','ninguna'); GS.Store.set('up', %s<5?{}:%s<10?{sillas:1,mesa:1,isla:1}:{sillas:1,mesa:1,isla:1,gondola:1,arcade:1,cartel:1,plantas:1,cafetera:1,luces:1})" % (n,n,n))
         await pg.reload(); await pg.wait_for_timeout(1000)
-        await pg.evaluate("GS.DEBUG_SPEED=%s; GS.Store.set('introSeen',true); GS.Store.set('plotIntro',true)" % (sys.argv[2] if len(sys.argv)>2 else "1")); await pg.reload(); await pg.wait_for_timeout(900); await pg.evaluate("GS.DEBUG_SPEED=%s" % (sys.argv[2] if len(sys.argv)>2 else "1")); await pg.click('#btnPlay'); log={}; mx=0; seen=set()
+        await pg.evaluate("GS.DEBUG_SPEED=%s; GS.Store.set('introSeen',true); GS.Store.set('plotIntro',true)" % (sys.argv[2] if len(sys.argv)>2 else "1")); await pg.reload(); await pg.wait_for_timeout(900); await pg.evaluate("GS.DEBUG_SPEED=%s" % (sys.argv[2] if len(sys.argv)>2 else "1")); await pg.click('#btnCamp'); await pg.wait_for_timeout(300); await pg.click('#btnPlay'); log={}; mx=0; seen=set()
         for i in range(3400):
             await pg.wait_for_timeout(110)
             st = await pg.evaluate("GS.Game.state()")
