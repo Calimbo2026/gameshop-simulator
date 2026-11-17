@@ -408,16 +408,15 @@ GS.Game = (function () {
   }
   // Primera vez: el mapa, con el Dueño explicando la misión. Termina tocando Buenos Aires.
   let onb = -1, onbThen = null;
-  function onbShow() {
-    const last = onb === GS.ONBOARD.length - 1; if (last) GS.Map3D.select('pampeana');
-    $('mapCard').innerHTML = '<div class="guide"><div class="coach-face">' + avatarSvg(BOSS_LOOK, last ? 'happy' : 'talk') + '</div><div style="flex:1"><p>' + GS.ONBOARD[onb] + '</p>' + (last ? '<small>👆 Tocá la región verde con el cartel de GameShop</small>' : '<button class="btn" id="onbNext">Seguir (' + (onb + 1) + ' de ' + GS.ONBOARD.length + ')</button>') + '</div></div>';
-    if (!last) $('onbNext').addEventListener('click', () => { A.play('click'); onb++; onbShow(); });
+  function onbMap(then) {            // recién acá aparece el mapa: solo para elegir Buenos Aires
+    onb = 1; onbThen = then; $('modal').hidden = true; $('start').hidden = true; $('map').hidden = false; $('map').classList.add('onb'); $('mapSuc').textContent = '🏪 Sucursales 1 de 5'; $('mapFon').textContent = '🗺️ Fondos 0';
+    const done = () => { onb = -1; $('map').classList.remove('onb'); GS.Map3D.close(); $('map').hidden = true; GS.Store.set('introSeen', true); const f = onbThen; onbThen = null; f(); };
+    if (!GS.Map3D.open($('mapCv'), mapState(), id => { if (id !== 'pampeana') return toast('<b>Todavía no</b>Primero Buenos Aires: tocá la región verde.', '', 2200); A.play('ok'); done(); })) return done();
+    GS.Map3D.select('pampeana'); $('mapCard').innerHTML = '<div class="guide"><div class="coach-face">' + avatarSvg(BOSS_LOOK, 'happy') + '</div><div style="flex:1"><p><b>Tocá Buenos Aires</b> para empezar tu primera jornada.</p><small>👆 Es la región verde, con la tiendita de GameShop</small></div></div>';
   }
   function showOnboard(then) {
-    onb = 0; onbThen = then; $('modal').hidden = true; $('start').hidden = true; $('map').hidden = false; $('map').classList.add('onb'); $('mapSuc').textContent = '🏪 Sucursales 1 de 5'; $('mapFon').textContent = '🗺️ Fondos 0';
-    if (!GS.Map3D.open($('mapCv'), mapState(), id => { if (onb < GS.ONBOARD.length - 1) return; if (id !== 'pampeana') return toast('<b>Todavía no</b>Primero Buenos Aires: tocá la región verde.', '', 2200);
-      A.play('ok'); onb = -1; $('map').classList.remove('onb'); GS.Map3D.close(); $('map').hidden = true; GS.Store.set('introSeen', true); const f = onbThen; onbThen = null; f(); })) { $('map').classList.remove('onb'); $('map').hidden = true; onb = -1; GS.Store.set('introSeen', true); return then(); }
-    onbShow(); GS.track('guia_inicio', {});
+    $('start').hidden = true; GS.track('guia_inicio', {});
+    showEpic(GS.ONBOARD, null, '<button class="btn" id="onbGo">🗺️ Abrir el mapa</button>', () => $('onbGo').addEventListener('click', () => { A.play('click'); closeEpic(); onbMap(then); }), true);
   }
   let mapWasDay = false;
   function closeMap() { GS.Map3D.close(); $('map').hidden = true; if (mapWasDay) paused = false; mapWasDay = false; }
@@ -461,6 +460,9 @@ GS.Game = (function () {
     GS.Map3D.close();
     if (kind === 'mapa' || kind === 'sur' || kind === 'islas' || kind === 'pais') { el.innerHTML = '<canvas id="epicCv"></canvas>' + (kind === 'sur' ? '' : conf()); const st = mapState(true), mv = kind === 'sur' ? { open: false, can: true } : (kind === 'islas' || kind === 'pais') ? { open: true, stage: 3, flag: true } : { hidden: true }; st.malvinas = mv; GS.Map3D.open($('epicCv'), st, null, kind === 'sur' || kind === 'islas' ? 'malvinas' : null, kind === 'islas'); return; }
     if (kind === 'yo') return void (el.innerHTML = '<div class="ep-faces big">' + fig(me, 'happy') + '</div>');
+    if (kind === 'jefe' || kind === 'jefe2') return void (el.innerHTML = '<div class="ep-faces big boss" style="background:radial-gradient(120% 90% at 50% 30%, #e10600, #5a0000)">' + fig(BOSS_LOOK, kind === 'jefe' ? 'talk' : 'happy') + '</div>');
+    if (kind === 'mapa0') { el.innerHTML = '<canvas id="epicCv"></canvas>'; GS.Map3D.open($('epicCv'), mapState(), null); return; }
+    if (kind === 'recursos') return void (el.innerHTML = '<div class="ep-res">' + [['⭐', 'Reputación', 'Atendé bien y sube. Con 5 estrellas, la región te conoce.'], ['🪙', 'Monedas', 'Para mejorar el local y comprar la flota: moto, camioneta y camión.'], ['🗺️', 'Fondos de expansión', 'Los deja cada jornada. Abren sucursales nuevas.']].map(q => '<div><i>' + q[0] + '</i><span><b>' + q[1] + '</b>' + q[2] + '</span></div>').join('') + '<p>⭐ 5 estrellas + 🚚 camión = <b>región conquistada</b></p></div>');
     if (kind === 'dueno') return void (el.innerHTML = '<div class="ep-faces big" style="background:linear-gradient(160deg,#26262c,#0b0b0d)">' + fig(BOSS_LOOK, 'happy') + '</div>' + conf());
     if (kind === 'duelo') return void (el.innerHTML = '<div class="ep-faces vs">' + fig(me, 'angry', 'Vos') + '<b>VS</b>' + fig(PIRATE(), 'angry', 'Capitán Tormenta') + '</div>');
     if (kind === 'equipo') { const all = brAll(), ppl = [[me, 'Vos'], [{ shirt: 0xe10600, hair: MOHAWK[1], hairStyle: 'mohicano', skin: GS.SKINS[3], glasses: true }, 'Lucho'], [{ shirt: 0xe10600, hair: 0x2d6cdf, hairStyle: 'corto', skin: GS.SKINS[0] }, 'Brian']];
@@ -504,8 +506,8 @@ GS.Game = (function () {
       [[60, 236], [128, 244], [150, 236]].map((q, i) => '<g transform="translate(' + q[0] + ' ' + q[1] + ')"><ellipse cx="0" cy="0" rx="9" ry="14" fill="#16161a"/><ellipse cx="1" cy="2" rx="6" ry="10" fill="#fff"/><path d="M4 -8 l7 2 l-7 2z" fill="#f5a623"/></g>').join('') + '</svg>' + conf());
     el.innerHTML = '';
   }
-  function showEpic(slides, F, navHtml, bind) {
-    let i = 0; $('modal').hidden = true; $('epic').hidden = false; A.play('fanfare'); A.setMood('party');
+  function showEpic(slides, F, navHtml, bind, quiet) {
+    let i = 0; $('modal').hidden = true; $('epic').hidden = false; if (!quiet) { A.play('fanfare'); A.setMood('party'); }
     const paint = () => { const sl = slides[i], last = i === slides.length - 1, boss = sl.art === 'dueno' && F && !sl.t;
       $('epicK').textContent = boss ? F.ic + ' Final: ' + F.t : sl.k; $('epicT').textContent = boss ? '"' + F.t + '"' : sl.t; $('epicD').textContent = boss ? F.d : sl.d;
       $('epicDots').innerHTML = slides.map((_, k) => '<i class="' + (k === i ? 'on' : '') + '"></i>').join('');

@@ -7,7 +7,7 @@
 const GS = {};
 
 GS.CONFIG = {
-  version: '0.44.1',
+  version: '0.45.0',
   phase: 8,
   phaseNote: 'Juego completo de punta a punta. Falta tu playtest con 5 personas y encender el lanzamiento (launched: true)',                       // fase actual del proyecto (1 a 5)
   links: { tienda: 'https://www.gameshop.com.ar', instagram: '' },   // botones del inicio y del cierre (vacío = no se muestra)
@@ -371,10 +371,10 @@ GS.MODS = [
 ];
 /* Primera vez: el Dueño explica la misión sobre el mapa. El último paso pide tocar Buenos Aires. */
 GS.ONBOARD = [
-  'Bienvenido. Soy el Dueño. Te contraté para algo grande: <b>llevar GameShop a todo el país</b>.',
-  'Este es el mapa. Cada región va a tener su sucursal, y desde cada una se envía más fácil a sus provincias. Hoy hay una sola: la nuestra.',
-  'Atendiendo ganás <b>🪙 monedas</b> para mejorar el local y <b>🗺️ fondos de expansión</b> para abrir sucursales. La <b>⭐ reputación</b> trae más gente.',
-  'Podemos hacer mucho por GameShop. Y quién sabe: por el país. Empecemos por casa: <b>tocá Buenos Aires en el mapa</b>.'
+  { art: 'jefe', k: 'Tu primer día', t: 'Bienvenido a GameShop', d: 'Soy el Dueño. Te contraté para algo grande: llevar GameShop a todo el país.' },
+  { art: 'mapa0', k: 'La misión', t: 'Una sucursal en cada región', d: 'Hoy hay una sola: la nuestra, en Buenos Aires. Desde cada región se envía más fácil a todas sus provincias.' },
+  { art: 'recursos', k: 'Cómo se logra', t: 'Estrellas, monedas y fondos', d: 'Atendiendo bien sube la reputación. Con las monedas mejorás el local y comprás el camión. Con los fondos abrís sucursales.' },
+  { art: 'jefe2', k: 'El Dueño', t: 'Podemos hacer mucho', d: 'Por GameShop. Y quién sabe: por el país. Empecemos por casa: elegí Buenos Aires en el mapa.' }
 ];
 /* Consejos del Dueño: aparecen una sola vez, la primera vez que pasa cada cosa. */
 GS.TIPS = {
