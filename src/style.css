@@ -523,3 +523,16 @@ body.calm .brand:after { animation: none; display: none; }
 .map-title b, .map-top .map-title b { font-family: var(--display); font-size: clamp(24px, 6.4vw, 36px); letter-spacing: 2px; text-transform: uppercase; white-space: nowrap; background: linear-gradient(180deg, #fff3b0, #f5c518 55%, #b8860b); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 2px 0 rgba(0,0,0,.7)); }
 .map-bar { display: block; width: min(86%, 420px); height: 8px; border-radius: 4px; background: rgba(255,255,255,.12); overflow: hidden; } .map-bar i { display: block; height: 100%; background: linear-gradient(90deg, #f5c518, #fff3b0); border-radius: 4px; transition: width .6s; }
 .map-chips span { font-size: 13px; padding: 5px 10px; } #mapCq { border-color: rgba(245,197,24,.5); }
+
+/* Festejos a pantalla completa: inauguración y región conquistada */
+#epicNav .prog { text-align: left; } .epic-note { display: block; color: #b9b9c4; font-size: 12.5px; margin: -2px 0 2px; } .epic-txt small#epicK { background: linear-gradient(180deg, #fff3b0, #f5c518); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.epic-txt h2 { font-family: var(--display); text-transform: uppercase; letter-spacing: .5px; }
+.ep-inaug { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 8px; overflow: hidden; }
+.ep-city { position: absolute; top: 10px; left: 0; right: 0; text-align: center; font-family: var(--display); font-size: clamp(26px, 9vw, 44px); letter-spacing: 3px; color: #fff; text-shadow: 0 3px 0 rgba(0,0,0,.35); }
+.ep-store { width: min(74%, 300px); display: block; margin-bottom: -6px; filter: drop-shadow(0 10px 14px rgba(0,0,0,.35)); }
+.ep-cinta { position: absolute; left: -4%; right: -4%; bottom: 27%; height: 30px; background: #e10600; box-shadow: 0 4px 0 #8f0400; transform: rotate(-2deg); display: flex; align-items: center; justify-content: center; } .ep-cinta span { font-family: var(--display); color: #fff; letter-spacing: 4px; font-size: 15px; } .ep-cinta i { position: absolute; font-style: normal; font-size: 34px; right: 12%; top: -12px; }
+.ep-fila { position: relative; display: flex; gap: 4px; justify-content: center; z-index: 2; } .ep-fila .pf { width: 54px; height: 54px; border-radius: 50%; overflow: hidden; background: linear-gradient(160deg, #6fb2f2, #3f7fd0); border: 3px solid #fff; box-shadow: 0 4px 8px rgba(0,0,0,.4); } .ep-fila .pf.emp { border-color: #f5c518; width: 62px; height: 62px; } .ep-fila .pf svg { width: 100%; height: auto; display: block; }
+.ep-cup { position: absolute; left: 0; right: 0; top: 8px; text-align: center; pointer-events: none; } .ep-cup i { font-style: normal; font-size: 64px; filter: drop-shadow(0 6px 10px rgba(0,0,0,.6)); display: inline-block; animation: glob 1.6s ease-in-out infinite alternate; }
+#modal { background: rgba(0,0,0,.88); }
+.epic-txt small.epic-note { text-transform: none; letter-spacing: 0; font-weight: 400; color: #b9b9c4; background: none; -webkit-background-clip: border-box; background-clip: border-box; }
+.ep-cup { left: auto; right: 12px; top: 10px; } .ep-cup i { font-size: 52px; }

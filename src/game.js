@@ -444,8 +444,9 @@ GS.Game = (function () {
     $('sheet').querySelectorAll('.cand').forEach(b => b.addEventListener('click', () => { const c = b.dataset.c, k = sel.indexOf(c); if (k >= 0) sel.splice(k, 1); else if (sel.length < 2) sel.push(c); $('sheet').querySelectorAll('.cand').forEach(x => x.classList.toggle('on', sel.indexOf(x.dataset.c) >= 0)); $('regOk').disabled = sel.length !== 2; A.play('click'); }));
     $('regOk').addEventListener('click', () => pickManager(() => {
       addFondo(-R.cost); const all = brAll(); all[id] = { open: 1, staff: sel.slice(), up: {}, rep: 4, train: 0, days: 0 }; GS.Store.set('branches', all); switchBranch(id); if (state === 'end') goHome();
-      A.play('fanfare'); W.showAll(); GS.track('abre_sucursal', { id });
-      modal('<div class="inaug"><div class="glob">🎈🎈🎈</div><h2>¡Inauguración!</h2><p class="cinta">GAMESHOP ' + R.city.toUpperCase() + '</p><p>Hay fila desde la esquina. ' + brCrew(id).join(' y ') + ' están con la remera recién planchada.</p><p><small>Empezás con un local humilde: mejoralo, enseñale al equipo y llevalo a 5 estrellas.</small></p><button class="btn" data-close>✂️ Cortar la cinta</button></div>');
+      W.showAll(); GS.track('abre_sucursal', { id }); $('modal').hidden = true; epicCtx = { id };
+      showEpic([{ art: 'inaug', k: 'Sucursal ' + R.name + ' · ' + R.prov.length + ' provincias', t: '¡Inauguración en ' + R.city + '!', d: 'Hay fila desde la esquina. ' + brCrew(id).join(' y ') + ' están con la remera recién planchada. Empezás con un local humilde: llevalo a 5 estrellas y comprale el camión.' }], null,
+        '<button class="btn" id="inaGo">✂️ Cortar la cinta</button>', () => $('inaGo').addEventListener('click', () => { A.play('cash'); closeEpic(); refreshStart(); toast('<b>🎉 ' + R.city + ' ya está abierta</b>Comenzá la primera jornada cuando quieras.', '', 3600); }));
     }));
   }
   /* ---------------- FINAL: el país completo. Cambia según cómo se llegó; después, Nuevo Juego+ ---------------- */
@@ -455,12 +456,24 @@ GS.Game = (function () {
   const snowy = () => brId() === 'cuyo' || brId() === 'patagonia', condInfo = c => GS.CONDITIONS[c === 'lluvia' && snowy() ? 'nieve' : c];
   /* Finales contados en imágenes: una seguidilla a pantalla completa, y al final los botones */
   const PIRATE = () => (GS.STORIES.find(S => S.id === 'rival_malvinas') || {}).look || {};
+  let epicCtx = {};
+  // Una tiendita de GameShop dibujada de frente (la misma del mapa), para las escenas
+  const storeSvg = () => '<svg viewBox="0 0 256 250" class="ep-store"><rect x="26" y="96" width="204" height="142" fill="#fbe3c3"/><rect x="26" y="96" width="204" height="10" fill="#eec892"/><rect x="18" y="226" width="220" height="16" rx="2" fill="#fff"/>' +
+    '<rect x="46" y="150" width="62" height="92" rx="2" fill="#0d5c63"/><rect x="54" y="158" width="46" height="46" fill="#9fd8c4"/><rect x="54" y="210" width="46" height="24" fill="#5f8f8f"/><circle cx="103" cy="198" r="3.400" fill="#ffd23a"/>' +
+    '<rect x="124" y="152" width="96" height="60" rx="2" fill="#0d5c63"/><rect x="130" y="158" width="39" height="48" fill="#9fd8c4"/><rect x="175" y="158" width="39" height="48" fill="#9fd8c4"/><rect x="120" y="212" width="104" height="9" rx="1" fill="#fff"/>' +
+    Array.from({ length: 8 }, (_, k) => { const x0 = 14 + k * 28.5, c = k % 2 ? '#fff' : '#f0103c', c2 = k % 2 ? '#dfe5ea' : '#a80a2a'; return '<path d="M' + (26 + k * 25.5) + ' 96 L' + (26 + (k + 1) * 25.5) + ' 96 L' + (x0 + 28.5) + ' 132 L' + x0 + ' 132z" fill="' + c + '"/><path d="M' + x0 + ' 132 a14.250 14.250 0 0 0 28.500 0z" fill="' + c2 + '"/>'; }).join('') +
+    '<rect x="18" y="84" width="220" height="13" rx="2" fill="#fff"/><rect x="8" y="14" width="240" height="70" rx="10" fill="#f5c518"/><rect x="12" y="18" width="232" height="62" rx="8" fill="#000"/><image href="' + GS.LOGO + '" x="20" y="22" width="216" height="54" preserveAspectRatio="xMidYMid meet"/></svg>';
   function epicArt(kind, F) {
     const el = $('epicArt'), me = Object.assign({ skin: GS.SKINS[2], hair: GS.HAIRS[0], hairStyle: 'corto', shirt: 0xe10600 }, GS.Store.get('avatar') || {}), fig = (look, mood, name) => '<figure><div class="pf">' + avatarSvg(look, mood) + '</div>' + (name ? '<figcaption>' + name + '</figcaption>' : '') + '</figure>';
     const conf = () => '<div class="conf">' + Array.from({ length: 34 }, (_, i) => '<i style="left:' + (i * 3 + Math.random() * 3) + '%;background:' + ['#f5c518', '#fff', '#74acdf', '#e10600', '#3bb54a'][i % 5] + ';animation-duration:' + (2.4 + Math.random() * 2.6) + 's;animation-delay:-' + (Math.random() * 4) + 's"></i>').join('') + '</div>';
     GS.Map3D.close();
     if (kind === 'mapa' || kind === 'sur' || kind === 'islas' || kind === 'pais') { el.innerHTML = '<canvas id="epicCv"></canvas>' + (kind === 'sur' ? '' : conf()); const st = mapState(true), mv = kind === 'sur' ? { open: false, can: true } : (kind === 'islas' || kind === 'pais') ? { open: true, stage: 3, flag: true } : { hidden: true }; st.malvinas = mv; GS.Map3D.open($('epicCv'), st, null, kind === 'sur' || kind === 'islas' ? 'malvinas' : null, kind === 'islas'); return; }
     if (kind === 'yo') return void (el.innerHTML = '<div class="ep-faces big">' + fig(me, 'happy') + '</div>');
+    if (kind === 'inaug') { const R = RG(epicCtx.id), crew = (brAll()[R.id] || {}).staff || [], ppl = crew.map(cid => R.crew.find(c => c.id === cid)).filter(Boolean).map(c => Object.assign({ shirt: 0xe10600 }, c.look));
+      const fila = [{ shirt: 0x2d6cdf, hair: 0x5a2d0c, hairStyle: 'largo', skin: GS.SKINS[1], lashes: true }, { shirt: 0xd9a514, hair: 0x1b1b1f, hairStyle: 'corto', skin: GS.SKINS[3], glasses: true }, { shirt: 0x3bb54a, hair: 0xc9c9d6, hairStyle: 'rodete', skin: GS.SKINS[0] }, { shirt: 0x7b4fd1, hair: 0xb5651d, hairStyle: 'rulos', skin: GS.SKINS[2] }];
+      return void (el.innerHTML = '<div class="ep-inaug" style="background:linear-gradient(180deg, ' + ACC[R.id] + ' 0%, #f6d9a8 62%, #9aa3ad 62%, #5e6670 100%)"><b class="ep-city">' + R.city.toUpperCase() + '</b>' + storeSvg() + '<div class="ep-cinta"><span>GRAN INAUGURACIÓN</span><i>🎀</i></div>' +
+        '<div class="ep-fila">' + ppl.map(l => '<div class="pf emp">' + avatarSvg(l, 'happy') + '</div>').join('') + fila.map((l, k) => '<div class="pf">' + avatarSvg(l, k % 2 ? 'surprised' : 'happy') + '</div>').join('') + '</div></div>' + conf()); }
+    if (kind === 'conq') { el.innerHTML = '<canvas id="epicCv"></canvas><div class="ep-cup"><i>🏆</i></div>' + conf(); GS.Map3D.open($('epicCv'), mapState(), null, epicCtx.id); return; }
     if (kind === 'jefe' || kind === 'jefe2') return void (el.innerHTML = '<div class="ep-faces big boss" style="background:radial-gradient(120% 90% at 50% 30%, #e10600, #5a0000)">' + fig(BOSS_LOOK, kind === 'jefe' ? 'talk' : 'happy') + '</div>');
     if (kind === 'mapa0') { el.innerHTML = '<canvas id="epicCv"></canvas>'; GS.Map3D.open($('epicCv'), mapState(), null); return; }
     if (kind === 'recursos') return void (el.innerHTML = '<div class="ep-res">' + [['⭐', 'Reputación', 'Atendé bien y sube. Con 5 estrellas, la región te conoce.'], ['🪙', 'Monedas', 'Para mejorar el local y comprar la flota: moto, camioneta y camión.'], ['🗺️', 'Fondos de expansión', 'Los deja cada jornada. Abren sucursales nuevas.']].map(q => '<div><i>' + q[0] + '</i><span><b>' + q[1] + '</b>' + q[2] + '</span></div>').join('') + '<p>⭐ 5 estrellas + 🚚 camión = <b>región conquistada</b></p></div>');
@@ -511,7 +524,7 @@ GS.Game = (function () {
     let i = 0; $('modal').hidden = true; $('epic').hidden = false; if (!quiet) { A.play('fanfare'); A.setMood('party'); }
     const paint = () => { const sl = slides[i], last = i === slides.length - 1, boss = sl.art === 'dueno' && F && !sl.t;
       $('epicK').textContent = boss ? F.ic + ' Final: ' + F.t : sl.k; $('epicT').textContent = boss ? '"' + F.t + '"' : sl.t; $('epicD').textContent = boss ? F.d : sl.d;
-      $('epicDots').innerHTML = slides.map((_, k) => '<i class="' + (k === i ? 'on' : '') + '"></i>').join('');
+      $('epicDots').innerHTML = slides.length > 1 ? slides.map((_, k) => '<i class="' + (k === i ? 'on' : '') + '"></i>').join('') : '';
       $('epicNav').innerHTML = last ? navHtml : '<button class="btn" id="epicNext">Siguiente</button>';
       if (last) bind(); else $('epicNext').addEventListener('click', () => { A.play('click'); i++; paint(); }); $('epic').scrollTop = 0; epicArt(sl.art, F); };
     paint();
@@ -540,13 +553,13 @@ GS.Game = (function () {
   function checkConquest() {
     const id = brId(), b = brNow(); if (b.cqSeen || !conquered(id) || state === 'day') return false;
     const g = goalNow(), miss = g ? Math.max(0, g - fondoNow()) : 0, others = pendingOpen(), ready = g && !miss && canExpand();
-    brSave({ cqSeen: 1 }); const x = brData(id), R = RG(id), left = x.have < x.tot || x.sd < x.st; A.play('fanfare'); GS.track('region_conquistada', { id });
-    modal('<div class="inaug"><div class="glob">🏆</div><h2>¡' + R.city + ' es nuestra!</h2><p class="cinta">REGIÓN ' + R.name.toUpperCase() + ' CONQUISTADA</p>' +
-      '<p>Acá ya nos conocen por nuestra reputación, y con la flota propia llegamos a cada rincón de la región. <b>' + (ready ? 'Es hora de abrir una sucursal nueva, donde vos elijas.' : !g ? 'Con esta, GameShop ya está en todas las regiones.' : others.length ? 'Para abrir otra sucursal falta conquistar también ' + others.map(o => o.city).join(' y ') + '.' : 'Para abrir la próxima sucursal faltan 🗺️ ' + miss + ' fondos de expansión: se juntan con las próximas jornadas.') + '</b></p>' +
-      progBox(id) +
-      (left ? '<p><small>Lo que falta no frena la expansión: sirve para dejar esta sucursal en 💎 platino, y cada mejora sigue dando su ventaja.</small></p>' : '<p><small>💎 Y además la dejaste en platino: no le falta nada.</small></p>') +
-      '<button class="btn" id="cqMap">🗺️ Ver el mapa de sucursales</button>' + (left ? '<button class="btn ghost" data-close>Seguir y completar esta zona</button>' : '') + '</div>');
-    $('cqMap').addEventListener('click', () => { $('modal').hidden = true; showMap(); }); return true;
+    brSave({ cqSeen: 1 }); const x = brData(id), R = RG(id), left = x.have < x.tot || x.sd < x.st; GS.track('region_conquistada', { id }); epicCtx = { id };
+    showEpic([{ art: 'conq', k: 'Región ' + R.name + ' conquistada', t: '¡' + R.city + ' es nuestra!', d: 'Acá ya nos conocen por nuestra reputación, y con la flota propia llegamos a cada rincón de la región. ' +
+      (ready ? 'Es hora de abrir una sucursal nueva, donde vos elijas.' : !g ? 'Con esta, GameShop ya está en todas las regiones.' : others.length ? 'Para abrir otra sucursal falta conquistar también ' + others.map(o => o.city).join(' y ') + '.' : 'Para abrir la próxima faltan ' + miss + ' fondos de expansión: se juntan con las próximas jornadas.') }], null,
+      progBox(id) + '<small class="epic-note">' + (left ? 'Lo que falta no frena la expansión: sirve para dejar esta sucursal en 💎 platino.' : '💎 Y además la dejaste en platino: no le falta nada.') + '</small>' +
+      '<button class="btn" id="cqMap">🗺️ Ver el mapa de sucursales</button>' + (left ? '<button class="btn ghost" id="cqStay">Seguir y completar esta zona</button>' : ''),
+      () => { $('cqMap').addEventListener('click', () => { closeEpic(); showMap(); }); if ($('cqStay')) $('cqStay').addEventListener('click', () => { A.play('click'); closeEpic(); }); });
+    return true;
   }
   function teach() {
     const t = brNow().train || 0, p = W.staff()[t % 2]; day.taught = 1; day.jobSig = ''; brSave({ train: t + 1 }); A.play('ok'); fx('🎓 Equipo nivel ' + (t + 1)); day.score += 60; sayAt(p, U.pick(LN.teach), 0); yoGo('H'); day.beat = 1;
