@@ -893,10 +893,10 @@ GS.STORIES = [
 ];
 /* Placas de presentación del modo carrera: poco texto, y la cámara muestra de qué se habla. cam = [x, z, zoom]; who = a quién se ve. */
 GS.INTRO = [
-  { t: 'Tu primer día', d: 'Entrás a trabajar en GameShop: consolas, juegos, notebooks y accesorios. Abrimos de 10 a 19.', cam: null, who: ['yo'] },
-  { t: 'El Dueño', d: 'Vive en su oficina y sale a opinar de todo. Tiene el pelo gris, la cresta apenas más larga y una frase para cada cosa.', cam: [9.0, 1.3, 0.36], who: ['boss'] },
-  { t: 'Lucho y Brian', d: 'Tus compañeros. Lucho repone y cambia el color del mohicano cada día. Brian vive pegado al celular. Los dos duermen la siesta en el depósito.', cam: [4.0, 1.2, 0.3], who: ['lucho', 'brian'] },
-  { t: 'Cómo se juega', d: 'Tocá los pedidos de abajo y tu personaje va solo. Ojo: si le das otro producto, el cliente se va; y cobrar mal baja la reputación.', cam: [-0.6, -3.2, 0.5], who: ['yo'] }
+  { art: 'local', k: 'Casa central', t: 'Tu primer día', d: 'Entrás a trabajar en GameShop: consolas, juegos, notebooks y accesorios. Abrimos de 10 a 19.' },
+  { art: 'equipo0', k: 'El equipo', t: 'Lucho y Brian', d: 'Tus compañeros. Lucho repone y cambia el color del mohicano cada día. Brian vive pegado al celular. Los dos duermen la siesta en el depósito.' },
+  { art: 'jefe', k: 'El Dueño', t: 'Opina de todo', d: 'Vive en su oficina y sale cuando menos lo esperás. Tiene una frase para cada cosa. Si la reputación baja, se va a notar.' },
+  { art: 'reglas', k: 'Antes de empezar', t: 'Cómo se juega', d: 'Tres reglas alcanzan para la primera jornada. El resto te lo voy contando cuando aparezca.' }
 ];
 GS.FINAL = {
   boss: [

@@ -469,6 +469,10 @@ GS.Game = (function () {
     GS.Map3D.close();
     if (kind === 'mapa' || kind === 'sur' || kind === 'islas' || kind === 'pais') { el.innerHTML = '<canvas id="epicCv"></canvas>' + (kind === 'sur' ? '' : conf()); const st = mapState(true), mv = kind === 'sur' ? { open: false, can: true } : (kind === 'islas' || kind === 'pais') ? { open: true, stage: 3, flag: true } : { hidden: true }; st.malvinas = mv; GS.Map3D.open($('epicCv'), st, null, kind === 'sur' || kind === 'islas' ? 'malvinas' : null, kind === 'islas'); return; }
     if (kind === 'yo') return void (el.innerHTML = '<div class="ep-faces big">' + fig(me, 'happy') + '</div>');
+    if (kind === 'equipo0') { const av = Object.assign({ skin: GS.SKINS[2], hair: GS.HAIRS[0], hairStyle: 'corto', shirt: 0xe10600 }, GS.Store.get('avatar') || {}), T = [[av, 'Vos', 'happy'], [{ shirt: 0xe10600, hair: MOHAWK[1], hairStyle: 'mohicano', skin: GS.SKINS[3], glasses: true }, 'Lucho', 'happy'], [{ shirt: 0xe10600, hair: 0x2d6cdf, hairStyle: 'corto', skin: GS.SKINS[0] }, 'Brian', 'normal']];
+      return void (el.innerHTML = '<div class="ep-faces trio">' + T.map(q => fig(q[0], q[2], q[1])).join('') + '</div>'); }
+    if (kind === 'local') return void (el.innerHTML = '<div class="ep-inaug" style="background:linear-gradient(180deg, #5aa9ee 0%, #cfe8fb 62%, #9aa3ad 62%, #5e6670 100%)"><b class="ep-city">AV. DE LOS INCAS 4552</b>' + storeSvg() + '<div class="ep-fila"><div class="pf emp">' + avatarSvg(me, 'happy') + '</div></div></div>');
+    if (kind === 'reglas') return void (el.innerHTML = '<div class="ep-res">' + [['👆', 'Tocá los pedidos', 'Aparecen abajo. Tu personaje va solo hasta el mostrador, la caja o donde haga falta.'], ['🎯', 'Dale lo que pidió', 'Con otro producto, el cliente se va y se pierde la venta.'], ['💵', 'Cobrá bien', '10% en efectivo o transferencia, 3 cuotas sin interés. Cobrar mal baja la reputación.']].map(q => '<div><i>' + q[0] + '</i><span><b>' + q[1] + '</b>' + q[2] + '</span></div>').join('') + '<p>En los ratos libres: 🧹 <b>limpiá el piso</b></p></div>');
     if (kind === 'inaug') { const R = RG(epicCtx.id), crew = (brAll()[R.id] || {}).staff || [], ppl = crew.map(cid => R.crew.find(c => c.id === cid)).filter(Boolean).map(c => Object.assign({ shirt: 0xe10600 }, c.look));
       const fila = [{ shirt: 0x2d6cdf, hair: 0x5a2d0c, hairStyle: 'largo', skin: GS.SKINS[1], lashes: true }, { shirt: 0xd9a514, hair: 0x1b1b1f, hairStyle: 'corto', skin: GS.SKINS[3], glasses: true }, { shirt: 0x3bb54a, hair: 0xc9c9d6, hairStyle: 'rodete', skin: GS.SKINS[0] }, { shirt: 0x7b4fd1, hair: 0xb5651d, hairStyle: 'rulos', skin: GS.SKINS[2] }];
       return void (el.innerHTML = '<div class="ep-inaug" style="background:linear-gradient(180deg, ' + ACC[R.id] + ' 0%, #f6d9a8 62%, #9aa3ad 62%, #5e6670 100%)"><b class="ep-city">' + R.city.toUpperCase() + '</b>' + storeSvg() + '<div class="ep-cinta"><span>GRAN INAUGURACIÓN</span><i>🎀</i></div>' +
@@ -1021,7 +1025,9 @@ GS.Game = (function () {
     const afford = (() => { const u = upNow(), c = coinsNow(), fl = GS.UPGRADES.find(g => g.id === 'flota'), lv = fl.levels[u.flota || 0]; if (lv && c >= lv.price) return lv.n; const t = nextGoal(); return t && c >= t.lv.price ? t.lv.n : ''; })();       // con las monedas en la mano, el resumen dice qué se puede comprar ya
     const hook = nextHook(d.n + 1), ob = d.okBy || {}, row = (ok, label, val) => '<p class="' + (ok ? 'ok' : 'no') + '"><span>' + (ok ? '✔' : '✖') + ' ' + label + '</span><b>' + val + '</b></p>';
     $('endCol').innerHTML =
-      '<div><div class="ticket"><h3>RESUMEN DE LA JORNADA</h3><div class="c">Jornada ' + d.n + ' · ' + monthOf(d.n) + (d.cond ? ' · ' + GS.CONDITIONS[d.cond].name : '') + (d.relaxed ? ' · turno tranquilo' : '') + '</div>' +
+      '<div><div class="sum-head"><small>' + RG(brId()).city + ' · ' + monthOf(d.n) + (d.cond ? ' · ' + condInfo(d.cond).name : '') + (d.relaxed ? ' · turno tranquilo' : '') + '</small><b>' + (perfect ? '¡Jornada impecable!' : 'Jornada ' + d.n + ' cumplida') + '</b>' +
+        '<div class="sum-big"><span><i>🪙</i><b id="sumCoins">+0</b><em>monedas</em></span><span><i>🗺️</i><b id="sumFondo">+' + fEarn + '</b><em>fondos</em></span><span><i>⭐</i><b>' + repTxt(rv) + '</b><em>' + (rd >= 0 ? '+' : '−') + repTxt(Math.abs(rd)) + ' hoy</em></span></div></div>' +
+      '<div class="ticket"><h3>DETALLE DEL DÍA</h3>' +
       row(ask > 0 && d.served === ask, 'Ventas concretadas', d.served + ' de ' + ask) +
       (lostSale ? row(false, 'Se fueron por producto equivocado', lostSale) : '') + (d.lost ? row(false, 'Se cansaron de esperar', d.lost) : '') +
       row(!d.cajaErr, 'Cobros sin error', d.cajaErr ? d.cajaErr + (d.cajaErr === 1 ? ' error' : ' errores') : 'todos') +
@@ -1029,8 +1035,7 @@ GS.Game = (function () {
       (d.tasksDone + d.tasksLate ? row(!d.tasksLate, 'Tareas del local a tiempo', d.tasksDone + ' de ' + (d.tasksDone + d.tasksLate)) : '') +
       (d.caught ? row(true, 'Comprobantes truchos frenados', d.caught) : '') +
       row(!dirty, 'Limpieza', dirty ? 'piso sucio' : d.cleaned ? d.cleaned + (d.cleaned === 1 ? ' mancha limpiada' : ' manchas limpiadas') : 'impecable') +
-      '<hr><p class="tot"><span>🪙 Monedas</span><b id="sumCoins">+0</b></p>' + (d.coinLoss ? '<p class="no"><span>Se fue en errores de caja</span><b>−🪙 ' + d.coinLoss + '</b></p>' : '') +
-      '<p><span>🗺️ Fondos de expansión</span><b id="sumFondo">+' + fEarn + '</b></p><p><span>⭐ Reputación</span><b>' + repTxt(rv) + ' (' + (rd >= 0 ? '+' : '−') + repTxt(Math.abs(rd)) + ')</b></p>' +
+      '<hr>' + (d.coinLoss ? '<p class="no"><span>Se fue en errores de caja</span><b>−🪙 ' + d.coinLoss + '</b></p>' : '') +
       '<p><span>Facturación (ficticia)</span><b>' + U.money(d.sales) + '</b></p></div></div>' +
       '<div style="display:flex;flex-direction:column;gap:10px;margin-top:8px">' + progBox(brId(), 'Avance de ' + RG(brId()).city) +
       GS.ARCADE.filter(a => a.from === d.n && !GS.Store.get('testDay')).map(a => '<div class="newrec">🕹️ Premio de la jornada: <b>' + a.name + '</b><small>Juego nuevo en el Arcade (desde el inicio). ' + a.d + '</small></div>').join('') +
@@ -1039,7 +1044,7 @@ GS.Game = (function () {
       (d.relaxed ? '' : '<div class="split"><b>¿A dónde va lo de hoy?</b><div>' + Object.keys(SPLIT).map(k => '<button data-split="' + k + '" class="' + (k === 'parejo' ? 'on' : '') + '">' + SPLIT[k][2] + '<small>' + SPLIT[k][3] + '</small></button>').join('') + '</div></div>') +
       '<div class="hook"><i>' + hook[0] + '</i><span><b>Lo que viene</b>' + hook[1] + '</span></div>' +
       '<button class="btn" id="endAgain">Siguiente jornada</button>' +
-      '<div class="row"><button class="btn alt' + (afford ? ' pulse' : '') + '" id="endShop" style="font-size:16px">🛠 ' + (afford ? '¡Comprá: ' + afford + '!' : 'Mejorar') + '</button><button class="btn ghost" id="endMap">🗺️ Mapa</button><button class="btn ghost" id="endRecs">🏅 Logros</button></div>' +
+      (afford ? '<button class="btn alt pulse" id="endShop">🛠 ¡Comprá: ' + afford + '!</button><div class="row">' : '<div class="row"><button class="btn alt" id="endShop" style="font-size:16px">🛠 Mejorar</button>') + '<button class="btn ghost" id="endMap">🗺️ Mapa</button><button class="btn ghost" id="endRecs">🏅 Logros</button></div>' +
       '<div class="row"><button class="btn ghost" id="endCard">📸 Compartir</button><button class="btn ghost" id="endLib">📖 Libreta</button><button class="btn ghost" id="endHome">Inicio</button></div>' +
       '<button class="phases" id="phasesEnd" hidden></button></div>';
     $('phasesEnd').innerHTML = phasesCompact(); $('phasesEnd').addEventListener('click', showPhases);
@@ -1326,19 +1331,9 @@ GS.Game = (function () {
     startDay(false);
   }
   function showIntro(then) {
-    const SL = GS.INTRO, av = Object.assign({ skin: GS.SKINS[2], hair: GS.HAIRS[0], hairStyle: 'corto', shirt: 0xe10600 }, GS.Store.get('avatar') || {});
-    const WHO = { yo: [av, 'Vos'], boss: [{ shirt: 0x111111, hair: 0xb4b4bd, hairStyle: 'cresta', skin: 0xe0ac7e }, 'El Dueño'], lucho: [{ shirt: 0xe10600, hair: MOHAWK[1], hairStyle: 'mohicano', skin: GS.SKINS[3], glasses: true }, 'Lucho'], brian: [{ shirt: 0xe10600, hair: 0x2d6cdf, hairStyle: 'corto', skin: GS.SKINS[0] }, 'Brian'] };
-    let i = 0; A.play('click'); A.setMood('menu'); state = 'intro'; $('start').hidden = true; $('intro').hidden = false;
-    STAFF.forEach(st => { st.q = [['wait', 60]]; st.moving = false; st.act = null; st.p.stop(); st.p.lie(false); st.p.carry(false); st.p.setPos(st.hub[0], st.hub[1]); st.p.face(0.5); });
-    function draw() {
-      const sl = SL[i]; if (sl.cam) W.focusAt(sl.cam[0], sl.cam[1], sl.cam[2], 0.1); else W.showAll();
-      $('introCard').innerHTML = (sl.who.length ? '<div class="in-who">' + sl.who.map((k, j) => '<figure><div class="st-face">' + avatarSvg(WHO[k][0], j ? 'normal' : 'happy') + '</div><figcaption>' + WHO[k][1] + '</figcaption></figure>').join('') + '</div>' : '<div class="in-who"><div class="in-sign">SE VENDE</div></div>') +
-        '<h2>' + sl.t + '</h2><p>' + sl.d + '</p><div class="in-dots">' + SL.map((_, k) => '<i' + (k === i ? ' class="on"' : '') + '></i>').join('') + '</div>' +
-        '<div class="row"><button class="btn ghost" id="inSkip">Saltar</button><button class="btn" id="inNext" style="flex:2">' + (i === SL.length - 1 ? '¡A trabajar!' : 'Siguiente') + '</button></div>';
-      $('inSkip').addEventListener('click', done); $('inNext').addEventListener('click', () => { A.play('click'); if (++i >= SL.length) done(); else draw(); });
-    }
-    function done() { GS.Store.set('introSeen', true); GS.Store.set('plotIntro', true); $('intro').hidden = true; STAFF.forEach(st => { st.q = [['wait', 2]]; }); GS.track('intro_carrera', { placas: i + 1 }); then(); }
-    draw();
+    A.play('click'); state = 'intro'; $('start').hidden = true; let ended = false;
+    const done = () => { if (ended) return; ended = true; closeEpic(); GS.Store.set('introSeen', true); GS.Store.set('plotIntro', true); GS.track('intro_carrera', {}); then(); };
+    showEpic(GS.INTRO, null, '<button class="btn" id="inGo">¡A trabajar!</button>', () => $('inGo').addEventListener('click', () => { A.play('click'); done(); }), true);
   }
 
   /* ---------------- Modales: cómo se juega, récords, opciones, pausa ---------------- */
