@@ -713,3 +713,9 @@ a.mbtn { text-decoration: none; box-sizing: border-box; } .mbtn.gold { margin-to
 .cb::before { content: ""; position: absolute; inset: 3px; border: 1px solid currentColor; border-radius: 3px; opacity: .45; } .cb b { font: 400 14px/1 var(--display); position: relative; } .cb.v10000 { background: #f1bfa8; color: #33150b; } .cb.v2000 { background: #eea9c6; color: #330f1f; } .cb.v1000 { background: #b6c7f2; color: #0f1933; }
 .cb.cnt { opacity: .22; transform: scale(.86); box-shadow: none; } .cb.cnt::after { content: "✔"; position: absolute; right: 3px; top: 0; font-size: 12px; font-weight: 800; }
 .tray.cnt { padding: 5px 12px; border-style: solid; } .tray.cnt b { font-size: 22px; color: #f5c518; } .cj-o.off .opt { opacity: .4; } .opts.three.low.cj-o .opt { min-height: 54px; }
+
+/* ---------- v0.57: guía de la primera vez en los minijuegos ---------- */
+.ghand { position: absolute; z-index: 9; font-style: normal; font-size: 34px; line-height: 1; margin: -6px 0 0 -14px; pointer-events: none; filter: drop-shadow(0 3px 4px rgba(0,0,0,.7)); animation: ghand 1.9s ease-in-out infinite; }
+@keyframes ghand { 0% { transform: translate(0, 0) scale(1.15); opacity: 0; } 12% { opacity: 1; transform: translate(0, 0) scale(.95); } 70% { transform: translate(var(--dx), var(--dy)) scale(.95); opacity: 1; } 85%, 100% { transform: translate(var(--dx), var(--dy)) scale(1.15); opacity: 0; } }
+.dgz.hintz { border: 2px dashed rgba(245,197,24,.85); animation: hintz 1s ease-in-out infinite alternate; } @keyframes hintz { to { border-color: rgba(245,197,24,.2); } }
+.sk-ctl.guided { border-radius: 16px; padding: 4px; } #mg { position: fixed; }

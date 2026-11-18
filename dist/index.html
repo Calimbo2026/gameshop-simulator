@@ -740,6 +740,12 @@ a.mbtn { text-decoration: none; box-sizing: border-box; } .mbtn.gold { margin-to
 .cb.cnt { opacity: .22; transform: scale(.86); box-shadow: none; } .cb.cnt::after { content: "✔"; position: absolute; right: 3px; top: 0; font-size: 12px; font-weight: 800; }
 .tray.cnt { padding: 5px 12px; border-style: solid; } .tray.cnt b { font-size: 22px; color: #f5c518; } .cj-o.off .opt { opacity: .4; } .opts.three.low.cj-o .opt { min-height: 54px; }
 
+/* ---------- v0.57: guía de la primera vez en los minijuegos ---------- */
+.ghand { position: absolute; z-index: 9; font-style: normal; font-size: 34px; line-height: 1; margin: -6px 0 0 -14px; pointer-events: none; filter: drop-shadow(0 3px 4px rgba(0,0,0,.7)); animation: ghand 1.9s ease-in-out infinite; }
+@keyframes ghand { 0% { transform: translate(0, 0) scale(1.15); opacity: 0; } 12% { opacity: 1; transform: translate(0, 0) scale(.95); } 70% { transform: translate(var(--dx), var(--dy)) scale(.95); opacity: 1; } 85%, 100% { transform: translate(var(--dx), var(--dy)) scale(1.15); opacity: 0; } }
+.dgz.hintz { border: 2px dashed rgba(245,197,24,.85); animation: hintz 1s ease-in-out infinite alternate; } @keyframes hintz { to { border-color: rgba(245,197,24,.2); } }
+.sk-ctl.guided { border-radius: 16px; padding: 4px; } #mg { position: fixed; }
+
 </style>
 </head>
 <body>
@@ -854,7 +860,7 @@ const GS = {};
 GS.LOGO = "data:image/png;base64,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";
 
 GS.CONFIG = {
-  version: '0.56.0',
+  version: '0.57.0',
   phase: 8,
   phaseNote: 'Juego completo de punta a punta. Falta tu playtest con 5 personas y encender el lanzamiento (launched: true)',                       // fase actual del proyecto (1 a 5)
   links: { tienda: 'https://www.gameshop.com.ar', instagram: '' },   // botones del inicio y del cierre (vacío = no se muestra)
@@ -1140,14 +1146,14 @@ GS.EXPLAIN = {
   mostrador: 'El cliente pide como puede. Vos elegís el producto correcto. Ojo: siempre hay uno parecido para confundirte.',
   caja: 'Al cobrar: 10% OFF en efectivo o transferencia, y 3 cuotas sin interés con tarjeta. Si te muestran un comprobante, compará cada dato antes de aprobar. Si hay uno incorrecto, selecciónalo.',
   whatsapp: 'Contestá con el dato correcto y buena onda. Cada respuesta cuida nuestra reputación.',
-  cierre: 'Antes de irnos a las 19, sumá los cobros en efectivo y fijate si coincide con lo que hay en el cajón.',
+  cierre: 'Antes de irnos a las 19, contá los billetes del cajón tocándolos de a uno y fijate si el total coincide con lo que dice el sistema.',
   repo: 'Alguien dejó cosas en cualquier lado. En cada estantería va un solo tipo de producto: buscá los tres que están mal ubicados y arrastralos a la suya.',
-  stock: 'Contá lo que hay de verdad en la góndola. El sistema a veces sueña.',
-  ml: 'Son las compras que entran por www.gameshop.com.ar. Caja del tamaño justo, cinta de punta a punta y la etiqueta correcta. Lo que se compra antes de las 14 sale en el día.',
-  proveedor: 'Compará el remito con lo que bajó de la carreta. Si falta algo, no firmes.',
+  stock: 'Contá lo que hay de verdad en la góndola (mirá bien, algunos quedan atrás) y corregí el número con + y −. El sistema a veces sueña.',
+  ml: 'Son las compras que entran por www.gameshop.com.ar. Arrastrá el producto a la caja donde entra justo, pasale cinta de punta a punta y pegale la etiqueta correcta. Lo que se compra antes de las 14 sale en el día.',
+  proveedor: 'Contá las cajas que bajaron de la carreta y comparalas con el remito. Si una pila no coincide, tocala. Si falta algo, no firmes.',
   pc: 'En el taller: arrastrá cada pieza a su lugar dentro del gabinete y después tocá Encender. Si no prende, hay algo mal puesto. Si una pieza está al revés, tocala para girarla.',
-  service: 'En el taller: diagnosticá con criterio, limpiá con paciencia y encajá la memoria justo en la ranura.',
-  devol: 'Para una devolución mirá las tres reglas: ticket, plazo y estado. Si cumple, se acepta con una sonrisa.'
+  service: 'En el taller hay de todo: a veces toca encontrar qué pieza falla mirando la PC por dentro, a veces limpiar con paciencia y a veces encajar la memoria justo en la ranura.',
+  devol: 'Para una devolución mirá las tres reglas: ticket, plazo y estado. Revisá vos mismo el producto y el ticket antes de decidir. Si cumple, se acepta con una sonrisa.'
 };
 
 /* Clientes: arquetipos inventados (ninguno es una persona real) */
@@ -1999,7 +2005,7 @@ GS.Audio = (function () {
       const AC = window.AudioContext || window.webkitAudioContext;
       if (!AC) return;
       ctx = new AC(); master = ctx.createGain();
-      master.gain.value = muted ? 0 : 0.5; master.connect(ctx.destination);
+      master.gain.value = muted ? 0 : 0.5; const lim = ctx.createDynamicsCompressor(); lim.threshold.value = -12; lim.knee.value = 10; lim.ratio.value = 6; lim.attack.value = 0.004; lim.release.value = 0.2; master.connect(lim); lim.connect(ctx.destination);
       mGain = ctx.createGain(); mGain.gain.value = MVOL[mLevel]; mGain.connect(master);
       if (!mTimer) mTimer = setInterval(pump, 90);
     } catch (e) { ctx = null; }
@@ -2034,20 +2040,34 @@ GS.Audio = (function () {
   const N = n => 440 * Math.pow(2, (n - 69) / 12);      // nota MIDI a frecuencia
   // prog: acordes (bajo + tres notas). mel: melodía de dos compases en corcheas (grados de la escala; null = silencio)
   const SCALE = [60, 62, 64, 67, 69, 72, 74, 76];       // pentatónica mayor de do: no hay nota que suene mal
+  /* mel = frase A, melB = frase B (dos compases cada una, en corcheas). La canción respira: A, B, un tramo sin melodía y A una octava arriba. */
   const MOODS = {
-    menu:  { bpm: 66, prog: [[48, 64, 67, 71], [45, 64, 67, 72], [41, 64, 69, 72], [43, 62, 67, 71]], mel: [4, null, null, 2, null, null, 3, null, 2, null, null, 0, null, null, null, null], kick: 0 },
-    day:   { bpm: 80, prog: [[48, 64, 67, 71], [45, 60, 64, 67], [41, 60, 65, 69], [43, 62, 65, 71]], mel: [2, null, 3, null, 4, null, null, 3, null, 2, null, 0, null, null, 1, null], kick: 0.1 },
-    rain:  { bpm: 62, prog: [[45, 64, 67, 72], [41, 64, 69, 72], [48, 64, 67, 71], [43, 62, 67, 71]], mel: [4, null, null, null, 3, null, 2, null, null, null, 0, null, null, null, null, null], kick: 0 },
-    party: { bpm: 92, prog: [[48, 64, 67, 72], [43, 62, 67, 71], [45, 64, 69, 72], [41, 65, 69, 72]], mel: [0, null, 2, 3, null, 4, null, 3, 2, null, 3, null, 5, null, 4, null], kick: 0.13 },
-    final: { bpm: 96, prog: [[48, 64, 67, 72], [41, 65, 69, 72], [43, 62, 67, 71], [48, 64, 67, 76]], mel: [2, 3, 4, null, 5, null, 4, 3, 4, null, 5, 6, 7, null, null, null], kick: 0.13 }
+    menu:  { bpm: 66, prog: [[48, 64, 67, 71], [45, 64, 67, 72], [41, 64, 69, 72], [43, 62, 67, 71]], mel: [4, null, null, 2, null, null, 3, null, 2, null, null, 0, null, null, null, null], melB: [5, null, null, 4, null, 2, null, null, 3, null, null, null, 1, null, null, null], kick: 0, hat: 0 },
+    day:   { bpm: 78, prog: [[48, 64, 67, 71], [45, 60, 64, 67], [41, 60, 65, 69], [43, 62, 65, 71]], mel: [2, null, 3, null, 4, null, null, 3, null, 2, null, 0, null, null, 1, null], melB: [4, null, null, 5, null, 4, 2, null, 3, null, null, 2, null, 0, null, null], kick: 0.08, hat: 0 },
+    rain:  { bpm: 62, prog: [[45, 64, 67, 72], [41, 64, 69, 72], [48, 64, 67, 71], [43, 62, 67, 71]], mel: [4, null, null, null, 3, null, 2, null, null, null, 0, null, null, null, null, null], melB: [2, null, null, null, 4, null, null, 3, null, null, null, null, 1, null, null, null], kick: 0, hat: 0 },
+    party: { bpm: 92, prog: [[48, 64, 67, 72], [43, 62, 67, 71], [45, 64, 69, 72], [41, 65, 69, 72]], mel: [0, null, 2, 3, null, 4, null, 3, 2, null, 3, null, 5, null, 4, null], melB: [4, null, 5, null, 4, 3, null, 2, 3, null, 2, null, 0, null, null, null], kick: 0.13, hat: 0.02 },
+    final: { bpm: 96, prog: [[48, 64, 67, 72], [41, 65, 69, 72], [43, 62, 67, 71], [48, 64, 67, 76]], mel: [2, 3, 4, null, 5, null, 4, 3, 4, null, 5, 6, 7, null, null, null], melB: [7, null, 6, 5, null, 4, 5, null, 6, null, 4, null, 5, null, null, null], kick: 0.13, hat: 0.022 }
   };
-  let mood = 'menu', mStep = 0, mNext = 0, mTimer = null, mLp = null;
+  let mood = 'menu', mStep = 0, mNext = 0, mTimer = null, mLp = null, hatBuf = null;
+  function bus() {             /* filtro que saca el brillo + un eco corto que le da aire, para que acompañe sin cansar */
+    if (mLp) return mLp;
+    mLp = ctx.createBiquadFilter(); mLp.type = 'lowpass'; mLp.frequency.value = 1700; mLp.Q.value = 0.3; mLp.connect(mGain);
+    const dl = ctx.createDelay(1), fb = ctx.createGain(), wet = ctx.createGain(); dl.delayTime.value = 0.34; fb.gain.value = 0.3; wet.gain.value = 0.26;
+    mLp.connect(dl); dl.connect(fb); fb.connect(dl); dl.connect(wet); wet.connect(mGain);
+    return mLp;
+  }
   function voice(freq, dur, type, vol, t, att, rel) {
-    if (!mLp) { mLp = ctx.createBiquadFilter(); mLp.type = 'lowpass'; mLp.frequency.value = 1500; mLp.Q.value = 0.3; mLp.connect(mGain); }
     const o = ctx.createOscillator(), g = ctx.createGain();
     o.type = type; o.frequency.setValueAtTime(freq, t);
     g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(vol, t + (att || 0.02)); g.gain.setTargetAtTime(0.0001, t + (att || 0.02), (rel || dur) / 4);
-    o.connect(g); g.connect(mLp); o.start(t); o.stop(t + dur + 0.1);
+    o.connect(g); g.connect(bus()); o.start(t); o.stop(t + dur + 0.1);
+  }
+  function pluck(freq, vol, t) {      /* melodía tipo kalimba: golpe suave que se apaga solo */
+    voice(freq, 1.1, 'sine', vol, t, 0.006, 0.9); voice(freq * 2, 0.5, 'sine', vol * 0.28, t, 0.004, 0.35); voice(freq * 3.01, 0.22, 'sine', vol * 0.1, t, 0.003, 0.14);
+  }
+  function hat(vol, t) {
+    if (!hatBuf) { const len = Math.floor(ctx.sampleRate * 0.05); hatBuf = ctx.createBuffer(1, len, ctx.sampleRate); const d = hatBuf.getChannelData(0); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3); }
+    const sr = ctx.createBufferSource(), f = ctx.createBiquadFilter(), g = ctx.createGain(); sr.buffer = hatBuf; f.type = 'highpass'; f.frequency.value = 6500; g.gain.value = vol; sr.connect(f); f.connect(g); g.connect(mGain); sr.start(t);
   }
   // Agenda las notas un rato antes de que suenen (así no se corta si el juego se traba un instante)
   function pump() {
@@ -2055,12 +2075,14 @@ GS.Audio = (function () {
     const m = MOODS[mood], sp = 60 / m.bpm / 2;                                   // paso = una corchea
     if (mNext < ctx.currentTime) mNext = ctx.currentTime + 0.08;
     while (mNext < ctx.currentTime + 0.35) {
-      const st = mStep % 8, bar = Math.floor(mStep / 8), ch = m.prog[bar % m.prog.length], t = mNext + (st % 2 ? sp * 0.12 : 0);   // un poquito de swing
-      if (st === 0) for (let i = 1; i < 4; i++) voice(N(ch[i]), sp * 9, 'sine', 0.05, t + i * 0.03, 0.5, sp * 6);               // colchón del acorde, entra de a poco
-      if (st === 0 || st === 5) voice(N(ch[0] - 12), sp * 2.6, 'sine', st ? 0.11 : 0.16, t, 0.03);                             // bajo redondo
+      const st = mStep % 8, bar = Math.floor(mStep / 8), ch = m.prog[bar % m.prog.length], t = mNext + (st % 2 ? sp * 0.12 : 0), sec = Math.floor(bar / 8) % 4;   // un poquito de swing; sec = tramo de la canción
+      if (st === 0) for (let i = 1; i < 4; i++) voice(N(ch[i]), sp * 9, 'sine', 0.045, t + i * 0.03, 0.5, sp * 6);              // colchón del acorde, entra de a poco
+      if (st === 0 || st === 5) voice(N(ch[0] - 12), sp * 2.6, 'sine', st ? 0.1 : 0.15, t, 0.03);                              // bajo redondo
       if (m.kick && (st === 0 || st === 4)) voice(90, 0.16, 'sine', m.kick, t, 0.005, 0.12);                                   // pulso apenas marcado
-      const deg = m.mel[(bar % 2) * 8 + st];
-      if (deg != null && (bar % 4 !== 3 || st < 4)) voice(N(SCALE[deg] + (bar % 8 >= 4 && st === 0 ? 12 : 0)), sp * 2.4, 'triangle', 0.05, t, 0.03);   // melodía con aire
+      if (m.hat && st % 2 === 1 && sec !== 2) hat(m.hat, t);
+      const deg = (sec === 1 ? m.melB : m.mel)[(bar % 2) * 8 + st];
+      if (sec === 2) { if (st === 2 && bar % 2 === 0) pluck(N(ch[2] + 12), 0.03, t); }                                          // tramo de descanso: apenas una nota cada tanto
+      else if (deg != null && (bar % 4 !== 3 || st < 4)) pluck(N(SCALE[deg] + (sec === 3 ? 12 : 0)), sec === 3 ? 0.05 : 0.065, t);
       mStep++; mNext += sp;
     }
   }
@@ -2072,21 +2094,29 @@ GS.Audio = (function () {
     for (let i = 0; i < n; i++) { const c = String(text).charCodeAt(i * 3 % text.length) || 65; tone(p * (1 + ((c % 7) - 3) * 0.055), 0.06, 'triangle', 0.09, i * 0.075, p * (1 + ((c % 5) - 2) * 0.05)); }
   }
 
+  let cN = 0, cT = 0;                 // billetes contados seguidos: cada uno suena un poquito más agudo
   const sfx = {
-    click() { tone(520, 0.05, 'square', 0.08); },
+    click() { tone(620, 0.045, 'sine', 0.11, 0, 430); },
+    pick()  { tone(400, 0.07, 'sine', 0.15, 0, 660); },                                         // levantar algo con el dedo
+    drop()  { tone(280, 0.09, 'sine', 0.22, 0, 140); noise(0.035, 0.07, 0, 1800); },           // apoyarlo
     bell()  { tone(1568, 0.5, 'sine', 0.22); tone(2093, 0.6, 'sine', 0.14, 0.09); },          // campanita de la puerta
-    ok()    { tone(660, 0.1, 'triangle', 0.25); tone(990, 0.16, 'triangle', 0.25, 0.09); },
-    error() { tone(160, 0.22, 'sawtooth', 0.16, 0, 110); },
-    cash()  { noise(0.05, 0.25, 0, 3000); tone(1318, 0.09, 'square', 0.12, 0.05); tone(1760, 0.3, 'triangle', 0.22, 0.13); }, // caja registradora
+    ok()    { tone(660, 0.1, 'triangle', 0.22); tone(880, 0.1, 'triangle', 0.2, 0.08); tone(1320, 0.22, 'sine', 0.2, 0.16); },
+    error() { tone(233, 0.11, 'triangle', 0.24, 0, 196); tone(175, 0.2, 'triangle', 0.24, 0.12, 147); },   // "no-no" grave, sin chicharra
+    cash()  { noise(0.05, 0.25, 0, 3000); tone(1318, 0.09, 'triangle', 0.14, 0.05); tone(1760, 0.3, 'triangle', 0.22, 0.13); }, // caja registradora
     bill()  { noise(0.07, 0.18, 0, 2500); },
+    count() { const now = Date.now(); cN = now - cT < 2500 ? Math.min(cN + 1, 11) : 0; cT = now; noise(0.05, 0.12, 0, 2600); tone(N(SCALE[cN % 8] + 12 + (cN >= 8 ? 12 : 0)), 0.12, 'sine', 0.16, 0.02); },
     swipe() { noise(0.14, 0.12, 0, 900); },
+    flip()  { noise(0.08, 0.1, 0, 1300); tone(480, 0.07, 'sine', 0.1, 0.05, 760); },            // dar vuelta algo
+    send()  { tone(520, 0.11, 'sine', 0.15, 0, 1040); noise(0.06, 0.05, 0.02, 3000); },         // mensaje enviado
+    stamp() { tone(150, 0.1, 'sine', 0.3, 0, 70); noise(0.05, 0.12, 0, 600); },                 // firma / sello
+    power() { tone(98, 0.6, 'sine', 0.2, 0, 196); [523, 659, 784, 1047].forEach((f, i) => tone(f, 0.2, 'triangle', 0.13, 0.28 + i * 0.09)); },   // la PC arranca
     lost()  { tone(392, 0.16, 'triangle', 0.2); tone(294, 0.3, 'triangle', 0.2, 0.15); },
     speaker(){ tone(880, 0.12, 'sine', 0.14); tone(698, 0.2, 'sine', 0.14, 0.13); },          // altavoz del Dueño
-    combo(n){ tone(520 + Math.min(n, 8) * 70, 0.09, 'square', 0.1); },
+    combo(n){ tone(N(SCALE[Math.min(n, 7)] + 12), 0.1, 'triangle', 0.13); },
     intr()  { tone(784, 0.09, 'sine', 0.16); tone(1047, 0.14, 'sine', 0.16, 0.1); },                    // aviso suave de interrupción
     mate()  { noise(0.22, 0.08, 0, 700); tone(330, 0.2, 'sine', 0.12, 0.2, 440); },                      // sorbito
-    fanfare(){ [523, 659, 784, 1047, 784, 1047, 1319].forEach((f, i) => tone(f, i === 6 ? 0.7 : 0.16, 'triangle', 0.22, i * 0.14)); },
-    endDay(){ [523, 659, 784, 1047].forEach((f, i) => tone(f, 0.22, 'triangle', 0.22, i * 0.13)); }
+    fanfare(){ [523, 659, 784, 1047, 784, 1047, 1319].forEach((f, i) => { tone(f, i === 6 ? 0.7 : 0.16, 'triangle', 0.2, i * 0.14); if (i === 6) { tone(f / 2, 0.7, 'sine', 0.14, i * 0.14); tone(f * 0.75, 0.7, 'sine', 0.1, i * 0.14); } }); },
+    endDay(){ [523, 659, 784, 1047].forEach((f, i) => tone(f, 0.22, 'triangle', 0.2, i * 0.13)); tone(262, 0.6, 'sine', 0.12, 0.39); }
   };
 
   return {
@@ -2097,6 +2127,7 @@ GS.Audio = (function () {
     musicLevel: () => mLevel,
     setMusic(v) { mLevel = v; musicOn = v > 0; GS.Store.set('music', v); if (mGain) mGain.gain.value = MVOL[v]; },
     isMuted: () => muted,
+    peek: () => ({ ctx, master, moods: Object.keys(MOODS), sfx: Object.keys(sfx) }),
     setMuted(m) { muted = m; GS.Store.set('mute', m); if (master) master.gain.value = m ? 0 : 0.5; }
   };
 })();
@@ -3559,7 +3590,7 @@ GS.Minigames = (function () {
       if (!d.on) { if (!d.tray && live()) { const p = P[d.id]; p.flip = !p.flip; p.el.classList.toggle('flipd', p.flip); p.el.classList.remove('bad'); GS.Audio.play('swipe'); say(p.flip ? 'La diste vuelta.' : U.pick(LN.flipPc), false); } return; }
       noClick = Date.now(); const lift = e.pointerType === 'mouse' ? 0 : 30, g = toGrid(e.clientX, e.clientY - lift), p = P[d.id]; p.el.classList.remove('drag');
       if (!g[2]) { unplace(d.id); say('La pieza volvió a la bandeja.', false); return; }
-      setPos(d.id, g[0], g[1]); GS.Audio.play('bill'); say(Object.keys(P).length === parts.length ? 'Están todas. Tocá Encender.' : 'Quedó ahí. Seguí con las demás.', false); }
+      setPos(d.id, g[0], g[1]); GS.Audio.play('drop'); say(Object.keys(P).length === parts.length ? 'Están todas. Tocá Encender.' : 'Quedó ahí. Seguí con las demás.', false); }
     function power() {
       if (!live()) return; const ids = parts.map(p => p.id), miss = ids.filter(id => !P[id]);
       if (miss.length) { GS.Audio.play('error'); say(miss.length === 1 ? 'Falta una pieza. Así no enciende.' : 'Faltan ' + miss.length + ' piezas. Así no enciende.', true); return; }
@@ -3567,7 +3598,7 @@ GS.Minigames = (function () {
       if (bad.length) { ids.forEach(id => P[id].el.classList.toggle('bad', bad.indexOf(id) >= 0)); pcb.classList.remove('fail'); void pcb.offsetWidth; pcb.classList.add('fail');
         const rev = bad.filter(id => good(id) && P[id].flip).length; return mistake('pc', 'No enciende. ' + (bad.length === 1 ? (rev ? 'Hay una pieza al revés: tocala para girarla.' : 'Hay una pieza fuera de lugar.') : 'Hay ' + bad.length + ' piezas mal puestas (en rojo).')); }
       ids.forEach(id => { const q = PCS[id]; P[id].el.classList.add('snap'); setPos(id, q[0] + q[2] / 2, q[1] + q[3] / 2); }); slots.forEach(s => s.classList.add('full'));
-      pcb.classList.add('on'); GS.Audio.play('ok'); say('¡Prende! Y con lucecitas.', false); cur.locked = 1;
+      pcb.classList.add('on'); GS.Audio.play('power'); say('¡Prende! Y con lucecitas.', false); cur.locked = 1;
       setTimeout(() => { if (cur === me) finish(true, '¡Prendió!', 'Y con lucecitas.', {}); }, 1300);
     }
     btns.forEach(b => { b.addEventListener('pointerdown', e => { if (!b.classList.contains('used')) startDrag(b.dataset.id, e, b); }); b.addEventListener('pointermove', moveDrag); b.addEventListener('pointerup', endDrag); b.addEventListener('pointercancel', endDrag);
@@ -3597,10 +3628,11 @@ GS.Minigames = (function () {
     root().innerHTML = head(job, 'Taller · Diagnóstico') + '<div class="bubble">' + esc(d.s) + '</div>' +
       '<div class="pcb pcase dg" id="mgPcb">' + pcCase() + GS.PC_PARTS.map(p => partHtml(p.id, d.id === 'gpu' && p.id === 'gpu' ? 'loose' : '')).join('') + '<svg class="dgfx" viewBox="0 0 320 200" preserveAspectRatio="none">' + FX[d.id] + '</svg>' +
       Z.map(z => '<button class="dgz" data-id="' + z[0] + '" data-ok="' + (z[0] === d.id ? 1 : 0) + '" style="left:' + pc100(z[1], 320) + ';top:' + pc100(z[2], 200) + ';width:' + pc100(z[3], 320) + ';height:' + pc100(z[4], 200) + '"></button>').join('') + '</div>' +
-      '<div class="rule" id="mgBubble">Mirá bien la PC y tocá la pieza que está causando el problema.</div>';
+      '<div class="rule" id="mgBubble">' + (firstTime('diag') ? '👆 Primera vez: leé qué le pasa, buscá algo raro adentro de la PC y tocá esa pieza. Se pueden tocar las que parpadean.' : 'Mirá bien la PC y tocá la pieza que está causando el problema.') + '</div>';
+    if (firstTime('diag')) root().querySelectorAll('.dgz').forEach(z => z.classList.add('hintz'));
     root().querySelectorAll('.dgz').forEach(b => b.addEventListener('click', () => {
       if (cur !== me || me.done || me.hold || b.classList.contains('bad')) return;
-      if (b.dataset.ok === '1') { me.hold = true; root().querySelectorAll('.dgz[data-ok="1"]').forEach(x => x.classList.add('good')); GS.Audio.play('ok'); setTimeout(() => { if (cur === me) finish(true, d.t, d.r, {}); }, 550); }
+      if (b.dataset.ok === '1') { me.hold = true; learned('diag'); root().querySelectorAll('.dgz').forEach(z => z.classList.remove('hintz')); root().querySelectorAll('.dgz[data-ok="1"]').forEach(x => x.classList.add('good')); GS.Audio.play('ok'); setTimeout(() => { if (cur === me) finish(true, d.t, d.r, {}); }, 550); }
       else { root().querySelectorAll('.dgz[data-id="' + b.dataset.id + '"]').forEach(x => x.classList.add('bad')); mistake('service', NM[b.dataset.id] + ' está bien. ' + U.pick(['Buscá algo raro.', 'Mirá con más cariño.', 'Casi. Bah, no.'])); }
     }));
     cur.keys = () => {};
@@ -3657,11 +3689,12 @@ GS.Minigames = (function () {
       root().innerHTML = head(job, 'Compra por la página') + steps(0) + order +
         '<div class="pk-prod" id="pkP"><span class="pk-ic">' + icon + '</span><small>👆 Arrastralo a la caja donde entra justo</small></div>' +
         '<div class="pk-boxes">' + SZ.map((b, i) => '<button class="pk-box b' + i + '" data-b="' + b + '" data-ok="' + (b === size ? 1 : 0) + '"><kbd>' + (i + 1) + '</kbd><span class="pk-dr">' + boxSvg(true) + '<span class="pk-in">' + icon + '</span></span><span class="n">Caja ' + b + '<small>hasta ' + GS.BOXES[b].max + ' cm</small></span></button>').join('') + '</div>' +
-        '<div class="rule" id="mgBubble">Ni apretado ni bailando: tiene que entrar justo.</div>';
+        '<div class="rule" id="mgBubble">' + (firstTime('ml') ? '👆 Primera vez: arrastrá el producto hasta una caja. Fijate cuánto mide y hasta cuánto entra en cada una.' : 'Ni apretado ni bailando: tiene que entrar justo.') + '</div>';
       const P = document.getElementById('pkP'), bx = [...root().querySelectorAll('.pk-box')];
+      if (firstTime('ml')) hand(P, root().querySelector('.pk-boxes'));
       function tryBox(b) {
         if (!live() || b.classList.contains('bad')) return;
-        if (b.dataset.ok === '1') { me.hold = true; b.classList.add('in'); P.classList.add('gone'); GS.Audio.play('bill'); return void setTimeout(() => { if (cur === me) { me.hold = false; stepTape(); } }, 700); }
+        if (b.dataset.ok === '1') { me.hold = true; learned('ml'); b.classList.add('in'); P.classList.add('gone'); GS.Audio.play('drop'); return void setTimeout(() => { if (cur === me) { me.hold = false; stepTape(); } }, 700); }
         const small = SZ.indexOf(b.dataset.b) < SZ.indexOf(size); b.classList.add('bad', small ? 'sm' : 'bg');
         mistake('ml', small ? U.pick(['No entra ni empujando. Probá una más grande.', 'Entra... si lo doblás. No lo dobles.']) : U.pick(['Baila adentro como maraca. Probá una más chica.', 'Con esa caja pagás flete por aire.']));
       }
@@ -3689,11 +3722,12 @@ GS.Minigames = (function () {
       const lab = l => '<span class="bars"></span><span class="n">#' + l.n + '<small>' + l.b + ' · ' + esc(l.c) + '</small></span>';
       root().innerHTML = head(job, 'Compra por la página') + steps(2) + '<div class="pk-row">' + order + '<div class="pk-closed" id="pkC">' + boxSvg(false) + '<i class="pk-spot">Pegá acá</i></div></div>' +
         '<div class="opts one pk-labs">' + labels.map((l, i) => '<button class="opt tagl" data-ok="' + l.ok + '"><kbd>' + (i + 1) + '</kbd>' + lab(l) + '</button>').join('') + '</div>' +
-        '<div class="rule" id="mgBubble">Arrastrá a la caja la etiqueta que coincide con el pedido.</div>';
+        '<div class="rule" id="mgBubble">' + (firstTime('ml2') ? '👆 Primera vez: compará número, comprador y ciudad con el pedido, y arrastrá esa etiqueta hasta la caja.' : 'Arrastrá a la caja la etiqueta que coincide con el pedido.') + '</div>';
       const bs = [...root().querySelectorAll('.tagl')], C = document.getElementById('pkC');
+      if (firstTime('ml2')) hand(root().querySelector('.pk-labs'), C);
       function tryLab(b) {
         if (!live() || b.classList.contains('bad')) return;
-        if (b.dataset.ok === '1') { me.hold = true; b.classList.add('good', 'gone'); C.classList.add('done'); GS.Audio.play('ok'); return void setTimeout(() => { if (cur === me) { me.hold = false; finish(true, '¡Despachado!', 'Sale hoy, antes de las 14.', {}); } }, 600); }
+        if (b.dataset.ok === '1') { me.hold = true; learned('ml2'); b.classList.add('good', 'gone'); C.classList.add('done'); GS.Audio.play('stamp'); GS.Audio.play('ok'); return void setTimeout(() => { if (cur === me) { me.hold = false; finish(true, '¡Despachado!', 'Sale hoy, antes de las 14.', {}); } }, 600); }
         b.classList.add('bad'); mistake('ml', U.pick(LN.wrongLabel));
       }
       bs.forEach((b, i) => { grab(b, () => '<span class="opt tagl">' + lab(labels[i]) + '</span>', t => { if (t && t.closest && t.closest('.pk-closed')) tryLab(b); else say('Soltala arriba de la caja.', false); }, 'lab');
@@ -3710,7 +3744,7 @@ GS.Minigames = (function () {
       '<div class="wa-body" id="waB"><div class="msg in"><span>' + esc(c.m) + '</span><em>' + hh + ':' + mm + '</em></div></div></div><div class="info" id="mgBubble"><b>¿Qué le contestás?</b></div>' +
       '<div class="opts one txt">' + options.map((o, i) => '<button class="opt" data-ok="' + (o === c.ok ? 1 : 0) + '"><kbd>' + (i + 1) + '</kbd><span class="n">' + esc(o) + '</span></button>').join('') + '</div>';
     listOptions(b => b.dataset.ok === '1', () => {
-      if (me.hold) return; me.hold = true; GS.Audio.play('swipe');
+      if (me.hold) return; me.hold = true; GS.Audio.play('send');
       const out = document.createElement('div'); out.className = 'msg out'; out.innerHTML = esc(c.ok) + '<em>' + hh + ':' + mm + ' <u>✓✓</u></em>'; document.getElementById('waB').appendChild(out);
       setTimeout(() => { if (cur === me) finish(true, '¡Respondido!', 'Un cliente menos escribiendo "???".', {}); }, 750);
     }, () => { if (!me.hold) mistake('whatsapp', U.pick(LN.wrongChat)); });
@@ -3740,7 +3774,7 @@ GS.Minigames = (function () {
     const live = () => cur === me && !cur.done, find = id => { for (const s of st) for (const it of s.items) if (it.id === id) return { s, it }; };
     const shAt = (x, y) => { const el = document.elementFromPoint(x, y), sh = el && el.closest('.dp-sh'); return sh ? Number(sh.dataset.k) : -1; };
     function stop() { if (drag && drag.g) drag.g.remove(); document.querySelectorAll('.dp-sh.over').forEach(x => x.classList.remove('over')); drag = null; }
-    function move(e) { if (!drag) return; if (!drag.g) { if (Math.hypot(e.clientX - drag.x, e.clientY - drag.y) < 8) return; const g = document.createElement('div'); g.className = 'pghost'; g.innerHTML = GS.ICONS[drag.b.dataset.id] || ''; document.body.appendChild(g); drag.g = g; drag.b.classList.add('lift'); GS.Audio.play('click'); }
+    function move(e) { if (!drag) return; if (!drag.g) { if (Math.hypot(e.clientX - drag.x, e.clientY - drag.y) < 8) return; const g = document.createElement('div'); g.className = 'pghost'; g.innerHTML = GS.ICONS[drag.b.dataset.id] || ''; document.body.appendChild(g); drag.g = g; drag.b.classList.add('lift'); GS.Audio.play('pick'); }
       const lift = e.pointerType === 'mouse' ? 0 : 34; drag.g.style.left = e.clientX + 'px'; drag.g.style.top = (e.clientY - lift) + 'px'; drag.g.style.visibility = 'hidden'; const k = shAt(e.clientX, e.clientY - lift); drag.g.style.visibility = ''; document.querySelectorAll('.dp-sh').forEach(x => x.classList.toggle('over', Number(x.dataset.k) === k)); }
     function up(e) { if (!drag) return; const d = drag, moved = !!d.g, lift = e.pointerType === 'mouse' ? 0 : 34; if (moved) d.g.style.visibility = 'hidden'; const k = moved ? shAt(e.clientX, e.clientY - lift) : -1; d.b.classList.remove('lift'); stop(); if (!moved) return; noClick = Date.now(); if (k >= 0) drop(d.b.dataset.id, k); }
     function drop(id, k) {
@@ -3748,7 +3782,7 @@ GS.Minigames = (function () {
       if (f.s.k === k) { if (f.it.bad) say('Ya está en esa estantería, y ahí no va. Llevalo a otra.', true); else say('Ese ya está en su lugar.', false); GS.Audio.play('error'); return; }
       if (!f.it.bad) return mistake('repo', 'Ese estaba bien donde estaba. Buscá el que no va.');
       if (SH[k].cat !== f.it.cat) return mistake('repo', U.pick(LN.wrongShelf));
-      f.s.items = f.s.items.filter(x => x !== f.it); f.it.bad = 0; f.it.fixed = 1; st[k].items.push(f.it); left--; GS.Audio.play('bill');
+      f.s.items = f.s.items.filter(x => x !== f.it); f.it.bad = 0; f.it.fixed = 1; st[k].items.push(f.it); left--; GS.Audio.play('drop');
       if (hint) { hint = false; const sn = GS.Store.get('seen') || {}; sn.g_repo = 1; GS.Store.set('seen', sn); }
       if (!left) { draw(); cur.locked = 1; GS.Audio.play('ok'); return void setTimeout(() => { if (cur === me) finish(true, '¡Depósito ordenado!', 'Por cinco minutos, al menos.', {}); }, 650); }
       draw(); say(left === 1 ? '¡Bien! Queda uno mal ubicado.' : '¡Bien! Quedan ' + left + ' mal ubicados.', false);
@@ -3762,12 +3796,13 @@ GS.Minigames = (function () {
     root().innerHTML = head(job, 'Control de stock') + '<div class="bubble">' + esc(p.name) + ': el sistema dice que hay <b>' + sys + '</b>.</div>' +
       '<div class="shelfv sk">' + Array.from({ length: real }, (_, i) => '<span class="pic' + (i > 0 && Math.random() < 0.4 ? ' bk' : '') + '" style="--r:' + Math.floor(U.rnd(-12, 12)) + 'deg;--y:' + Math.floor(U.rnd(-3, 4)) + 'px">' + icon + '</span>').join('') + '</div>' +
       '<div class="sk-ctl"><button class="sk-b" id="skM">−</button><div class="sk-n"><b id="skN">' + n + '</b><small>en la góndola</small></div><button class="sk-b" id="skP">+</button></div>' +
-      '<button class="btn okb" id="skOk">✔ Confirmar</button><div class="rule" id="mgBubble">Contá los que hay de verdad (ojo con los de atrás) y corregí el número.</div>';
+      '<button class="btn okb" id="skOk">✔ Confirmar</button><div class="rule" id="mgBubble">' + (firstTime('stock') ? '👆 Primera vez: contá los productos de la góndola (algunos quedan atrás), llevá el número con + y − y tocá Confirmar.' : 'Contá los que hay de verdad (ojo con los de atrás) y corregí el número.') + '</div>';
+    if (firstTime('stock')) root().querySelector('.sk-ctl').classList.add('guided');
     const out = document.getElementById('skN'), live = () => cur === me && !me.done;
-    const step = k => { if (!live()) return; n = U.clamp(n + k, 0, 20); out.textContent = n; GS.Audio.play('click'); };
+    const step = k => { if (!live()) return; learned('stock'); n = U.clamp(n + k, 0, 20); out.textContent = n; GS.Audio.play('click'); };
     function ok() {
       if (!live()) return;
-      if (n === real) { GS.Audio.play('ok'); finish(true, '¡Stock corregido!', sys === real ? 'El sistema tenía razón. Anotá la fecha.' : 'Eran ' + real + ', no ' + sys + '.', {}); }
+      if (n === real) { learned('stock'); GS.Audio.play('ok'); finish(true, '¡Stock corregido!', sys === real ? 'El sistema tenía razón. Anotá la fecha.' : 'Eran ' + real + ', no ' + sys + '.', {}); }
       else mistake('stock', n < real ? U.pick(['Hay más. ¿Contaste los de atrás?', 'Te quedaste corto. Contá de nuevo, sin apuro.']) : U.pick(['Hay menos. Alguno lo contaste dos veces.', 'Ese número le gustaría al sistema, pero no.']));
     }
     document.getElementById('skM').addEventListener('click', () => step(-1)); document.getElementById('skP').addEventListener('click', () => step(1)); document.getElementById('skOk').addEventListener('click', ok);
@@ -3781,8 +3816,8 @@ GS.Minigames = (function () {
     root().innerHTML = head(job, 'Recepción de proveedor') +
       '<div class="remito"><b>🧾 El remito dice</b>' + items.map(it => '<span>' + ico(it.p) + '<em>' + esc(it.p.name) + '</em><i>× ' + it.q + '</i></span>').join('') + '</div>' +
       '<div class="pv"><h4>📦 Lo que bajó de la carreta</h4>' + items.map((it, i) => '<button class="pvrow" data-i="' + i + '" data-n="' + got[i] + '"><kbd>' + (i + 1) + '</kbd><span class="pic sm">' + (GS.ICONS[it.p.id] || it.p.icon) + '</span><span class="pvb">' + '<i></i>'.repeat(got[i]) + '</span></button>').join('') + '</div>' +
-      '<div class="rule" id="mgBubble">Contá las cajas de cada pila. ¿Alguna no coincide con el remito? Tocala. Si está todo, firmá.</div><button class="btn okb" id="mgYes">✔ Coincide todo: firmar</button>';
-    const rb = [...root().querySelectorAll('.pvrow')];
+      '<div class="rule" id="mgBubble">' + (firstTime('prov') ? '👆 Primera vez: contá las cajitas de cada pila y comparalas con el remito. Si una no coincide, tocala. Si está todo bien, firmá.' : 'Contá las cajas de cada pila. ¿Alguna no coincide con el remito? Tocala. Si está todo, firmá.') + '</div><button class="btn okb" id="mgYes">✔ Coincide todo: firmar</button>';
+    const rb = [...root().querySelectorAll('.pvrow')]; if (firstTime('prov')) { root().querySelector('.remito').classList.add('guided'); setTimeout(() => learned('prov'), 4000); }
     function tapRow(b) {
       if (!cur || cur.done || b.classList.contains('fine')) return;
       if (Number(b.dataset.i) === bad) { b.classList.add('flag'); GS.Audio.play('ok'); finish(true, '¡Bien contado!', (got[bad] < items[bad].q ? 'Faltaba' : 'Sobraba') + ' mercadería. El de la carreta "justo se acordó".', {}); }
@@ -3790,7 +3825,7 @@ GS.Minigames = (function () {
     }
     function sign() {
       if (!cur || cur.done) return;
-      if (bad < 0) { GS.Audio.play('ok'); finish(true, '¡Firmado!', 'Llegó todo. Qué raro. Qué lindo.', {}); }
+      if (bad < 0) { GS.Audio.play('stamp'); GS.Audio.play('ok'); finish(true, '¡Firmado!', 'Llegó todo. Qué raro. Qué lindo.', {}); }
       else { rb[bad].classList.add('flag'); GS.Audio.play('error'); cur.cb.onMistake('proveedor'); finish(false, 'Firmaste de más', 'Mirá la pila marcada: no coincidía con el remito.', {}); }
     }
     rb.forEach(b => b.addEventListener('click', () => tapRow(b))); document.getElementById('mgYes').addEventListener('click', sign);
@@ -3812,9 +3847,9 @@ GS.Minigames = (function () {
       '<div class="expect"><b>Se acepta si (reglas del juego)</b><span>Tiene <i>ticket</i></span><span>Hasta <i>10 días</i></span><span>Está <i>sin uso</i></span></div>' +
       '<div class="dv"><button class="dvc' + (used ? ' used' : '') + '" data-k="estado"><span class="dv-f"><span class="pk-ic">' + icon + '</span><small>👆 Tocá para revisarlo</small></span><span class="dv-b"><span class="pk-ic">' + icon + '<svg class="dv-sc" viewBox="0 0 60 60"><path d="M8 14l16 10M30 8l-6 18M40 40l14 8M12 44l10-6M44 14l8 12" stroke="#e10600" stroke-width="2.4" stroke-linecap="round" fill="none"/></svg></span><b>' + c.estado + '</b></span></button>' +
       '<button class="dvc tk" data-k="ticket"><span class="dv-f"><span class="dv-tk">🧾</span><small>👆 Tocá para ver el ticket</small></span><span class="dv-b">' + (c.ticket ? '<span class="dv-paper"><u>TICKET</u><i>' + esc(p.name) + '</i><b>Hace ' + c.dias + (c.dias === 1 ? ' día' : ' días') + '</b></span>' : '<span class="dv-tk">🤷</span><b>No lo tiene</b><small>"Lo debo haber tirado"</small>') + '</span></button></div>' +
-      '<div class="row"><button class="btn ghost" id="mgNo" data-ok="' + (ok ? 0 : 1) + '" style="font-size:18px">✖ Rechazar</button><button class="btn okb" id="mgYes" data-ok="' + (ok ? 1 : 0) + '">✔ Aceptar</button></div><div class="rule" id="mgBubble">Revisá el producto y el ticket antes de decidir.</div>';
+      '<div class="row"><button class="btn ghost" id="mgNo" data-ok="' + (ok ? 0 : 1) + '" style="font-size:18px">✖ Rechazar</button><button class="btn okb" id="mgYes" data-ok="' + (ok ? 1 : 0) + '">✔ Aceptar</button></div><div class="rule" id="mgBubble">' + (firstTime('devol') ? '👆 Primera vez: tocá el producto y el ticket para revisarlos. Si cumple las tres reglas, aceptá; si no, rechazá.' : 'Revisá el producto y el ticket antes de decidir.') + '</div>';
     const cards = [...root().querySelectorAll('.dvc')];
-    cards.forEach(b => b.addEventListener('click', () => { if (cur !== me || me.done || b.classList.contains('seen')) return; b.classList.add('seen'); GS.Audio.play('swipe'); if (cards.every(x => x.classList.contains('seen'))) say('Ya viste todo. ¿Se acepta o no?', false); }));
+    cards.forEach(b => b.addEventListener('click', () => { if (cur !== me || me.done || b.classList.contains('seen')) return; learned('devol'); b.classList.add('seen'); GS.Audio.play('flip'); if (cards.every(x => x.classList.contains('seen'))) say('Ya viste todo. ¿Se acepta o no?', false); }));
     function decide(accept) {
       if (!cur || cur.done) return;
       if (!cards.every(x => x.classList.contains('seen'))) { GS.Audio.play('error'); cards.forEach(x => { if (!x.classList.contains('seen')) { x.classList.remove('nudge'); void x.offsetWidth; x.classList.add('nudge'); } }); return say('Primero revisá el producto y el ticket.', true); }
@@ -3833,9 +3868,9 @@ GS.Minigames = (function () {
       '<div class="cj"><h4>💵 El cajón · tocá cada billete para contarlo</h4><div class="cj-b">' + bills.map(v => '<button class="cb v' + v + '" data-v="' + v + '" style="--r:' + Math.floor(U.rnd(-5, 6)) + 'deg"><b>' + U.money(v) + '</b></button>').join('') + '</div></div>' +
       '<div class="tray cnt"><span>Llevás contado</span><b id="cjT">' + U.money(0) + '</b></div>' +
       '<div class="opts three low cj-o off">' + [['falta', 'Faltan ' + U.money(x)], ['ok', 'Cierra perfecto'], ['sobra', 'Sobran ' + U.money(x)]].map((o, i) => '<button class="opt" data-ok="' + (o[0] === right ? 1 : 0) + '"><kbd>' + (i + 1) + '</kbd><span class="n">' + o[1] + '</span></button>').join('') + '</div>' +
-      '<div class="rule" id="mgBubble">Contá la plata del cajón y fijate si coincide con el sistema.</div>';
-    const tot = document.getElementById('cjT'), ob = root().querySelector('.cj-o'), bs = [...root().querySelectorAll('.cb')];
-    function count(b) { if (cur !== me || me.done || b.classList.contains('cnt')) return; b.classList.add('cnt'); cnt += Number(b.dataset.v); left--; tot.textContent = U.money(cnt); GS.Audio.play('bill'); if (!left) { ob.classList.remove('off'); say('En el cajón hay ' + U.money(cnt) + '. ¿Cierra con el sistema?', false); } }
+      '<div class="rule" id="mgBubble">' + (firstTime('cierre') ? '👆 Primera vez: tocá los billetes de a uno para contarlos. Después compará el total con lo que dice el sistema.' : 'Contá la plata del cajón y fijate si coincide con el sistema.') + '</div>';
+    const tot = document.getElementById('cjT'), ob = root().querySelector('.cj-o'), bs = [...root().querySelectorAll('.cb')]; if (firstTime('cierre')) bs[0].classList.add('guided');
+    function count(b) { if (cur !== me || me.done || b.classList.contains('cnt')) return; b.classList.add('cnt'); cnt += Number(b.dataset.v); left--; tot.textContent = U.money(cnt); GS.Audio.play('count'); learned('cierre'); if (!left) { ob.classList.remove('off'); say('En el cajón hay ' + U.money(cnt) + '. ¿Cierra con el sistema?', false); } }
     bs.forEach(b => b.addEventListener('click', () => count(b)));
     const os = [...ob.querySelectorAll('.opt')];
     function choose(b) {
@@ -3881,11 +3916,22 @@ GS.Minigames = (function () {
     el.style.touchAction = 'none';
     el.addEventListener('pointerdown', e => { if (cur !== me || me.done || me.hold) return; d = { x: e.clientX, y: e.clientY, g: null }; try { el.setPointerCapture(e.pointerId); } catch (er) {} });
     el.addEventListener('pointermove', e => { if (!d) return;
-      if (!d.g) { if (Math.hypot(e.clientX - d.x, e.clientY - d.y) < 8) return; const g = document.createElement('div'); g.className = 'pghost ' + (cls || ''); g.innerHTML = typeof ghost === 'function' ? ghost() : ghost; document.body.appendChild(g); d.g = g; el.classList.add('lift'); GS.Audio.play('click'); }
+      if (!d.g) { if (Math.hypot(e.clientX - d.x, e.clientY - d.y) < 8) return; const g = document.createElement('div'); g.className = 'pghost ' + (cls || ''); g.innerHTML = typeof ghost === 'function' ? ghost() : ghost; document.body.appendChild(g); d.g = g; el.classList.add('lift'); GS.Audio.play('pick'); }
       const lift = e.pointerType === 'mouse' ? 0 : 34; d.g.style.left = e.clientX + 'px'; d.g.style.top = (e.clientY - lift) + 'px'; });
     el.addEventListener('pointerup', e => { if (!d) return; const moved = !!d.g, lift = e.pointerType === 'mouse' ? 0 : 34; let t = null; if (moved) { d.g.style.visibility = 'hidden'; t = document.elementFromPoint(e.clientX, e.clientY - lift); } end(); if (moved) { el.dataset.nc = Date.now(); onDrop(t); } });
     el.addEventListener('pointercancel', end);
     (me.grabs = me.grabs || []).push(end); me.cleanup = () => me.grabs.forEach(f => f());
+  }
+  /* guía de la primera vez: se muestra hasta que el jugador hace bien el gesto, y no vuelve */
+  const firstTime = k => !(GS.Store.get('seen') || {})['g_' + k];
+  function learned(k) {
+    if (!firstTime(k)) return; const sn = GS.Store.get('seen') || {}; sn['g_' + k] = 1; GS.Store.set('seen', sn);
+    root().querySelectorAll('.guided').forEach(e => e.classList.remove('guided')); root().querySelectorAll('.ghand').forEach(e => e.remove());
+  }
+  function hand(from, to) {            /* una manito que va y viene mostrando el gesto de arrastrar */
+    if (!from || !to) return; const r = root(), R = r.getBoundingClientRect(), a = from.getBoundingClientRect(), b = to.getBoundingClientRect(), h = document.createElement('i');
+    h.className = 'ghand'; h.textContent = '👆'; h.style.left = (a.left + a.width / 2 - R.left) + 'px'; h.style.top = (a.top + a.height / 2 - R.top + r.scrollTop) + 'px';
+    h.style.setProperty('--dx', (b.left + b.width / 2 - a.left - a.width / 2) + 'px'); h.style.setProperty('--dy', (b.top + b.height / 2 - a.top - a.height / 2) + 'px'); r.appendChild(h);
   }
   const dragged = el => Date.now() - Number(el.dataset.nc || 0) < 350;
   function partHtml(id, cls) {

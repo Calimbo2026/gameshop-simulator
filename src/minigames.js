@@ -233,7 +233,7 @@ GS.Minigames = (function () {
       if (!d.on) { if (!d.tray && live()) { const p = P[d.id]; p.flip = !p.flip; p.el.classList.toggle('flipd', p.flip); p.el.classList.remove('bad'); GS.Audio.play('swipe'); say(p.flip ? 'La diste vuelta.' : U.pick(LN.flipPc), false); } return; }
       noClick = Date.now(); const lift = e.pointerType === 'mouse' ? 0 : 30, g = toGrid(e.clientX, e.clientY - lift), p = P[d.id]; p.el.classList.remove('drag');
       if (!g[2]) { unplace(d.id); say('La pieza volvió a la bandeja.', false); return; }
-      setPos(d.id, g[0], g[1]); GS.Audio.play('bill'); say(Object.keys(P).length === parts.length ? 'Están todas. Tocá Encender.' : 'Quedó ahí. Seguí con las demás.', false); }
+      setPos(d.id, g[0], g[1]); GS.Audio.play('drop'); say(Object.keys(P).length === parts.length ? 'Están todas. Tocá Encender.' : 'Quedó ahí. Seguí con las demás.', false); }
     function power() {
       if (!live()) return; const ids = parts.map(p => p.id), miss = ids.filter(id => !P[id]);
       if (miss.length) { GS.Audio.play('error'); say(miss.length === 1 ? 'Falta una pieza. Así no enciende.' : 'Faltan ' + miss.length + ' piezas. Así no enciende.', true); return; }
@@ -241,7 +241,7 @@ GS.Minigames = (function () {
       if (bad.length) { ids.forEach(id => P[id].el.classList.toggle('bad', bad.indexOf(id) >= 0)); pcb.classList.remove('fail'); void pcb.offsetWidth; pcb.classList.add('fail');
         const rev = bad.filter(id => good(id) && P[id].flip).length; return mistake('pc', 'No enciende. ' + (bad.length === 1 ? (rev ? 'Hay una pieza al revés: tocala para girarla.' : 'Hay una pieza fuera de lugar.') : 'Hay ' + bad.length + ' piezas mal puestas (en rojo).')); }
       ids.forEach(id => { const q = PCS[id]; P[id].el.classList.add('snap'); setPos(id, q[0] + q[2] / 2, q[1] + q[3] / 2); }); slots.forEach(s => s.classList.add('full'));
-      pcb.classList.add('on'); GS.Audio.play('ok'); say('¡Prende! Y con lucecitas.', false); cur.locked = 1;
+      pcb.classList.add('on'); GS.Audio.play('power'); say('¡Prende! Y con lucecitas.', false); cur.locked = 1;
       setTimeout(() => { if (cur === me) finish(true, '¡Prendió!', 'Y con lucecitas.', {}); }, 1300);
     }
     btns.forEach(b => { b.addEventListener('pointerdown', e => { if (!b.classList.contains('used')) startDrag(b.dataset.id, e, b); }); b.addEventListener('pointermove', moveDrag); b.addEventListener('pointerup', endDrag); b.addEventListener('pointercancel', endDrag);
@@ -271,10 +271,11 @@ GS.Minigames = (function () {
     root().innerHTML = head(job, 'Taller · Diagnóstico') + '<div class="bubble">' + esc(d.s) + '</div>' +
       '<div class="pcb pcase dg" id="mgPcb">' + pcCase() + GS.PC_PARTS.map(p => partHtml(p.id, d.id === 'gpu' && p.id === 'gpu' ? 'loose' : '')).join('') + '<svg class="dgfx" viewBox="0 0 320 200" preserveAspectRatio="none">' + FX[d.id] + '</svg>' +
       Z.map(z => '<button class="dgz" data-id="' + z[0] + '" data-ok="' + (z[0] === d.id ? 1 : 0) + '" style="left:' + pc100(z[1], 320) + ';top:' + pc100(z[2], 200) + ';width:' + pc100(z[3], 320) + ';height:' + pc100(z[4], 200) + '"></button>').join('') + '</div>' +
-      '<div class="rule" id="mgBubble">Mirá bien la PC y tocá la pieza que está causando el problema.</div>';
+      '<div class="rule" id="mgBubble">' + (firstTime('diag') ? '👆 Primera vez: leé qué le pasa, buscá algo raro adentro de la PC y tocá esa pieza. Se pueden tocar las que parpadean.' : 'Mirá bien la PC y tocá la pieza que está causando el problema.') + '</div>';
+    if (firstTime('diag')) root().querySelectorAll('.dgz').forEach(z => z.classList.add('hintz'));
     root().querySelectorAll('.dgz').forEach(b => b.addEventListener('click', () => {
       if (cur !== me || me.done || me.hold || b.classList.contains('bad')) return;
-      if (b.dataset.ok === '1') { me.hold = true; root().querySelectorAll('.dgz[data-ok="1"]').forEach(x => x.classList.add('good')); GS.Audio.play('ok'); setTimeout(() => { if (cur === me) finish(true, d.t, d.r, {}); }, 550); }
+      if (b.dataset.ok === '1') { me.hold = true; learned('diag'); root().querySelectorAll('.dgz').forEach(z => z.classList.remove('hintz')); root().querySelectorAll('.dgz[data-ok="1"]').forEach(x => x.classList.add('good')); GS.Audio.play('ok'); setTimeout(() => { if (cur === me) finish(true, d.t, d.r, {}); }, 550); }
       else { root().querySelectorAll('.dgz[data-id="' + b.dataset.id + '"]').forEach(x => x.classList.add('bad')); mistake('service', NM[b.dataset.id] + ' está bien. ' + U.pick(['Buscá algo raro.', 'Mirá con más cariño.', 'Casi. Bah, no.'])); }
     }));
     cur.keys = () => {};
@@ -331,11 +332,12 @@ GS.Minigames = (function () {
       root().innerHTML = head(job, 'Compra por la página') + steps(0) + order +
         '<div class="pk-prod" id="pkP"><span class="pk-ic">' + icon + '</span><small>👆 Arrastralo a la caja donde entra justo</small></div>' +
         '<div class="pk-boxes">' + SZ.map((b, i) => '<button class="pk-box b' + i + '" data-b="' + b + '" data-ok="' + (b === size ? 1 : 0) + '"><kbd>' + (i + 1) + '</kbd><span class="pk-dr">' + boxSvg(true) + '<span class="pk-in">' + icon + '</span></span><span class="n">Caja ' + b + '<small>hasta ' + GS.BOXES[b].max + ' cm</small></span></button>').join('') + '</div>' +
-        '<div class="rule" id="mgBubble">Ni apretado ni bailando: tiene que entrar justo.</div>';
+        '<div class="rule" id="mgBubble">' + (firstTime('ml') ? '👆 Primera vez: arrastrá el producto hasta una caja. Fijate cuánto mide y hasta cuánto entra en cada una.' : 'Ni apretado ni bailando: tiene que entrar justo.') + '</div>';
       const P = document.getElementById('pkP'), bx = [...root().querySelectorAll('.pk-box')];
+      if (firstTime('ml')) hand(P, root().querySelector('.pk-boxes'));
       function tryBox(b) {
         if (!live() || b.classList.contains('bad')) return;
-        if (b.dataset.ok === '1') { me.hold = true; b.classList.add('in'); P.classList.add('gone'); GS.Audio.play('bill'); return void setTimeout(() => { if (cur === me) { me.hold = false; stepTape(); } }, 700); }
+        if (b.dataset.ok === '1') { me.hold = true; learned('ml'); b.classList.add('in'); P.classList.add('gone'); GS.Audio.play('drop'); return void setTimeout(() => { if (cur === me) { me.hold = false; stepTape(); } }, 700); }
         const small = SZ.indexOf(b.dataset.b) < SZ.indexOf(size); b.classList.add('bad', small ? 'sm' : 'bg');
         mistake('ml', small ? U.pick(['No entra ni empujando. Probá una más grande.', 'Entra... si lo doblás. No lo dobles.']) : U.pick(['Baila adentro como maraca. Probá una más chica.', 'Con esa caja pagás flete por aire.']));
       }
@@ -363,11 +365,12 @@ GS.Minigames = (function () {
       const lab = l => '<span class="bars"></span><span class="n">#' + l.n + '<small>' + l.b + ' · ' + esc(l.c) + '</small></span>';
       root().innerHTML = head(job, 'Compra por la página') + steps(2) + '<div class="pk-row">' + order + '<div class="pk-closed" id="pkC">' + boxSvg(false) + '<i class="pk-spot">Pegá acá</i></div></div>' +
         '<div class="opts one pk-labs">' + labels.map((l, i) => '<button class="opt tagl" data-ok="' + l.ok + '"><kbd>' + (i + 1) + '</kbd>' + lab(l) + '</button>').join('') + '</div>' +
-        '<div class="rule" id="mgBubble">Arrastrá a la caja la etiqueta que coincide con el pedido.</div>';
+        '<div class="rule" id="mgBubble">' + (firstTime('ml2') ? '👆 Primera vez: compará número, comprador y ciudad con el pedido, y arrastrá esa etiqueta hasta la caja.' : 'Arrastrá a la caja la etiqueta que coincide con el pedido.') + '</div>';
       const bs = [...root().querySelectorAll('.tagl')], C = document.getElementById('pkC');
+      if (firstTime('ml2')) hand(root().querySelector('.pk-labs'), C);
       function tryLab(b) {
         if (!live() || b.classList.contains('bad')) return;
-        if (b.dataset.ok === '1') { me.hold = true; b.classList.add('good', 'gone'); C.classList.add('done'); GS.Audio.play('ok'); return void setTimeout(() => { if (cur === me) { me.hold = false; finish(true, '¡Despachado!', 'Sale hoy, antes de las 14.', {}); } }, 600); }
+        if (b.dataset.ok === '1') { me.hold = true; learned('ml2'); b.classList.add('good', 'gone'); C.classList.add('done'); GS.Audio.play('stamp'); GS.Audio.play('ok'); return void setTimeout(() => { if (cur === me) { me.hold = false; finish(true, '¡Despachado!', 'Sale hoy, antes de las 14.', {}); } }, 600); }
         b.classList.add('bad'); mistake('ml', U.pick(LN.wrongLabel));
       }
       bs.forEach((b, i) => { grab(b, () => '<span class="opt tagl">' + lab(labels[i]) + '</span>', t => { if (t && t.closest && t.closest('.pk-closed')) tryLab(b); else say('Soltala arriba de la caja.', false); }, 'lab');
@@ -384,7 +387,7 @@ GS.Minigames = (function () {
       '<div class="wa-body" id="waB"><div class="msg in"><span>' + esc(c.m) + '</span><em>' + hh + ':' + mm + '</em></div></div></div><div class="info" id="mgBubble"><b>¿Qué le contestás?</b></div>' +
       '<div class="opts one txt">' + options.map((o, i) => '<button class="opt" data-ok="' + (o === c.ok ? 1 : 0) + '"><kbd>' + (i + 1) + '</kbd><span class="n">' + esc(o) + '</span></button>').join('') + '</div>';
     listOptions(b => b.dataset.ok === '1', () => {
-      if (me.hold) return; me.hold = true; GS.Audio.play('swipe');
+      if (me.hold) return; me.hold = true; GS.Audio.play('send');
       const out = document.createElement('div'); out.className = 'msg out'; out.innerHTML = esc(c.ok) + '<em>' + hh + ':' + mm + ' <u>✓✓</u></em>'; document.getElementById('waB').appendChild(out);
       setTimeout(() => { if (cur === me) finish(true, '¡Respondido!', 'Un cliente menos escribiendo "???".', {}); }, 750);
     }, () => { if (!me.hold) mistake('whatsapp', U.pick(LN.wrongChat)); });
@@ -414,7 +417,7 @@ GS.Minigames = (function () {
     const live = () => cur === me && !cur.done, find = id => { for (const s of st) for (const it of s.items) if (it.id === id) return { s, it }; };
     const shAt = (x, y) => { const el = document.elementFromPoint(x, y), sh = el && el.closest('.dp-sh'); return sh ? Number(sh.dataset.k) : -1; };
     function stop() { if (drag && drag.g) drag.g.remove(); document.querySelectorAll('.dp-sh.over').forEach(x => x.classList.remove('over')); drag = null; }
-    function move(e) { if (!drag) return; if (!drag.g) { if (Math.hypot(e.clientX - drag.x, e.clientY - drag.y) < 8) return; const g = document.createElement('div'); g.className = 'pghost'; g.innerHTML = GS.ICONS[drag.b.dataset.id] || ''; document.body.appendChild(g); drag.g = g; drag.b.classList.add('lift'); GS.Audio.play('click'); }
+    function move(e) { if (!drag) return; if (!drag.g) { if (Math.hypot(e.clientX - drag.x, e.clientY - drag.y) < 8) return; const g = document.createElement('div'); g.className = 'pghost'; g.innerHTML = GS.ICONS[drag.b.dataset.id] || ''; document.body.appendChild(g); drag.g = g; drag.b.classList.add('lift'); GS.Audio.play('pick'); }
       const lift = e.pointerType === 'mouse' ? 0 : 34; drag.g.style.left = e.clientX + 'px'; drag.g.style.top = (e.clientY - lift) + 'px'; drag.g.style.visibility = 'hidden'; const k = shAt(e.clientX, e.clientY - lift); drag.g.style.visibility = ''; document.querySelectorAll('.dp-sh').forEach(x => x.classList.toggle('over', Number(x.dataset.k) === k)); }
     function up(e) { if (!drag) return; const d = drag, moved = !!d.g, lift = e.pointerType === 'mouse' ? 0 : 34; if (moved) d.g.style.visibility = 'hidden'; const k = moved ? shAt(e.clientX, e.clientY - lift) : -1; d.b.classList.remove('lift'); stop(); if (!moved) return; noClick = Date.now(); if (k >= 0) drop(d.b.dataset.id, k); }
     function drop(id, k) {
@@ -422,7 +425,7 @@ GS.Minigames = (function () {
       if (f.s.k === k) { if (f.it.bad) say('Ya está en esa estantería, y ahí no va. Llevalo a otra.', true); else say('Ese ya está en su lugar.', false); GS.Audio.play('error'); return; }
       if (!f.it.bad) return mistake('repo', 'Ese estaba bien donde estaba. Buscá el que no va.');
       if (SH[k].cat !== f.it.cat) return mistake('repo', U.pick(LN.wrongShelf));
-      f.s.items = f.s.items.filter(x => x !== f.it); f.it.bad = 0; f.it.fixed = 1; st[k].items.push(f.it); left--; GS.Audio.play('bill');
+      f.s.items = f.s.items.filter(x => x !== f.it); f.it.bad = 0; f.it.fixed = 1; st[k].items.push(f.it); left--; GS.Audio.play('drop');
       if (hint) { hint = false; const sn = GS.Store.get('seen') || {}; sn.g_repo = 1; GS.Store.set('seen', sn); }
       if (!left) { draw(); cur.locked = 1; GS.Audio.play('ok'); return void setTimeout(() => { if (cur === me) finish(true, '¡Depósito ordenado!', 'Por cinco minutos, al menos.', {}); }, 650); }
       draw(); say(left === 1 ? '¡Bien! Queda uno mal ubicado.' : '¡Bien! Quedan ' + left + ' mal ubicados.', false);
@@ -436,12 +439,13 @@ GS.Minigames = (function () {
     root().innerHTML = head(job, 'Control de stock') + '<div class="bubble">' + esc(p.name) + ': el sistema dice que hay <b>' + sys + '</b>.</div>' +
       '<div class="shelfv sk">' + Array.from({ length: real }, (_, i) => '<span class="pic' + (i > 0 && Math.random() < 0.4 ? ' bk' : '') + '" style="--r:' + Math.floor(U.rnd(-12, 12)) + 'deg;--y:' + Math.floor(U.rnd(-3, 4)) + 'px">' + icon + '</span>').join('') + '</div>' +
       '<div class="sk-ctl"><button class="sk-b" id="skM">−</button><div class="sk-n"><b id="skN">' + n + '</b><small>en la góndola</small></div><button class="sk-b" id="skP">+</button></div>' +
-      '<button class="btn okb" id="skOk">✔ Confirmar</button><div class="rule" id="mgBubble">Contá los que hay de verdad (ojo con los de atrás) y corregí el número.</div>';
+      '<button class="btn okb" id="skOk">✔ Confirmar</button><div class="rule" id="mgBubble">' + (firstTime('stock') ? '👆 Primera vez: contá los productos de la góndola (algunos quedan atrás), llevá el número con + y − y tocá Confirmar.' : 'Contá los que hay de verdad (ojo con los de atrás) y corregí el número.') + '</div>';
+    if (firstTime('stock')) root().querySelector('.sk-ctl').classList.add('guided');
     const out = document.getElementById('skN'), live = () => cur === me && !me.done;
-    const step = k => { if (!live()) return; n = U.clamp(n + k, 0, 20); out.textContent = n; GS.Audio.play('click'); };
+    const step = k => { if (!live()) return; learned('stock'); n = U.clamp(n + k, 0, 20); out.textContent = n; GS.Audio.play('click'); };
     function ok() {
       if (!live()) return;
-      if (n === real) { GS.Audio.play('ok'); finish(true, '¡Stock corregido!', sys === real ? 'El sistema tenía razón. Anotá la fecha.' : 'Eran ' + real + ', no ' + sys + '.', {}); }
+      if (n === real) { learned('stock'); GS.Audio.play('ok'); finish(true, '¡Stock corregido!', sys === real ? 'El sistema tenía razón. Anotá la fecha.' : 'Eran ' + real + ', no ' + sys + '.', {}); }
       else mistake('stock', n < real ? U.pick(['Hay más. ¿Contaste los de atrás?', 'Te quedaste corto. Contá de nuevo, sin apuro.']) : U.pick(['Hay menos. Alguno lo contaste dos veces.', 'Ese número le gustaría al sistema, pero no.']));
     }
     document.getElementById('skM').addEventListener('click', () => step(-1)); document.getElementById('skP').addEventListener('click', () => step(1)); document.getElementById('skOk').addEventListener('click', ok);
@@ -455,8 +459,8 @@ GS.Minigames = (function () {
     root().innerHTML = head(job, 'Recepción de proveedor') +
       '<div class="remito"><b>🧾 El remito dice</b>' + items.map(it => '<span>' + ico(it.p) + '<em>' + esc(it.p.name) + '</em><i>× ' + it.q + '</i></span>').join('') + '</div>' +
       '<div class="pv"><h4>📦 Lo que bajó de la carreta</h4>' + items.map((it, i) => '<button class="pvrow" data-i="' + i + '" data-n="' + got[i] + '"><kbd>' + (i + 1) + '</kbd><span class="pic sm">' + (GS.ICONS[it.p.id] || it.p.icon) + '</span><span class="pvb">' + '<i></i>'.repeat(got[i]) + '</span></button>').join('') + '</div>' +
-      '<div class="rule" id="mgBubble">Contá las cajas de cada pila. ¿Alguna no coincide con el remito? Tocala. Si está todo, firmá.</div><button class="btn okb" id="mgYes">✔ Coincide todo: firmar</button>';
-    const rb = [...root().querySelectorAll('.pvrow')];
+      '<div class="rule" id="mgBubble">' + (firstTime('prov') ? '👆 Primera vez: contá las cajitas de cada pila y comparalas con el remito. Si una no coincide, tocala. Si está todo bien, firmá.' : 'Contá las cajas de cada pila. ¿Alguna no coincide con el remito? Tocala. Si está todo, firmá.') + '</div><button class="btn okb" id="mgYes">✔ Coincide todo: firmar</button>';
+    const rb = [...root().querySelectorAll('.pvrow')]; if (firstTime('prov')) { root().querySelector('.remito').classList.add('guided'); setTimeout(() => learned('prov'), 4000); }
     function tapRow(b) {
       if (!cur || cur.done || b.classList.contains('fine')) return;
       if (Number(b.dataset.i) === bad) { b.classList.add('flag'); GS.Audio.play('ok'); finish(true, '¡Bien contado!', (got[bad] < items[bad].q ? 'Faltaba' : 'Sobraba') + ' mercadería. El de la carreta "justo se acordó".', {}); }
@@ -464,7 +468,7 @@ GS.Minigames = (function () {
     }
     function sign() {
       if (!cur || cur.done) return;
-      if (bad < 0) { GS.Audio.play('ok'); finish(true, '¡Firmado!', 'Llegó todo. Qué raro. Qué lindo.', {}); }
+      if (bad < 0) { GS.Audio.play('stamp'); GS.Audio.play('ok'); finish(true, '¡Firmado!', 'Llegó todo. Qué raro. Qué lindo.', {}); }
       else { rb[bad].classList.add('flag'); GS.Audio.play('error'); cur.cb.onMistake('proveedor'); finish(false, 'Firmaste de más', 'Mirá la pila marcada: no coincidía con el remito.', {}); }
     }
     rb.forEach(b => b.addEventListener('click', () => tapRow(b))); document.getElementById('mgYes').addEventListener('click', sign);
@@ -486,9 +490,9 @@ GS.Minigames = (function () {
       '<div class="expect"><b>Se acepta si (reglas del juego)</b><span>Tiene <i>ticket</i></span><span>Hasta <i>10 días</i></span><span>Está <i>sin uso</i></span></div>' +
       '<div class="dv"><button class="dvc' + (used ? ' used' : '') + '" data-k="estado"><span class="dv-f"><span class="pk-ic">' + icon + '</span><small>👆 Tocá para revisarlo</small></span><span class="dv-b"><span class="pk-ic">' + icon + '<svg class="dv-sc" viewBox="0 0 60 60"><path d="M8 14l16 10M30 8l-6 18M40 40l14 8M12 44l10-6M44 14l8 12" stroke="#e10600" stroke-width="2.4" stroke-linecap="round" fill="none"/></svg></span><b>' + c.estado + '</b></span></button>' +
       '<button class="dvc tk" data-k="ticket"><span class="dv-f"><span class="dv-tk">🧾</span><small>👆 Tocá para ver el ticket</small></span><span class="dv-b">' + (c.ticket ? '<span class="dv-paper"><u>TICKET</u><i>' + esc(p.name) + '</i><b>Hace ' + c.dias + (c.dias === 1 ? ' día' : ' días') + '</b></span>' : '<span class="dv-tk">🤷</span><b>No lo tiene</b><small>"Lo debo haber tirado"</small>') + '</span></button></div>' +
-      '<div class="row"><button class="btn ghost" id="mgNo" data-ok="' + (ok ? 0 : 1) + '" style="font-size:18px">✖ Rechazar</button><button class="btn okb" id="mgYes" data-ok="' + (ok ? 1 : 0) + '">✔ Aceptar</button></div><div class="rule" id="mgBubble">Revisá el producto y el ticket antes de decidir.</div>';
+      '<div class="row"><button class="btn ghost" id="mgNo" data-ok="' + (ok ? 0 : 1) + '" style="font-size:18px">✖ Rechazar</button><button class="btn okb" id="mgYes" data-ok="' + (ok ? 1 : 0) + '">✔ Aceptar</button></div><div class="rule" id="mgBubble">' + (firstTime('devol') ? '👆 Primera vez: tocá el producto y el ticket para revisarlos. Si cumple las tres reglas, aceptá; si no, rechazá.' : 'Revisá el producto y el ticket antes de decidir.') + '</div>';
     const cards = [...root().querySelectorAll('.dvc')];
-    cards.forEach(b => b.addEventListener('click', () => { if (cur !== me || me.done || b.classList.contains('seen')) return; b.classList.add('seen'); GS.Audio.play('swipe'); if (cards.every(x => x.classList.contains('seen'))) say('Ya viste todo. ¿Se acepta o no?', false); }));
+    cards.forEach(b => b.addEventListener('click', () => { if (cur !== me || me.done || b.classList.contains('seen')) return; learned('devol'); b.classList.add('seen'); GS.Audio.play('flip'); if (cards.every(x => x.classList.contains('seen'))) say('Ya viste todo. ¿Se acepta o no?', false); }));
     function decide(accept) {
       if (!cur || cur.done) return;
       if (!cards.every(x => x.classList.contains('seen'))) { GS.Audio.play('error'); cards.forEach(x => { if (!x.classList.contains('seen')) { x.classList.remove('nudge'); void x.offsetWidth; x.classList.add('nudge'); } }); return say('Primero revisá el producto y el ticket.', true); }
@@ -507,9 +511,9 @@ GS.Minigames = (function () {
       '<div class="cj"><h4>💵 El cajón · tocá cada billete para contarlo</h4><div class="cj-b">' + bills.map(v => '<button class="cb v' + v + '" data-v="' + v + '" style="--r:' + Math.floor(U.rnd(-5, 6)) + 'deg"><b>' + U.money(v) + '</b></button>').join('') + '</div></div>' +
       '<div class="tray cnt"><span>Llevás contado</span><b id="cjT">' + U.money(0) + '</b></div>' +
       '<div class="opts three low cj-o off">' + [['falta', 'Faltan ' + U.money(x)], ['ok', 'Cierra perfecto'], ['sobra', 'Sobran ' + U.money(x)]].map((o, i) => '<button class="opt" data-ok="' + (o[0] === right ? 1 : 0) + '"><kbd>' + (i + 1) + '</kbd><span class="n">' + o[1] + '</span></button>').join('') + '</div>' +
-      '<div class="rule" id="mgBubble">Contá la plata del cajón y fijate si coincide con el sistema.</div>';
-    const tot = document.getElementById('cjT'), ob = root().querySelector('.cj-o'), bs = [...root().querySelectorAll('.cb')];
-    function count(b) { if (cur !== me || me.done || b.classList.contains('cnt')) return; b.classList.add('cnt'); cnt += Number(b.dataset.v); left--; tot.textContent = U.money(cnt); GS.Audio.play('bill'); if (!left) { ob.classList.remove('off'); say('En el cajón hay ' + U.money(cnt) + '. ¿Cierra con el sistema?', false); } }
+      '<div class="rule" id="mgBubble">' + (firstTime('cierre') ? '👆 Primera vez: tocá los billetes de a uno para contarlos. Después compará el total con lo que dice el sistema.' : 'Contá la plata del cajón y fijate si coincide con el sistema.') + '</div>';
+    const tot = document.getElementById('cjT'), ob = root().querySelector('.cj-o'), bs = [...root().querySelectorAll('.cb')]; if (firstTime('cierre')) bs[0].classList.add('guided');
+    function count(b) { if (cur !== me || me.done || b.classList.contains('cnt')) return; b.classList.add('cnt'); cnt += Number(b.dataset.v); left--; tot.textContent = U.money(cnt); GS.Audio.play('count'); learned('cierre'); if (!left) { ob.classList.remove('off'); say('En el cajón hay ' + U.money(cnt) + '. ¿Cierra con el sistema?', false); } }
     bs.forEach(b => b.addEventListener('click', () => count(b)));
     const os = [...ob.querySelectorAll('.opt')];
     function choose(b) {
@@ -555,11 +559,22 @@ GS.Minigames = (function () {
     el.style.touchAction = 'none';
     el.addEventListener('pointerdown', e => { if (cur !== me || me.done || me.hold) return; d = { x: e.clientX, y: e.clientY, g: null }; try { el.setPointerCapture(e.pointerId); } catch (er) {} });
     el.addEventListener('pointermove', e => { if (!d) return;
-      if (!d.g) { if (Math.hypot(e.clientX - d.x, e.clientY - d.y) < 8) return; const g = document.createElement('div'); g.className = 'pghost ' + (cls || ''); g.innerHTML = typeof ghost === 'function' ? ghost() : ghost; document.body.appendChild(g); d.g = g; el.classList.add('lift'); GS.Audio.play('click'); }
+      if (!d.g) { if (Math.hypot(e.clientX - d.x, e.clientY - d.y) < 8) return; const g = document.createElement('div'); g.className = 'pghost ' + (cls || ''); g.innerHTML = typeof ghost === 'function' ? ghost() : ghost; document.body.appendChild(g); d.g = g; el.classList.add('lift'); GS.Audio.play('pick'); }
       const lift = e.pointerType === 'mouse' ? 0 : 34; d.g.style.left = e.clientX + 'px'; d.g.style.top = (e.clientY - lift) + 'px'; });
     el.addEventListener('pointerup', e => { if (!d) return; const moved = !!d.g, lift = e.pointerType === 'mouse' ? 0 : 34; let t = null; if (moved) { d.g.style.visibility = 'hidden'; t = document.elementFromPoint(e.clientX, e.clientY - lift); } end(); if (moved) { el.dataset.nc = Date.now(); onDrop(t); } });
     el.addEventListener('pointercancel', end);
     (me.grabs = me.grabs || []).push(end); me.cleanup = () => me.grabs.forEach(f => f());
+  }
+  /* guía de la primera vez: se muestra hasta que el jugador hace bien el gesto, y no vuelve */
+  const firstTime = k => !(GS.Store.get('seen') || {})['g_' + k];
+  function learned(k) {
+    if (!firstTime(k)) return; const sn = GS.Store.get('seen') || {}; sn['g_' + k] = 1; GS.Store.set('seen', sn);
+    root().querySelectorAll('.guided').forEach(e => e.classList.remove('guided')); root().querySelectorAll('.ghand').forEach(e => e.remove());
+  }
+  function hand(from, to) {            /* una manito que va y viene mostrando el gesto de arrastrar */
+    if (!from || !to) return; const r = root(), R = r.getBoundingClientRect(), a = from.getBoundingClientRect(), b = to.getBoundingClientRect(), h = document.createElement('i');
+    h.className = 'ghand'; h.textContent = '👆'; h.style.left = (a.left + a.width / 2 - R.left) + 'px'; h.style.top = (a.top + a.height / 2 - R.top + r.scrollTop) + 'px';
+    h.style.setProperty('--dx', (b.left + b.width / 2 - a.left - a.width / 2) + 'px'); h.style.setProperty('--dy', (b.top + b.height / 2 - a.top - a.height / 2) + 'px'); r.appendChild(h);
   }
   const dragged = el => Date.now() - Number(el.dataset.nc || 0) < 350;
   function partHtml(id, cls) {

@@ -7,7 +7,7 @@
 const GS = {};
 
 GS.CONFIG = {
-  version: '0.56.0',
+  version: '0.57.0',
   phase: 8,
   phaseNote: 'Juego completo de punta a punta. Falta tu playtest con 5 personas y encender el lanzamiento (launched: true)',                       // fase actual del proyecto (1 a 5)
   links: { tienda: 'https://www.gameshop.com.ar', instagram: '' },   // botones del inicio y del cierre (vacío = no se muestra)
@@ -293,14 +293,14 @@ GS.EXPLAIN = {
   mostrador: 'El cliente pide como puede. Vos elegís el producto correcto. Ojo: siempre hay uno parecido para confundirte.',
   caja: 'Al cobrar: 10% OFF en efectivo o transferencia, y 3 cuotas sin interés con tarjeta. Si te muestran un comprobante, compará cada dato antes de aprobar. Si hay uno incorrecto, selecciónalo.',
   whatsapp: 'Contestá con el dato correcto y buena onda. Cada respuesta cuida nuestra reputación.',
-  cierre: 'Antes de irnos a las 19, sumá los cobros en efectivo y fijate si coincide con lo que hay en el cajón.',
+  cierre: 'Antes de irnos a las 19, contá los billetes del cajón tocándolos de a uno y fijate si el total coincide con lo que dice el sistema.',
   repo: 'Alguien dejó cosas en cualquier lado. En cada estantería va un solo tipo de producto: buscá los tres que están mal ubicados y arrastralos a la suya.',
-  stock: 'Contá lo que hay de verdad en la góndola. El sistema a veces sueña.',
-  ml: 'Son las compras que entran por www.gameshop.com.ar. Caja del tamaño justo, cinta de punta a punta y la etiqueta correcta. Lo que se compra antes de las 14 sale en el día.',
-  proveedor: 'Compará el remito con lo que bajó de la carreta. Si falta algo, no firmes.',
+  stock: 'Contá lo que hay de verdad en la góndola (mirá bien, algunos quedan atrás) y corregí el número con + y −. El sistema a veces sueña.',
+  ml: 'Son las compras que entran por www.gameshop.com.ar. Arrastrá el producto a la caja donde entra justo, pasale cinta de punta a punta y pegale la etiqueta correcta. Lo que se compra antes de las 14 sale en el día.',
+  proveedor: 'Contá las cajas que bajaron de la carreta y comparalas con el remito. Si una pila no coincide, tocala. Si falta algo, no firmes.',
   pc: 'En el taller: arrastrá cada pieza a su lugar dentro del gabinete y después tocá Encender. Si no prende, hay algo mal puesto. Si una pieza está al revés, tocala para girarla.',
-  service: 'En el taller: diagnosticá con criterio, limpiá con paciencia y encajá la memoria justo en la ranura.',
-  devol: 'Para una devolución mirá las tres reglas: ticket, plazo y estado. Si cumple, se acepta con una sonrisa.'
+  service: 'En el taller hay de todo: a veces toca encontrar qué pieza falla mirando la PC por dentro, a veces limpiar con paciencia y a veces encajar la memoria justo en la ranura.',
+  devol: 'Para una devolución mirá las tres reglas: ticket, plazo y estado. Revisá vos mismo el producto y el ticket antes de decidir. Si cumple, se acepta con una sonrisa.'
 };
 
 /* Clientes: arquetipos inventados (ninguno es una persona real) */

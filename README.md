@@ -270,3 +270,9 @@ Tres juegos en `src/arcade.js`, que se ganan al terminar las jornadas 3, 8 y 14 
 - **Devoluciones**: hay que dar vuelta el producto y abrir el ticket antes de decidir.
 - **Cierre de caja**: se cuentan los billetes del cajón tocándolos y se compara con el sistema.
 - **WhatsApp**: aspecto de chat, con la respuesta enviada.
+
+## v0.57 · Sonido y guías de primera vez
+
+- **Música**: melodía tipo kalimba con un eco corto, dos frases por clima y un tramo de descanso sin melodía para que el loop no canse. Limitador en la salida.
+- **Efectos**: sonidos nuevos para levantar, apoyar, contar billetes, dar vuelta, enviar mensaje, sellar y encender la PC; el de error ya no es una chicharra.
+- **Guías**: cada minijuego nuevo explica el gesto la primera vez (manito animada o resaltado) y no vuelve a mostrarlo. Textos del Dueño actualizados.
