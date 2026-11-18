@@ -801,6 +801,11 @@ GS.World = (function () {
       // marco superior oscuro con marcas (sin logos: solo una banda)
       box(root, 0.08, 0.08, d, 0x2b2422, x0, 2.4, cz);
     });
+    { /* cartel de promo en la pared del fondo de la vidriera izquierda */
+      const d = zB - zA - 0.5, h = d * 0.3, cz = (zA + zB) / 2, tx = logoTex(1200, 360, (c, W, H, img) => { c.fillStyle = '#0a0a0c'; c.fillRect(0, 0, W, H); const iw = 400, ih = iw * img.height / img.width; c.drawImage(img, 44, (H - ih) / 2, iw, ih);
+        c.fillStyle = '#e10600'; c.fillRect(478, 50, 6, H - 100); c.textBaseline = 'middle'; c.textAlign = 'left'; const gd = c.createLinearGradient(0, 60, 0, 220); gd.addColorStop(0, '#fff3b0'); gd.addColorStop(0.55, '#f5c518'); gd.addColorStop(1, '#b8860b');
+        c.font = '900 176px Impact, "Arial Black", sans-serif'; c.fillStyle = gd; c.fillText('10% OFF', 516, 138, 640); c.font = '900 50px "Arial Black", "Helvetica Neue", Arial, sans-serif'; c.fillStyle = '#fff'; c.fillText('EN EFECTIVO O TRANSFERENCIA', 518, 272, 640); });
+      box(root, 0.08, h + 0.14, d + 0.14, 0xf5c518, s.xMin + 0.04, 1.72, cz); plane(root, d, h, new T.MeshBasicMaterial({ map: tx }), s.xMin + 0.085, 1.79 + h / 2, cz, Math.PI / 2); }
     gamingChair(root, 4.9, zB - 1.0, -0.5, 0xffffff, 0xff8fc0).position.y = 0.5;
     // arcade genérico en el medio del pasillo
     const a = L.arcade, g = new T.Group(); g.position.set(a.x, 0, a.z); root.add(g); (ups.arcade = {})[1] = g;
