@@ -976,7 +976,7 @@ GS.World = (function () {
   function init(cv) {
     canvas = cv;
     try {
-      renderer = new T.WebGLRenderer({ canvas, antialias: quality !== 'baja', alpha: true, powerPreference: 'high-performance' });
+      renderer = new T.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
     } catch (e) { return false; }
     reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     scene = new T.Scene();
@@ -1005,7 +1005,7 @@ GS.World = (function () {
   function resize(reset) {
     if (!renderer) return;
     const w = canvas.clientWidth || window.innerWidth, h = canvas.clientHeight || window.innerHeight;
-    const cap = quality === 'alta' ? 2 : quality === 'media' ? 1.5 : 1;
+    const cap = quality === 'alta' ? 2.5 : quality === 'media' ? 2 : 1.5;          /* en pantallas de celular (3x) menos que esto se ve pixelado */
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, cap));
     renderer.setSize(w, h, false);
     camera.aspect = w / h; camera.updateProjectionMatrix();

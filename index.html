@@ -654,6 +654,26 @@ body.calm .brand:after { animation: none; display: none; }
 .map-wrap { flex: 1; min-height: 0; position: relative; display: flex; } .map-wrap #mapCv { flex: 1; min-height: 0; height: 100%; }
 .map-zoom { position: absolute; right: 10px; top: 10px; display: grid; gap: 6px; } .map-zoom button { width: 42px; height: 42px; border-radius: 12px; border: 2px solid #f5c518; background: rgba(10,14,28,.85); color: #f5c518; font: 800 24px/1 system-ui, sans-serif; cursor: pointer; } .map-zoom button:active { transform: scale(.94); }
 
+/* Reposición: el producto siempre a la vista */
+.repo-p { display: flex; align-items: center; gap: 12px; background: #fff; color: #111; border: 3px solid var(--red); border-radius: 16px; padding: 8px 12px; } .repo-p .pic { width: 74px; height: 74px; flex: none; display: grid; place-items: center; } .repo-p .pic svg { width: 100%; height: 100%; }
+.repo-p small { display: block; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; color: #777; } .repo-p b { display: block; font-size: 19px; line-height: 1.15; } .repo-p em { display: block; font-style: normal; font-size: 13.5px; color: #444; margin-top: 2px; } .repo-p em b { display: inline; font-size: inherit; color: #c30500; }
+.zone-b { font-size: 13.5px; min-width: 92px; max-width: 118px; min-height: 58px; padding: 7px 8px; border-radius: 16px; } .zone-b span { font-size: 24px; } .zone-b.bad { background: #ddd; text-decoration: line-through; } .zone-b.hint { border-color: #f5c518; background: #fff3b0; box-shadow: 0 0 0 6px rgba(245,197,24,.45), 0 4px 14px rgba(0,0,0,.5); }
+/* Opciones con el estilo general */
+.opts-box { display: grid; gap: 6px; text-align: left; margin-bottom: 12px; } .opts-box h5 { margin: 8px 2px 0; font-size: 12px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: #f5c518; }
+.opts-box .setting { display: grid; grid-template-columns: 30px 1fr auto; gap: 10px; align-items: center; background: #17171c; border: 1px solid #2c2c34; border-radius: 14px; padding: 8px 10px; font-size: 15px; } .opts-box .setting > i { font-style: normal; font-size: 20px; text-align: center; }
+.opts-box .setting span { font-weight: 700; line-height: 1.2; } .opts-box .setting small { display: block; font-weight: 400; font-size: 12px; color: #b9b9c4; margin-top: 1px; } .opts-box .seg { background: #0b0b0e; border: 1px solid #2c2c34; border-radius: 12px; max-width: 190px; } .opts-box .seg button { padding: 8px 11px; border-radius: 9px; font-weight: 700; color: #c9c9d2; }
+.opts-box .seg button.on { background: linear-gradient(180deg, #ffe27a, #f5c518); color: #111; } .opts-box .btn.ghost { width: auto; font-size: 14px; padding: 9px 14px; border: 1px solid #f5c518; color: #f5c518; }
+/* Gráfico: cómo se abre otra sucursal */
+.expd { display: flex; align-items: center; justify-content: center; gap: 4px; } .expd figure { margin: 0; flex: 0 0 23%; text-align: center; } .expd figure svg { width: 100%; height: auto; display: block; position: static; } .expd figcaption { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .3px; line-height: 1.1; margin-top: 2px; color: #fff; }
+.expd figure.new svg { filter: drop-shadow(0 0 8px rgba(245,197,24,.9)); } .expd figure.new figcaption { color: #f5c518; } .expd .ar { flex: 0 0 16px; width: 16px; height: 28px; }
+.expd .rq { flex: 1; min-width: 0; display: grid; gap: 1px; justify-items: stretch; } .expd .rq span { position: relative; background: #0f0f13; border: 1.5px solid #f5c518; border-radius: 10px; padding: 3px 4px 4px; text-align: center; } .expd .rq i { display: block; font-style: normal; font-size: 13px; line-height: 1.2; white-space: nowrap; } .expd .rq b { display: block; font-size: 11.5px; line-height: 1.1; color: #fff; }
+.expd .rq em { font-style: normal; font-weight: 900; font-size: 12px; line-height: .9; text-align: center; color: #f5c518; } .expd .rq span.ok { border-color: #3bd24a; background: #10221a; } .expd .rq span u { position: absolute; right: -5px; top: -6px; width: 17px; height: 17px; border-radius: 50%; background: #3bd24a; color: #fff; font-size: 11px; font-weight: 900; text-decoration: none; display: grid; place-items: center; }
+.expc > .expd { display: flex; grid-template-columns: none; gap: 4px; padding: 4px 0 8px; border-bottom: 1px solid #33333c; } .expc > .expd b { display: block; font-size: 11.5px; }
+.ep-res.dg { gap: 8px; } .ep-res.dg .expd { padding: 4px 0 8px; display: flex; } .ep-res.dg > .expd figure { display: block; }
+.ep-res.dg > .expd { background: none; border: 0; padding: 0 0 6px; gap: 4px; } .ep-res.dg .expd .rq i { font-size: 16px; width: auto; } .ep-res.dg .expd .rq b { font-family: inherit; font-size: 13px; text-transform: none; } .ep-res.dg .expd .rq span { padding: 5px 4px 6px; }
+.ep-res.dg .expd figcaption { font-size: 12px; } .ep-res.dg > div:not(.expd) { padding: 8px 12px; } .ep-res.dg > div:not(.expd) > i { font-size: 24px; width: 30px; } .expd figure svg.ep-store { margin: 0; max-width: none; max-height: none; flex: none; }
+.opts-box .seg { max-width: none; flex-wrap: nowrap; } .opts-box .seg button { padding: 8px 9px; }
+
 </style>
 </head>
 <body>
@@ -767,7 +787,7 @@ const GS = {};
 GS.LOGO = "data:image/png;base64,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";
 
 GS.CONFIG = {
-  version: '0.52.1',
+  version: '0.53.0',
   phase: 8,
   phaseNote: 'Juego completo de punta a punta. Falta tu playtest con 5 personas y encender el lanzamiento (launched: true)',                       // fase actual del proyecto (1 a 5)
   links: { tienda: 'https://www.gameshop.com.ar', instagram: '' },   // botones del inicio y del cierre (vacío = no se muestra)
@@ -1450,8 +1470,8 @@ GS.EVENTS = [
 ];
 GS.INTERRUPTS = [
   // guiños del barrio
-  { ic: '🚇', who: 'Una chica con mochila', t: '"Perdón, ¿la estación Incas del subte B queda por acá?"', ok: 'Sí, por Triunvirato, ahí nomás', bad: 'Ni idea, yo vengo en joystick', r: 'Llegó al subte. Dijo que a la vuelta pasa a mirar auriculares.', rb: 'Se fue caminando para el otro lado.' },
-  { ic: '🚌', who: 'Un señor apurado', t: '"¿La parada del 80 dónde es?"', ok: 'En la esquina, sobre la avenida', bad: 'El 80 no existe, es un mito', r: 'Lo alcanzó justo. Saludó desde la ventanilla.', rb: 'El 80 pasó por la puerta mientras discutían.' },
+  { reg: 'pampeana', ic: '🚇', who: 'Una chica con mochila', t: '"Perdón, ¿la estación Incas del subte B queda por acá?"', ok: 'Sí, por Triunvirato, ahí nomás', bad: 'Ni idea, yo vengo en joystick', r: 'Llegó al subte. Dijo que a la vuelta pasa a mirar auriculares.', rb: 'Se fue caminando para el otro lado.' },
+  { reg: 'pampeana', ic: '🚌', who: 'Un señor apurado', t: '"¿La parada del 80 dónde es?"', ok: 'En la esquina, sobre la avenida', bad: 'El 80 no existe, es un mito', r: 'Lo alcanzó justo. Saludó desde la ventanilla.', rb: 'El 80 pasó por la puerta mientras discutían.' },
   // inspiradas en noticias insólitas de la Ciudad
   { ic: '🦫', who: 'En la vereda', t: 'Un carpincho pasa caminando lo más tranquilo.', ok: 'Avisar al 103 y dejarlo en paz', bad: 'Ofrecerle 3 cuotas sin interés', r: 'Vinieron a buscarlo para llevarlo a un lugar seguro. Se fue mirando la vidriera.', rb: 'No tiene bolsillos ni pulgares. Igual miró los joysticks.' },
   { ic: '🚌', who: 'Un colectivero', t: '"Jefe, el colectivo hace un ruido raro en el motor. ¿Ustedes arreglan?"', ok: 'Notebooks y PC sí; motores no', bad: 'Tráigalo, lo abrimos en el taller', r: 'Se fue a un mecánico. Dejó dicho que vuelve por un cargador.', rb: 'El colectivo no pasa por la puerta del taller.' },
@@ -2992,7 +3012,7 @@ GS.World = (function () {
   function init(cv) {
     canvas = cv;
     try {
-      renderer = new T.WebGLRenderer({ canvas, antialias: quality !== 'baja', alpha: true, powerPreference: 'high-performance' });
+      renderer = new T.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
     } catch (e) { return false; }
     reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     scene = new T.Scene();
@@ -3021,7 +3041,7 @@ GS.World = (function () {
   function resize(reset) {
     if (!renderer) return;
     const w = canvas.clientWidth || window.innerWidth, h = canvas.clientHeight || window.innerHeight;
-    const cap = quality === 'alta' ? 2 : quality === 'media' ? 1.5 : 1;
+    const cap = quality === 'alta' ? 2.5 : quality === 'media' ? 2 : 1.5;          /* en pantallas de celular (3x) menos que esto se ve pixelado */
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, cap));
     renderer.setSize(w, h, false);
     camera.aspect = w / h; camera.updateProjectionMatrix();
@@ -3479,15 +3499,16 @@ GS.Minigames = (function () {
     })();
     function show() {
       const p = boxes[i];
-      zb.forEach(b => b.classList.remove('bad'));
-      root().innerHTML = head(job, 'Reposición · ' + (i + 1) + ' de 3') + '<div class="bubble" id="mgBubble">📦 En esta caja hay: ' + ico(p) + esc(p.name) + '</div>' +
-        '<div class="rule">Tocá en el depósito la estantería donde va</div>';
+      zb.forEach(b => b.classList.remove('bad', 'hint'));
+      root().innerHTML = head(job, 'Reposición · caja ' + (i + 1) + ' de 3') + '<div class="repo-p"><span class="pic">' + (GS.ICONS[p.id] || p.icon) + '</span><div><small>📦 En esta caja hay</small><b>' + esc(p.name) + '</b><em id="repoHint">¿En qué estantería va? Tocala en el depósito.</em></div></div>' +
+        '<div class="bubble" id="mgBubble" hidden></div>';
     }
     function choose(k) {
       if (!cur || cur.done || zb[k].classList.contains('bad')) return;
       if (GS.SHELVES[k].cat === boxes[i].cat) {
         i++; if (i < boxes.length) { GS.Audio.play('bill'); show(); } else { GS.Audio.play('ok'); layer.remove(); finish(true, '¡Todo acomodado!', 'Por cinco minutos, al menos.', {}); }
-      } else { zb[k].classList.add('bad'); mistake('repo', U.pick(LN.wrongShelf)); }
+      } else { zb[k].classList.add('bad'); const ok = GS.SHELVES.findIndex(s => s.cat === boxes[i].cat), b = document.getElementById('mgBubble'); if (b) b.hidden = false;
+        mistake('repo', U.pick(LN.wrongShelf)); if (ok >= 0) { zb[ok].classList.add('hint'); const h = document.getElementById('repoHint'); if (h) h.innerHTML = 'Pista: va en <b>' + GS.SHELVES[ok].icon + ' ' + esc(GS.SHELVES[ok].name) + '</b>'; } }
     }
     zb.forEach((b, k) => b.addEventListener('click', () => choose(k)));
     me.keys = e => { const n = parseInt(e.key, 10); if (n >= 1 && n <= zb.length) choose(n - 1); };
@@ -3950,9 +3971,9 @@ GS.Game = (function () {
   function dayNumber() { return GS.Store.get('testDay') || (GS.Store.get('days') || 0) + 1; }
   function unlockedFor(n) { return GS.UNLOCKS.slice(0, n).reduce((a, b) => a.concat(b), []); }
   const upNow = () => GS.Store.get('up') || {};
-  /* Modo desarrollador (Opciones, o ?dev=1 en la dirección): monedas y fondos infinitos. No toca los valores guardados de la partida. */
+  /* Herramientas de prueba (solo con la clave en la dirección): monedas y fondos infinitos. No toca los valores guardados de la partida. */
   const DEV = () => !!GS.Store.get('dev');
-  { const set0 = GS.Store.set; GS.Store.set = function (k, v) { if ((k === 'coins' || k === 'fondo') && DEV()) return; return set0.call(GS.Store, k, v); }; if (/[?&]dev=1/.test(location.search)) set0.call(GS.Store, 'dev', true); if (/[?&]dev=0/.test(location.search)) set0.call(GS.Store, 'dev', false); }
+  { const set0 = GS.Store.set; GS.Store.set = function (k, v) { if ((k === 'coins' || k === 'fondo') && DEV()) return; return set0.call(GS.Store, k, v); }; if (/[?&]dev=incas4552(&|$)/.test(location.search)) set0.call(GS.Store, 'dev', true); else if (GS.Store.get('dev')) set0.call(GS.Store, 'dev', false); }      /* herramientas de prueba: solo abriendo el juego con la clave; sin ella se apagan */
   // En Patagonia y Malvinas la gente anda abrigada: gorro de lana y bufanda
   const warm = o => ((GS.Store.get('branch') === 'patagonia' || GS.Store.get('branch') === 'malvinas') && !o.hat ? Object.assign({}, o, { hat: 'lana', scarf: true }) : o);
   const coinsNow = () => DEV() ? 999999 : GS.Store.get('coins') || 0;
@@ -4033,7 +4054,7 @@ GS.Game = (function () {
   /* ---------------- Interrupciones suaves: un toque y listo; si no contestás, se resuelven solas ---------------- */
   function spawnIntr() {
     if (MG.isOpen() || day.beat > 0 || day.intr) { day.queue.push({ kind: 'i', t: 2.5 }); day.queue.sort((a, b) => a.t - b.t); return; }
-    if (!day.intrBag.length) day.intrBag = U.shuffle(GS.INTERRUPTS);
+    if (!day.intrBag.length) day.intrBag = U.shuffle(GS.INTERRUPTS.filter(q => !q.reg || q.reg === brId()));
     const ev = !day.evDone && !day.relaxed && day.n >= 4 && Math.random() < 0.5 ? U.pick(GS.EVENTS) : null; if (ev) day.evDone = 1;      // evento sorpresa: uno por jornada como mucho
     day.intr = { it: ev || day.intrBag.pop(), left: CD.intrSeconds, flip: Math.random() < 0.5 }; day.jobSig = ''; A.play('intr');
   }
@@ -4431,7 +4452,7 @@ GS.Game = (function () {
     if (kind === 'conq') { el.innerHTML = '<canvas id="epicCv"></canvas><div class="ep-cup"><i>🏆</i></div>' + conf(); GS.Map3D.open($('epicCv'), mapState(), null, epicCtx.id); return; }
     if (kind === 'jefe' || kind === 'jefe2') return void (el.innerHTML = '<div class="ep-faces big boss" style="background:radial-gradient(120% 90% at 50% 30%, #e10600, #5a0000)">' + fig(BOSS_LOOK, kind === 'jefe' ? 'talk' : 'happy') + '</div>');
     if (kind === 'mapa0') { el.innerHTML = '<canvas id="epicCv"></canvas>'; GS.Map3D.open($('epicCv'), mapState(), null); return; }
-    if (kind === 'recursos') return void (el.innerHTML = '<div class="ep-res">' + [['⭐', 'Reputación', 'Sube cuando atendés bien. La meta es llegar a 5 estrellas.'], ['🪙', 'Monedas', 'Las ganás con cada venta. Sirven para mejorar el local y comprar el camión.'], ['🗺️', 'Fondos de expansión', 'Se juntan solos al cerrar cada jornada. Solo sirven para abrir sucursales.']].map(q => '<div><i>' + q[0] + '</i><span><b>' + q[1] + '</b>' + q[2] + '</span></div>').join('') + '<p>⭐ 5 estrellas + 🚚 camión + 🗺️ fondos = <b>sucursal nueva</b></p></div>');
+    if (kind === 'recursos') return void (el.innerHTML = '<div class="ep-res dg">' + expDiagram() + [['⭐', 'Las estrellas suben cuando atendés bien.'], ['🚚', 'La flota se compra con las 🪙 monedas de cada venta.'], ['🗺️', 'Los fondos se juntan solos al cerrar cada jornada.']].map(q => '<div><i>' + q[0] + '</i><span>' + q[1] + '</span></div>').join('') + '</div>');
     if (kind === 'dueno') return void (el.innerHTML = '<div class="ep-faces big" style="background:linear-gradient(160deg,#26262c,#0b0b0d)">' + fig(BOSS_LOOK, 'happy') + '</div>' + conf());
     if (kind === 'duelo') return void (el.innerHTML = '<div class="ep-faces vs">' + fig(me, 'angry', 'Vos') + '<b>VS</b>' + fig(PIRATE(), 'angry', 'Capitán Tormenta') + '</div>');
     if (kind === 'equipo') { const all = brAll(), ppl = [[me, 'Vos'], [{ shirt: 0xe10600, hair: MOHAWK[1], hairStyle: 'mohicano', skin: GS.SKINS[3], glasses: true }, 'Lucho'], [{ shirt: 0xe10600, hair: 0x2d6cdf, hairStyle: 'corto', skin: GS.SKINS[0] }, 'Brian']];
@@ -5054,11 +5075,16 @@ GS.Game = (function () {
   const wbtn = (ic, title, info, cur, tot, unit, full, extra) => '<i class="wb-i">' + ic + '</i><span class="wb-m"><b>' + title + (extra || '') + '</b><small>' + info + '</small>' +
     (tot ? '<span class="wb-r"><span class="wb-p"><i style="width:' + Math.min(100, cur / tot * 100).toFixed(0) + '%"></i></span><span class="wb-n' + (full ? ' ok' : '') + '">' + unit + ' ' + Math.min(cur, tot) + ' <em>de ' + tot + '</em></span></span>' : '') + '</span><i class="wb-a">›</i>';
   /* Qué falta para abrir otra sucursal: tres pasos con tilde, y para qué sirve cada recurso */
+  /* Gráfico: una sucursal + 5 estrellas + flota completa + fondos = otra sucursal. st marca lo que ya está cumplido. */
+  function expDiagram(st) {
+    st = st || {}; const pill = (ok, ic, t) => '<span class="' + (ok ? 'ok' : '') + '"><i>' + ic + '</i><b>' + t + '</b>' + (ok ? '<u>✓</u>' : '') + '</span>', arrow = '<svg class="ar" viewBox="0 0 24 40"><path d="M2 20H17M11 11l8 9-8 9" fill="none" stroke="#f5c518" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    return '<div class="expd"><figure>' + storeSvg() + '<figcaption>Tu sucursal</figcaption></figure>' + arrow + '<div class="rq">' + pill(st.rep, '⭐⭐⭐⭐⭐', '5 estrellas') + '<em>+</em>' + pill(st.flota, '🛵 🚐 🚚', 'Flota completa') + '<em>+</em>' + pill(st.fondo, '🗺️', 'Fondos de expansión') + '</div>' + arrow + '<figure class="new">' + storeSvg() + '<figcaption>Sucursal nueva</figcaption></figure></div>';
+  }
   function expCard() {
     const g = goalNow(); if (!g) return '';
     const id = brId(), me = brData(id), R = RG(id), f = fondoNow(), c = coinsNow(), fl = GS.UPGRADES.find(u => u.id === 'flota'), need = fl.levels.slice(me.flota).reduce((a, l) => a + l.price, 0), others = pendingOpen().filter(r => r.id !== id), ready = canExpand() && f >= g;
     const row = (ok, ic, t, sub, pct) => '<div class="' + (ok ? 'ok' : '') + '"><i>' + (ok ? '✅' : ic) + '</i><span><b>' + t + '</b><small>' + sub + '</small>' + (pct != null && !ok ? '<em><u style="width:' + Math.max(3, Math.min(100, pct)).toFixed(0) + '%"></u></em>' : '') + '</span></div>';
-    return '<div class="expc' + (ready ? ' ready' : '') + '"><h4>' + (ready ? '🎉 ¡Ya podés abrir otra sucursal!' : '🗺️ Qué falta para abrir otra sucursal') + '</h4>' +
+    return '<div class="expc' + (ready ? ' ready' : '') + '"><h4>' + (ready ? '🎉 ¡Ya podés abrir otra sucursal!' : '🗺️ Qué falta para abrir otra sucursal') + '</h4>' + expDiagram({ rep: me.rep >= 4.8, flota: me.flota >= 3, fondo: f >= g }) +
       row(me.rep >= 4.8, '⭐', '1 · Llegar a 5 estrellas en ' + R.city, me.rep >= 4.8 ? 'Listo: acá ya nos conocen.' : 'Vas ' + repTxt(me.rep) + ' de 5. Sube cuando atendés sin errores y el local está limpio.', me.rep / 4.8 * 100) +
       row(me.flota >= 3, '🚚', '2 · Comprar el camión', me.flota >= 3 ? 'Listo: llegamos a toda la región.' : need <= c ? '¡Ya te alcanza! Compralo en Mejoras → Flota de envíos.' : 'Se compra con 🪙 monedas, en Mejoras → Flota de envíos. Te faltan 🪙 ' + (need - c) + '.', c / need * 100) +
       (others.length ? row(false, '🏪', 'Lo mismo en ' + others.map(r => r.city).join(' y '), 'Cada sucursal abierta necesita sus 5 estrellas y su camión.') : '') +
@@ -5351,23 +5377,15 @@ GS.Game = (function () {
   function showOptions(fromPause) {
     const q = GS.Store.get('quality') || 'auto';
     const seg = (name, vals, curv) => '<div class="seg" data-seg="' + name + '">' + vals.map(v => '<button data-v="' + v[0] + '" class="' + (v[0] === curv ? 'on' : '') + '">' + v[1] + '</button>').join('') + '</div>';
-    modal('<h2>Opciones</h2>' +
-      '<div class="setting"><span>Sonido</span>' + seg('mute', [['0', 'Con sonido'], ['1', 'Silencio']], A.isMuted() ? '1' : '0') + '</div>' +
-      '<div class="setting"><span>Música</span>' + seg('music', [['0', 'Sin música'], ['1', 'Suave'], ['2', 'Normal']], String(A.musicLevel())) + '</div>' +
-      '<div class="setting"><span>Calidad gráfica</span>' + seg('quality', [['auto', 'Auto'], ['alta', 'Alta'], ['media', 'Media'], ['baja', 'Baja']], q) + '</div>' +
-      '<div class="setting"><span>Texto grande</span>' + seg('big', [['0', 'No'], ['1', 'Sí']], GS.Store.get('big') ? '1' : '0') + '</div>' +
-      '<div class="setting"><span>Reducir movimiento</span>' + seg('calm', [['0', 'No'], ['1', 'Sí']], calm ? '1' : '0') + '</div>' +
-      '<div class="setting"><span>Tu personaje</span><button class="btn ghost" id="optAv" style="width:auto">Cambiar</button></div>' +
-      '<div class="setting"><span>Jornada (modo prueba)</span>' + seg('testDay', [['0', 'Auto'], ['1', '1'], ['2', '2'], ['3', '3'], ['4', '4'], ['5', '5'], ['6', '6'], ['8', '8']], String(GS.Store.get('testDay') || 0)) + '</div>' +
-      '<div class="setting"><span>Clima (modo prueba)</span>' + seg('testCond', [['', 'Auto'], ['ninguna', 'Normal'], ['lluvia', 'Lluvia'], ['blackfriday', 'Black Friday'], ['navidad', 'Navidad']], GS.Store.get('testCond') || '') + '</div>' +
-      (fromPause ? '' : '<div class="setting"><span>🛠 Modo desarrollador<br><small>Monedas y fondos de expansión infinitos, para probar mejoras y sucursales</small></span><button class="btn ghost" id="optDev" style="width:auto">' + (DEV() ? 'Activado ✔' : 'Activar') + '</button></div>') +
-      (fromPause || !DEV() ? '' : '<div class="setting"><span>Final de Malvinas<br><small>Ver la seguidilla del final oculto (solo en modo desarrollador)</small></span><button class="btn ghost" id="optFinalM" style="width:auto">Ver</button></div>') +
-      (fromPause || !DEV() ? '' : '<div class="setting"><span>Completar esta sucursal<br><small>Todas las mejoras, 5 estrellas e historias cerradas en ' + RG(brId()).city + '</small></span><button class="btn ghost" id="optDevDone" style="width:auto">Completar</button></div>') +
-      (fromPause ? '' : '<div class="setting"><span>Final del juego<br><small>' + (GS.Store.get('finalN') ? 'Volver a verlo' : 'Se abre al completar las 5 sucursales (vista previa)') + '</small></span><button class="btn ghost" id="optFinal" style="width:auto">Ver</button></div>') +
-      '<div class="setting"><span>Datos de prueba<br><small>Cuánto dura cada jornada, monedas y dónde hay errores</small></span><button class="btn ghost" id="optData" style="width:auto">Ver</button></div>' +
-      '<div class="setting"><span>Empezar una temporada nueva<br><small>Vuelve a la jornada 1 y reinicia la trama. Conserva monedas y mejoras</small></span><button class="btn ghost" id="optDay1" style="width:auto">Volver</button></div>' +
-      '<div class="setting"><span>Borrar todo<br><small>Jornadas, monedas, mejoras y récords</small></span><button class="btn ghost" id="optReset" style="width:auto">Reiniciar</button></div>' +
-      '<button class="btn" data-close>Listo</button>', () => { if (fromPause) showPause(); });
+    const row = (ic, t, sub, ctl) => '<div class="setting"><i>' + ic + '</i><span>' + t + (sub ? '<small>' + sub + '</small>' : '') + '</span>' + ctl + '</div>', bt = (id, t) => '<button class="btn ghost" id="' + id + '">' + t + '</button>';
+    modal('<div class="gold-h"><i></i><b>Opciones</b><i></i></div><div class="opts-box">' +
+      '<h5>Sonido</h5>' + row('🔊', 'Sonido', '', seg('mute', [['0', 'Sí'], ['1', 'No']], A.isMuted() ? '1' : '0')) + row('🎵', 'Música', '', seg('music', [['0', 'No'], ['1', 'Suave'], ['2', 'Normal']], String(A.musicLevel()))) +
+      '<h5>Pantalla</h5>' + row('✨', 'Calidad gráfica', 'Auto elige según tu equipo', seg('quality', [['auto', 'Auto'], ['alta', 'Alta'], ['media', 'Media'], ['baja', 'Baja']], q)) + row('🔠', 'Texto grande', '', seg('big', [['0', 'No'], ['1', 'Sí']], GS.Store.get('big') ? '1' : '0')) + row('🌙', 'Reducir movimiento', 'Menos animaciones', seg('calm', [['0', 'No'], ['1', 'Sí']], calm ? '1' : '0')) +
+      '<h5>Partida</h5>' + row('🙂', 'Tu personaje', '', bt('optAv', 'Cambiar')) +
+      row('🔄', 'Temporada nueva', 'Vuelve a la jornada 1 y reinicia las historias. Conserva monedas y mejoras', bt('optDay1', 'Empezar')) + row('🗑️', 'Borrar todo', 'Jornadas, monedas, mejoras y logros', bt('optReset', 'Borrar')) +
+      (DEV() ? '<h5>🛠 Herramientas de prueba</h5>' + row('📅', 'Jornada', '', seg('testDay', [['0', 'Auto'], ['1', '1'], ['2', '2'], ['3', '3'], ['4', '4'], ['5', '5'], ['6', '6'], ['8', '8']], String(GS.Store.get('testDay') || 0))) + row('🌦️', 'Clima', '', seg('testCond', [['', 'Auto'], ['ninguna', 'Normal'], ['lluvia', 'Lluvia'], ['blackfriday', 'Black Friday'], ['navidad', 'Navidad']], GS.Store.get('testCond') || '')) +
+        (fromPause ? '' : row('🏁', 'Completar esta sucursal', 'Todas las mejoras, 5 estrellas e historias en ' + RG(brId()).city, bt('optDevDone', 'Completar')) + row('🎬', 'Final del juego', '', bt('optFinal', 'Ver')) + row('🏴‍☠️', 'Final de Malvinas', '', bt('optFinalM', 'Ver'))) + row('📊', 'Datos de prueba', 'Duración, monedas y errores por jornada', bt('optData', 'Ver')) : '') +
+      '</div><button class="btn" data-close>Listo</button>', () => { if (fromPause) showPause(); });
     $('sheet').querySelectorAll('.seg').forEach(s => s.addEventListener('click', e => {
       const b = e.target.closest('button'); if (!b) return;
       s.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
@@ -5382,8 +5400,7 @@ GS.Game = (function () {
     }));
     $('optDay1').addEventListener('click', e => { GS.Store.set('days', 0); GS.Store.set('seen', {}); GS.Store.set('testDay', 0); ['hist', 'fondo', 'goalAdj', 'final2Seen', 'plotIntro', 'gflags', 'introSeen', 'xmas'].forEach(k => GS.Store.set(k, null)); refreshStart(); e.target.textContent = 'Listo ✔'; });
     $('optAv').addEventListener('click', () => showAvatar(() => showOptions(fromPause)));
-    $('optData').addEventListener('click', showMetrics);
-    if ($('optDev')) $('optDev').addEventListener('click', () => { GS.Store.set('dev', !DEV()); A.play('click'); refreshStart(); showOptions(fromPause); });
+    if ($('optData')) $('optData').addEventListener('click', showMetrics);
     if ($('optDevDone')) $('optDevDone').addEventListener('click', () => { const up = {}, h = histAll(), id = brId(); GS.UPGRADES.forEach(g => { up[g.id] = g.levels.length; }); GS.STORIES.forEach(S => { if (!S.once && (S.reg || 'pampeana') === id) h[S.id] = Object.assign({ notes: [], flags: {} }, h[S.id], { done: 1, step: S.steps.length, last: dayNumber() }); });
       GS.Store.set('up', up); GS.Store.set('rep', 5); GS.Store.set('hist', h); brSave(); applyBranch(); refreshStart(); A.play('ok'); toast('<b>🛠 ' + RG(id).city + ' completa</b>El final se dispara al cerrar una jornada con todo completo.', '', 3800); showOptions(fromPause); });
     if ($('optFinal')) $('optFinal').addEventListener('click', () => { modalOnClose = null; showFinal(!GS.Store.get('finalN')); });
@@ -5403,7 +5420,7 @@ GS.Game = (function () {
   function setCalm(v) { calm = v; document.body.classList.toggle('calm', v); W.setReduceMotion(v || (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)); }
   function autoQuality() {
     const mem = navigator.deviceMemory || 4, cores = navigator.hardwareConcurrency || 4, mobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    if (mem <= 2 || (mobile && cores <= 4)) return 'baja';
+    if (mem <= 2 || cores <= 2) return 'baja';
     return mobile ? 'media' : 'alta';
   }
 

@@ -7,7 +7,7 @@
 const GS = {};
 
 GS.CONFIG = {
-  version: '0.52.1',
+  version: '0.53.0',
   phase: 8,
   phaseNote: 'Juego completo de punta a punta. Falta tu playtest con 5 personas y encender el lanzamiento (launched: true)',                       // fase actual del proyecto (1 a 5)
   links: { tienda: 'https://www.gameshop.com.ar', instagram: '' },   // botones del inicio y del cierre (vacío = no se muestra)
@@ -690,8 +690,8 @@ GS.EVENTS = [
 ];
 GS.INTERRUPTS = [
   // guiños del barrio
-  { ic: '🚇', who: 'Una chica con mochila', t: '"Perdón, ¿la estación Incas del subte B queda por acá?"', ok: 'Sí, por Triunvirato, ahí nomás', bad: 'Ni idea, yo vengo en joystick', r: 'Llegó al subte. Dijo que a la vuelta pasa a mirar auriculares.', rb: 'Se fue caminando para el otro lado.' },
-  { ic: '🚌', who: 'Un señor apurado', t: '"¿La parada del 80 dónde es?"', ok: 'En la esquina, sobre la avenida', bad: 'El 80 no existe, es un mito', r: 'Lo alcanzó justo. Saludó desde la ventanilla.', rb: 'El 80 pasó por la puerta mientras discutían.' },
+  { reg: 'pampeana', ic: '🚇', who: 'Una chica con mochila', t: '"Perdón, ¿la estación Incas del subte B queda por acá?"', ok: 'Sí, por Triunvirato, ahí nomás', bad: 'Ni idea, yo vengo en joystick', r: 'Llegó al subte. Dijo que a la vuelta pasa a mirar auriculares.', rb: 'Se fue caminando para el otro lado.' },
+  { reg: 'pampeana', ic: '🚌', who: 'Un señor apurado', t: '"¿La parada del 80 dónde es?"', ok: 'En la esquina, sobre la avenida', bad: 'El 80 no existe, es un mito', r: 'Lo alcanzó justo. Saludó desde la ventanilla.', rb: 'El 80 pasó por la puerta mientras discutían.' },
   // inspiradas en noticias insólitas de la Ciudad
   { ic: '🦫', who: 'En la vereda', t: 'Un carpincho pasa caminando lo más tranquilo.', ok: 'Avisar al 103 y dejarlo en paz', bad: 'Ofrecerle 3 cuotas sin interés', r: 'Vinieron a buscarlo para llevarlo a un lugar seguro. Se fue mirando la vidriera.', rb: 'No tiene bolsillos ni pulgares. Igual miró los joysticks.' },
   { ic: '🚌', who: 'Un colectivero', t: '"Jefe, el colectivo hace un ruido raro en el motor. ¿Ustedes arreglan?"', ok: 'Notebooks y PC sí; motores no', bad: 'Tráigalo, lo abrimos en el taller', r: 'Se fue a un mecánico. Dejó dicho que vuelve por un cargador.', rb: 'El colectivo no pasa por la puerta del taller.' },

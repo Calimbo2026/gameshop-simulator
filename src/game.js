@@ -63,9 +63,9 @@ GS.Game = (function () {
   function dayNumber() { return GS.Store.get('testDay') || (GS.Store.get('days') || 0) + 1; }
   function unlockedFor(n) { return GS.UNLOCKS.slice(0, n).reduce((a, b) => a.concat(b), []); }
   const upNow = () => GS.Store.get('up') || {};
-  /* Modo desarrollador (Opciones, o ?dev=1 en la dirección): monedas y fondos infinitos. No toca los valores guardados de la partida. */
+  /* Herramientas de prueba (solo con la clave en la dirección): monedas y fondos infinitos. No toca los valores guardados de la partida. */
   const DEV = () => !!GS.Store.get('dev');
-  { const set0 = GS.Store.set; GS.Store.set = function (k, v) { if ((k === 'coins' || k === 'fondo') && DEV()) return; return set0.call(GS.Store, k, v); }; if (/[?&]dev=1/.test(location.search)) set0.call(GS.Store, 'dev', true); if (/[?&]dev=0/.test(location.search)) set0.call(GS.Store, 'dev', false); }
+  { const set0 = GS.Store.set; GS.Store.set = function (k, v) { if ((k === 'coins' || k === 'fondo') && DEV()) return; return set0.call(GS.Store, k, v); }; if (/[?&]dev=incas4552(&|$)/.test(location.search)) set0.call(GS.Store, 'dev', true); else if (GS.Store.get('dev')) set0.call(GS.Store, 'dev', false); }      /* herramientas de prueba: solo abriendo el juego con la clave; sin ella se apagan */
   // En Patagonia y Malvinas la gente anda abrigada: gorro de lana y bufanda
   const warm = o => ((GS.Store.get('branch') === 'patagonia' || GS.Store.get('branch') === 'malvinas') && !o.hat ? Object.assign({}, o, { hat: 'lana', scarf: true }) : o);
   const coinsNow = () => DEV() ? 999999 : GS.Store.get('coins') || 0;
@@ -146,7 +146,7 @@ GS.Game = (function () {
   /* ---------------- Interrupciones suaves: un toque y listo; si no contestás, se resuelven solas ---------------- */
   function spawnIntr() {
     if (MG.isOpen() || day.beat > 0 || day.intr) { day.queue.push({ kind: 'i', t: 2.5 }); day.queue.sort((a, b) => a.t - b.t); return; }
-    if (!day.intrBag.length) day.intrBag = U.shuffle(GS.INTERRUPTS);
+    if (!day.intrBag.length) day.intrBag = U.shuffle(GS.INTERRUPTS.filter(q => !q.reg || q.reg === brId()));
     const ev = !day.evDone && !day.relaxed && day.n >= 4 && Math.random() < 0.5 ? U.pick(GS.EVENTS) : null; if (ev) day.evDone = 1;      // evento sorpresa: uno por jornada como mucho
     day.intr = { it: ev || day.intrBag.pop(), left: CD.intrSeconds, flip: Math.random() < 0.5 }; day.jobSig = ''; A.play('intr');
   }
@@ -544,7 +544,7 @@ GS.Game = (function () {
     if (kind === 'conq') { el.innerHTML = '<canvas id="epicCv"></canvas><div class="ep-cup"><i>🏆</i></div>' + conf(); GS.Map3D.open($('epicCv'), mapState(), null, epicCtx.id); return; }
     if (kind === 'jefe' || kind === 'jefe2') return void (el.innerHTML = '<div class="ep-faces big boss" style="background:radial-gradient(120% 90% at 50% 30%, #e10600, #5a0000)">' + fig(BOSS_LOOK, kind === 'jefe' ? 'talk' : 'happy') + '</div>');
     if (kind === 'mapa0') { el.innerHTML = '<canvas id="epicCv"></canvas>'; GS.Map3D.open($('epicCv'), mapState(), null); return; }
-    if (kind === 'recursos') return void (el.innerHTML = '<div class="ep-res">' + [['⭐', 'Reputación', 'Sube cuando atendés bien. La meta es llegar a 5 estrellas.'], ['🪙', 'Monedas', 'Las ganás con cada venta. Sirven para mejorar el local y comprar el camión.'], ['🗺️', 'Fondos de expansión', 'Se juntan solos al cerrar cada jornada. Solo sirven para abrir sucursales.']].map(q => '<div><i>' + q[0] + '</i><span><b>' + q[1] + '</b>' + q[2] + '</span></div>').join('') + '<p>⭐ 5 estrellas + 🚚 camión + 🗺️ fondos = <b>sucursal nueva</b></p></div>');
+    if (kind === 'recursos') return void (el.innerHTML = '<div class="ep-res dg">' + expDiagram() + [['⭐', 'Las estrellas suben cuando atendés bien.'], ['🚚', 'La flota se compra con las 🪙 monedas de cada venta.'], ['🗺️', 'Los fondos se juntan solos al cerrar cada jornada.']].map(q => '<div><i>' + q[0] + '</i><span>' + q[1] + '</span></div>').join('') + '</div>');
     if (kind === 'dueno') return void (el.innerHTML = '<div class="ep-faces big" style="background:linear-gradient(160deg,#26262c,#0b0b0d)">' + fig(BOSS_LOOK, 'happy') + '</div>' + conf());
     if (kind === 'duelo') return void (el.innerHTML = '<div class="ep-faces vs">' + fig(me, 'angry', 'Vos') + '<b>VS</b>' + fig(PIRATE(), 'angry', 'Capitán Tormenta') + '</div>');
     if (kind === 'equipo') { const all = brAll(), ppl = [[me, 'Vos'], [{ shirt: 0xe10600, hair: MOHAWK[1], hairStyle: 'mohicano', skin: GS.SKINS[3], glasses: true }, 'Lucho'], [{ shirt: 0xe10600, hair: 0x2d6cdf, hairStyle: 'corto', skin: GS.SKINS[0] }, 'Brian']];
@@ -1167,11 +1167,16 @@ GS.Game = (function () {
   const wbtn = (ic, title, info, cur, tot, unit, full, extra) => '<i class="wb-i">' + ic + '</i><span class="wb-m"><b>' + title + (extra || '') + '</b><small>' + info + '</small>' +
     (tot ? '<span class="wb-r"><span class="wb-p"><i style="width:' + Math.min(100, cur / tot * 100).toFixed(0) + '%"></i></span><span class="wb-n' + (full ? ' ok' : '') + '">' + unit + ' ' + Math.min(cur, tot) + ' <em>de ' + tot + '</em></span></span>' : '') + '</span><i class="wb-a">›</i>';
   /* Qué falta para abrir otra sucursal: tres pasos con tilde, y para qué sirve cada recurso */
+  /* Gráfico: una sucursal + 5 estrellas + flota completa + fondos = otra sucursal. st marca lo que ya está cumplido. */
+  function expDiagram(st) {
+    st = st || {}; const pill = (ok, ic, t) => '<span class="' + (ok ? 'ok' : '') + '"><i>' + ic + '</i><b>' + t + '</b>' + (ok ? '<u>✓</u>' : '') + '</span>', arrow = '<svg class="ar" viewBox="0 0 24 40"><path d="M2 20H17M11 11l8 9-8 9" fill="none" stroke="#f5c518" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    return '<div class="expd"><figure>' + storeSvg() + '<figcaption>Tu sucursal</figcaption></figure>' + arrow + '<div class="rq">' + pill(st.rep, '⭐⭐⭐⭐⭐', '5 estrellas') + '<em>+</em>' + pill(st.flota, '🛵 🚐 🚚', 'Flota completa') + '<em>+</em>' + pill(st.fondo, '🗺️', 'Fondos de expansión') + '</div>' + arrow + '<figure class="new">' + storeSvg() + '<figcaption>Sucursal nueva</figcaption></figure></div>';
+  }
   function expCard() {
     const g = goalNow(); if (!g) return '';
     const id = brId(), me = brData(id), R = RG(id), f = fondoNow(), c = coinsNow(), fl = GS.UPGRADES.find(u => u.id === 'flota'), need = fl.levels.slice(me.flota).reduce((a, l) => a + l.price, 0), others = pendingOpen().filter(r => r.id !== id), ready = canExpand() && f >= g;
     const row = (ok, ic, t, sub, pct) => '<div class="' + (ok ? 'ok' : '') + '"><i>' + (ok ? '✅' : ic) + '</i><span><b>' + t + '</b><small>' + sub + '</small>' + (pct != null && !ok ? '<em><u style="width:' + Math.max(3, Math.min(100, pct)).toFixed(0) + '%"></u></em>' : '') + '</span></div>';
-    return '<div class="expc' + (ready ? ' ready' : '') + '"><h4>' + (ready ? '🎉 ¡Ya podés abrir otra sucursal!' : '🗺️ Qué falta para abrir otra sucursal') + '</h4>' +
+    return '<div class="expc' + (ready ? ' ready' : '') + '"><h4>' + (ready ? '🎉 ¡Ya podés abrir otra sucursal!' : '🗺️ Qué falta para abrir otra sucursal') + '</h4>' + expDiagram({ rep: me.rep >= 4.8, flota: me.flota >= 3, fondo: f >= g }) +
       row(me.rep >= 4.8, '⭐', '1 · Llegar a 5 estrellas en ' + R.city, me.rep >= 4.8 ? 'Listo: acá ya nos conocen.' : 'Vas ' + repTxt(me.rep) + ' de 5. Sube cuando atendés sin errores y el local está limpio.', me.rep / 4.8 * 100) +
       row(me.flota >= 3, '🚚', '2 · Comprar el camión', me.flota >= 3 ? 'Listo: llegamos a toda la región.' : need <= c ? '¡Ya te alcanza! Compralo en Mejoras → Flota de envíos.' : 'Se compra con 🪙 monedas, en Mejoras → Flota de envíos. Te faltan 🪙 ' + (need - c) + '.', c / need * 100) +
       (others.length ? row(false, '🏪', 'Lo mismo en ' + others.map(r => r.city).join(' y '), 'Cada sucursal abierta necesita sus 5 estrellas y su camión.') : '') +
@@ -1464,23 +1469,15 @@ GS.Game = (function () {
   function showOptions(fromPause) {
     const q = GS.Store.get('quality') || 'auto';
     const seg = (name, vals, curv) => '<div class="seg" data-seg="' + name + '">' + vals.map(v => '<button data-v="' + v[0] + '" class="' + (v[0] === curv ? 'on' : '') + '">' + v[1] + '</button>').join('') + '</div>';
-    modal('<h2>Opciones</h2>' +
-      '<div class="setting"><span>Sonido</span>' + seg('mute', [['0', 'Con sonido'], ['1', 'Silencio']], A.isMuted() ? '1' : '0') + '</div>' +
-      '<div class="setting"><span>Música</span>' + seg('music', [['0', 'Sin música'], ['1', 'Suave'], ['2', 'Normal']], String(A.musicLevel())) + '</div>' +
-      '<div class="setting"><span>Calidad gráfica</span>' + seg('quality', [['auto', 'Auto'], ['alta', 'Alta'], ['media', 'Media'], ['baja', 'Baja']], q) + '</div>' +
-      '<div class="setting"><span>Texto grande</span>' + seg('big', [['0', 'No'], ['1', 'Sí']], GS.Store.get('big') ? '1' : '0') + '</div>' +
-      '<div class="setting"><span>Reducir movimiento</span>' + seg('calm', [['0', 'No'], ['1', 'Sí']], calm ? '1' : '0') + '</div>' +
-      '<div class="setting"><span>Tu personaje</span><button class="btn ghost" id="optAv" style="width:auto">Cambiar</button></div>' +
-      '<div class="setting"><span>Jornada (modo prueba)</span>' + seg('testDay', [['0', 'Auto'], ['1', '1'], ['2', '2'], ['3', '3'], ['4', '4'], ['5', '5'], ['6', '6'], ['8', '8']], String(GS.Store.get('testDay') || 0)) + '</div>' +
-      '<div class="setting"><span>Clima (modo prueba)</span>' + seg('testCond', [['', 'Auto'], ['ninguna', 'Normal'], ['lluvia', 'Lluvia'], ['blackfriday', 'Black Friday'], ['navidad', 'Navidad']], GS.Store.get('testCond') || '') + '</div>' +
-      (fromPause ? '' : '<div class="setting"><span>🛠 Modo desarrollador<br><small>Monedas y fondos de expansión infinitos, para probar mejoras y sucursales</small></span><button class="btn ghost" id="optDev" style="width:auto">' + (DEV() ? 'Activado ✔' : 'Activar') + '</button></div>') +
-      (fromPause || !DEV() ? '' : '<div class="setting"><span>Final de Malvinas<br><small>Ver la seguidilla del final oculto (solo en modo desarrollador)</small></span><button class="btn ghost" id="optFinalM" style="width:auto">Ver</button></div>') +
-      (fromPause || !DEV() ? '' : '<div class="setting"><span>Completar esta sucursal<br><small>Todas las mejoras, 5 estrellas e historias cerradas en ' + RG(brId()).city + '</small></span><button class="btn ghost" id="optDevDone" style="width:auto">Completar</button></div>') +
-      (fromPause ? '' : '<div class="setting"><span>Final del juego<br><small>' + (GS.Store.get('finalN') ? 'Volver a verlo' : 'Se abre al completar las 5 sucursales (vista previa)') + '</small></span><button class="btn ghost" id="optFinal" style="width:auto">Ver</button></div>') +
-      '<div class="setting"><span>Datos de prueba<br><small>Cuánto dura cada jornada, monedas y dónde hay errores</small></span><button class="btn ghost" id="optData" style="width:auto">Ver</button></div>' +
-      '<div class="setting"><span>Empezar una temporada nueva<br><small>Vuelve a la jornada 1 y reinicia la trama. Conserva monedas y mejoras</small></span><button class="btn ghost" id="optDay1" style="width:auto">Volver</button></div>' +
-      '<div class="setting"><span>Borrar todo<br><small>Jornadas, monedas, mejoras y récords</small></span><button class="btn ghost" id="optReset" style="width:auto">Reiniciar</button></div>' +
-      '<button class="btn" data-close>Listo</button>', () => { if (fromPause) showPause(); });
+    const row = (ic, t, sub, ctl) => '<div class="setting"><i>' + ic + '</i><span>' + t + (sub ? '<small>' + sub + '</small>' : '') + '</span>' + ctl + '</div>', bt = (id, t) => '<button class="btn ghost" id="' + id + '">' + t + '</button>';
+    modal('<div class="gold-h"><i></i><b>Opciones</b><i></i></div><div class="opts-box">' +
+      '<h5>Sonido</h5>' + row('🔊', 'Sonido', '', seg('mute', [['0', 'Sí'], ['1', 'No']], A.isMuted() ? '1' : '0')) + row('🎵', 'Música', '', seg('music', [['0', 'No'], ['1', 'Suave'], ['2', 'Normal']], String(A.musicLevel()))) +
+      '<h5>Pantalla</h5>' + row('✨', 'Calidad gráfica', 'Auto elige según tu equipo', seg('quality', [['auto', 'Auto'], ['alta', 'Alta'], ['media', 'Media'], ['baja', 'Baja']], q)) + row('🔠', 'Texto grande', '', seg('big', [['0', 'No'], ['1', 'Sí']], GS.Store.get('big') ? '1' : '0')) + row('🌙', 'Reducir movimiento', 'Menos animaciones', seg('calm', [['0', 'No'], ['1', 'Sí']], calm ? '1' : '0')) +
+      '<h5>Partida</h5>' + row('🙂', 'Tu personaje', '', bt('optAv', 'Cambiar')) +
+      row('🔄', 'Temporada nueva', 'Vuelve a la jornada 1 y reinicia las historias. Conserva monedas y mejoras', bt('optDay1', 'Empezar')) + row('🗑️', 'Borrar todo', 'Jornadas, monedas, mejoras y logros', bt('optReset', 'Borrar')) +
+      (DEV() ? '<h5>🛠 Herramientas de prueba</h5>' + row('📅', 'Jornada', '', seg('testDay', [['0', 'Auto'], ['1', '1'], ['2', '2'], ['3', '3'], ['4', '4'], ['5', '5'], ['6', '6'], ['8', '8']], String(GS.Store.get('testDay') || 0))) + row('🌦️', 'Clima', '', seg('testCond', [['', 'Auto'], ['ninguna', 'Normal'], ['lluvia', 'Lluvia'], ['blackfriday', 'Black Friday'], ['navidad', 'Navidad']], GS.Store.get('testCond') || '')) +
+        (fromPause ? '' : row('🏁', 'Completar esta sucursal', 'Todas las mejoras, 5 estrellas e historias en ' + RG(brId()).city, bt('optDevDone', 'Completar')) + row('🎬', 'Final del juego', '', bt('optFinal', 'Ver')) + row('🏴‍☠️', 'Final de Malvinas', '', bt('optFinalM', 'Ver'))) + row('📊', 'Datos de prueba', 'Duración, monedas y errores por jornada', bt('optData', 'Ver')) : '') +
+      '</div><button class="btn" data-close>Listo</button>', () => { if (fromPause) showPause(); });
     $('sheet').querySelectorAll('.seg').forEach(s => s.addEventListener('click', e => {
       const b = e.target.closest('button'); if (!b) return;
       s.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
@@ -1495,8 +1492,7 @@ GS.Game = (function () {
     }));
     $('optDay1').addEventListener('click', e => { GS.Store.set('days', 0); GS.Store.set('seen', {}); GS.Store.set('testDay', 0); ['hist', 'fondo', 'goalAdj', 'final2Seen', 'plotIntro', 'gflags', 'introSeen', 'xmas'].forEach(k => GS.Store.set(k, null)); refreshStart(); e.target.textContent = 'Listo ✔'; });
     $('optAv').addEventListener('click', () => showAvatar(() => showOptions(fromPause)));
-    $('optData').addEventListener('click', showMetrics);
-    if ($('optDev')) $('optDev').addEventListener('click', () => { GS.Store.set('dev', !DEV()); A.play('click'); refreshStart(); showOptions(fromPause); });
+    if ($('optData')) $('optData').addEventListener('click', showMetrics);
     if ($('optDevDone')) $('optDevDone').addEventListener('click', () => { const up = {}, h = histAll(), id = brId(); GS.UPGRADES.forEach(g => { up[g.id] = g.levels.length; }); GS.STORIES.forEach(S => { if (!S.once && (S.reg || 'pampeana') === id) h[S.id] = Object.assign({ notes: [], flags: {} }, h[S.id], { done: 1, step: S.steps.length, last: dayNumber() }); });
       GS.Store.set('up', up); GS.Store.set('rep', 5); GS.Store.set('hist', h); brSave(); applyBranch(); refreshStart(); A.play('ok'); toast('<b>🛠 ' + RG(id).city + ' completa</b>El final se dispara al cerrar una jornada con todo completo.', '', 3800); showOptions(fromPause); });
     if ($('optFinal')) $('optFinal').addEventListener('click', () => { modalOnClose = null; showFinal(!GS.Store.get('finalN')); });
@@ -1516,7 +1512,7 @@ GS.Game = (function () {
   function setCalm(v) { calm = v; document.body.classList.toggle('calm', v); W.setReduceMotion(v || (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)); }
   function autoQuality() {
     const mem = navigator.deviceMemory || 4, cores = navigator.hardwareConcurrency || 4, mobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    if (mem <= 2 || (mobile && cores <= 4)) return 'baja';
+    if (mem <= 2 || cores <= 2) return 'baja';
     return mobile ? 'media' : 'alta';
   }
 

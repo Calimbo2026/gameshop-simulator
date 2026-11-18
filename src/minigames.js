@@ -364,15 +364,16 @@ GS.Minigames = (function () {
     })();
     function show() {
       const p = boxes[i];
-      zb.forEach(b => b.classList.remove('bad'));
-      root().innerHTML = head(job, 'Reposición · ' + (i + 1) + ' de 3') + '<div class="bubble" id="mgBubble">📦 En esta caja hay: ' + ico(p) + esc(p.name) + '</div>' +
-        '<div class="rule">Tocá en el depósito la estantería donde va</div>';
+      zb.forEach(b => b.classList.remove('bad', 'hint'));
+      root().innerHTML = head(job, 'Reposición · caja ' + (i + 1) + ' de 3') + '<div class="repo-p"><span class="pic">' + (GS.ICONS[p.id] || p.icon) + '</span><div><small>📦 En esta caja hay</small><b>' + esc(p.name) + '</b><em id="repoHint">¿En qué estantería va? Tocala en el depósito.</em></div></div>' +
+        '<div class="bubble" id="mgBubble" hidden></div>';
     }
     function choose(k) {
       if (!cur || cur.done || zb[k].classList.contains('bad')) return;
       if (GS.SHELVES[k].cat === boxes[i].cat) {
         i++; if (i < boxes.length) { GS.Audio.play('bill'); show(); } else { GS.Audio.play('ok'); layer.remove(); finish(true, '¡Todo acomodado!', 'Por cinco minutos, al menos.', {}); }
-      } else { zb[k].classList.add('bad'); mistake('repo', U.pick(LN.wrongShelf)); }
+      } else { zb[k].classList.add('bad'); const ok = GS.SHELVES.findIndex(s => s.cat === boxes[i].cat), b = document.getElementById('mgBubble'); if (b) b.hidden = false;
+        mistake('repo', U.pick(LN.wrongShelf)); if (ok >= 0) { zb[ok].classList.add('hint'); const h = document.getElementById('repoHint'); if (h) h.innerHTML = 'Pista: va en <b>' + GS.SHELVES[ok].icon + ' ' + esc(GS.SHELVES[ok].name) + '</b>'; } }
     }
     zb.forEach((b, k) => b.addEventListener('click', () => choose(k)));
     me.keys = e => { const n = parseInt(e.key, 10); if (n >= 1 && n <= zb.length) choose(n - 1); };
