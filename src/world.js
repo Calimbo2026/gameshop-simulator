@@ -134,7 +134,7 @@ GS.World = (function () {
   const cylM = (g, r1, r2, h, c, x, y, z, ax, opt) => { const m = new T.Mesh(new T.CylinderGeometry(r1, r2, h, 12), c && c.isMaterial ? c : mat(c, opt)); if (ax === 'x') m.rotation.z = Math.PI / 2; if (ax === 'z') m.rotation.x = Math.PI / 2; m.position.set(x, y + (ax ? 0 : h / 2), z); g.add(m); return m; };
   const ballM = (g, sx, sy, sz, c, x, y, z, opt) => { const m = new T.Mesh(gBall, mat(c, opt)); m.scale.set(sx, sy, sz); m.position.set(x, y, z); g.add(m); return m; };
   const gBall = new T.SphereGeometry(1, 12, 9), GLOW = c => ({ emissive: c });
-  const padM = c => g => { box(g, 0.1, 0.07, 0.07, 0x2c2c33, 0, 0, 0); const b = box(g, 0.3, 0.07, 0.13, c, 0, 0.07, 0); b.rotation.x = -0.5; [-1, 1].forEach(sd => { cylM(g, 0.045, 0.04, 0.13, c, sd * 0.115, 0.03, 0.05).rotation.x = -0.5; ballM(g, 0.024, 0.014, 0.024, 0x111111, sd * 0.055, 0.135, 0.01); }); box(g, 0.1, 0.012, 0.05, 0x1b1b1f, 0, 0.142, -0.03).rotation.x = -0.5; };
+  const padM = c => g => { box(g, 0.1, 0.07, 0.07, 0x2c2c33, 0, 0, 0); const b = box(g, 0.3, 0.07, 0.13, c, 0, 0.07, 0); b.rotation.x = -0.5; [-1, 1].forEach(sd => { cylM(g, 0.045, 0.04, 0.13, c, sd * 0.115, 0.03, 0.05).rotation.x = -0.5; ballM(g, 0.024, 0.014, 0.024, 0x111111, sd * 0.055, 0.135, 0.01); ballM(g, 0.012, 0.008, 0.012, sd < 0 ? 0x1b1b1f : 0xf4f4f6, sd * 0.11, 0.165, -0.035); }); box(g, 0.1, 0.012, 0.05, 0x1b1b1f, 0, 0.142, -0.03).rotation.x = -0.5; box(g, 0.11, 0.008, 0.008, 0x56c8ff, 0, 0.166, -0.062, GLOW(0x56c8ff)).rotation.x = -0.5; };
   const caseM = id => g => { const m = new T.Mesh(unitBox, iconMats(id)); m.scale.set(0.03, 0.3, 0.24); m.position.set(0, 0.17, 0); m.rotation.y = -Math.PI / 2 + 0.0; m.rotation.z = 0.12; g.add(m); box(g, 0.1, 0.02, 0.16, 0x2c2c33, 0, 0, -0.02); };
   const MODELS = {
     ps5: g => { cylM(g, 0.13, 0.14, 0.02, 0x15151a, 0, 0, 0); box(g, 0.08, 0.4, 0.24, 0x101014, 0, 0.02, 0); [-1, 1].forEach(sd => { const pl = box(g, 0.045, 0.44, 0.3, 0xf7f7f9, sd * 0.07, 0.02, 0); pl.rotation.z = sd * -0.06; box(g, 0.01, 0.38, 0.012, 0x3aa0ff, sd * 0.042, 0.04, 0.125, GLOW(0x2a70c0)); }); },
@@ -146,7 +146,7 @@ GS.World = (function () {
     auris: g => { cylM(g, 0.1, 0.11, 0.02, 0x1b1b20, 0, 0, 0); cylM(g, 0.016, 0.016, 0.32, 0x2c2c33, 0, 0.02, 0); const t = new T.Mesh(new T.TorusGeometry(0.12, 0.02, 6, 14, Math.PI), mat(0x1d1d23)); t.position.y = 0.3; g.add(t); [-1, 1].forEach(sd => { cylM(g, 0.07, 0.07, 0.05, 0xe10600, sd * 0.125, 0.27, 0, 'x'); cylM(g, 0.055, 0.055, 0.03, 0x1d1d23, sd * 0.09, 0.27, 0, 'x'); }); },
     teclado: g => { const k = new T.Group(); k.rotation.x = 0.12; g.add(k); box(k, 0.44, 0.03, 0.16, 0x17171c, 0, 0, 0); [0xff4fa3, 0x56c8ff, 0x3aff9c].forEach((c, i) => box(k, 0.4, 0.014, 0.034, c, 0, 0.03, -0.045 + i * 0.045, GLOW(c))); },
     mouse: g => { ballM(g, 0.065, 0.045, 0.1, 0x1f1f25, 0, 0.035, 0); box(g, 0.012, 0.012, 0.05, 0x56e0ff, 0, 0.074, -0.03, GLOW(0x2a90b0)); box(g, 0.2, 0.006, 0.24, 0x2c2c33, 0, 0, 0); },
-    monitor: g => { const m = monitor(g, 0, 0, 0, 0); m.scale.setScalar(0.72); plane(m, 0.56, 0.34, new T.MeshBasicMaterial({ color: 0x8a6bff }), 0, 0.38, 0.025); box(m, 0.56, 0.1, 0.004, 0xff4fa3, 0, 0.21, 0.026, GLOW(0xff4fa3)); },
+    monitor: g => { const m = monitor(g, 0, 0, 0, 0); m.scale.setScalar(0.72); plane(m, 0.56, 0.34, new T.MeshBasicMaterial({ color: 0x6a4bd0 }), 0, 0.38, 0.025); box(m, 0.56, 0.12, 0.004, 0xff4fa3, 0, 0.21, 0.026, GLOW(0xff4fa3)); box(m, 0.56, 0.04, 0.005, 0x2d1650, 0, 0.21, 0.027); ballM(m, 0.04, 0.04, 0.003, 0xffd27a, 0.14, 0.45, 0.027, GLOW(0xffd27a)); box(m, 0.16, 0.02, 0.005, 0x7bff5a, -0.17, 0.5, 0.027, GLOW(0x7bff5a)); box(m, 0.3, 0.012, 0.1, 0x17171c, 0, 0, 0.02); },
     gabinete: g => { box(g, 0.2, 0.42, 0.38, 0x15151a, 0, 0, 0); box(g, 0.012, 0.34, 0.3, 0x56d6ff, 0.101, 0.04, 0, GLOW(0x2a8aa0)); [0.1, 0.21, 0.32].forEach((y, i) => cylM(g, 0.045, 0.045, 0.012, [0xff4fa3, 0x56c8ff, 0x3aff9c][i], 0, y, 0.191, 'z', GLOW([0xff4fa3, 0x56c8ff, 0x3aff9c][i]))); },
     parlante: g => { cylM(g, 0.085, 0.085, 0.3, 0xe2341d, 0, 0.09, 0, 'x'); [-1, 1].forEach(sd => { cylM(g, 0.08, 0.08, 0.02, 0x1d1d23, sd * 0.155, 0.09, 0, 'x'); }); box(g, 0.2, 0.01, 0.1, 0x2c2c33, 0, 0, 0); },
     volante: g => { box(g, 0.24, 0.1, 0.2, 0x2a2a31, 0, 0, -0.04); const t = new T.Mesh(new T.TorusGeometry(0.13, 0.026, 8, 18), mat(0x1b1b20)); t.position.set(0, 0.2, 0.06); t.rotation.x = -0.35; g.add(t); const h = cylM(g, 0.04, 0.04, 0.03, 0xe10600, 0, 0.2, 0.06, 'z'); h.rotation.x = Math.PI / 2 - 0.35; const sp = box(g, 0.24, 0.03, 0.02, 0x8d9199, 0, 0.185, 0.06); sp.rotation.x = -0.35; },
@@ -778,6 +778,29 @@ GS.World = (function () {
 
   // Vidriera tipo galería: dos cajas de vidrio a los costados de un pasillo, arcade en el medio
   let vk = 0;
+  /* Vidrieras armadas a mano. u: de 0 (pasillo) a 1 (pared); z: de 0 (salón) a 1 (calle). ped: ['b', ancho, alto, color, fondo, zócalo] o ['c', radio, alto, color, zócalo].
+     it: [producto, corrimiento a lo ancho, corrimiento en z, giro]. PROP ajusta cada modelo para que las proporciones entre productos sean las reales. */
+  const PROP = { ps5: 0.92, xbox: 0.78, switch2: 0.72, quest: 0.7, dualsense: 0.56, ds_blanco: 0.56, ds_negro: 0.56, ds_rojo: 0.56, ds_azul: 0.56, ds_violeta: 0.56, joyxbox: 0.56, juego: 0.62, juego2: 0.62, juego3: 0.62, juego4: 0.62, auris: 0.8, teclado: 1.0, mouse: 0.95, monitor: 1.4, gabinete: 1.05,
+    parlante: 0.75, volante: 1.0, mic: 0.7, ipad: 0.8, watch: 0.5, airpods: 0.55, homepod: 0.55, notebook: 0.8, gpu: 0.78, magic: 0.9 };
+  const SHOW = {
+    L: [
+      { u: 0.8, z: 0.13, ped: ['b', 0.9, 0.78, 0x17171c, 0.74, 0xf5c518], it: [['ps5', -0.14, -0.06, 0.1], ['ds_blanco', 0.24, 0.16, 0.35]], tag: [-0.2, 0.3] },
+      { u: 0.47, z: 0.15, ped: ['c', 0.46, 0.56, 0xe10600], it: [['xbox', -0.1, -0.08, 0], ['joyxbox', 0.18, 0.18, 0.4]] },
+      { u: 0.15, z: 0.2, ped: ['b', 0.66, 0.84, 0xffffff, 0.66], it: [['quest', 0, 0, 0.15]] },
+      { u: 0.76, z: 0.47, ped: ['b', 1.4, 0.3, 0xffffff, 0.8], it: [['switch2', -0.38, 0.06, 0.05], ['juego', 0.02, -0.2, 0.15], ['juego2', 0.26, -0.08, 0.05], ['juego3', 0.5, 0.06, -0.1]], tag: [0.06, 0.3] },
+      { u: 0.37, z: 0.46, ped: ['b', 0.95, 0.5, 0x17171c, 0.7, 0xe10600], it: [['dualsense', -0.26, 0.12, 0.3], ['ds_azul', 0.06, -0.1, 0], ['ds_rojo', 0.3, 0.14, -0.3]] },
+      { u: 0.13, z: 0.58, ped: ['c', 0.4, 0.4, 0xffffff, 0xe10600], it: [['volante', 0, 0, 0.1]] },
+      { u: 0.56, z: 0.77, ped: ['b', 1.5, 0.36, 0x17171c, 0.6, 0xf5c518], it: [['auris', -0.5, 0, 0], ['ds_violeta', -0.08, 0.06, 0.2], ['juego4', 0.24, -0.08, 0], ['ds_negro', 0.54, 0.08, -0.3]] }
+    ],
+    R: [
+      { u: 0.6, z: 0.16, ped: ['b', 1.9, 0.46, 0x17171c, 0.9, 0xff4fa3], it: [['monitor', 0.06, -0.2, -0.78], ['teclado', 0, 0.2, -0.78], ['mouse', 0.7, 0.2, -0.78], ['auris', -0.74, -0.12, -0.3]], tag: [-0.74, 0.3] },
+      { u: 0.16, z: 0.14, ped: ['b', 0.7, 0.6, 0xffffff, 0.7], it: [['gabinete', 0, 0, 0.1]] },
+      { u: 0.17, z: 0.47, ped: ['c', 0.42, 0.56, 0xe10600], it: [['mic', -0.12, -0.08, 0], ['parlante', 0.12, 0.2, 0.3]] },
+      { u: 0.55, z: 0.5, ped: ['b', 1.4, 0.3, 0xffffff, 0.76], it: [['notebook', -0.3, 0, 0.15], ['ipad', 0.36, -0.1, 0.1], ['magic', 0.4, 0.24, 0.5]], tag: [-0.02, 0.32] },
+      { u: 0.88, z: 0.5, ped: ['b', 0.6, 0.72, 0x17171c, 0.6, 0xf5c518], it: [['homepod', -0.1, -0.08, 0], ['watch', 0.14, 0.02, 0.2], ['airpods', -0.04, 0.2, 0.4]] },
+      { u: 0.3, z: 0.79, ped: ['c', 0.44, 0.38, 0xffffff, 0xe10600], it: [['gpu', 0, -0.04, 0.2], ['juego2', 0.2, 0.22, -0.2]] }
+    ]
+  };
   const VID = ['ps5', 'dualsense', 'auris', 'switch2', 'teclado', 'juego', 'xbox', 'ds_azul', 'gabinete', 'quest', 'mouse', 'juego2', 'monitor', 'ds_rojo', 'volante', 'parlante', 'mic', 'juego3', 'ipad', 'ds_violeta', 'homepod', 'juego4', 'notebook', 'ds_blanco', 'watch', 'gpu', 'airpods', 'joyxbox'];
   const slideDoors = []; let doorK = 0;            /* puertas de vidrio corredizas: se abren solas cuando alguien se acerca */
   function buildGallery(root) {
@@ -790,12 +813,14 @@ GS.World = (function () {
       // banda con la web, del lado del pasillo y del lado de la calle
       plane(root, d, 0.42, new T.MeshBasicMaterial({ map: band }), x0 - side * 0.01, 0.25, cz, side > 0 ? -Math.PI / 2 : Math.PI / 2);
       plane(root, w, 0.42, new T.MeshBasicMaterial({ map: band }), cx, 0.25, zB - 0.09);
-      // gradas blancas con productos
-      box(root, w - 1.0, 0.45, d - 0.4, 0xffffff, cx + side * 0.4, 0.5, cz);
-      box(root, w - 2.4, 0.45, d - 0.4, 0xffffff, cx + side * 1.1, 0.95, cz);
-      for (let z = zA + 0.6, r = 0; z < zB - 0.45; z += 0.72, r++) {            /* productos fuera de la caja, grandes y bien separados */
-        model(root, VID[vk++ % VID.length], x0 + side * 0.75, 0.95, z, 2.0); if (r % 2 === 0) model(root, VID[vk++ % VID.length], x0 + side * 1.65, 0.95, z + 0.2, 2.0); model(root, VID[vk++ % VID.length], x0 + side * (r % 2 ? 2.95 : 3.5), 1.4, z, 2.0);
-      }
+      // exhibición: tarima clara y pedestales de distintas alturas, cada uno con un grupito de productos a escala entre sí
+      box(root, w - 0.3, 0.06, d - 0.3, 0xecebe6, cx, 0.5, cz);
+      SHOW[side < 0 ? 'L' : 'R'].forEach(c => { const px = x0 + side * c.u * w, pz = zA + 0.1 + c.z * d, P = c.ped, top = 0.56 + P[2];
+        if (P[0] === 'c') { cylM(root, P[1], P[1], P[2], P[3], px, 0.56, pz); cylM(root, P[1] + 0.03, P[1] + 0.03, 0.03, P[4] || 0xf5c518, px, 0.56, pz); }
+        else { box(root, P[1], P[2], P[4], P[3], px, 0.56, pz); box(root, P[1] + 0.04, 0.03, P[4] + 0.04, P[5] || 0x9aa0ad, px, 0.56, pz); }
+        c.it.forEach(q => model(root, q[0], px + side * q[1], top, pz + q[2], 2.3 * (PROP[q[0]] || 1), Math.PI / 4 + (q[3] || 0)));
+        if (c.tag) { const t = c.tag, g = new T.Group(); g.position.set(px + side * t[0], top, pz + t[1]); g.rotation.y = Math.PI / 4; root.add(g); const b = box(g, 0.26, 0.17, 0.014, 0xffffff, 0, 0, 0); b.rotation.x = -0.35; const r = box(g, 0.26, 0.05, 0.016, 0xe10600, 0, 0.11, -0.04); r.rotation.x = -0.35; }
+      });
       // vidrio
       const gl = new T.Mesh(unitBox, glass); gl.scale.set(w, 1.9, d); gl.position.set(cx, 0.5 + 0.95, cz); root.add(gl);
       // marco superior oscuro con marcas (sin logos: solo una banda)
@@ -806,7 +831,7 @@ GS.World = (function () {
         c.fillStyle = '#e10600'; c.fillRect(478, 50, 6, H - 100); c.textBaseline = 'middle'; c.textAlign = 'left'; const gd = c.createLinearGradient(0, 60, 0, 220); gd.addColorStop(0, '#fff3b0'); gd.addColorStop(0.55, '#f5c518'); gd.addColorStop(1, '#b8860b');
         c.font = '900 176px Impact, "Arial Black", sans-serif'; c.fillStyle = gd; c.fillText('10% OFF', 516, 138, 640); c.font = '900 50px "Arial Black", "Helvetica Neue", Arial, sans-serif'; c.fillStyle = '#fff'; c.fillText('EN EFECTIVO O TRANSFERENCIA', 518, 272, 640); });
       box(root, 0.08, h + 0.14, d + 0.14, 0xf5c518, s.xMin + 0.04, 1.72, cz); plane(root, d, h, new T.MeshBasicMaterial({ map: tx }), s.xMin + 0.085, 1.79 + h / 2, cz, Math.PI / 2); }
-    gamingChair(root, 4.9, zB - 1.0, -0.5, 0xffffff, 0xff8fc0).position.y = 0.5;
+    gamingChair(root, 4.95, zB - 1.25, -0.5, 0xffffff, 0xff8fc0).position.y = 0.56;
     // arcade genérico en el medio del pasillo
     const a = L.arcade, g = new T.Group(); g.position.set(a.x, 0, a.z); root.add(g); (ups.arcade = {})[1] = g;
     box(g, 0.75, 1.9, 0.7, 0x101014, 0, 0, 0);
