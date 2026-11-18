@@ -667,18 +667,24 @@ GS.World = (function () {
     if (stage >= 3) { box(g, 1.5, 0.03, 2.4, 0xb00000, L.puerta.x, 0, zF - 0.6); const st = new T.Mesh(new T.OctahedronGeometry(0.34), new T.MeshBasicMaterial({ color: 0xf5c518 })); st.position.set(0, 3.85, 0); totem.add(st); }   // estrella: alfombra roja y estrella en el tótem
   }
   // Flota de envíos, estacionada sobre la vereda: moto, camioneta o camión (se ve solo el nivel actual)
+  const fleetK = {}; let disp = null;                /* vehículo saliendo a repartir: { k, t, cam, ret } */
   function buildFleet(root) {
     const z = L.galeria.zMax + 5.0, x = 4.6, wheel = (g, wx, wz, r) => { const w = new T.Mesh(new T.CylinderGeometry(r, r, 0.12, 12), mat(0x111111)); w.rotation.x = Math.PI / 2; w.position.set(wx, r, wz); g.add(w); };
     const RED = 0xe10600, WH = 0xf7f7f5, DK = 0x1b1b20, GL = 0x7fd4ff, tyre = (g, wx, wz, r, w) => { const t = new T.Mesh(new T.CylinderGeometry(r, r, w || 0.16, 14), mat(0x15151a)); t.rotation.x = Math.PI / 2; t.position.set(wx, r, wz); g.add(t); const h = new T.Mesh(new T.CylinderGeometry(r * 0.52, r * 0.52, (w || 0.16) + 0.02, 10), mat(0xc5c9d2)); h.rotation.x = Math.PI / 2; h.position.set(wx, r, wz); g.add(h); };
     const logoM = new T.MeshBasicMaterial({ map: logoTex(512, 176, (c, W, H, img) => { c.fillStyle = '#0a0a0c'; c.fillRect(0, 0, W, H); c.strokeStyle = '#f5c518'; c.lineWidth = 8; c.strokeRect(4, 4, W - 8, H - 8); const iw = W * 0.84, ih = iw * img.height / img.width; c.drawImage(img, (W - iw) / 2, (H - ih) / 2, iw, ih); }) });
     const logo = (g, w, lx, ly, lz) => { plane(g, w, w * 0.344, logoM, lx, ly, lz + 0.006); plane(g, w, w * 0.344, logoM, lx, ly, -lz - 0.006 + 2 * (g.userData.z0 || 0), Math.PI); };
-    const veh = lv => { const g = upGroup(root, 'flota', lv), k = new T.Group(); k.position.set(x, 0, z); g.add(k); return k; };
+    const veh = lv => { const g = upGroup(root, 'flota', lv), k = new T.Group(); k.position.set(x, 0, z); g.add(k); fleetK[lv] = k; k.userData.x0 = x; k.userData.z0 = z; return k; };
     { const k = veh(1);                                                                                                  /* moto de reparto */
       tyre(k, 0.56, 0, 0.21, 0.1); tyre(k, -0.5, 0, 0.21, 0.12); box(k, 0.36, 0.05, 0.16, RED, 0.56, 0.4, 0); box(k, 0.44, 0.06, 0.2, RED, -0.5, 0.42, 0);
       box(k, 0.62, 0.07, 0.3, DK, 0.02, 0.2, 0); box(k, 0.5, 0.26, 0.26, RED, -0.42, 0.27, 0); box(k, 0.52, 0.09, 0.28, DK, -0.36, 0.53, 0);                                    /* piso, carenado trasero y asiento */
       const sh = box(k, 0.07, 0.56, 0.32, RED, 0.36, 0.22, 0); sh.rotation.z = -0.3; const fk = box(k, 0.06, 0.6, 0.06, 0x8d9199, 0.5, 0.2, 0); fk.rotation.z = -0.3;
       box(k, 0.06, 0.05, 0.6, DK, 0.38, 0.84, 0); [-1, 1].forEach(sd => box(k, 0.07, 0.07, 0.12, 0x2c2c33, 0.38, 0.83, sd * 0.3)); box(k, 0.05, 0.12, 0.14, 0xfff3b0, 0.47, 0.66, 0, { emissive: 0xa08a30 }); const ws = box(k, 0.02, 0.22, 0.3, GL, 0.36, 0.86, 0); ws.rotation.z = -0.25;
-      box(k, 0.5, 0.46, 0.44, RED, -0.62, 0.62, 0); box(k, 0.54, 0.05, 0.48, DK, -0.62, 1.08, 0); plane(k, 0.44, 0.151, logoM, -0.62, 0.86, 0.226); plane(k, 0.44, 0.151, logoM, -0.62, 0.86, -0.226, Math.PI); box(k, 0.03, 0.1, 0.2, 0xff3b30, -0.87, 0.5, 0, { emissive: 0x801010 }); }
+      box(k, 0.5, 0.46, 0.44, RED, -0.62, 0.62, 0); box(k, 0.54, 0.05, 0.48, DK, -0.62, 1.08, 0); plane(k, 0.44, 0.151, logoM, -0.62, 0.86, 0.226); plane(k, 0.44, 0.151, logoM, -0.62, 0.86, -0.226, Math.PI); box(k, 0.03, 0.1, 0.2, 0xff3b30, -0.87, 0.5, 0, { emissive: 0x801010 });
+      { const r = new T.Group(); k.add(r); const SK = 0xe0ac7e, PT = 0x26262c;                                                     /* repartidor: remera roja, casco rojo con franja blanca y visor */
+        const tor = box(r, 0.3, 0.46, 0.4, RED, -0.2, 0.62, 0); tor.rotation.z = -0.22; [-1, 1].forEach(sd => { const th = box(r, 0.4, 0.14, 0.15, PT, -0.06, 0.58, sd * 0.13); th.rotation.z = -0.12; box(r, 0.13, 0.36, 0.14, PT, 0.12, 0.27, sd * 0.13); box(r, 0.22, 0.09, 0.15, 0x111114, 0.16, 0.27, sd * 0.13);
+          const ar = box(r, 0.5, 0.11, 0.11, RED, 0.1, 0.9, sd * 0.24); ar.rotation.z = -0.3; ar.rotation.y = sd * -0.14; ballM(r, 0.07, 0.07, 0.07, SK, 0.37, 0.87, sd * 0.29); });
+        ballM(r, 0.27, 0.27, 0.27, SK, -0.1, 1.33, 0); const hm = new T.Mesh(new T.SphereGeometry(0.31, 14, 10, 0, Math.PI * 2, 0, Math.PI * 0.62), mat(RED)); hm.position.set(-0.1, 1.33, 0); hm.rotation.z = 0.12; r.add(hm);
+        const st = box(r, 0.5, 0.05, 0.1, 0xffffff, -0.12, 1.6, 0); st.rotation.z = 0.12; box(r, 0.05, 0.16, 0.44, 0x16161a, 0.2, 1.3, 0); box(r, 0.3, 0.06, 0.64, RED, -0.08, 1.24, 0); plane(r, 0.2, 0.069, logoM, -0.12, 1.42, 0.305); plane(r, 0.2, 0.069, logoM, -0.12, 1.42, -0.305, Math.PI); } }
     { const k = veh(2);                                                                                                  /* utilitario */
       [-0.82, 0.86].forEach(dx => { tyre(k, dx, 0.5, 0.25); tyre(k, dx, -0.5, 0.25); });
       box(k, 2.7, 0.16, 1.08, DK, 0, 0.2, 0); box(k, 1.65, 1.02, 1.12, WH, -0.5, 0.34, 0); box(k, 1.65, 0.16, 1.14, RED, -0.5, 0.5, 0);                                         /* chasis, caja y franja */
@@ -1109,6 +1115,15 @@ GS.World = (function () {
     clampCam(); applyCam();
   }
   function update(dt) {
+    if (disp) { const d = disp, k = d.k, x0 = k.userData.x0; d.t += dt;                                       /* arranca, acelera, se pierde por la calle y al rato vuelve por el otro lado */
+      if (d.t < 0) { }
+      else if (d.t < 0.45) { k.position.y = Math.abs(Math.sin(d.t * 40)) * 0.025; }
+      else if (d.t < 3.2) { const u = d.t - 0.45; k.position.y = 0; k.position.x = x0 + 4.6 * u * u; k.rotation.z = Math.min(0.05, u * 0.1); k.visible = k.position.x < x0 + 30; }
+      else if (d.t < 6.5) { k.visible = false; k.rotation.z = 0; }
+      else if (d.t < 8.7) { const u = (d.t - 6.5) / 2.2, e = 1 - (1 - u) * (1 - u); k.visible = true; k.position.x = x0 - 24 * (1 - e); }
+      else { k.position.set(x0, 0, k.userData.z0); k.visible = true; disp = null; }
+      if (d.cam) { if (d.t < 2.5) { cam.gx = Math.min(k.position.x, x0 + 5) + 1.2; cam.gz = k.userData.z0 - 1.2; cam.gdist = cam.fit * 0.46; } else { d.cam = false; cam.gx = d.ret.x; cam.gz = d.ret.z; cam.gdist = d.ret.d; } }
+    }
     if (slideDoors.length) { let near = false; const zD = L.salon.zMax, hw = L.galeria.pasillo + 0.4; for (const q of people) { const gp = q.group.position; if (q.group.visible && q.group.parent && Math.abs(gp.z - zD) < 1.6 && Math.abs(gp.x) < hw) { near = true; break; } }
       doorK += ((near ? 1 : 0) - doorK) * Math.min(1, dt * 7); slideDoors.forEach(d => { d.g.position.x = d.x0 + d.sd * doorK * (L.galeria.pasillo - 0.3); }); }
     if (!ok) return;
@@ -1174,6 +1189,8 @@ GS.World = (function () {
     // Acercar la cámara a una estación; null = volver a la vista anterior
     // biasY / biasX: fracción de pantalla que se corre la estación (para que no la tape el panel)
     focus(station, biasY, biasX) {
+      if (station && disp && disp.cam) { disp.cam = false; cam.saved = disp.ret; }          /* si se abre otra tarea, la cámara deja de seguir al reparto */
+      if (!station && disp && disp.cam) { if (cam.saved) { disp.ret = cam.saved; cam.saved = null; } return; }
       if (station) {
         if (!cam.saved) cam.saved = { x: cam.gx, z: cam.gz, d: cam.gdist };
         const stn = GS.STATIONS.find(a => a.id === station), s = { x: stn.pos[0], z: stn.pos[1] }, d = Math.min(cam.fit * 0.62, fitDistance(5.2)), hw = 2 * d * Math.tan(GS.CONFIG.camera.fov * DEG / 2);
@@ -1186,7 +1203,9 @@ GS.World = (function () {
       } else if (cam.saved) { cam.gx = cam.saved.x; cam.gz = cam.saved.z; cam.gdist = cam.saved.d; cam.saved = null; }
       clampCam();
     },
-    home() { cam.saved = null; cam.gx = 0; cam.gz = 0.2; cam.gdist = cam.fit; },
+    home() { cam.saved = null; if (disp) disp.cam = false; cam.gx = 0; cam.gz = 0.2; cam.gdist = cam.fit; },
+    // El vehículo de la flota sale a repartir (después de despachar una compra por la página). Devuelve false si no hay vehículo.
+    dispatch() { const k = fleetK[lastUp.flota || 0]; if (!k || disp || roofOn) return false; disp = { k, t: -0.8, cam: true, ret: cam.saved ? Object.assign({}, cam.saved) : { x: cam.gx, z: cam.gz, d: cam.gdist } }; return true; },
     debugCam(x, z, k) { cam.saved = null; cam.gx = x; cam.gz = z; cam.gdist = cam.fit * k; },
     showAll() { cam.saved = null; cam.gx = 0; cam.gz = 2.4; cam.gdist = cam.fit * 1.28; }
   };

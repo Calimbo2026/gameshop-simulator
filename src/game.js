@@ -861,7 +861,7 @@ GS.Game = (function () {
           sayAt(ref.person, ref.arche.bye, 3600); day.beat = 1.5;
           const d = day; setTimeout(() => { if (day === d && !MG.isOpen()) W.focus(null); }, 2300);
           leave(ref, !!info.total);
-        } else { day.tasksDone++; day.wv.done[job.type] = 1; day.okBy = day.okBy || {}; day.okBy[job.type] = (day.okBy[job.type] || 0) + 1; addScore(job.type === 'ml' ? 130 * (1 + 0.2 * (upNow().flota || 0)) : 130, ref.pat); if (job.type === 'ml' && upNow().flota) addRep(0.015 * upNow().flota); addRep(job.type === 'whatsapp' ? 0.05 : 0.03); if (job.type === 'vidriera') { GS.Store.set('vid', info.quality || 0); addRep((info.quality - 0.5) * 0.12); } removeTask(ref); }
+        } else { day.tasksDone++; day.wv.done[job.type] = 1; day.okBy = day.okBy || {}; day.okBy[job.type] = (day.okBy[job.type] || 0) + 1; addScore(job.type === 'ml' ? 130 * (1 + 0.2 * (upNow().flota || 0)) : 130, ref.pat); if (job.type === 'ml' && upNow().flota) addRep(0.015 * upNow().flota); if (job.type === 'ml' && upNow().flota && W.dispatch()) toast('<b>' + ['', '🛵 Sale la moto', '🚐 Sale la camioneta', '🚚 Sale el camión'][Math.min(3, upNow().flota)] + '</b>El pedido ya va en camino.', '', 2600); addRep(job.type === 'whatsapp' ? 0.05 : 0.03); if (job.type === 'vidriera') { GS.Store.set('vid', info.quality || 0); addRep((info.quality - 0.5) * 0.12); } removeTask(ref); }
       }
     };
     const seen = GS.Store.get('seen') || {};
