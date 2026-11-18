@@ -6,7 +6,7 @@ SOLVE = r"""(()=>{const M=GS.Minigames; if(document.querySelector('#mgOk')){docu
  if(q('#mgTape')){document.dispatchEvent(new KeyboardEvent('keydown',{key:' '})); return 'cinta';}
  if(q('#mgNo')&&q('.rowb')){const t=qa('.rowb b').map(x=>x.textContent); const ok=t[0].startsWith('Sí')&&parseInt(t[1])<=10&&!t[2].startsWith('Usado'); q(ok?'#mgYes':'#mgNo').click(); return 'devol';}
  if(q('.rowb')&&q('.expect')){const r=qa('.rowb'); const exp=qa('.expect i').map(x=>x.textContent); const bad=r.find((x,i)=>!x.querySelector('b').textContent.replace(' ✔','').startsWith(exp[i])); (bad||q('#mgYes')).click(); return 'comp';}
- if(document.querySelector('.zone-b')){const z=[...document.querySelectorAll('.zone-b:not(.bad)')]; z[0].click(); return 'repo';}
+ if(document.querySelector('.dp-grid')){const C={}; GS.CATALOG.forEach(p=>C[p.id]=p.cat); for(const sh of document.querySelectorAll('.dp-sh')){const cat=GS.SHELVES[+sh.dataset.k].cat; for(const b of sh.querySelectorAll('.dp-it:not(.ok)')){ if(C[b.dataset.id]!==cat){ b.click(); const k=GS.SHELVES.findIndex(s=>s.cat===C[b.dataset.id]); document.querySelector('.dp-sh[data-k="'+k+'"] h5').click(); return 'repo'; } } } return 'repowait';}
  if(q('[data-ok="1"]')){q('[data-ok="1"]').click();return 'ok';}
  if(q('.opt[data-id]')){q('.opt[data-id="'+M.customer().product.id+'"]').click();return 'most';}
  if(q('.opt[data-v]')){q('.opt[data-v]:not(.bad)').click();return 'cobro';}

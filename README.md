@@ -43,6 +43,9 @@ El juego base (las cinco etapas de abajo) está terminado. Ahora crece hacia "ll
 - Opciones con el estilo general; las herramientas de prueba salen de Opciones.
 - Gráfico de cómo se abre una sucursal; mejor nitidez en celulares; miniatura nueva al compartir.
 
+## v0.54 · Ordenar depósito
+- La tarea de reposición pasa a ser "Ordenar depósito": en cuatro estanterías hay tres productos mal ubicados y hay que arrastrar cada uno a la suya. La primera vez, el juego marca uno de ejemplo.
+
 ## Juego base (terminado)
 
 | # | Etapa | Qué incluye | Estado |

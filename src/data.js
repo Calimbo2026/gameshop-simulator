@@ -7,7 +7,7 @@
 const GS = {};
 
 GS.CONFIG = {
-  version: '0.53.2',
+  version: '0.54.0',
   phase: 8,
   phaseNote: 'Juego completo de punta a punta. Falta tu playtest con 5 personas y encender el lanzamiento (launched: true)',                       // fase actual del proyecto (1 a 5)
   links: { tienda: 'https://www.gameshop.com.ar', instagram: '' },   // botones del inicio y del cierre (vacío = no se muestra)
@@ -294,7 +294,7 @@ GS.EXPLAIN = {
   caja: 'Al cobrar: 10% OFF en efectivo o transferencia, y 3 cuotas sin interés con tarjeta. Si te muestran un comprobante, compará cada dato antes de aprobar. Si hay uno incorrecto, selecciónalo.',
   whatsapp: 'Contestá con el dato correcto y buena onda. Cada respuesta cuida nuestra reputación.',
   cierre: 'Antes de irnos a las 19, sumá los cobros en efectivo y fijate si coincide con lo que hay en el cajón.',
-  repo: 'En el depósito, cada caja va a su estantería. Tocá la estantería que corresponde.',
+  repo: 'Alguien dejó cosas en cualquier lado. En cada estantería va un solo tipo de producto: buscá los tres que están mal ubicados y arrastralos a la suya.',
   stock: 'Contá lo que hay de verdad en la góndola. El sistema a veces sueña.',
   ml: 'Son las compras que entran por www.gameshop.com.ar. Caja del tamaño justo, cinta de punta a punta y la etiqueta correcta. Lo que se compra antes de las 14 sale en el día.',
   proveedor: 'Compará el remito con lo que bajó de la carreta. Si falta algo, no firmes.',
@@ -649,8 +649,8 @@ GS.STATIONS = [
     task: { name: 'Compra por la página', tag: 'www.gameshop.com.ar · sale antes de las 14', late: 'Se pasó el corte de las 14. El pedido sale mañana.' } },
   { id: 'whatsapp', n: 6, name: 'WhatsApp', icon: '💬', pos: [-3.4, -4.2],
     task: { name: 'WhatsApp sin responder', tag: 'escribiendo...', late: 'Lo dejaste en visto. Te va a escribir de nuevo, pero con mayúsculas.' } },
-  { id: 'repo', n: 7, name: 'Reposición', icon: '🧺', pos: [8.7, -4.3],
-    task: { name: 'Cajas para reponer', tag: 'Llegó mercadería', late: 'Las cajas siguen en el pasillo. Ya son parte del mobiliario.' } },
+  { id: 'repo', n: 7, name: 'Ordenar depósito', icon: '🗄️', pos: [8.7, -4.3],
+    task: { name: 'Ordenar el depósito', tag: 'Hay cosas mal ubicadas', late: 'El depósito sigue desordenado. Ya nadie encuentra nada.' } },
   { id: 'stock', n: 8, name: 'Control de stock', icon: '🔍', pos: [-5.0, -3.2],
     task: { name: 'Contar una góndola', tag: 'El sistema dice una cosa...', late: 'Nadie contó la góndola. El sistema sigue soñando.' } },
   { id: 'proveedor', n: 9, name: 'Recepción de proveedor', short: 'Proveedor', icon: '🚚', pos: [5.0, -4.6],

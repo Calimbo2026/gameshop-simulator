@@ -348,36 +348,44 @@ GS.Minigames = (function () {
     listOptions(b => b.dataset.ok === '1', () => finish(true, '¡Respondido!', 'Un cliente menos escribiendo "???".', {}), () => mistake('whatsapp', U.pick(LN.wrongChat)));
   }
 
-  /* ---------------- 7. REPOSICIÓN: cada caja a su góndola ---------------- */
+  /* ---------------- 7. ORDENAR DEPÓSITO: en las estanterías hay tres productos mal ubicados; hay que llevar cada uno a la suya ----------------
+     Los intrusos salen de CLEAR (productos que nadie discute de qué sector son) y NOGO evita los cruces dudosos. */
   function repo(job) {
-    // Se juega en el local: la cámara muestra todo el salón y se toca la góndola de verdad
-    const boxes = U.shuffle(GS.CATALOG).slice(0, 3), me = cur; let i = 0;
-    GS.World.focusAt(8.7, -4.3, 0.42, 0.16);
-    const layer = document.createElement('div'); layer.className = 'zones';
-    layer.innerHTML = GS.SHELVES.map((s, k) => '<button class="zone-b" data-k="' + k + '"><span>' + s.icon + '</span>' + esc(s.name) + '</button>').join('');
-    document.body.appendChild(layer);
-    const zb = [...layer.querySelectorAll('.zone-b')];
-    me.cleanup = () => layer.remove();
-    (function place() {
-      if (cur !== me) return; requestAnimationFrame(place);
-      GS.SHELVES.forEach((s, k) => { const p = GS.World.project(s.pos[0], 1.9, s.pos[1]); zb[k].style.left = p.x.toFixed(1) + 'px'; zb[k].style.top = p.y.toFixed(1) + 'px'; });
-    })();
-    function show() {
-      const p = boxes[i];
-      zb.forEach(b => b.classList.remove('bad', 'hint'));
-      root().innerHTML = head(job, 'Reposición · caja ' + (i + 1) + ' de 3') + '<div class="repo-p"><span class="pic">' + (GS.ICONS[p.id] || p.icon) + '</span><div><small>📦 En esta caja hay</small><b>' + esc(p.name) + '</b><em id="repoHint">¿En qué estantería va? Tocala en el depósito.</em></div></div>' +
-        '<div class="bubble" id="mgBubble" hidden></div>';
+    const SH = GS.SHELVES, me = cur, first = !(GS.Store.get('seen') || {}).g_repo;
+    const CLEAR = { consolas: ['ps5', 'switch2', 'xbox', 'juego', 'juego2', 'dualsense'], apple: ['ipad', 'watch', 'airpods', 'homepod'], pc: ['notebook', 'gabinete', 'gpu', 'ram', 'impresora'], perifericos: ['auris', 'teclado', 'mic', 'webcam'] };
+    const NOGO = { auris: ['apple'], airpods: ['perifericos'], notebook: ['apple'], ipad: ['pc'], teclado: ['pc'], webcam: ['pc'], mic: ['pc'], gpu: ['perifericos'], ram: ['perifericos'] };
+    const byCat = c => GS.CATALOG.filter(p => p.cat === c).map(p => p.id), cols = { consolas: '#2d6cdf', apple: '#8d93a0', pc: '#e8782a', perifericos: '#8a4fd1' };
+    const targets = U.shuffle(SH.map((s, k) => k)).slice(0, 3), used = {}, st = SH.map((s, k) => ({ k, cat: s.cat, items: U.shuffle(byCat(s.cat)).slice(0, 4).map(id => ({ id, cat: s.cat })) }));
+    targets.forEach(k => { const opts = []; SH.forEach(o => { if (o.cat !== SH[k].cat) CLEAR[o.cat].forEach(id => { if (!used[id] && (NOGO[id] || []).indexOf(SH[k].cat) < 0) opts.push({ id, cat: o.cat }); }); });
+      const it = U.pick(opts); used[it.id] = 1; SH.forEach((o, j) => { if (o.cat === it.cat) st[j].items = st[j].items.filter(x => x.id !== it.id); }); it.bad = 1; st[k].items.splice(Math.floor(U.rnd(0, st[k].items.length + 1)), 0, it); });
+    let left = 3, sel = null, drag = null, noClick = 0, hint = first;
+    const itemHtml = it => '<button class="dp-it' + (it.fixed ? ' ok' : '') + '" data-id="' + it.id + '"' + (it.fixed ? ' disabled' : '') + '>' + (GS.ICONS[it.id] || '') + '</button>';
+    function draw() {
+      root().innerHTML = head(job, 'Ordenar depósito') + '<div class="dp-top"><b id="dpN">Mal ubicados: ' + (3 - left) + ' de 3</b><span>Arrastrá cada intruso a su estantería</span></div>' +
+        '<div class="dp-grid" id="dpGrid">' + st.map(s => '<div class="dp-sh" data-k="' + s.k + '" style="--c:' + cols[s.cat] + '"><h5><i>' + SH[s.k].icon + '</i>' + esc(SH[s.k].name) + '</h5><div class="dp-row">' + s.items.map(itemHtml).join('') + '</div></div>').join('') + '</div>' +
+        '<div class="rule" id="mgBubble">' + (hint ? '👆 Mirá bien: hay un producto que no es de esa estantería. Arrastralo a la suya.' : 'Buscá los productos que no van y llevalos a su estantería.') + '</div>';
+      const g = document.getElementById('dpGrid'); if (hint) { const b = g.querySelector('.dp-it[data-id="' + st[targets[0]].items.filter(x => x.bad)[0].id + '"]'); if (b) b.classList.add('guided'); }
+      g.querySelectorAll('.dp-it:not(.ok)').forEach(b => { b.addEventListener('pointerdown', e => { if (live()) { drag = { b, x: e.clientX, y: e.clientY, g: null }; try { b.setPointerCapture(e.pointerId); } catch (er) {} } }); b.addEventListener('pointermove', move); b.addEventListener('pointerup', up); b.addEventListener('pointercancel', () => stop());
+        b.addEventListener('click', () => { if (Date.now() - noClick < 350 || !live()) return; sel = b; g.querySelectorAll('.dp-it').forEach(x => x.classList.toggle('sel', x === b)); GS.Audio.play('click'); say('Ahora tocá la estantería donde va.', false); }); });
+      g.querySelectorAll('.dp-sh').forEach(sh => sh.addEventListener('click', e => { if (e.target.closest('.dp-it') || !sel || !live()) return; drop(sel.dataset.id, Number(sh.dataset.k)); }));
     }
-    function choose(k) {
-      if (!cur || cur.done || zb[k].classList.contains('bad')) return;
-      if (GS.SHELVES[k].cat === boxes[i].cat) {
-        i++; if (i < boxes.length) { GS.Audio.play('bill'); show(); } else { GS.Audio.play('ok'); layer.remove(); finish(true, '¡Todo acomodado!', 'Por cinco minutos, al menos.', {}); }
-      } else { zb[k].classList.add('bad'); const ok = GS.SHELVES.findIndex(s => s.cat === boxes[i].cat), b = document.getElementById('mgBubble'); if (b) b.hidden = false;
-        mistake('repo', U.pick(LN.wrongShelf)); if (ok >= 0) { zb[ok].classList.add('hint'); const h = document.getElementById('repoHint'); if (h) h.innerHTML = 'Pista: va en <b>' + GS.SHELVES[ok].icon + ' ' + esc(GS.SHELVES[ok].name) + '</b>'; } }
+    const live = () => cur === me && !cur.done, find = id => { for (const s of st) for (const it of s.items) if (it.id === id) return { s, it }; };
+    const shAt = (x, y) => { const el = document.elementFromPoint(x, y), sh = el && el.closest('.dp-sh'); return sh ? Number(sh.dataset.k) : -1; };
+    function stop() { if (drag && drag.g) drag.g.remove(); document.querySelectorAll('.dp-sh.over').forEach(x => x.classList.remove('over')); drag = null; }
+    function move(e) { if (!drag) return; if (!drag.g) { if (Math.hypot(e.clientX - drag.x, e.clientY - drag.y) < 8) return; const g = document.createElement('div'); g.className = 'pghost'; g.innerHTML = GS.ICONS[drag.b.dataset.id] || ''; document.body.appendChild(g); drag.g = g; drag.b.classList.add('lift'); GS.Audio.play('click'); }
+      const lift = e.pointerType === 'mouse' ? 0 : 34; drag.g.style.left = e.clientX + 'px'; drag.g.style.top = (e.clientY - lift) + 'px'; drag.g.style.visibility = 'hidden'; const k = shAt(e.clientX, e.clientY - lift); drag.g.style.visibility = ''; document.querySelectorAll('.dp-sh').forEach(x => x.classList.toggle('over', Number(x.dataset.k) === k)); }
+    function up(e) { if (!drag) return; const d = drag, moved = !!d.g, lift = e.pointerType === 'mouse' ? 0 : 34; if (moved) d.g.style.visibility = 'hidden'; const k = moved ? shAt(e.clientX, e.clientY - lift) : -1; d.b.classList.remove('lift'); stop(); if (!moved) return; noClick = Date.now(); if (k >= 0) drop(d.b.dataset.id, k); }
+    function drop(id, k) {
+      const f = find(id); if (!f || !live()) return; sel = null;
+      if (f.s.k === k) { if (f.it.bad) say('Ya está en esa estantería, y ahí no va. Llevalo a otra.', true); else say('Ese ya está en su lugar.', false); GS.Audio.play('error'); return; }
+      if (!f.it.bad) return mistake('repo', 'Ese estaba bien donde estaba. Buscá el que no va.');
+      if (SH[k].cat !== f.it.cat) return mistake('repo', U.pick(LN.wrongShelf));
+      f.s.items = f.s.items.filter(x => x !== f.it); f.it.bad = 0; f.it.fixed = 1; st[k].items.push(f.it); left--; GS.Audio.play('bill');
+      if (hint) { hint = false; const sn = GS.Store.get('seen') || {}; sn.g_repo = 1; GS.Store.set('seen', sn); }
+      if (!left) { draw(); cur.locked = 1; GS.Audio.play('ok'); return void setTimeout(() => { if (cur === me) finish(true, '¡Depósito ordenado!', 'Por cinco minutos, al menos.', {}); }, 650); }
+      draw(); say(left === 1 ? '¡Bien! Queda uno mal ubicado.' : '¡Bien! Quedan ' + left + ' mal ubicados.', false);
     }
-    zb.forEach((b, k) => b.addEventListener('click', () => choose(k)));
-    me.keys = e => { const n = parseInt(e.key, 10); if (n >= 1 && n <= zb.length) choose(n - 1); };
-    show();
+    me.cleanup = stop; me.keys = () => {}; draw();
   }
 
   /* ---------------- 8. CONTROL DE STOCK: contar lo que hay de verdad ---------------- */
