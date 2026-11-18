@@ -36,6 +36,13 @@ El juego base (las cinco etapas de abajo) está terminado. Ahora crece hacia "ll
 ## v0.52 · Mejoras dentro del cierre del día
 - El cierre suma una pantalla "Mejorá el local" entre el cobro y "Qué sigue": todas las mejoras, con compra directa.
 
+## v0.53 · Exhibición, flota y más claridad
+- Vidriera y mesas con los productos fuera de la caja; escritorio gamer como setup de exhibición.
+- Vehículos de la flota rediseñados; corona nueva para la Reina de Espadas.
+- Reposición: el producto queda siempre a la vista y hay pista después de un error.
+- Opciones con el estilo general; las herramientas de prueba salen de Opciones.
+- Gráfico de cómo se abre una sucursal; mejor nitidez en celulares; miniatura nueva al compartir.
+
 ## Juego base (terminado)
 
 | # | Etapa | Qué incluye | Estado |
