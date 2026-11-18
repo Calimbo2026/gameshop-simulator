@@ -994,7 +994,7 @@ GS.World = (function () {
       mopTick(t) { const k = Math.sin(t * 9); arms.forEach(a => { a.rotation.x = -0.9 + k * 0.3; }); mopG.position.z = k * 0.14; mopG.position.x = Math.cos(t * 4.5) * 0.06; },
       carry(v) { carry.visible = v; arms.forEach(a => { a.rotation.x = v ? -1.1 : 0; }); p.holding = v; },
       /* siesta: sentado en el piso, piernas estiradas, recostado contra las cajas, ojos cerrados (la respiración va en update) */
-      lie(v) { p.sleeping = !!v; g.rotation.order = 'YXZ'; if (v) { p.yaw0 = g.rotation.y; g.rotation.y = 0.5; } else g.rotation.y = p.yaw0 || 0;
+      lie(v) { p.sleeping = !!v; if (v && !p.zs) { p.zs = [0, 1, 2].map(i => { const z = new T.Sprite(new T.SpriteMaterial({ map: zTex(), transparent: true, opacity: 0, depthTest: false })); z.renderOrder = 9; z.userData.ph = i / 3; g.add(z); return z; }); } if (p.zs) p.zs.forEach(z => { z.visible = !!v; z.material.opacity = 0; }); g.rotation.order = 'YXZ'; if (v) { p.yaw0 = g.rotation.y; g.rotation.y = 0.5; } else g.rotation.y = p.yaw0 || 0;
         g.rotation.x = v ? -0.4 : 0; g.position.y = v ? -0.3 : 0; g.scale.y = base; sh.visible = !v; legs.forEach((l, i) => { l.rotation.x = v ? -1.42 : 0; l.rotation.z = v ? (i ? 0.16 : -0.16) : 0; });
         arms.forEach((a, i) => { a.rotation.x = v ? -0.5 : 0; a.rotation.z = (i ? 1 : -1) * (v ? -0.1 : 0.16); }); eyes.forEach(e => { e.scale.y = v ? 0.16 : 1.35; }); },
       stop() { p.path = []; p.moving = false; p.onArrive = null; g.position.y = 0; rest(p); },
@@ -1002,12 +1002,14 @@ GS.World = (function () {
     };
     people.push(p); return p;
   }
+  let zT = null;
+  function zTex() { if (zT) return zT; const c = document.createElement('canvas'); c.width = c.height = 96; const x = c.getContext('2d'); x.font = '900 78px Arial, sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.lineJoin = 'round'; x.lineWidth = 12; x.strokeStyle = '#17171c'; x.strokeText('Z', 48, 52); x.fillStyle = '#ffffff'; x.fillText('Z', 48, 52); zT = new T.CanvasTexture(c); return zT; }
   function rest(p) { if (p.sleeping) return; p.legs.forEach(l => { l.rotation.x = 0; }); if (!p.holding) p.arms.forEach(a => { a.rotation.x = 0; }); }
   function updatePeople(dt) {
     for (const p of people) {
       p.t += dt;
       const g = p.group;
-      if (p.sleeping) { const br = Math.sin(p.t * 2.1); g.rotation.x = -0.4 + br * 0.025; g.scale.y = (g.userData.base || 1) * (1 + br * 0.018); continue; }
+      if (p.sleeping) { if (p.zs) p.zs.forEach(z => { const u = (p.t / 2.7 + z.userData.ph) % 1, sz = 0.2 + u * 0.3; z.position.set(0.3 + u * 0.5 + Math.sin(u * 7) * 0.07, 1.14 + 0.3 + u * 1.1, 0.25); z.scale.set(sz, sz, 1); z.material.opacity = Math.min(1, u * 5, (1 - u) * 2.5); }); const br = Math.sin(p.t * 2.1); g.rotation.x = -0.4 + br * 0.025; g.scale.y = (g.userData.base || 1) * (1 + br * 0.018); continue; }
       if (p.moving && p.path.length) {
         const tx = p.path[0][0], tz = p.path[0][1], dx = tx - g.position.x, dz = tz - g.position.z, d = Math.hypot(dx, dz), step = p.speed * dt;
         if (d <= step) {
