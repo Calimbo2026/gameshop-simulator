@@ -1559,6 +1559,7 @@ GS.Game = (function () {
     }
     staffInit(); applyBranch(); GS.Arcade.bind(); if (C.launched && $('fineT')) $('fineT').firstChild.textContent = 'Precios y stock ficticios.'; if ($('btnStore')) $('btnStore').hidden = true;      // el enlace a la tienda aparece solo en el final setSky(0.3, false); document.body.classList.toggle('big', !!GS.Store.get('big')); if (C.launched) { $('phasesStart').hidden = true; $('chipPhase').hidden = true; document.querySelector('.fine').firstChild.textContent = 'Precios y stock ficticios.'; }
     GS.track.init(); GS.track('abrir_juego', { jornada: dayNumber() }); window.addEventListener('error', e => GS.track('error_js', { msg: String(e.message).slice(0, 80) }));
+    if ($('btnWeb')) { if (C.links.tienda) { $('btnWeb').href = C.links.tienda; $('btnWeb').addEventListener('click', () => GS.track('click_tienda', { desde: 'menu' })); } else $('btnWeb').hidden = true; }
     if (C.links.tienda) { $('btnStore').href = C.links.tienda;      // queda oculto: el enlace a la tienda se muestra solo en el final
       $('btnStore').addEventListener('click', () => GS.track('click_tienda', { desde: 'inicio' })); }
     setCalm(!!GS.Store.get('calm')); syncMute(); W.showAll(); W.setUpgrades(upNow()); W.setPlayerLook(GS.Store.get('avatar'));

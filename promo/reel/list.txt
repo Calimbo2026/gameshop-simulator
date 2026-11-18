@@ -1,0 +1,5 @@
+file '/home/claude/gameshop-simulator/promo/reel/s1.mp4'
+file '/home/claude/gameshop-simulator/promo/reel/s2.mp4'
+file '/home/claude/gameshop-simulator/promo/reel/s3.mp4'
+file '/home/claude/gameshop-simulator/promo/reel/s4.mp4'
+file '/home/claude/gameshop-simulator/promo/reel/s5.mp4'
