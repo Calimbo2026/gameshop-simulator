@@ -259,10 +259,25 @@ GS.Minigames = (function () {
     variant = variant || U.pick(['diag', 'diag', 'pelusa', 'ram']);
     if (variant === 'pelusa') return servicePelusa(job);
     if (variant === 'ram') return serviceRam(job);
-    const d = U.pick(GS.DIAGNOSTICS), options = U.shuffle([d.ok].concat(d.bad));
-    root().innerHTML = head(job, 'Taller · Diagnóstico') + '<div class="bubble" id="mgBubble">' + esc(d.s) + '</div><div class="info"><b>¿Qué le pasa?</b></div>' +
-      '<div class="opts one txt">' + options.map((o, i) => '<button class="opt" data-ok="' + (o === d.ok ? 1 : 0) + '"><kbd>' + (i + 1) + '</kbd><span class="n">' + esc(o) + '</span></button>').join('') + '</div>';
-    listOptions(b => b.dataset.ok === '1', () => finish(true, '¡Diagnosticado!', d.ok, {}), () => mistake('service', U.pick(LN.wrongDiag)));
+    /* diagnóstico: la PC abierta muestra una pista chiquita; hay que tocar la pieza que causa el problema */
+    const d = U.pick(DIAG_PC), me = cur, NM = { cpu: 'El procesador', ram: 'La memoria', ssd: 'El disco', gpu: 'La placa de video', psu: 'La fuente', fan: 'Ese cooler' };
+    const Z = [['cpu'].concat(PCS.cpu), ['ram'].concat(PCS.ram), ['ssd', 96, 68, 60, 25], ['gpu'].concat(PCS.gpu), ['psu'].concat(PCS.psu), ['fan', 10, 29, 34, 34], ['fan', 258, 18, 52, 52], ['fan', 258, 80, 52, 52]];
+    const FX = {
+      cpu: '<rect class="fxh" x="104" y="22" width="44" height="44" rx="4" fill="#ff5a1f"/><g class="fxw" fill="none" stroke="#ffb066" stroke-width="2.2" stroke-linecap="round"><path d="M114 36q4-5 0-10q-4-5 0-10"/><path d="M126 38q4-5 0-10q-4-5 0-10"/><path d="M138 36q4-5 0-10q-4-5 0-10"/></g>',
+      fan: '<g fill="#a09a8c" stroke="#77725f" stroke-width=".8"><ellipse cx="276" cy="38" rx="9" ry="6"/><ellipse cx="292" cy="50" rx="10" ry="6.5"/><ellipse cx="290" cy="34" rx="6" ry="4.5"/><ellipse cx="275" cy="54" rx="7" ry="4.5"/><ellipse cx="284" cy="44" rx="6" ry="5"/></g>',
+      gpu: '', ram: '<rect x="162.5" y="38" width="19" height="10" rx="2" fill="#fff" stroke="#17171c" stroke-width=".8"/><text x="172" y="45.6" font-size="6.6" font-weight="800" text-anchor="middle" fill="#17171c" font-family="Arial, sans-serif">4GB</text>',
+      psu: '<path d="M70 160q28-3 60-14" stroke="#0a0b10" stroke-width="5" fill="none"/><path d="M70 162q16 3 18 18" stroke="#f5c518" stroke-width="2.6" fill="none" stroke-linecap="round"/><rect x="83" y="179" width="10" height="9" rx="2" fill="#2c2c33" stroke="#55555f" stroke-width=".8"/><path d="M86 188v4M90 188v4" stroke="#c5c9d2" stroke-width="1.4"/>',
+      ssd: '<rect x="102" y="83.5" width="48" height="3.4" rx="1.7" fill="#3a0d0d"/><rect class="fxb" x="102" y="83.5" width="48" height="3.4" rx="1.7" fill="#ff3b30"/>' };
+    root().innerHTML = head(job, 'Taller · Diagnóstico') + '<div class="bubble">' + esc(d.s) + '</div>' +
+      '<div class="pcb pcase dg" id="mgPcb">' + pcCase() + GS.PC_PARTS.map(p => partHtml(p.id, d.id === 'gpu' && p.id === 'gpu' ? 'loose' : '')).join('') + '<svg class="dgfx" viewBox="0 0 320 200" preserveAspectRatio="none">' + FX[d.id] + '</svg>' +
+      Z.map(z => '<button class="dgz" data-id="' + z[0] + '" data-ok="' + (z[0] === d.id ? 1 : 0) + '" style="left:' + pc100(z[1], 320) + ';top:' + pc100(z[2], 200) + ';width:' + pc100(z[3], 320) + ';height:' + pc100(z[4], 200) + '"></button>').join('') + '</div>' +
+      '<div class="rule" id="mgBubble">Mirá bien la PC y tocá la pieza que está causando el problema.</div>';
+    root().querySelectorAll('.dgz').forEach(b => b.addEventListener('click', () => {
+      if (cur !== me || me.done || me.hold || b.classList.contains('bad')) return;
+      if (b.dataset.ok === '1') { me.hold = true; root().querySelectorAll('.dgz[data-ok="1"]').forEach(x => x.classList.add('good')); GS.Audio.play('ok'); setTimeout(() => { if (cur === me) finish(true, d.t, d.r, {}); }, 550); }
+      else { root().querySelectorAll('.dgz[data-id="' + b.dataset.id + '"]').forEach(x => x.classList.add('bad')); mistake('service', NM[b.dataset.id] + ' está bien. ' + U.pick(['Buscá algo raro.', 'Mirá con más cariño.', 'Casi. Bah, no.'])); }
+    }));
+    cur.keys = () => {};
   }
   function servicePelusa(job) {
     const N = 14; let left = N; const me = cur;
@@ -307,14 +322,26 @@ GS.Minigames = (function () {
 
   /* ---------------- 5. COMPRAS POR LA PÁGINA: caja del tamaño justo, cinta y etiqueta correcta ---------------- */
   function ml(job) {
-    const prod = U.pick(GS.CATALOG), size = Object.keys(GS.BOX_SIZE).find(k => GS.BOX_SIZE[k].indexOf(prod.id) >= 0) || 'mediana';
-    const num = Math.floor(U.rnd(1000, 9999)), cities = U.shuffle(GS.CITIES), city = cities[0], buyers = U.shuffle(GS.BUYERS), buyer = buyers[0], me = cur;
+    const prod = U.pick(GS.CATALOG), SZ = ['chica', 'mediana', 'grande'], size = SZ.find(k => GS.BOX_SIZE[k].indexOf(prod.id) >= 0) || 'mediana';
+    const num = Math.floor(U.rnd(1000, 9999)), cities = U.shuffle(GS.CITIES), city = cities[0], buyers = U.shuffle(GS.BUYERS), buyer = buyers[0], me = cur, icon = GS.ICONS[prod.id] || '<span class="i">' + prod.icon + '</span>';
     const order = '<div class="order"><b>Pedido #' + num + '</b><span>' + ico(prod) + esc(prod.name) + ' · mide unos ' + GS.BOXES[size].cm + ' cm</span><span>Para: ' + buyer + ' · ' + esc(city) + '</span></div>';
     const steps = n => '<div class="steps">' + ['Caja', 'Cinta', 'Etiqueta'].map((t, i) => '<span class="' + (i < n ? 'done' : i === n ? 'now' : '') + '">' + (i + 1) + '. ' + t + '</span>').join('') + '</div>';
+    const live = () => cur === me && !me.done && !me.hold;
     function stepBox() {
-      root().innerHTML = head(job, 'Compra por la página') + steps(0) + order + '<div class="info" id="mgBubble"><b>¿En qué caja entra justo?</b></div>' +
-        '<div class="opts three">' + ['chica', 'mediana', 'grande'].map((b, i) => '<button class="opt" data-ok="' + (b === size ? 1 : 0) + '"><kbd>' + (i + 1) + '</kbd><span class="i" style="font-size:' + [30, 42, 56][i] + 'px">📦</span><span class="n">Caja ' + b + '<br><small>hasta ' + GS.BOXES[b].max + ' cm</small></span></button>').join('') + '</div>';
-      listOptions(b => b.dataset.ok === '1', () => { GS.Audio.play('bill'); stepTape(); }, () => mistake('ml', U.pick(LN.wrongBox)));
+      root().innerHTML = head(job, 'Compra por la página') + steps(0) + order +
+        '<div class="pk-prod" id="pkP"><span class="pk-ic">' + icon + '</span><small>👆 Arrastralo a la caja donde entra justo</small></div>' +
+        '<div class="pk-boxes">' + SZ.map((b, i) => '<button class="pk-box b' + i + '" data-b="' + b + '" data-ok="' + (b === size ? 1 : 0) + '"><kbd>' + (i + 1) + '</kbd><span class="pk-dr">' + boxSvg(true) + '<span class="pk-in">' + icon + '</span></span><span class="n">Caja ' + b + '<small>hasta ' + GS.BOXES[b].max + ' cm</small></span></button>').join('') + '</div>' +
+        '<div class="rule" id="mgBubble">Ni apretado ni bailando: tiene que entrar justo.</div>';
+      const P = document.getElementById('pkP'), bx = [...root().querySelectorAll('.pk-box')];
+      function tryBox(b) {
+        if (!live() || b.classList.contains('bad')) return;
+        if (b.dataset.ok === '1') { me.hold = true; b.classList.add('in'); P.classList.add('gone'); GS.Audio.play('bill'); return void setTimeout(() => { if (cur === me) { me.hold = false; stepTape(); } }, 700); }
+        const small = SZ.indexOf(b.dataset.b) < SZ.indexOf(size); b.classList.add('bad', small ? 'sm' : 'bg');
+        mistake('ml', small ? U.pick(['No entra ni empujando. Probá una más grande.', 'Entra... si lo doblás. No lo dobles.']) : U.pick(['Baila adentro como maraca. Probá una más chica.', 'Con esa caja pagás flete por aire.']));
+      }
+      grab(P, '<span class="pk-ic">' + icon + '</span>', t => { const b = t && t.closest && t.closest('.pk-box'); if (b) tryBox(b); else say('Soltalo arriba de una caja.', false); }, 'pk');
+      bx.forEach(b => b.addEventListener('click', () => tryBox(b)));
+      cur.keys = e => { const n = parseInt(e.key, 10); if (n >= 1 && n <= 3) tryBox(bx[n - 1]); };
     }
     function stepTape() {
       let prog = 0, down = false;
@@ -333,19 +360,34 @@ GS.Minigames = (function () {
     }
     function stepLabel() {
       const labels = U.shuffle([{ n: num, c: city, b: buyer, ok: 1 }, { n: num + U.pick([-10, 10, 100, 1]), c: city, b: buyer, ok: 0 }, U.pick([{ n: num, c: cities[1], b: buyer, ok: 0 }, { n: num, c: city, b: buyers[1], ok: 0 }])]);
-      root().innerHTML = head(job, 'Compra por la página') + steps(2) + order + '<div class="info" id="mgBubble"><b>¿Cuál es la etiqueta de este pedido?</b></div>' +
-        '<div class="opts one">' + labels.map((l, i) => '<button class="opt tagl" data-ok="' + l.ok + '"><kbd>' + (i + 1) + '</kbd><span class="bars"></span><span class="n">#' + l.n + '<small>' + l.b + ' · ' + esc(l.c) + '</small></span></button>').join('') + '</div>';
-      listOptions(b => b.dataset.ok === '1', () => { GS.Audio.play('ok'); finish(true, '¡Despachado!', 'Sale hoy, antes de las 14.', {}); }, () => mistake('ml', U.pick(LN.wrongLabel)));
+      const lab = l => '<span class="bars"></span><span class="n">#' + l.n + '<small>' + l.b + ' · ' + esc(l.c) + '</small></span>';
+      root().innerHTML = head(job, 'Compra por la página') + steps(2) + '<div class="pk-row">' + order + '<div class="pk-closed" id="pkC">' + boxSvg(false) + '<i class="pk-spot">Pegá acá</i></div></div>' +
+        '<div class="opts one pk-labs">' + labels.map((l, i) => '<button class="opt tagl" data-ok="' + l.ok + '"><kbd>' + (i + 1) + '</kbd>' + lab(l) + '</button>').join('') + '</div>' +
+        '<div class="rule" id="mgBubble">Arrastrá a la caja la etiqueta que coincide con el pedido.</div>';
+      const bs = [...root().querySelectorAll('.tagl')], C = document.getElementById('pkC');
+      function tryLab(b) {
+        if (!live() || b.classList.contains('bad')) return;
+        if (b.dataset.ok === '1') { me.hold = true; b.classList.add('good', 'gone'); C.classList.add('done'); GS.Audio.play('ok'); return void setTimeout(() => { if (cur === me) { me.hold = false; finish(true, '¡Despachado!', 'Sale hoy, antes de las 14.', {}); } }, 600); }
+        b.classList.add('bad'); mistake('ml', U.pick(LN.wrongLabel));
+      }
+      bs.forEach((b, i) => { grab(b, () => '<span class="opt tagl">' + lab(labels[i]) + '</span>', t => { if (t && t.closest && t.closest('.pk-closed')) tryLab(b); else say('Soltala arriba de la caja.', false); }, 'lab');
+        b.addEventListener('click', () => { if (!dragged(b)) tryLab(b); }); });
+      cur.keys = e => { const n = parseInt(e.key, 10); if (n >= 1 && n <= 3) tryLab(bs[n - 1]); };
     }
     stepBox();
   }
 
   /* ---------------- 6. WHATSAPP: elegir la respuesta correcta ---------------- */
   function whatsapp(job) {
-    const c = U.pick(GS.CHATS), options = U.shuffle([c.ok].concat(c.bad));
-    root().innerHTML = head(job, 'WhatsApp') + '<div class="chat"><div class="msg in" id="mgBubble">' + esc(c.m) + '</div></div><div class="info"><b>¿Qué le contestás?</b></div>' +
+    const c = U.pick(GS.CHATS), options = U.shuffle([c.ok].concat(c.bad)), me = cur, hh = 10 + Math.floor(Math.random() * 9), mm = ('0' + Math.floor(Math.random() * 60)).slice(-2);
+    root().innerHTML = head(job, 'WhatsApp') + '<div class="chat wa"><div class="wa-top"><i>👤</i><b>+54 9 11 ' + Math.floor(U.rnd(2000, 6999)) + '-' + Math.floor(U.rnd(1000, 9999)) + '</b><small>en línea</small></div>' +
+      '<div class="wa-body" id="waB"><div class="msg in"><span>' + esc(c.m) + '</span><em>' + hh + ':' + mm + '</em></div></div></div><div class="info" id="mgBubble"><b>¿Qué le contestás?</b></div>' +
       '<div class="opts one txt">' + options.map((o, i) => '<button class="opt" data-ok="' + (o === c.ok ? 1 : 0) + '"><kbd>' + (i + 1) + '</kbd><span class="n">' + esc(o) + '</span></button>').join('') + '</div>';
-    listOptions(b => b.dataset.ok === '1', () => finish(true, '¡Respondido!', 'Un cliente menos escribiendo "???".', {}), () => mistake('whatsapp', U.pick(LN.wrongChat)));
+    listOptions(b => b.dataset.ok === '1', () => {
+      if (me.hold) return; me.hold = true; GS.Audio.play('swipe');
+      const out = document.createElement('div'); out.className = 'msg out'; out.innerHTML = esc(c.ok) + '<em>' + hh + ':' + mm + ' <u>✓✓</u></em>'; document.getElementById('waB').appendChild(out);
+      setTimeout(() => { if (cur === me) finish(true, '¡Respondido!', 'Un cliente menos escribiendo "???".', {}); }, 750);
+    }, () => { if (!me.hold) mistake('whatsapp', U.pick(LN.wrongChat)); });
   }
 
   /* ---------------- 7. ORDENAR DEPÓSITO: en las estanterías hay tres productos mal ubicados; hay que llevar cada uno a la suya ----------------
@@ -390,12 +432,20 @@ GS.Minigames = (function () {
 
   /* ---------------- 8. CONTROL DE STOCK: contar lo que hay de verdad ---------------- */
   function stock(job) {
-    const p = U.pick(GS.CATALOG), real = Math.floor(U.rnd(3, 10)), sys = Math.max(1, real + U.pick([-2, -1, 0, 1, 2]));
-    root().innerHTML = head(job, 'Control de stock') + '<div class="bubble" id="mgBubble">' + esc(p.name) + ': el sistema dice que hay <b>' + sys + '</b>.</div>' +
-      '<div class="shelfv">' + Array.from({ length: real }, () => '<span class="pic" style="transform:rotate(' + Math.floor(U.rnd(-14, 14)) + 'deg) translateY(' + Math.floor(U.rnd(-4, 5)) + 'px)">' + (GS.ICONS[p.id] || p.icon) + '</span>').join('') + '</div>' +
-      '<div class="info"><b>¿Cuántos hay de verdad en la góndola?</b></div>' +
-      '<div class="opts three low">' + U.pick([[real - 2, real - 1, real], [real - 1, real, real + 1], [real, real + 1, real + 2]]).map((n, i) => '<button class="opt" data-ok="' + (n === real ? 1 : 0) + '"><kbd>' + (i + 1) + '</kbd><span class="n big">' + n + '</span></button>').join('') + '</div>';
-    listOptions(b => b.dataset.ok === '1', () => { GS.Audio.play('ok'); finish(true, '¡Stock corregido!', sys === real ? 'El sistema tenía razón. Anotá la fecha.' : 'Eran ' + real + ', no ' + sys + '.', {}); }, () => mistake('stock', U.pick(LN.wrongStock)));
+    const p = U.pick(GS.CATALOG), real = Math.floor(U.rnd(4, 12)), sys = Math.max(1, real + U.pick([-2, -1, 0, 1, 2])), me = cur, icon = GS.ICONS[p.id] || p.icon; let n = sys;
+    root().innerHTML = head(job, 'Control de stock') + '<div class="bubble">' + esc(p.name) + ': el sistema dice que hay <b>' + sys + '</b>.</div>' +
+      '<div class="shelfv sk">' + Array.from({ length: real }, (_, i) => '<span class="pic' + (i > 0 && Math.random() < 0.4 ? ' bk' : '') + '" style="--r:' + Math.floor(U.rnd(-12, 12)) + 'deg;--y:' + Math.floor(U.rnd(-3, 4)) + 'px">' + icon + '</span>').join('') + '</div>' +
+      '<div class="sk-ctl"><button class="sk-b" id="skM">−</button><div class="sk-n"><b id="skN">' + n + '</b><small>en la góndola</small></div><button class="sk-b" id="skP">+</button></div>' +
+      '<button class="btn okb" id="skOk">✔ Confirmar</button><div class="rule" id="mgBubble">Contá los que hay de verdad (ojo con los de atrás) y corregí el número.</div>';
+    const out = document.getElementById('skN'), live = () => cur === me && !me.done;
+    const step = k => { if (!live()) return; n = U.clamp(n + k, 0, 20); out.textContent = n; GS.Audio.play('click'); };
+    function ok() {
+      if (!live()) return;
+      if (n === real) { GS.Audio.play('ok'); finish(true, '¡Stock corregido!', sys === real ? 'El sistema tenía razón. Anotá la fecha.' : 'Eran ' + real + ', no ' + sys + '.', {}); }
+      else mistake('stock', n < real ? U.pick(['Hay más. ¿Contaste los de atrás?', 'Te quedaste corto. Contá de nuevo, sin apuro.']) : U.pick(['Hay menos. Alguno lo contaste dos veces.', 'Ese número le gustaría al sistema, pero no.']));
+    }
+    document.getElementById('skM').addEventListener('click', () => step(-1)); document.getElementById('skP').addEventListener('click', () => step(1)); document.getElementById('skOk').addEventListener('click', ok);
+    cur.keys = e => { if (e.key === 'ArrowLeft' || e.key === '-' || e.key === 'ArrowDown') step(-1); else if (e.key === 'ArrowRight' || e.key === '+' || e.key === 'ArrowUp') step(1); else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); ok(); } };
   }
 
   /* ---------------- 9. RECEPCIÓN DE PROVEEDOR: comparar el remito con lo que llegó ---------------- */
@@ -403,19 +453,19 @@ GS.Minigames = (function () {
     const items = U.shuffle(GS.CATALOG).slice(0, 4).map(p => ({ p, q: Math.floor(U.rnd(2, 10)) }));
     const bad = Math.random() < 0.65 ? Math.floor(Math.random() * 4) : -1, got = items.map((it, i) => i === bad ? Math.max(1, it.q + U.pick([-2, -1, 1])) : it.q);
     root().innerHTML = head(job, 'Recepción de proveedor') +
-      '<div class="expect one"><b>El remito dice</b>' + items.map(it => '<span>' + esc(it.p.name) + ': <i>' + it.q + '</i></span>').join('') + '</div>' +
-      '<div class="phone"><h4>📦 Lo que bajó de la carreta</h4>' + items.map((it, i) => '<button class="rowb" data-i="' + i + '"><kbd>' + (i + 1) + '</kbd><span>' + esc(it.p.name) + '</span><b>' + got[i] + '</b></button>').join('') + '</div>' +
-      '<div class="rule" id="mgBubble">¿Alguna cantidad no coincide? Tocala. Si está todo, firmá.</div><button class="btn okb" id="mgYes">✔ Coincide todo: firmar</button>';
-    const rb = [...root().querySelectorAll('.rowb')];
+      '<div class="remito"><b>🧾 El remito dice</b>' + items.map(it => '<span>' + ico(it.p) + '<em>' + esc(it.p.name) + '</em><i>× ' + it.q + '</i></span>').join('') + '</div>' +
+      '<div class="pv"><h4>📦 Lo que bajó de la carreta</h4>' + items.map((it, i) => '<button class="pvrow" data-i="' + i + '" data-n="' + got[i] + '"><kbd>' + (i + 1) + '</kbd><span class="pic sm">' + (GS.ICONS[it.p.id] || it.p.icon) + '</span><span class="pvb">' + '<i></i>'.repeat(got[i]) + '</span></button>').join('') + '</div>' +
+      '<div class="rule" id="mgBubble">Contá las cajas de cada pila. ¿Alguna no coincide con el remito? Tocala. Si está todo, firmá.</div><button class="btn okb" id="mgYes">✔ Coincide todo: firmar</button>';
+    const rb = [...root().querySelectorAll('.pvrow')];
     function tapRow(b) {
       if (!cur || cur.done || b.classList.contains('fine')) return;
-      if (Number(b.dataset.i) === bad) { b.classList.add('flag'); GS.Audio.play('ok'); finish(true, '¡Bien contado!', 'Faltaba mercadería. El de la carreta "justo se acordó".', {}); }
+      if (Number(b.dataset.i) === bad) { b.classList.add('flag'); GS.Audio.play('ok'); finish(true, '¡Bien contado!', (got[bad] < items[bad].q ? 'Faltaba' : 'Sobraba') + ' mercadería. El de la carreta "justo se acordó".', {}); }
       else { b.classList.add('fine'); mistake('proveedor', U.pick(LN.lineFine)); }
     }
     function sign() {
       if (!cur || cur.done) return;
       if (bad < 0) { GS.Audio.play('ok'); finish(true, '¡Firmado!', 'Llegó todo. Qué raro. Qué lindo.', {}); }
-      else { rb[bad].classList.add('flag'); GS.Audio.play('error'); cur.cb.onMistake('proveedor'); finish(false, 'Firmaste de más', 'Mirá la línea marcada: no coincidía con el remito.', {}); }
+      else { rb[bad].classList.add('flag'); GS.Audio.play('error'); cur.cb.onMistake('proveedor'); finish(false, 'Firmaste de más', 'Mirá la pila marcada: no coincidía con el remito.', {}); }
     }
     rb.forEach(b => b.addEventListener('click', () => tapRow(b))); document.getElementById('mgYes').addEventListener('click', sign);
     cur.keys = e => { const n = parseInt(e.key, 10); if (n >= 1 && n <= 4) tapRow(rb[n - 1]); else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); sign(); } };
@@ -423,7 +473,7 @@ GS.Minigames = (function () {
 
   /* ---------------- 10. DEVOLUCIONES: aceptar o rechazar según las reglas (inventadas para el juego) ---------------- */
   function devol(job) {
-    const p = U.pick(GS.CATALOG), c = { ticket: true, dias: Math.floor(U.rnd(1, 10)), estado: U.pick(['Cerrado, sin abrir', 'Abierto, sin uso']) };
+    const p = U.pick(GS.CATALOG), c = { ticket: true, dias: Math.floor(U.rnd(1, 10)), estado: U.pick(['Cerrado, sin abrir', 'Abierto, sin uso']) }, me = cur;
     let why = '';
     if (Math.random() < 0.55) {
       const k = U.pick(['ticket', 'dias', 'estado']);
@@ -431,29 +481,45 @@ GS.Minigames = (function () {
       if (k === 'dias') { c.dias = U.pick([14, 25, 60, 365]); why = 'Pasaron más de 10 días.'; }
       if (k === 'estado') { c.estado = 'Usado y con marcas'; why = 'Está usado.'; }
     }
-    const ok = !why;
-    root().innerHTML = head(job, 'Devoluciones') + '<div class="bubble" id="mgBubble">Quiero devolver esto: ' + ico(p) + esc(p.name) + '. ' + esc(U.pick(LN.returnExcuses)) + '</div>' +
+    const ok = !why, used = c.estado.charAt(0) === 'U', icon = GS.ICONS[p.id] || '<span class="i">' + p.icon + '</span>';
+    root().innerHTML = head(job, 'Devoluciones') + '<div class="bubble">Quiero devolver esto: ' + esc(p.name) + '. ' + esc(U.pick(LN.returnExcuses)) + '</div>' +
       '<div class="expect"><b>Se acepta si (reglas del juego)</b><span>Tiene <i>ticket</i></span><span>Hasta <i>10 días</i></span><span>Está <i>sin uso</i></span></div>' +
-      '<div class="phone">' + [['ticket', 'Ticket', c.ticket ? 'Sí, lo tiene' : 'No lo tiene'], ['dias', 'Lo compró hace', c.dias + (c.dias === 1 ? ' día' : ' días')], ['estado', 'Estado', c.estado]].map(r => '<div class="rowb" data-k="' + r[0] + '"><span>' + r[1] + '</span><b>' + r[2] + '</b></div>').join('') + '</div>' +
-      '<div class="row"><button class="btn ghost" id="mgNo" style="font-size:18px">✖ Rechazar</button><button class="btn okb" id="mgYes">✔ Aceptar</button></div>';
+      '<div class="dv"><button class="dvc' + (used ? ' used' : '') + '" data-k="estado"><span class="dv-f"><span class="pk-ic">' + icon + '</span><small>👆 Tocá para revisarlo</small></span><span class="dv-b"><span class="pk-ic">' + icon + '<svg class="dv-sc" viewBox="0 0 60 60"><path d="M8 14l16 10M30 8l-6 18M40 40l14 8M12 44l10-6M44 14l8 12" stroke="#e10600" stroke-width="2.4" stroke-linecap="round" fill="none"/></svg></span><b>' + c.estado + '</b></span></button>' +
+      '<button class="dvc tk" data-k="ticket"><span class="dv-f"><span class="dv-tk">🧾</span><small>👆 Tocá para ver el ticket</small></span><span class="dv-b">' + (c.ticket ? '<span class="dv-paper"><u>TICKET</u><i>' + esc(p.name) + '</i><b>Hace ' + c.dias + (c.dias === 1 ? ' día' : ' días') + '</b></span>' : '<span class="dv-tk">🤷</span><b>No lo tiene</b><small>"Lo debo haber tirado"</small>') + '</span></button></div>' +
+      '<div class="row"><button class="btn ghost" id="mgNo" data-ok="' + (ok ? 0 : 1) + '" style="font-size:18px">✖ Rechazar</button><button class="btn okb" id="mgYes" data-ok="' + (ok ? 1 : 0) + '">✔ Aceptar</button></div><div class="rule" id="mgBubble">Revisá el producto y el ticket antes de decidir.</div>';
+    const cards = [...root().querySelectorAll('.dvc')];
+    cards.forEach(b => b.addEventListener('click', () => { if (cur !== me || me.done || b.classList.contains('seen')) return; b.classList.add('seen'); GS.Audio.play('swipe'); if (cards.every(x => x.classList.contains('seen'))) say('Ya viste todo. ¿Se acepta o no?', false); }));
     function decide(accept) {
       if (!cur || cur.done) return;
+      if (!cards.every(x => x.classList.contains('seen'))) { GS.Audio.play('error'); cards.forEach(x => { if (!x.classList.contains('seen')) { x.classList.remove('nudge'); void x.offsetWidth; x.classList.add('nudge'); } }); return say('Primero revisá el producto y el ticket.', true); }
       if (accept === ok) { GS.Audio.play('ok'); finish(true, ok ? '¡Devolución aceptada!' : '¡Bien rechazada!', ok ? 'Cumplía todo. Cliente contento.' : why + ' Se lo explicaste con una sonrisa.', {}); }
       else { GS.Audio.play('error'); cur.cb.onMistake('devol'); finish(false, ok ? 'Se podía aceptar' : 'No correspondía', ok ? 'Cumplía las tres reglas.' : why, {}); }
     }
     document.getElementById('mgYes').addEventListener('click', () => decide(true)); document.getElementById('mgNo').addEventListener('click', () => decide(false));
-    cur.keys = e => { if (e.key === 'ArrowRight' || e.key === '2') decide(true); else if (e.key === 'ArrowLeft' || e.key === '1') decide(false); };
+    cur.keys = e => { if (e.key === 'ArrowRight' || e.key === '2') decide(true); else if (e.key === 'ArrowLeft' || e.key === '1') decide(false); else if (e.key === ' ') { e.preventDefault(); const x = cards.find(y => !y.classList.contains('seen')); if (x) x.click(); } };
   }
 
   /* ---------------- 11. CIERRE DE CAJA: sumar lo cobrado y ver si la caja cierra ---------------- */
   function cierre(job) {
-    const cobros = Array.from({ length: 4 }, () => Math.floor(U.rnd(1, 10)) * 10000), sum = cobros.reduce((a, b) => a + b, 0), d = U.pick([0, 0, -10000, 10000, -20000, 20000]);
-    const x = Math.abs(d) || 10000, right = d === 0 ? 'ok' : d < 0 ? 'falta' : 'sobra';
-    root().innerHTML = head(job, 'Cierre de caja') + '<div class="bubble" id="mgBubble">Último paso del día: ¿la caja cierra?</div>' +
-      '<div class="phone"><h4>🧾 Cobros en efectivo de hoy</h4>' + cobros.map((c, i) => '<div class="rowb"><span>Venta ' + (i + 1) + '</span><b>' + U.money(c) + '</b></div>').join('') + '</div>' +
-      '<div class="tray"><span>En el cajón hay</span><b>' + U.money(sum + d) + '</b></div>' +
-      '<div class="opts three low">' + [['falta', 'Faltan ' + U.money(x)], ['ok', 'Cierra perfecto'], ['sobra', 'Sobran ' + U.money(x)]].map((o, i) => '<button class="opt" data-ok="' + (o[0] === right ? 1 : 0) + '"><kbd>' + (i + 1) + '</kbd><span class="n">' + o[1] + '</span></button>').join('') + '</div>';
-    listOptions(b => b.dataset.ok === '1', () => { GS.Audio.play('cash'); finish(true, '¡Caja cerrada!', d === 0 ? 'Cerró perfecto. Sacale una foto.' : 'Diferencia detectada. Mañana se revisa con un mate.', {}); }, () => mistake('cierre', U.pick(LN.wrongCount)));
+    const bills = U.shuffle([20000, 20000, 10000, 10000, 10000, 2000, 2000, 1000, 1000, 20000, 10000]).slice(0, Math.floor(U.rnd(6, 9))), sum = bills.reduce((a, b) => a + b, 0), d = U.pick([0, 0, -10000, 10000, -20000, 20000]);
+    const x = Math.abs(d) || 10000, right = d === 0 ? 'ok' : d < 0 ? 'falta' : 'sobra', sys = sum - d, me = cur; let cnt = 0, left = bills.length;   /* d = lo que hay en el cajón menos lo que dice el sistema */
+    root().innerHTML = head(job, 'Cierre de caja') + '<div class="tray"><span>El sistema dice que hoy se cobró</span><b>' + U.money(sys) + '</b></div>' +
+      '<div class="cj"><h4>💵 El cajón · tocá cada billete para contarlo</h4><div class="cj-b">' + bills.map(v => '<button class="cb v' + v + '" data-v="' + v + '" style="--r:' + Math.floor(U.rnd(-5, 6)) + 'deg"><b>' + U.money(v) + '</b></button>').join('') + '</div></div>' +
+      '<div class="tray cnt"><span>Llevás contado</span><b id="cjT">' + U.money(0) + '</b></div>' +
+      '<div class="opts three low cj-o off">' + [['falta', 'Faltan ' + U.money(x)], ['ok', 'Cierra perfecto'], ['sobra', 'Sobran ' + U.money(x)]].map((o, i) => '<button class="opt" data-ok="' + (o[0] === right ? 1 : 0) + '"><kbd>' + (i + 1) + '</kbd><span class="n">' + o[1] + '</span></button>').join('') + '</div>' +
+      '<div class="rule" id="mgBubble">Contá la plata del cajón y fijate si coincide con el sistema.</div>';
+    const tot = document.getElementById('cjT'), ob = root().querySelector('.cj-o'), bs = [...root().querySelectorAll('.cb')];
+    function count(b) { if (cur !== me || me.done || b.classList.contains('cnt')) return; b.classList.add('cnt'); cnt += Number(b.dataset.v); left--; tot.textContent = U.money(cnt); GS.Audio.play('bill'); if (!left) { ob.classList.remove('off'); say('En el cajón hay ' + U.money(cnt) + '. ¿Cierra con el sistema?', false); } }
+    bs.forEach(b => b.addEventListener('click', () => count(b)));
+    const os = [...ob.querySelectorAll('.opt')];
+    function choose(b) {
+      if (cur !== me || me.done || b.classList.contains('bad')) return;
+      if (left) { GS.Audio.play('error'); return say('Primero contá todos los billetes del cajón.', true); }
+      if (b.dataset.ok === '1') { b.classList.add('good'); GS.Audio.play('cash'); finish(true, '¡Caja cerrada!', d === 0 ? 'Cerró perfecto. Sacale una foto.' : 'Diferencia detectada. Mañana se revisa con un mate.', {}); }
+      else { b.classList.add('bad'); mistake('cierre', U.pick(LN.wrongCount)); }
+    }
+    os.forEach(b => b.addEventListener('click', () => choose(b)));
+    cur.keys = e => { const n = parseInt(e.key, 10); if (n >= 1 && n <= 3) choose(os[n - 1]); else if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); const b = bs.find(y => !y.classList.contains('cnt')); if (b) count(b); } };
   }
 
   /* ---------------- 12. VIDRIERA: elegir los 4 productos que van con el tema ---------------- */
@@ -481,6 +547,38 @@ GS.Minigames = (function () {
   }
 
   // Ayuda común: lista de opciones con una correcta; las equivocadas se apagan
+  /* ---------------- ayudas compartidas: arrastrar con el dedo, piezas de PC y cajas dibujadas ---------------- */
+  const pc100 = (v, t) => (v / t * 100).toFixed(2) + '%';
+  function grab(el, ghost, onDrop, cls) {          /* levanta una copia que sigue al dedo; al soltar avisa sobre qué elemento quedó */
+    const me = cur; let d = null;
+    const end = () => { if (d && d.g) d.g.remove(); el.classList.remove('lift'); d = null; };
+    el.style.touchAction = 'none';
+    el.addEventListener('pointerdown', e => { if (cur !== me || me.done || me.hold) return; d = { x: e.clientX, y: e.clientY, g: null }; try { el.setPointerCapture(e.pointerId); } catch (er) {} });
+    el.addEventListener('pointermove', e => { if (!d) return;
+      if (!d.g) { if (Math.hypot(e.clientX - d.x, e.clientY - d.y) < 8) return; const g = document.createElement('div'); g.className = 'pghost ' + (cls || ''); g.innerHTML = typeof ghost === 'function' ? ghost() : ghost; document.body.appendChild(g); d.g = g; el.classList.add('lift'); GS.Audio.play('click'); }
+      const lift = e.pointerType === 'mouse' ? 0 : 34; d.g.style.left = e.clientX + 'px'; d.g.style.top = (e.clientY - lift) + 'px'; });
+    el.addEventListener('pointerup', e => { if (!d) return; const moved = !!d.g, lift = e.pointerType === 'mouse' ? 0 : 34; let t = null; if (moved) { d.g.style.visibility = 'hidden'; t = document.elementFromPoint(e.clientX, e.clientY - lift); } end(); if (moved) { el.dataset.nc = Date.now(); onDrop(t); } });
+    el.addEventListener('pointercancel', end);
+    (me.grabs = me.grabs || []).push(end); me.cleanup = () => me.grabs.forEach(f => f());
+  }
+  const dragged = el => Date.now() - Number(el.dataset.nc || 0) < 350;
+  function partHtml(id, cls) {
+    const q = PCS[id], W = q[2], H = q[3], svg = GS.PC_PARTS.find(p => p.id === id).svg, put = (x, y, w, h) => svg.replace('<svg ', '<svg x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" ');
+    return '<div class="pp ' + (cls || '') + '" style="left:' + pc100(q[0] + W / 2, 320) + ';top:' + pc100(q[1] + H / 2, 200) + ';width:' + pc100(W, 320) + ';height:' + pc100(H, 200) + '"><svg viewBox="0 0 ' + W + ' ' + H + '">' + (q[4] ? '<g transform="translate(' + W / 2 + ' ' + H / 2 + ') rotate(90)">' + put(-H / 2, -W / 2, H, W) + '</g>' : put(0, 0, W, H)) + '</svg></div>';
+  }
+  function boxSvg(open) {
+    return '<svg class="bx" viewBox="0 0 100 84">' + (open ? '<path d="M8 30L50 18L92 30L50 42Z" fill="#7d5d39"/><path d="M8 30L1 12L43 2L50 18Z" fill="#d8b385"/><path d="M92 30L99 12L57 2L50 18Z" fill="#c9a274"/>' : '') +
+      '<path d="M8 30V68L50 82V42Z" fill="#c49a6c"/><path d="M92 30V68L50 82V42Z" fill="#a9804f"/>' + (open ? '<path d="M8 30L0 44L42 58L50 42Z" fill="#d8b385" opacity=".0"/>' : '<path d="M8 30L50 18L92 30L50 42Z" fill="#d8b385"/><path d="M26 23.500L68 35.500L74 33.800L32 21.800Z" fill="#f1e2a0" opacity=".9"/><path d="M68 35.500V52L74 50V33.800Z" fill="#e3d28c" opacity=".9"/>') +
+      '<path d="M8 30L50 42L92 30" fill="none" stroke="#6e5132" stroke-width="1.200"/><path d="M50 42V82" stroke="#6e5132" stroke-width="1.200"/></svg>';
+  }
+  const DIAG_PC = [
+    { id: 'cpu', s: 'Se apaga sola cuando juego. Justo cuando voy ganando, eh.', t: '¡Era el procesador!', r: 'Levantaba temperatura: limpieza y pasta térmica nueva.' },
+    { id: 'fan', s: 'Hace ruido de turbina de avión. Los vecinos preguntan a qué hora despega.', t: '¡Era el cooler!', r: 'Tapado de pelusa. Salió para tejer un pulóver.' },
+    { id: 'gpu', s: 'Prende, pero el monitor queda en negro. Y no, no es el brillo.', t: '¡Era la placa de video!', r: 'Estaba mal calzada. Un clic y volvió la imagen.' },
+    { id: 'ram', s: 'Anda lentísima: abro dos pestañas y se queda pensando en la vida.', t: '¡Era la memoria!', r: 'Con tan poca RAM no alcanza: se la ampliamos.' },
+    { id: 'psu', s: 'No prende. Ni una lucecita. "No hice nada, se rompió sola."', t: '¡Era la fuente!', r: 'Tenía un cable desenchufado. Clásico.' },
+    { id: 'ssd', s: 'Dice que no tiene espacio. Tengo 9.000 fotos del mismo asado.', t: '¡Era el disco!', r: 'Lleno hasta el tope: liberamos espacio y le sumamos otro.' }
+  ];
   function listOptions(isOk, onOk, onBad) {
     const btns = [...root().querySelectorAll('.opt')];
     function choose(b) {

@@ -4,6 +4,10 @@ SOLVE = r"""(()=>{const M=GS.Minigames; if(document.querySelector('#mgOk')){docu
  if(q('.dust')){const d=qa('.dust:not(.gone)'); d.slice(0,3).forEach(e=>{e.classList.contains('gone')||document.getElementById('mgFan').dispatchEvent(new KeyboardEvent('x'))}); document.dispatchEvent(new KeyboardEvent('keydown',{key:' '})); return 'pelusa';}
  if(q('#mgSnap')){const m=parseFloat(q('#mgMark').style.left||0), a=parseFloat(q('.ramslot').style.left); if(Math.abs(m-a)<3){q('#mgSnap').click();return 'ram!';} return 'ram';}
  if(q('#mgTape')){document.dispatchEvent(new KeyboardEvent('keydown',{key:' '})); return 'cinta';}
+ if(q('.dvc:not(.seen)')){qa('.dvc:not(.seen)').forEach(b=>b.click()); return 'reviso';}
+ if(q('.cb:not(.cnt)')){qa('.cb:not(.cnt)').forEach(b=>b.click()); return 'cuento';}
+ if(q('#skOk')){const r=qa('.shelfv .pic').length, n=+q('#skN').textContent; if(n<r) q('#skP').click(); else if(n>r) q('#skM').click(); else q('#skOk').click(); return 'stock';}
+ if(q('.pvrow')){const exp=qa('.remito i').map(x=>parseInt(x.textContent.replace(/\D/g,''))); const bad=qa('.pvrow').find((x,i)=>+x.dataset.n!==exp[i]); (bad||q('#mgYes')).click(); return 'prov';}
  if(q('#mgNo')&&q('.rowb')){const t=qa('.rowb b').map(x=>x.textContent); const ok=t[0].startsWith('Sí')&&parseInt(t[1])<=10&&!t[2].startsWith('Usado'); q(ok?'#mgYes':'#mgNo').click(); return 'devol';}
  if(q('.rowb')&&q('.expect')){const r=qa('.rowb'); const exp=qa('.expect i').map(x=>x.textContent); const bad=r.find((x,i)=>!x.querySelector('b').textContent.replace(' ✔','').startsWith(exp[i])); (bad||q('#mgYes')).click(); return 'comp';}
  if(document.querySelector('.dp-grid')){const C={}; GS.CATALOG.forEach(p=>C[p.id]=p.cat); for(const sh of document.querySelectorAll('.dp-sh')){const cat=GS.SHELVES[+sh.dataset.k].cat; for(const b of sh.querySelectorAll('.dp-it:not(.ok)')){ if(C[b.dataset.id]!==cat){ b.click(); const k=GS.SHELVES.findIndex(s=>s.cat===C[b.dataset.id]); document.querySelector('.dp-sh[data-k="'+k+'"] h5').click(); return 'repo'; } } } return 'repowait';}

@@ -260,3 +260,13 @@ Tres juegos en `src/arcade.js`, que se ganan al terminar las jornadas 3, 8 y 14 
 - **Región conquistada** = 5 estrellas (4,8) + camión. Eso, más los fondos, habilita abrir otra sucursal; hace falta en todas las que estén abiertas. El resto de las mejoras y las historias quedan para el 💎 platino (100%).
 - El final del país sale al conquistar las 5 regiones; el de Malvinas, al conquistarla y ganarle al pirata.
 - Aviso grande de región conquistada, con el avance de la sucursal y la opción de seguir completándola o ir al mapa.
+
+## v0.56 · Minijuegos con las manos
+
+- **Compras por la página**: se arrastra el producto a la caja donde entra justo, se pasa la cinta y se arrastra la etiqueta correcta hasta la caja.
+- **Taller · Diagnóstico**: la PC abierta muestra una pista (calor, pelusa, placa mal calzada, cable suelto, disco lleno, poca RAM) y hay que tocar la pieza culpable.
+- **Control de stock**: contar los productos de la góndola (algunos quedan atrás) y corregir el número con + y −.
+- **Recepción de proveedor**: pilas de cajas dibujadas contra el remito.
+- **Devoluciones**: hay que dar vuelta el producto y abrir el ticket antes de decidir.
+- **Cierre de caja**: se cuentan los billetes del cajón tocándolos y se compara con el sistema.
+- **WhatsApp**: aspecto de chat, con la respuesta enviada.
