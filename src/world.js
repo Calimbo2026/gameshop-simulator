@@ -473,6 +473,10 @@ GS.World = (function () {
       const ids = idsOf(sh.cat); sprite(root, ids[0], x - 0.5, 1.55, z, 0.5); sprite(root, ids[1 % ids.length], x, 1.55, z, 0.5); sprite(root, ids[2 % ids.length], x + 0.5, 1.55, z, 0.5);
       sign(root, sh.name.toUpperCase(), 1.6, 0.26, x, 0.16, z + 0.35);
     });
+    { /* rincón de la siesta: un cartón en el piso y unas cajas para recostarse */
+      const n = new T.Group(); n.position.set(10.5, 0, -4.55); n.rotation.y = 0.5; root.add(n);
+      box(n, 1.0, 0.03, 1.5, 0xb98d5e, 0, 0.02, 0.5); box(n, 0.96, 0.012, 0.04, 0x9a7446, 0, 0.05, 0.5); box(n, 0.9, 0.5, 0.5, 0xc49a6c, 0, 0, -0.42); box(n, 0.5, 0.36, 0.44, 0xb98d5e, -0.16, 0.5, -0.44); box(n, 0.9, 0.02, 0.06, 0x8a6a40, 0, 0.5, -0.42);
+      const pl = box(n, 0.46, 0.12, 0.22, 0xf4f4f2, 0.2, 0.52, -0.3); pl.rotation.x = 0.5; const th = new T.Mesh(new T.CylinderGeometry(0.06, 0.06, 0.26, 10), mat(0xe10600)); th.position.set(-0.62, 0.13, 0.3); n.add(th); box(n, 0.09, 0.05, 0.09, 0x2c2c33, -0.62, 0.26, 0.3); }
     b.build();
   }
   function notebook(root, x, y, z) {          // abierta, con la pantalla mirando a la cámara
@@ -915,7 +919,7 @@ GS.World = (function () {
     const arms = [-1, 1].map(sd => { const A2 = new T.Group(); A2.position.set(sd * 0.2, 0.82, 0); A2.rotation.z = sd * 0.16; g.add(A2);
       add(A2, gSleeve, 'top', 0, -0.06, 0); add(A2, gArm, 'skin', 0, -0.24, 0); add(A2, gHand, 'skin', 0, -0.39, 0); return A2; });
     const head = add(g, gHead, 'skin', 0, HY, 0); [-1, 1].forEach(sd => add(g, gEar, 'skin', sd * (HR - 0.01), HY - 0.03, 0));
-    [-1, 1].forEach(sd => { const e = add(g, gEye, 'bot', sd * 0.13, HY - 0.01, HR - 0.045); e.scale.set(1, 1.35, 0.6); });
+    const eyes = [-1, 1].map(sd => { const e = add(g, gEye, 'bot', sd * 0.13, HY - 0.01, HR - 0.045); e.scale.set(1, 1.35, 0.6); return e; });
     const smile = add(g, gSmile, 'bot', 0, HY - 0.13, HR - 0.035); smile.rotation.z = Math.PI; smile.rotation.x = -0.25;
     const sh = new T.Mesh(gShadow, shadowMat); sh.rotation.x = -Math.PI / 2; sh.position.y = 0.02; g.add(sh);
     const bag = box(g, 0.26, 0.3, 0.12, 0xe10600, 0.36, 0.3, 0.1); bag.visible = false;
@@ -989,17 +993,21 @@ GS.World = (function () {
       mop(v) { mopG.visible = v; p.holding = v; arms.forEach(a => { a.rotation.x = v ? -0.9 : 0; }); mopG.position.z = 0; },
       mopTick(t) { const k = Math.sin(t * 9); arms.forEach(a => { a.rotation.x = -0.9 + k * 0.3; }); mopG.position.z = k * 0.14; mopG.position.x = Math.cos(t * 4.5) * 0.06; },
       carry(v) { carry.visible = v; arms.forEach(a => { a.rotation.x = v ? -1.1 : 0; }); p.holding = v; },
-      lie(v) { g.rotation.x = v ? -1.3 : 0; g.position.y = v ? 0.28 : 0; },
+      /* siesta: sentado en el piso, piernas estiradas, recostado contra las cajas, ojos cerrados (la respiración va en update) */
+      lie(v) { p.sleeping = !!v; g.rotation.order = 'YXZ'; if (v) { p.yaw0 = g.rotation.y; g.rotation.y = 0.5; } else g.rotation.y = p.yaw0 || 0;
+        g.rotation.x = v ? -0.4 : 0; g.position.y = v ? -0.3 : 0; g.scale.y = base; sh.visible = !v; legs.forEach((l, i) => { l.rotation.x = v ? -1.42 : 0; l.rotation.z = v ? (i ? 0.16 : -0.16) : 0; });
+        arms.forEach((a, i) => { a.rotation.x = v ? -0.5 : 0; a.rotation.z = (i ? 1 : -1) * (v ? -0.1 : 0.16); }); eyes.forEach(e => { e.scale.y = v ? 0.16 : 1.35; }); },
       stop() { p.path = []; p.moving = false; p.onArrive = null; g.position.y = 0; rest(p); },
       remove() { scene.remove(g); const i = people.indexOf(p); if (i >= 0) people.splice(i, 1); }
     };
     people.push(p); return p;
   }
-  function rest(p) { p.legs.forEach(l => { l.rotation.x = 0; }); if (!p.holding) p.arms.forEach(a => { a.rotation.x = 0; }); }
+  function rest(p) { if (p.sleeping) return; p.legs.forEach(l => { l.rotation.x = 0; }); if (!p.holding) p.arms.forEach(a => { a.rotation.x = 0; }); }
   function updatePeople(dt) {
     for (const p of people) {
       p.t += dt;
       const g = p.group;
+      if (p.sleeping) { const br = Math.sin(p.t * 2.1); g.rotation.x = -0.4 + br * 0.025; g.scale.y = (g.userData.base || 1) * (1 + br * 0.018); continue; }
       if (p.moving && p.path.length) {
         const tx = p.path[0][0], tz = p.path[0][1], dx = tx - g.position.x, dz = tz - g.position.z, d = Math.hypot(dx, dz), step = p.speed * dt;
         if (d <= step) {
