@@ -1027,7 +1027,7 @@ GS.World = (function () {
   }
   function rest(p) { if (p.sleeping) return; p.legs.forEach(l => { l.rotation.x = 0; }); if (!p.holding) p.arms.forEach(a => { a.rotation.x = 0; }); }
   function updatePeople(dt) {
-    if (board && board.visible) { const k = board.scale.x + ((board.userData.on ? 1.45 : 0) - board.scale.x) * Math.min(1, dt * 9); board.scale.setScalar(Math.max(0.01, k)); if (!board.userData.on && k < 0.03) board.visible = false; }
+    if (board && board.visible) { const k = board.scale.x + ((board.userData.on ? 1.15 : 0) - board.scale.x) * Math.min(1, dt * 9); board.scale.setScalar(Math.max(0.01, k)); if (!board.userData.on && k < 0.03) board.visible = false; }
     for (const p of people) {
       if (p.ideaS && p.ideaS.visible) { const k = Math.min(1, (p.t - p.ideaT) * 5), sz = 0.62 * k * (1 + Math.sin(p.t * 8) * 0.07); p.ideaS.scale.set(sz, sz, 1); }
       if (p.hopT > 0) { p.hopT -= dt; const on = p.hopT > 0; p.group.position.y = on ? Math.abs(Math.sin(p.hopT * 10)) * 0.24 : 0; p.arms.forEach(a => { a.rotation.x = on ? -2.7 : 0; }); }

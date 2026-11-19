@@ -635,32 +635,34 @@ GS.Game = (function () {
       () => { $('cqMap').addEventListener('click', () => { closeEpic(); showMap(); }); if ($('cqStay')) $('cqStay').addEventListener('click', () => { A.play('click'); closeEpic(); }); });
     return true;
   }
-  /* Enseñarle al equipo: una clase cortita en el salón. Vos explicás con la pizarra, ellos escuchan, y al final festejan. */
-  const CLASS = { yo: [4.2, -0.3], board: [2.75, -0.25, 0.75], seats: [[3.1, 1.35, 3.5], [4.3, 1.5, 3.1]] };
-  function routeToClass(x, z) {                 /* por dónde vuelve cada uno al salón, según dónde lo agarró la clase */
-    if (x > 5.7 && z < -1.5) return [[7.4, -4.4], [6.0, -4.4], [4.6, -4.4], [4.5, -1.2]];        /* depósito */
-    if (z < -3.2) return [[4.0, -5.3], [4.6, -4.4], [4.5, -1.2]];                                /* detrás del mostrador */
-    if (x > 5.2 && z > 4.5) return [[7.3, 5.9], [6.0, 5.5], [4.0, 5.5]];                         /* taller */
-    if (z > 5.0) return [[-0.3, 5.5], [4.0, 5.5]];                                               /* galería y vidriera */
-    if (x < 3.0) return [[-0.6, -1.6], [4.5, -1.2]];                                             /* salón */
-    return [];
+  /* Enseñarle al equipo: una clase cortita en el Taller, el único lugar del local por donde no pasan clientes ni hay muebles que se compren.
+     Vos explicás con la pizarra, ellos escuchan, y al final festejan. */
+  const CLASS = { yo: [7.15, 6.95], board: [8.45, 6.5, 0.66], seats: [[8.15, 8.05, 2.95], [9.0, 7.72, 3.56]], zin: [[6.0, 5.5], [7.3, 5.9]], side: [7.15, 7.7], cam: [8.0, 6.9, 0.4] };
+  function routeToClass(x, z) {                 /* por dónde llega cada uno al Taller, según dónde lo agarró la clase */
+    const hall = [[4.0, 0.9], [4.0, 5.5]];
+    if (x > 6.5 && z > 3.9) return [];                                                                          /* ya está en el taller */
+    if (x > 5.7 && z < -1.5) return [[7.4, -4.4], [6.0, -4.4], [4.6, -4.4], [4.5, -1.2]].concat(hall, CLASS.zin); /* depósito */
+    if (z < -3.2) return [[4.0, -5.3], [4.6, -4.4], [4.5, -1.2]].concat(hall, CLASS.zin);                         /* detrás del mostrador */
+    if (z > 5.0) return [[-0.3, 5.5], [4.0, 5.5]].concat(CLASS.zin);                                             /* galería y vidriera */
+    if (x < 3.0) return [[-0.6, -1.6], [4.5, -1.2]].concat(hall, CLASS.zin);                                     /* salón */
+    return hall.concat(CLASS.zin);
   }
   function teach() {
     const t = brNow().train || 0, yo = W.player(); day.taught = 1; day.jobSig = ''; brSave({ train: t + 1 }); A.play('click');
-    const ls = day.lesson = { t: 0, ph: 0, lv: t + 1, who: t % 2, yoIn: false, inN: 0 }; W.zoomAt(3.7, 0.3, 0.42);
+    const ls = day.lesson = { t: 0, ph: 0, lv: t + 1, who: t % 2, yoIn: false, inN: 0 }; W.zoomAt(CLASS.cam[0], CLASS.cam[1], CLASS.cam[2]);
     STAFF.forEach((st, i) => { const P = st.p, g = P.group.position, seat = CLASS.seats[i]; P.lie(false); P.carry(false); if (P.phone) P.phone(false); st.q = []; st.act = null; st.moving = false; st.busy = true;
-      P.walk(routeToClass(g.x, g.z).concat([[seat[0], seat[1]]]), () => { if (day.lesson === ls) { P.face(seat[2]); ls.inN++; } }); });
-    yoGo('H', () => { if (day.lesson !== ls) return; yo.walk([CLASS.yo], () => { if (day.lesson === ls) { yo.face(0); ls.yoIn = true; } }); });
+      P.walk(routeToClass(g.x, g.z).concat([CLASS.side], i ? [[8.5, 8.1]] : [], [[seat[0], seat[1]]]), () => { if (day.lesson === ls) { P.face(seat[2]); ls.inN++; } }); });
+    yoGo('T2', () => { if (day.lesson !== ls) return; yo.walk([CLASS.yo], () => { if (day.lesson === ls) { yo.face(0); ls.yoIn = true; } }); });
   }
   function endLesson(cut) {
     const ls = day && day.lesson; if (!ls) return; day.lesson = null; const yo = W.player();
-    W.lesson(false); if (!cut) W.focus(); if (yo) { yo.gest(false); if (ls.yoIn) { yoAt = 'H'; yoFree = true; } }
-    STAFF.forEach(st => { st.p.nod(false); st.p.idea(false); st.busy = false; st.moving = false; st.q = cut ? [['wait', 0.4], ['go', [st.hub]]] : [['wait', 1.6], ['go', [st.hub]], ['wait', 2]]; });
+    W.lesson(false); if (!cut) W.focus(); if (yo) { yo.gest(false); if (ls.yoIn) { yoAt = 'T2'; yoFree = true; } }
+    STAFF.forEach(st => { st.p.nod(false); st.p.idea(false); st.busy = false; st.moving = false; const home = [CLASS.side, [7.3, 5.9], [6.0, 5.5], [4.0, 5.5], st.hub]; st.q = cut ? [['wait', 0.4], ['go', home]] : [['wait', 1.6], ['go', home], ['wait', 2]]; });
     if (cut) { fx('🎓 Equipo nivel ' + ls.lv); day.score += 60; }
   }
   function updateLesson(dt) {
     const ls = day.lesson; if (!ls) return; ls.t += dt; const yo = W.player();
-    if (ls.ph === 0) { if ((ls.yoIn && ls.inN >= 2) || (ls.yoIn && ls.t > 9) || ls.t > 14) { ls.ph = 1; ls.t = 0; W.lesson(true, CLASS.board[0], CLASS.board[1], CLASS.board[2]); A.play('pick'); yo.face(-0.15); yo.gest(true); STAFF.forEach((st, i) => { if (!st.p.moving) st.p.face(CLASS.seats[i][2]); st.p.nod(true); }); sayAt(yo, U.pick(LN.teachYo), 2600); } }
+    if (ls.ph === 0) { if ((ls.yoIn && ls.inN >= 2) || (ls.yoIn && ls.t > 13) || ls.t > 18) { ls.ph = 1; ls.t = 0; W.lesson(true, CLASS.board[0], CLASS.board[1], CLASS.board[2]); A.play('pick'); yo.face(0.95); yo.gest(true); STAFF.forEach((st, i) => { if (!st.p.moving) st.p.face(CLASS.seats[i][2]); st.p.nod(true); }); sayAt(yo, U.pick(LN.teachYo), 2600); } }
     else if (ls.ph === 1 && ls.t > 2.9) { ls.ph = 2; STAFF.forEach(st => st.p.idea(true)); A.play('intr'); sayAt(STAFF[ls.who].p, U.pick(LN.teach), 2200); }
     else if (ls.ph === 2 && ls.t > 5.0) { ls.ph = 3; yo.gest(false); STAFF.forEach(st => { st.p.nod(false); st.p.hop(1.0); }); yo.hop(0.7); A.play('ok'); fx('🎓 Equipo nivel ' + ls.lv); day.score += 60; }
     else if (ls.ph === 3 && ls.t > 6.3) endLesson(false);
