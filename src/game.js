@@ -41,7 +41,21 @@ GS.Game = (function () {
     $('sheet').querySelectorAll('[data-close]').forEach(b => b.addEventListener('click', closeModal));
   }
   function closeModal() { $('modal').hidden = true; A.play('click'); const f = modalOnClose; modalOnClose = null; if (f) f(); }
-  function toast(html, cls, ms) {
+  /* Historial de avisos: todo lo que sale arriba durante la jornada queda guardado, para releerlo desde el botón 💬 de la barra */
+  let LOG = null, logNew = 0;
+  function logMsg(html) {
+    if (state !== 'day' || !day || day.arcade) return; if (!LOG) LOG = GS.Store.get('msgLog') || [];
+    LOG.unshift({ d: day.n, t: ($('clockT').textContent || '').replace(/[^0-9:]/g, ''), h: html }); if (LOG.length > 50) LOG.length = 50; GS.Store.set('msgLog', LOG);
+    logNew++; const b = $('btnLog'); if (b) { b.classList.add('new'); b.dataset.n = logNew > 9 ? '9+' : logNew; }
+  }
+  function showLog() {
+    if (!LOG) LOG = GS.Store.get('msgLog') || []; const inDay = state === 'day' && !paused; if (inDay) paused = true;
+    logNew = 0; $('btnLog').classList.remove('new'); A.play('click');
+    modal('<h2>💬 Mensajes</h2>' + (LOG.length ? '<div class="logl">' + LOG.map((m, i) => (i === 0 || LOG[i - 1].d !== m.d ? '<h4>Jornada ' + m.d + '</h4>' : '') + '<div class="logi"><small>' + (m.t || '') + '</small><span>' + m.h + '</span></div>').join('') + '</div>' : '<p>Todavía no llegó ningún mensaje. Acá vas a encontrar las llamadas del Dueño, los avisos de la competencia y las novedades del día.</p>') +
+      '<button class="btn" data-close>' + (state === 'day' ? 'Seguir' : 'Cerrar') + '</button>', () => { if (inDay) paused = false; });
+  }
+  function toast(html, cls, ms, noLog) {
+    if (!noLog && html.indexOf('<b>') === 0) logMsg(html);
     const box = $('toasts'); while (box.children.length > 1) box.removeChild(box.firstChild);
     const t = document.createElement('div'); t.className = 'toast ' + (cls || ''); t.innerHTML = html; box.appendChild(t);
     setTimeout(() => { t.classList.add('out'); setTimeout(() => t.remove(), 320); }, ms || 3200);
@@ -104,6 +118,7 @@ GS.Game = (function () {
     const d = day; if (!d || d.arcade || state !== 'day') return;
     if (d.cond === 'lluvia' && snowy()) text = text.replace(/Día de lluvia/g, 'Día de nieve').replace(/esta lluvia/g, 'esta nieve').replace(/Llueve/g, 'Nieva').replace(/llueva/g, 'nieve').replace(/lluvia/g, 'nieve').replace(/paraguas/g, 'gorro');
     if (!bossHere()) { if (call) toast('<b>📞 El Dueño, desde Incas</b>' + text, '', 4200); return; }       // lejos de la casa central solo llama
+    logMsg('<b>🗣️ El Dueño</b>' + text);
     const p = W.boss(), back = () => { if (day !== d || d.sayQ.some(q => q.cls === 'boss')) return; p.walk([[7.3, -0.3], W.BOSS_HOME], () => { p.face(0); d.dueno = null; }); };
     if (d.dueno) { sayAt(p, text, 0, 'boss', false, false, back); return; }
     d.dueno = p;
@@ -657,14 +672,14 @@ GS.Game = (function () {
   function teach() {
     const t = brNow().train || 0, yo = W.player(); day.taught = 1; day.jobSig = ''; brSave({ train: t + 1 }); A.play('click');
     const ls = day.lesson = { t: 0, ph: 0, lv: t + 1, who: t % 2, yoIn: false, inN: 0 }; W.zoomAt(CLASS.cam[0], CLASS.cam[1], CLASS.cam[2]);
-    STAFF.forEach((st, i) => { const P = st.p, g = P.group.position, seat = CLASS.seats[i]; P.lie(false); P.carry(false); if (P.phone) P.phone(false); st.q = []; st.act = null; st.moving = false; st.busy = true;
+    STAFF.forEach((st, i) => { const P = st.p, g = P.group.position, seat = CLASS.seats[i]; P.lie(false); P.carry(false); if (P.phone) P.phone(false); st.q = []; st.act = null; st.moving = false; st.busy = true; if (st.spd0 == null) st.spd0 = P.speed; P.speed = yo.speed || 7.5;
       P.walk(routeToClass(g.x, g.z).concat([CLASS.side], i ? [[8.5, 8.1]] : [], [[seat[0], seat[1]]]), () => { if (day.lesson === ls) { P.face(seat[2]); ls.inN++; } }); });
     yoGo('T2', () => { if (day.lesson !== ls) return; yo.walk([CLASS.yo], () => { if (day.lesson === ls) { yo.face(0); ls.yoIn = true; } }); });
   }
   function endLesson(cut) {
     const ls = day && day.lesson; if (!ls) return; day.lesson = null; const yo = W.player();
     W.lesson(false); if (!cut) W.focus(); if (yo) { yo.gest(false); if (ls.yoIn) { yoAt = 'T2'; yoFree = true; } }
-    STAFF.forEach(st => { st.p.nod(false); st.p.idea(false); st.busy = false; st.moving = false; const home = [CLASS.side, [7.3, 5.9], [6.0, 5.5], [4.0, 5.5], st.hub]; st.q = cut ? [['wait', 0.4], ['go', home]] : [['wait', 1.6], ['go', home], ['wait', 2]]; });
+    STAFF.forEach(st => { if (st.spd0 != null) { st.p.speed = st.spd0; st.spd0 = null; } st.p.nod(false); st.p.idea(false); st.busy = false; st.moving = false; const home = [CLASS.side, [7.3, 5.9], [6.0, 5.5], [4.0, 5.5], st.hub]; st.q = cut ? [['wait', 0.4], ['go', home]] : [['wait', 1.6], ['go', home], ['wait', 2]]; });
     if (cut) { fx('🎓 Equipo nivel ' + ls.lv); day.score += 60; }
   }
   function updateLesson(dt) {
@@ -748,7 +763,7 @@ GS.Game = (function () {
         dp.cargo(false); dp.walk([[4.5, -0.9], [dx, -0.9], [dx, L.salon.zMax + 0.2], [dx + 1.5, L.galeria.zMax + 3]], () => dp.remove());
       });
     }
-    toast('<b>' + st.icon + ' ' + st.name + '</b>' + st.task.name + '. Cuando puedas.', '', 2200);
+    toast('<b>' + st.icon + ' ' + st.name + '</b>' + st.task.name + '. Cuando puedas.', '', 2200, true);
   }
   function freeSlot(key, n) {
     for (let i = 0; i < n; i++) if (!day.customers.some(c => c[key] === i && c.st !== 'leaving')) return i;
@@ -1638,7 +1653,7 @@ GS.Game = (function () {
     $('chipPhase').addEventListener('click', () => { paused = true; showPhases(); modalOnClose = () => { paused = false; }; });
     $('finSkip').addEventListener('click', finishFinal);
     $('jobs').addEventListener('click', e => { const ib = e.target.closest('[data-intr]'); if (ib) return answerIntr(ib.dataset.intr === '1'); const b = e.target.closest('.job[data-i]'); if (b && jobList[b.dataset.i]) openJob(jobList[b.dataset.i]); });
-    $('btnPause').addEventListener('click', showPause);
+    $('btnPause').addEventListener('click', showPause); $('btnLog').addEventListener('click', showLog);
     $('btnMute').addEventListener('click', () => { A.unlock(); A.setMuted(!A.isMuted()); syncMute(); A.play('click'); });
     window.addEventListener('resize', () => W.resize());
     window.addEventListener('orientationchange', () => setTimeout(() => W.resize(), 250));
