@@ -102,6 +102,17 @@ GS.Audio = (function () {
     for (let i = 0; i < n; i++) { const c = String(text).charCodeAt(i * 3 % text.length) || 65; tone(p * (1 + ((c % 7) - 3) * 0.055), 0.06, 'triangle', 0.09, i * 0.075, p * (1 + ((c % 5) - 2) * 0.05)); }
   }
 
+  /* motor de un vehículo que arranca y se aleja: una onda áspera con "petardeo" (rate), que sube de vueltas y se apaga */
+  function engine(base, dur, rate, cut, vol, when) {
+    if (!ctx || muted) return;
+    const t = ctx.currentTime + (when || 0), o = ctx.createOscillator(), o2 = ctx.createOscillator(), lfo = ctx.createOscillator(), lg = ctx.createGain(), am = ctx.createGain(), f = ctx.createBiquadFilter(), g = ctx.createGain();
+    o.type = 'sawtooth'; o2.type = 'square'; f.type = 'lowpass'; f.Q.value = 1.2;
+    [o, o2].forEach((x, i) => { const k = i ? 0.502 : 1; x.frequency.setValueAtTime(base * 0.8 * k, t); x.frequency.linearRampToValueAtTime(base * 1.25 * k, t + dur * 0.22); x.frequency.setValueAtTime(base * 0.95 * k, t + dur * 0.24); x.frequency.linearRampToValueAtTime(base * 1.7 * k, t + dur); });   /* acelera, mete un cambio y sigue */
+    lfo.type = 'square'; lfo.frequency.setValueAtTime(rate * 0.8, t); lfo.frequency.linearRampToValueAtTime(rate * 1.6, t + dur); lg.gain.value = 0.35; am.gain.value = 0.65; lfo.connect(lg); lg.connect(am.gain);
+    f.frequency.setValueAtTime(cut * 0.7, t); f.frequency.linearRampToValueAtTime(cut * 1.4, t + dur * 0.3); f.frequency.linearRampToValueAtTime(cut * 0.5, t + dur);                                      /* al alejarse pierde brillo */
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.12); g.gain.setValueAtTime(vol, t + dur * 0.3); g.gain.linearRampToValueAtTime(vol * 0.35, t + dur * 0.75); g.gain.linearRampToValueAtTime(0.0001, t + dur);
+    o.connect(am); o2.connect(am); am.connect(f); f.connect(g); g.connect(master); [o, o2, lfo].forEach(x => { x.start(t); x.stop(t + dur + 0.05); });
+  }
   let cN = 0, cT = 0;                 // billetes contados seguidos: cada uno suena un poquito más agudo
   const sfx = {
     click() { tone(620, 0.045, 'sine', 0.11, 0, 430); },
@@ -118,6 +129,9 @@ GS.Audio = (function () {
     send()  { tone(520, 0.11, 'sine', 0.15, 0, 1040); noise(0.06, 0.05, 0.02, 3000); },         // mensaje enviado
     stamp() { tone(150, 0.1, 'sine', 0.3, 0, 70); noise(0.05, 0.12, 0, 600); },                 // firma / sello
     power() { tone(98, 0.6, 'sine', 0.2, 0, 196); [523, 659, 784, 1047].forEach((f, i) => tone(f, 0.2, 'triangle', 0.13, 0.28 + i * 0.09)); },   // la PC arranca
+    moto()  { tone(880, 0.09, 'square', 0.07, 0.35); tone(880, 0.12, 'square', 0.07, 0.5); engine(120, 2.6, 30, 1500, 0.13, 0.6); },                            /* bocinita y motor chillón */
+    van()   { tone(415, 0.16, 'square', 0.06, 0.4); tone(349, 0.16, 'square', 0.06, 0.4); engine(82, 2.8, 19, 900, 0.16, 0.65); },                            /* bocina de dos notas y motor mediano */
+    truck() { noise(0.5, 0.1, 0.25, 1400); tone(185, 0.55, 'sawtooth', 0.07, 0.45); tone(233, 0.55, 'sawtooth', 0.07, 0.45); engine(52, 3.2, 11, 520, 0.2, 0.75); },   /* freno de aire, bocinazo grave y motor diésel */
     lost()  { tone(392, 0.16, 'triangle', 0.2); tone(294, 0.3, 'triangle', 0.2, 0.15); },
     speaker(){ tone(880, 0.12, 'sine', 0.14); tone(698, 0.2, 'sine', 0.14, 0.13); },          // altavoz del Dueño
     combo(n){ tone(N(SCALE[Math.min(n, 7)] + 12), 0.1, 'triangle', 0.13); },

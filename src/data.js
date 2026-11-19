@@ -7,7 +7,7 @@
 const GS = {};
 
 GS.CONFIG = {
-  version: '0.59.1',
+  version: '0.59.2',
   phase: 8,
   phaseNote: 'Juego completo de punta a punta. Falta tu playtest con 5 personas y encender el lanzamiento (launched: true)',                       // fase actual del proyecto (1 a 5)
   links: { tienda: 'https://www.gameshop.com.ar', instagram: '' },   // botones del inicio y del cierre (vacío = no se muestra)
@@ -267,7 +267,7 @@ GS.UPGRADES = [
   { id: 'flota', name: 'Flota de envíos', icon: '🛵', pos: [4.2, 15.6], zoom: 0.46, levels: [
     { n: 'Moto de reparto', d: 'Envío propio en la ciudad: cada compra por la página deja 20% más y suma reputación.', price: 400 },
     { n: 'Camioneta', d: 'Llegás a toda la provincia: 40% más por cada compra por la página.', price: 900 },
-    { n: 'Camión GameShop', d: 'Cubrís toda la región con envío propio: 60% más por compra web. Con el camión y 5 estrellas, la región está conquistada.', price: 1600 }] },
+    { n: 'Camión GameShop', d: 'Cubrís toda la región con envío propio: 60% más por compra web. Con la flota completa y 5 estrellas, la región está conquistada.', price: 1600 }] },
   { id: 'web', name: 'Página web', icon: '🌐', pos: [-3.4, -4.0], zoom: 0.3, levels: [
     { n: 'Web con buscador', d: 'www.gameshop.com.ar se encuentra fácil: entra una compra por la página más por jornada.', price: 300 },
     { n: 'Web con retiro en el local', d: 'Compran desde casa y pasan a buscar: más clientes (tickets más altos).', price: 700 },
@@ -351,7 +351,7 @@ GS.EPIC = {
     { art: 'yo', k: 'Av. de los Incas 4552', t: 'Todo empezó detrás de un mostrador', d: 'Un local, dos compañeros, un Dueño con una frase para cada cosa y una misión que parecía demasiado grande.' },
     { art: 'equipo', k: 'Jornada tras jornada', t: 'Cinco regiones, cinco equipos', d: 'Abriste cada sucursal, elegiste a su gente, les enseñaste el oficio y le ganaste a cada rival con lo de siempre: atender bien.' },
     { art: 'mapa', k: 'Misión cumplida', t: 'GameShop está en todo el país', d: 'De Salta a Bariloche y de Mendoza a Posadas, hay un cartel de GameShop encendido y un envío que llega más rápido.' },
-    { art: 'copa', k: 'El logro', t: 'Número uno en reputación y ventas', d: 'Cinco sucursales, cinco estrellas en cada una y camión propio en todas. Nadie atiende mejor ni llega más lejos.' },
+    { art: 'copa', k: 'El logro', t: 'Número uno en reputación y ventas', d: 'Cinco sucursales, cinco estrellas en cada una y flota completa en todas. Nadie atiende mejor ni llega más lejos.' },
     { art: 'dueno', k: 'El Dueño opina', t: '', d: '' },
     { art: 'sur', k: 'Un momento...', t: '¿O no era todo?', d: 'Dicen que en el mapa apareció algo nuevo, bien al sur. Y que alguien llegó en barco diciendo que es suyo.' }
   ],
@@ -359,7 +359,7 @@ GS.EPIC = {
     { art: 'duelo', k: 'Puerto Argentino', t: 'El duelo final', d: 'Todo el pueblo hizo fila en los dos locales. El que atendiera a todos sin un error se quedaba en las islas.' },
     { art: 'barco', k: 'Pirata Gaming', t: 'El pirata levó anclas', d: 'Su fila se pasó a la nuestra. Hasta su loro. El Capitán Tormenta subió al barco y dijo: "Las islas son de ustedes. Siempre lo fueron."' },
     { art: 'bandera', k: 'Al cierre', t: 'Y plantamos la bandera', d: 'Todo el equipo salió a la vereda. El viento, por una vez, ayudó: la dejó bien extendida.' },
-    { art: 'islas', k: 'La sucursal más austral', t: 'Las Malvinas tienen su GameShop', d: 'Mejoras completas, cinco estrellas, camión, el farero de cliente y los pingüinos mirando la vidriera.' },
+    { art: 'islas', k: 'La sucursal más austral', t: 'Las Malvinas tienen su GameShop', d: 'Mejoras completas, cinco estrellas, flota completa, el farero de cliente y los pingüinos mirando la vidriera.' },
     { art: 'pais', k: 'De La Quiaca a Puerto Argentino', t: 'Toda la Argentina lo festejó', d: 'La noticia cruzó el mar. Hubo bocinazos en cada ciudad donde hay un cartel de GameShop. O sea, en todas.' },
     { art: 'dueno', k: 'En Incas', t: 'El Dueño lloró un poquito', d: 'Dice que fue el viento. GameShop llegó a todo el país. A todo.' }
   ]
@@ -374,18 +374,18 @@ GS.MODS = [
 GS.ONBOARD = [
   { art: 'jefe', k: 'Tu primer día', t: 'Bienvenido a GameShop', d: 'Soy el Dueño. Te contraté para algo grande: llevar GameShop a todo el país.' },
   { art: 'mapa0', k: 'La misión', t: 'Una sucursal en cada región', d: 'Hoy hay una sola: la nuestra, en Buenos Aires. Desde cada región se envía más fácil a todas sus provincias.' },
-  { art: 'recursos', k: 'Cómo se logra', t: 'Estrellas, monedas y fondos', d: 'Para abrir una sucursal nueva hacen falta tres cosas: 5 estrellas, el camión (se compra con monedas) y los fondos de expansión.' },
+  { art: 'recursos', k: 'Cómo se logra', t: 'Estrellas, monedas y fondos', d: 'Para abrir una sucursal nueva hacen falta tres cosas: 5 estrellas, la flota completa (se compra con monedas) y los fondos de expansión.' },
   { art: 'jefe2', k: 'El Dueño', t: 'Podemos hacer mucho', d: 'Por GameShop. Y quién sabe: por el país. Empecemos por casa: elegí Buenos Aires en el mapa.' }
 ];
 /* Consejos del Dueño: aparecen una sola vez, la primera vez que pasa cada cosa. */
 GS.TIPS = {
   resumen: 'El cierre del día tiene cuatro pantallas: <b>cómo te fue</b>, <b>lo que cobraste</b>, <b>mejoras</b> y <b>qué sigue</b>. Deslizá o tocá Siguiente.',
   tienda: 'Tocá una mejora para verla en el local. Las que tienen niveles se pueden mirar aunque todavía no te alcance.',
-  mapa: 'Tocá una región para ver su sucursal. Para abrir una nueva hacen falta tres cosas: <b>5 estrellas</b> y <b>camión</b> (se compra con 🪙 monedas) en las que ya tenés, y los <b>🗺️ fondos de expansión</b>, que se juntan solos jornada a jornada.',
+  mapa: 'Tocá una región para ver su sucursal. Para abrir una nueva hacen falta tres cosas: <b>5 estrellas</b> y <b>flota completa</b> (se compra con 🪙 monedas) en las que ya tenés, y los <b>🗺️ fondos de expansión</b>, que se juntan solos jornada a jornada.',
   mancha: '🧹 Dejaron una mancha. Cuando tengas un rato libre, tocá <b>Limpiar el piso</b>: terminar con el local sucio baja la reputación.',
   ensenar: '🎓 En las sucursales nuevas, en los respiros podés <b>enseñarle al equipo</b>. Cuanto más saben, más tareas resuelven solos.',
   errores: 'Desde hoy, ojo: si le das <b>otro producto</b>, el cliente se va. Y cobrar mal baja la reputación.',
-  sucursal: 'Sucursal nueva: empezás con un local humilde. Llevala a <b>5 estrellas</b> y comprale el <b>camión</b>: con eso la región queda conquistada. Yo te llamo cada tanto.',
+  sucursal: 'Sucursal nueva: empezás con un local humilde. Llevala a <b>5 estrellas</b> y completale la <b>flota</b>: con eso la región queda conquistada. Yo te llamo cada tanto.',
   evento: 'A veces pasa algo inesperado. Elegí con criterio: lo que decidas deja huella en la reputación o en la caja.',
   rival: '⚔️ Mientras el rival de la zona siga dando pelea, su regla te complica cada jornada. Cuando venga al mostrador, <b>ganale</b>: la regla se va y esta sucursal rinde 10% más.',
   reparto: 'Cada cierre elegís a dónde va lo del día: <b>al local</b> (más monedas para mejoras) o <b>a la expansión</b> (más fondos para abrir sucursales). No alcanza para todo a la vez.',
@@ -407,7 +407,7 @@ GS.ACHIEVEMENTS = [
   { id: 'palos', ic: '💰', name: 'Diez palos', d: 'Facturá 10 millones (ficticios) en total.', test: st => st.sales >= 10000000 },
   { id: 'cinco', ic: '⭐', name: 'Cinco estrellas', d: 'Llevá la reputación a 4,8 o más.', test: st => st.rep >= 4.8 },
   { id: 'platino', ic: '💎', name: 'Sucursal de platino', d: 'Completá una sucursal al 100%: todas las mejoras y todas las historias.', test: st => st.platino >= 1 },
-  { id: 'camion', ic: '🚚', name: 'Con camión propio', d: 'Llevá la flota de envíos hasta el camión.', test: st => st.flota >= 3 },
+  { id: 'camion', ic: '🚚', name: 'Flota completa', d: 'Completá la flota de envíos: moto, camioneta y camión.', test: st => st.flota >= 3 },
   { id: 'generoso', ic: '💸', name: 'Generoso sin querer', d: 'Diste vuelto de más.', hidden: true, test: st => st.vueltoMal >= 1 },
   { id: 'piso', ic: '🍽️', name: 'Se puede comer en el piso', d: 'Cinco jornadas terminadas sin una mancha.', hidden: true, test: st => st.limpio >= 5 },
   { id: 'noel', ic: '🎅', name: 'Lista de regalos', d: 'Le vendiste a Papá Noel.', hidden: true, test: st => st.santa >= 1 },

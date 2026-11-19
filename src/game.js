@@ -426,11 +426,11 @@ GS.Game = (function () {
   const mapState = lit => { const all = brAll(), o = {}; GS.REGIONS.forEach(r => { const b = all[r.id], open = (lit && !r.secret) || !!(b && b.open); if (r.secret && !open && !malvOk()) { o[r.id] = { hidden: true }; return; } o[r.id] = { flag: !!r.secret && open && malvWon(), open, can: !open && fondoNow() >= r.cost && canExpand(), cur: !lit && r.id === brId(), stage: lit ? 3 : open ? brStage(r.id) : 0 }; }); return o; };
   function mapCard(id) {
     const all = brAll(), cur = brId(), f = fondoNow(), r = RG(id), b = all[id], open = b && b.open, me = id === cur, h = histAll(), ss = GS.STORIES.filter(S => !S.once && (S.reg || 'pampeana') === id);
-    if (!open) { const pend = pendingOpen(), ok = canExpand(), need = !ok ? 'Primero conquistá ' + pend.map(x => x.city).join(' y ') + ': 5 estrellas y camión' : f < r.cost ? 'Faltan ' + (r.cost - f) + ' fondos · cuesta 🗺️ ' + r.cost : 'Abrir sucursal · 🗺️ ' + r.cost;
+    if (!open) { const pend = pendingOpen(), ok = canExpand(), need = !ok ? 'Primero conquistá ' + pend.map(x => x.city).join(' y ') + ': 5 estrellas y flota completa' : f < r.cost ? 'Faltan ' + (r.cost - f) + ' fondos · cuesta 🗺️ ' + r.cost : 'Abrir sucursal · 🗺️ ' + r.cost;
       return '<div class="suc lock"><b>🔒 ' + r.name + ' · ' + r.city + '</b><small>🗺️ ' + r.prov.join(' · ') + '</small><small>🌦️ ' + r.clima + '</small><small>⚔️ Zona de <b>' + r.rival.name + '</b></small><button class="btn alt" data-open="' + id + '"' + (f < r.cost || !ok ? ' disabled' : '') + '>' + need + '</button></div>'; }
     const rp = me ? repNow() : (b.rep == null ? 3 : b.rep), pr = brProgress(id), up = me ? upNow() : b.up || {}, pend = GS.UPGRADES.reduce((a, g) => a + g.levels.length - Math.min(g.levels.length, up[g.id] || 0), 0);
     return '<div class="suc' + (me ? ' me' : '') + '"><b>' + r.name + ' · ' + r.city + (pr >= 100 ? ' 💎' : conquered(id) ? ' ✅' : '') + '</b>' +
-      '<small class="al">' + (conquered(id) ? '✅ Región conquistada' + (pr >= 100 ? ' · 💎 platino' : '') : 'Para conquistarla: ' + (rp < 4.8 ? '⭐ llegar a 5 estrellas' : '⭐ listo') + ' · ' + ((up.flota || 0) < 3 ? '🚚 comprar el camión' : '🚚 listo')) + (b.manager && !me ? ' · encargado: ' + b.manager : '') + '</small>' + progBox(id) +
+      '<small class="al">' + (conquered(id) ? '✅ Región conquistada' + (pr >= 100 ? ' · 💎 platino' : '') : 'Para conquistarla: ' + (rp < 4.8 ? '⭐ llegar a 5 estrellas' : '⭐ listo') + ' · ' + ((up.flota || 0) < 3 ? '🚚 completar la flota' : '🚚 listo')) + (b.manager && !me ? ' · encargado: ' + b.manager : '') + '</small>' + progBox(id) +
       (r.rival ? '<small>' + ((h['rival_' + id] || {}).done ? '🏆 Le ganaste a ' + r.rival.name + ': +10% de monedas acá' : '⚔️ ' + r.rival.name + ': ' + (r.rival.fx || r.rival.rule)) + '</small>' : '') +
       (me ? '<button class="btn ghost" disabled>Estás acá</button>' : '<button class="btn" data-go="' + id + '">Viajar a ' + r.city + '</button>') + '</div>';
   }
@@ -472,7 +472,7 @@ GS.Game = (function () {
   function leaveTo(id) { if (state === 'day') return toast('<b>Terminá la jornada</b>Se viaja entre jornadas.', '', 2200); pickManager(() => { switchBranch(id); $('modal').hidden = true; if (state === 'end') goHome(); toast('<b>✈️ ' + RG(id).city + '</b>Sucursal ' + RG(id).name + '.', '', 2600); }); }
   function openRegion(id) {
     if (state === 'day') return toast('<b>Terminá la jornada</b>Las sucursales se abren entre jornadas.', '', 2200);
-    if (!canExpand()) return toast('<b>Todavía no</b>Primero conquistá ' + pendingOpen().map(x => x.city).join(' y ') + ': 5 estrellas y camión.', '', 3600);
+    if (!canExpand()) return toast('<b>Todavía no</b>Primero conquistá ' + pendingOpen().map(x => x.city).join(' y ') + ': 5 estrellas y flota completa.', '', 3600);
     const R = RG(id), sel = [];
     { const rv = GS.STORIES.find(S => S.id === 'rival_' + id), me = Object.assign({ skin: GS.SKINS[2], hair: GS.HAIRS[0], hairStyle: 'corto', shirt: 0xe10600 }, GS.Store.get('avatar') || {}); var headR = '<div class="reg-head" style="background:linear-gradient(120deg, ' + ACC[id] + ', #15151a 115%)"><small>Nueva sucursal · Región ' + R.name + '</small><b>' + R.city + '</b></div>' +
       (rv ? '<div class="vs"><figure><div class="pf">' + avatarSvg(me, 'happy') + '</div><figcaption>GameShop</figcaption></figure><b>VS</b><figure><div class="pf">' + avatarSvg(Object.assign({ skin: 0xe0ac7e }, rv.look), 'angry') + '</div><figcaption>' + R.rival.name + '</figcaption></figure></div>' : ''); }
@@ -904,7 +904,7 @@ GS.Game = (function () {
           sayAt(ref.person, ref.arche.bye, 3600); day.beat = 1.5;
           const d = day; setTimeout(() => { if (day === d && !MG.isOpen()) W.focus(null); }, 2300);
           leave(ref, !!info.total);
-        } else { day.tasksDone++; day.wv.done[job.type] = 1; day.okBy = day.okBy || {}; day.okBy[job.type] = (day.okBy[job.type] || 0) + 1; addScore(job.type === 'ml' ? 130 * (1 + 0.2 * (upNow().flota || 0)) : 130, ref.pat); if (job.type === 'ml' && upNow().flota) addRep(0.015 * upNow().flota); if (job.type === 'ml' && upNow().flota && W.dispatch()) toast('<b>' + ['', '🛵 Sale la moto', '🚐 Sale la camioneta', '🚚 Sale el camión'][Math.min(3, upNow().flota)] + '</b>El pedido ya va en camino.', '', 2600); addRep(job.type === 'whatsapp' ? 0.05 : 0.03); if (job.type === 'vidriera') { GS.Store.set('vid', info.quality || 0); addRep((info.quality - 0.5) * 0.12); } removeTask(ref); }
+        } else { day.tasksDone++; day.wv.done[job.type] = 1; day.okBy = day.okBy || {}; day.okBy[job.type] = (day.okBy[job.type] || 0) + 1; addScore(job.type === 'ml' ? 130 * (1 + 0.2 * (upNow().flota || 0)) : 130, ref.pat); if (job.type === 'ml' && upNow().flota) addRep(0.015 * upNow().flota); if (job.type === 'ml' && upNow().flota && W.dispatch() && (A.play(['', 'moto', 'van', 'truck'][Math.min(3, upNow().flota)]), 1)) toast('<b>' + ['', '🛵 Sale la moto', '🚐 Sale la camioneta', '🚚 Sale el camión'][Math.min(3, upNow().flota)] + '</b>El pedido ya va en camino.', '', 2600); addRep(job.type === 'whatsapp' ? 0.05 : 0.03); if (job.type === 'vidriera') { GS.Store.set('vid', info.quality || 0); addRep((info.quality - 0.5) * 0.12); } removeTask(ref); }
       }
     };
     const seen = GS.Store.get('seen') || {};
@@ -1175,7 +1175,7 @@ GS.Game = (function () {
       const g = GS.UPGRADES.filter(x => x.id === b.dataset.up)[0], u = upNow(), i = u[g.id] || 0, lv = g.levels[i]; if (!lv || coinsNow() < lv.price) return;
       u[g.id] = i + 1; GS.Store.set('up', u); GS.Store.set('newUp', true); GS.Store.set('coins', coinsNow() - lv.price); brSave(); W.setUpgrades(upNow()); A.play('cash'); toast('<b>¡Mejora comprada!</b>' + lv.n, '', 2400); refreshStart();
       $('upBox').innerHTML = upHtml(); $('expBox').innerHTML = expCard(); { const h2 = nextHook(d.n + 1); $('hookBox').innerHTML = '<i>' + h2[0] + '</i><span><b>Lo que viene</b>' + h2[1] + '</span>'; }
-      if (g.id === 'flota' && i === 2 && repNow() < 4.8) setTimeout(() => toast('<b>🚚 Camión listo</b>Para conquistar la región solo falta llegar a 5 estrellas (vas ' + repTxt(repNow()) + ').', '', 5000), 2500); });
+      if (g.id === 'flota' && i === 2 && repNow() < 4.8) setTimeout(() => toast('<b>🚚 Flota completa</b>Para conquistar la región solo falta llegar a 5 estrellas (vas ' + repTxt(repNow()) + ').', '', 5000), 2500); });
     { const t = GS.Store.get('tot') || {}; if (brProgress(brId()) >= 100 && !brNow().plat) { brSave({ plat: 1 }); t.platino = (t.platino || 0) + 1; GS.Store.set('tot', t); checkLogros(); } }
     /* los festejos (región conquistada, finales) esperan a la última pantalla del resumen */
     let cele = false; const celebrate = () => { if (cele || state !== 'end' || GS.Store.get('testDay')) return; cele = true;
@@ -1194,7 +1194,7 @@ GS.Game = (function () {
     if (m === 0) return ['🎄', 'La próxima es diciembre: semana de Navidad. Dicen que viene alguien de rojo a comprar.'];
     const h = histAll(), back = GS.STORIES.filter(S => h[S.id] && !h[S.id].done && n >= h[S.id].last + (S.gap || 1));
     if (back.length) return ['📖', back[0].name + ' dijo que volvía. Puede aparecer en la próxima jornada.'];
-    const f = goalNow() - fondoNow(), me = brData(brId()); if (goalNow() && !conquered(brId())) return me.rep < 4.8 && me.flota < 3 ? ['⭐', 'Para conquistar esta región faltan dos cosas: llegar a 5 estrellas y comprar el camión.'] : me.rep < 4.8 ? ['⭐', 'Ya tenés el camión. Falta llegar a 5 estrellas (vas ' + repTxt(me.rep) + ') para conquistar la región.'] : ['🚚', 'Ya tenés 5 estrellas. Falta el camión para conquistar la región.'];
+    const f = goalNow() - fondoNow(), me = brData(brId()); if (goalNow() && !conquered(brId())) return me.rep < 4.8 && me.flota < 3 ? ['⭐', 'Para conquistar esta región faltan dos cosas: llegar a 5 estrellas y tener la flota completa.'] : me.rep < 4.8 ? ['⭐', 'Ya tenés la flota completa. Falta llegar a 5 estrellas (vas ' + repTxt(me.rep) + ') para conquistar la región.'] : ['🚚', 'Ya tenés 5 estrellas. Falta tener la flota completa para conquistar la región.'];
     if (goalNow() && f <= 0 && canExpand()) return ['🗺️', 'Región conquistada y fondos listos: abrí el mapa y elegí dónde va la próxima sucursal.'];
     if (goalNow() && f < 1000) return ['🗺️', 'Faltan ' + f + ' fondos de expansión para abrir la próxima sucursal.'];
     const t = nextGoal(); if (t) return [t.g.icon, (coinsNow() >= t.lv.price ? 'Ya te alcanza para: ' : 'Te faltan 🪙 ' + (t.lv.price - coinsNow()) + ' para: ') + t.lv.n + '.'];
@@ -1221,14 +1221,14 @@ GS.Game = (function () {
     const row = (ok, ic, t, sub, pct) => '<div class="' + (ok ? 'ok' : '') + '"><i>' + (ok ? '✅' : ic) + '</i><span><b>' + t + '</b><small>' + sub + '</small>' + (pct != null && !ok ? '<em><u style="width:' + Math.max(3, Math.min(100, pct)).toFixed(0) + '%"></u></em>' : '') + '</span></div>';
     return '<div class="expc' + (ready ? ' ready' : '') + '"><h4>' + (ready ? '🎉 ¡Ya podés abrir otra sucursal!' : '🗺️ Qué falta para abrir otra sucursal') + '</h4>' + expDiagram({ rep: me.rep >= 4.8, flota: me.flota >= 3, fondo: f >= g }) +
       row(me.rep >= 4.8, '⭐', '1 · Llegar a 5 estrellas en ' + R.city, me.rep >= 4.8 ? 'Listo: acá ya nos conocen.' : 'Vas ' + repTxt(me.rep) + ' de 5. Sube cuando atendés sin errores y el local está limpio.', me.rep / 4.8 * 100) +
-      row(me.flota >= 3, '🚚', '2 · Comprar el camión', me.flota >= 3 ? 'Listo: llegamos a toda la región.' : need <= c ? '¡Ya te alcanza! Compralo en Mejoras → Flota de envíos.' : 'Se compra con 🪙 monedas, en Mejoras → Flota de envíos. Te faltan 🪙 ' + (need - c) + '.', c / need * 100) +
-      (others.length ? row(false, '🏪', 'Lo mismo en ' + others.map(r => r.city).join(' y '), 'Cada sucursal abierta necesita sus 5 estrellas y su camión.') : '') +
+      row(me.flota >= 3, '🚚', '2 · Tener la flota completa', me.flota >= 3 ? 'Listo: llegamos a toda la región.' : need <= c ? '¡Ya te alcanza! Comprá lo que falta en Mejoras → Flota de envíos.' : 'Moto, camioneta y camión: se compran con 🪙 monedas, en Mejoras → Flota de envíos. Te faltan 🪙 ' + (need - c) + '.', c / need * 100) +
+      (others.length ? row(false, '🏪', 'Lo mismo en ' + others.map(r => r.city).join(' y '), 'Cada sucursal abierta necesita sus 5 estrellas y su flota completa.') : '') +
       row(f >= g, '🗺️', '3 · Juntar ' + g + ' fondos de expansión', f >= g ? 'Listo: tenés ' + f + '.' : 'Tenés ' + f + '. Se suman solos al cerrar cada jornada; no se gastan en mejoras.', f / g * 100) +
-      '<p>' + (ready ? 'Abrí el <b>🗺️ Mapa</b> y elegí la región.' : '<b>🪙 Monedas</b>: mejoran el local y compran la flota. <b>🗺️ Fondos</b>: solo sirven para abrir sucursales, desde el Mapa.') + '</p><p class="meta">🏁 <b>Meta del juego:</b> las 5 regiones con 5 estrellas y camión (' + MAIN.filter(r => conquered(r.id)).length + ' de 5).</p></div>';
+      '<p>' + (ready ? 'Abrí el <b>🗺️ Mapa</b> y elegí la región.' : '<b>🪙 Monedas</b>: mejoran el local y compran la flota. <b>🗺️ Fondos</b>: solo sirven para abrir sucursales, desde el Mapa.') + '</p><p class="meta">🏁 <b>Meta del juego:</b> las 5 regiones con 5 estrellas y flota completa (' + MAIN.filter(r => conquered(r.id)).length + ' de 5).</p></div>';
   }
   function sucCard() {
     const all = brAll(), f = fondoNow(), g = goalNow(), n = MAIN.filter(r => all[r.id] && all[r.id].open).length, dots = '<span class="hc-d">' + MAIN.map(r => '<i class="' + (all[r.id] && all[r.id].open ? 'on' : '') + (r.id === brId() ? ' cur' : '') + '"></i>').join('') + '</span>';
-    return wbtn('🗺️', 'Mis sucursales', dots + ' ' + n + ' de 5' + (g ? (!canExpand() ? ' · falta ' + (brData(brId()).rep < 4.8 ? '⭐ 5 estrellas' : '') + (brData(brId()).rep < 4.8 && brData(brId()).flota < 3 ? ' y ' : '') + (brData(brId()).flota < 3 ? '🚚 camión' : '') + (conquered(brId()) ? 'conquistar otra sucursal' : '') : f >= g ? ' · ¡ya podés abrir otra!' : ' · juntando fondos') : ' · avance ' + Math.round(MAIN.reduce((a, r) => a + brProgress(r.id), 0) / MAIN.length) + '%'), f, g, '🗺️', f >= g && canExpand());
+    return wbtn('🗺️', 'Mis sucursales', dots + ' ' + n + ' de 5' + (g ? (!canExpand() ? ' · falta ' + (brData(brId()).rep < 4.8 ? '⭐ 5 estrellas' : '') + (brData(brId()).rep < 4.8 && brData(brId()).flota < 3 ? ' y ' : '') + (brData(brId()).flota < 3 ? '🚚 flota completa' : '') + (conquered(brId()) ? 'conquistar otra sucursal' : '') : f >= g ? ' · ¡ya podés abrir otra!' : ' · juntando fondos') : ' · avance ' + Math.round(MAIN.reduce((a, r) => a + brProgress(r.id), 0) / MAIN.length) + '%'), f, g, '🗺️', f >= g && canExpand());
   }
   function goalCard() {
     const t = nextGoal(), c = coinsNow(); if (!t) return wbtn('🛠', 'Mejorar el local', '🏆 Local completo: compraste todas las mejoras', 0, 0, '', false);
@@ -1268,7 +1268,7 @@ GS.Game = (function () {
   function buy(i) {
     const u = upNow(), g = GS.UPGRADES[shopSel], lv = g.levels[i]; if ((u[g.id] || 0) !== i || coinsNow() < lv.price) return;
     u[g.id] = i + 1; GS.Store.set('up', u); GS.Store.set('newUp', true); GS.Store.set('coins', coinsNow() - lv.price); A.play('cash'); toast('<b>¡Mejora comprada!</b>' + lv.n, '', 2600); renderShop();
-    if (g.id === 'flota' && i === 2) { if (repNow() >= 4.8) setTimeout(() => { if (!$('shop').hidden) closeShop(); }, 1500); else setTimeout(() => toast('<b>🚚 Camión listo</b>Para conquistar la región solo falta llegar a 5 estrellas (vas ' + repTxt(repNow()) + ').', '', 5000), 2700); }      // el camión era lo último: el festejo es ahora, no una jornada después
+    if (g.id === 'flota' && i === 2) { if (repNow() >= 4.8) setTimeout(() => { if (!$('shop').hidden) closeShop(); }, 1500); else setTimeout(() => toast('<b>🚚 Flota completa</b>Para conquistar la región solo falta llegar a 5 estrellas (vas ' + repTxt(repNow()) + ').', '', 5000), 2700); }      // el camión era lo último: el festejo es ahora, no una jornada después
   }
   function closeShop() { $('shop').hidden = true; W.setUpgrades(upNow()); state = 'menu'; $('start').hidden = false; refreshStart(); W.showAll(); A.play('click'); brSave(); checkConquest(); }
   // Cara y busto de un personaje, en el mismo estilo que el muñeco 3D (4 colores: piel, pelo, remera y pantalón).
