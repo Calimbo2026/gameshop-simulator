@@ -415,8 +415,16 @@ GS.World = (function () {
       box(g, t.w - 0.1, t.h - 0.09, 0.1, wood, t.x, 0, t.z - t.d / 2 + 0.05); box(g, t.w - 0.1, t.h - 0.09, 0.1, wood, t.x, 0, t.z + t.d / 2 - 0.05);
       box(g, 0.08, t.h - 0.09, t.d, 0xc9a56b, t.x - t.w / 2 + 0.3, 0, t.z);
       [[-1.1, 0x111111], [-0.2, 0xf4f4f4], [0.7, 0x111111]].forEach(a => box(g, 0.5, 0.62, 0.62, a[1], t.x + 0.35, 0, t.z + a[0]));
-      notebook(g, t.x, t.h, t.z - 1.35); notebook(g, t.x, t.h, t.z - 0.75);
-      ['gpu', 'monitor', 'ram', 'gabinete', 'disco', 'impresora', 'router', 'cargador'].forEach((id, k) => model(g, id, t.x + (k % 2 ? 0.3 : -0.3), t.h, t.z - 0.12 + Math.floor(k / 2) * 0.52, 1.55));
+      /* exhibición en tres zonas, todo mirando al pasillo (+x): notebooks, un puesto armado y los componentes sobre gradas */
+      const F = Math.PI / 2, it = (id, dx, dz, sc, ry, y) => model(g, id, t.x + dx, t.h + (y || 0), t.z + dz, sc, ry == null ? F : ry);
+      const tag = (dx, dz) => { const q = new T.Group(); q.position.set(t.x + dx, t.h, t.z + dz); q.rotation.y = F; g.add(q); const a = box(q, 0.2, 0.13, 0.012, 0xffffff, 0, 0, 0); a.rotation.x = -0.4; const r = box(q, 0.2, 0.04, 0.014, 0xe10600, 0, 0.085, -0.036); r.rotation.x = -0.4; };
+      box(g, 1.2, 0.012, 1.02, 0xf1f1ec, t.x - 0.05, t.h, t.z - 1.2);                                                   /* paño oscuro de las notebooks */
+      notebook(g, t.x - 0.22, t.h + 0.012, t.z - 1.45); notebook(g, t.x - 0.22, t.h + 0.012, t.z - 0.92); it('cargador', 0.36, -1.2, 1.5, F + 0.25); tag(0.55, -1.52); tag(0.55, -0.86);
+      box(g, 1.26, 0.012, 1.0, 0x8a6bff, t.x - 0.02, t.h, t.z - 0.02, GLOW(0x3a2a80)); box(g, 1.2, 0.014, 0.94, 0x17171c, t.x - 0.02, t.h, t.z - 0.02);   /* pad del puesto armado, con borde violeta */
+      it('gabinete', -0.3, -0.34, 1.55, 0); it('monitor', -0.34, 0.14, 1.75, F); it('teclado', 0.16, 0.14, 1.45, F); it('mouse', 0.2, -0.24, 1.45, F); tag(0.56, 0.4);
+      box(g, 0.5, 0.14, 0.98, 0x17171c, t.x - 0.4, t.h, t.z + 1.2); box(g, 0.5, 0.012, 0.98, 0xe10600, t.x - 0.4, t.h + 0.14, t.z + 1.2);     /* grada del fondo */
+      it('gpu', -0.4, 0.92, 1.5, F, 0.152); it('impresora', -0.4, 1.42, 1.25, F, 0.152);
+      it('ram', 0.12, 0.84, 1.45, F + 0.2); it('disco', 0.14, 1.18, 1.6, F - 0.25); it('router', 0.1, 1.52, 1.35, F); tag(0.56, 0.86); tag(0.56, 1.5);
       rail(g, 'PC Y ACCESORIOS', t.x + t.w / 2, t.z, t.d, 'x');
     }
     { // escritorio gamer con monitor, teclado blanco y silla gris
@@ -667,7 +675,7 @@ GS.World = (function () {
     if (R.decor === 'patagonia') { water(-42, -30, 8, 4.5, 0.3); village(26, { w: [2.6, 3.4], d: [2.6, 3.2], h: [1.5, 1.9], walls: [0x8a5a34, 0x7a4a28, 0x9a6a40], roofs: [0x4a3524, 0x5a3a26], roof: 'alpino', pitch: 1.0, snow: true, chimney: true }); land();       // cabañas de troncos con techo empinado y nieve
       scatter(26, pine, 11, 32); [[-2.5, 0.3], [1.7, 0.6], [3.3, 0.1]].forEach(q => { cyl(0.12, 0.5, 0x6b4a2a, q[0], 0, zF + q[1]); [0, 1, 2].forEach(k => cone(0.62 - k * 0.15, 0.8, 0x1f6a3a, q[0], 0.4 + k * 0.5, zF + q[1], 7)); });
       [[-1, 0.4], [0.6, 0.9], [2.6, 1.0], [-3.6, 0.8]].forEach(q => { const m = new T.Mesh(new T.CircleGeometry(0.6, 9), mat(0xffffff)); m.rotation.x = -Math.PI / 2; m.position.set(q[0], 0.02, zF + q[1]); g.add(m); }); }
-    if (stage >= 2) [-1.25, 1.25].forEach(dx => { box(g, 0.5, 0.4, 0.5, 0xb5651d, L.puerta.x + dx, 0, zF - 1.1); box(g, 0.42, 0.34, 0.42, 0x3f8f3a, L.puerta.x + dx, 0.4, zF - 1.1); box(g, 0.14, 0.14, 0.14, 0xff5fa2, L.puerta.x + dx, 0.74, zF - 1.1); });   // mejorado: canteros
+    if (stage >= 2) [-1, 1].forEach(sd => { const px = sd * (L.galeria.pasillo + 0.42), pz = L.galeria.zMax + 0.42; box(g, 0.5, 0.4, 0.5, 0xb5651d, px, 0, pz); box(g, 0.54, 0.06, 0.54, 0x8f4d14, px, 0.36, pz); box(g, 0.42, 0.3, 0.42, 0x3f8f3a, px, 0.42, pz); [[0, 0], [-0.13, 0.1], [0.12, -0.11]].forEach((q, i) => box(g, 0.12, 0.12, 0.12, i ? 0xffd166 : 0xff5fa2, px + q[0], 0.72 + (i ? -0.04 : 0), pz + q[1])); });   // mejorado: canteros
     if (stage >= 3) { box(g, 1.5, 0.03, 2.4, 0xb00000, L.puerta.x, 0, zF - 0.6); const st = new T.Mesh(new T.OctahedronGeometry(0.34), new T.MeshBasicMaterial({ color: 0xf5c518 })); st.position.set(0, 3.85, 0); totem.add(st); }   // estrella: alfombra roja y estrella en el tótem
   }
   // Flota de envíos, estacionada sobre la vereda: moto, camioneta o camión (se ve solo el nivel actual)
