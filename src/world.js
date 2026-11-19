@@ -415,14 +415,11 @@ GS.World = (function () {
     { // mesa de madera con PC y accesorios: del tamaño de la isla, con tres zonas que miran a la puerta (notebooks, puesto armado y componentes)
       const k = piece('mesa'), wood = 0xd9b77e, h = 0.9, w = 2.0, d = 0.95, Q = -Math.PI / 2;
       box(k, w, 0.09, d, wood, 0, h - 0.09, 0); [-1, 1].forEach(sd => box(k, 0.1, h - 0.09, d - 0.1, wood, sd * (w / 2 - 0.08), 0, 0)); box(k, w - 0.2, h - 0.09, 0.08, 0xc9a56b, 0, 0, -d / 2 + 0.1);
-      const it = (id, x, z, sc, ry, y) => model(k, id, x, h + (y || 0), z, sc, ry || 0);
-      const tag = (x, z) => { const q = new T.Group(); q.position.set(x, h, z); k.add(q); const a = box(q, 0.18, 0.12, 0.012, 0xffffff, 0, 0, 0); a.rotation.x = -0.4; const r = box(q, 0.18, 0.036, 0.014, 0xe10600, 0, 0.078, -0.033); r.rotation.x = -0.4; };
-      box(k, 0.8, 0.012, 0.78, 0xf1f1ec, -0.57, h, -0.03);                                                                /* paño claro de las notebooks */
-      [-0.78, -0.36].forEach((x, i) => { const n = new T.Group(); n.position.set(x, h + 0.012, -0.12 - i * 0.04); n.rotation.y = Q + (i ? -0.12 : 0.1); n.scale.setScalar(0.78); k.add(n); notebook(n, 0, 0, 0); }); tag(-0.57, 0.36);
-      box(k, 0.74, 0.012, 0.8, 0x8a6bff, 0.22, h, -0.03, GLOW(0x3a2a80)); box(k, 0.7, 0.014, 0.76, 0x17171c, 0.22, h, -0.03);       /* pad del puesto armado, con borde violeta */
-      it('monitor', 0.1, -0.2, 1.5); it('gabinete', 0.47, -0.16, 1.3, Q); it('teclado', 0.1, 0.14, 1.2); it('mouse', 0.44, 0.16, 1.2); tag(0.22, 0.4);
-      box(k, 0.34, 0.12, 0.3, 0x17171c, 0.8, h, -0.24); box(k, 0.34, 0.012, 0.3, 0xe10600, 0.8, h + 0.12, -0.24);             /* grada de los componentes */
-      it('gpu', 0.8, -0.24, 1.15, 0, 0.132); it('ram', 0.74, 0.08, 1.05, 0.2); it('disco', 0.86, 0.26, 1.3, -0.25); tag(0.8, 0.42);
+      /* pocos productos, grandes y con aire entre ellos: una notebook, un puesto con monitor y teclado, y un gabinete */
+      const it = (id, x, z, sc, ry) => model(k, id, x, h, z, sc, ry || 0);
+      { const n = new T.Group(); n.position.set(-0.66, h, -0.06); n.rotation.y = Q + 0.12; n.scale.setScalar(1.05); k.add(n); notebook(n, 0, 0, 0); }
+      it('monitor', 0.04, -0.2, 1.75); it('teclado', 0.04, 0.2, 1.35); it('mouse', 0.42, 0.22, 1.3);
+      it('gabinete', 0.76, -0.1, 1.6, Q);
       rail(k, 'PC Y ACCESORIOS', 0, d / 2, w, 'z');
     }
     { // escritorio gamer con monitor, teclado blanco y silla gris
