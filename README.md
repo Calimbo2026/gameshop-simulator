@@ -283,3 +283,10 @@ Tres juegos en `src/arcade.js`, que se ganan al terminar las jornadas 3, 8 y 14 
 - **Uniones**: corregidas las caras superpuestas en la trompa del utilitario, las columnas del frente y los banderines; además cada material empuja apenas su profundidad, así dos caras en el mismo plano ya no parpadean.
 - **Colectivo**: queda una sola pregunta, "¿dónde para el 80?", solo en Buenos Aires.
 - **Saludos regionales**: de 5 a unos 15 por región, y salen como un mazo: no se repite ninguno hasta que salieron todos.
+
+## v0.59 · Muebles con lugar a elección y clientes que los usan
+
+- **Salón**: pasillo central libre de la puerta al mostrador y cuatro lugares (`GS.LAYOUT.slots`) para los muebles de piso (`GS.FLOOR`: Isla Apple, Mesa de PC, Sillas gamer, Escritorio gamer). Todos miran a la puerta.
+- **Elegir el lugar**: en Mejorar el local, cada mueble de piso muestra un plano chiquito del salón; tocar un lugar lo mueve (y si estaba ocupado, intercambia). Se guarda por sucursal en `up.lay`.
+- **Mesa de PC**: del tamaño de la isla, con tres zonas (notebooks, puesto armado y componentes).
+- **Clientes**: los que entran a mirar (y los que miran antes de ir al mostrador) usan los muebles: tocan lo de Apple, prueban el teclado, se sientan y giran en las sillas, juegan en el escritorio. Les salen emojis de que les gusta.

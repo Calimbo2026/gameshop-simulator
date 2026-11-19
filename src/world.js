@@ -316,8 +316,9 @@ GS.World = (function () {
   /* Mejoras del local: cada mueble comprable vive en su propio grupo, que se muestra según el nivel comprado */
   const ups = {};
   function upGroup(root, id, lvl) { const g = new T.Group(); root.add(g); (ups[id] = ups[id] || {})[lvl] = g; return g; }
-  let lastUp = {}, roofOn = false;
-  function applyUpgrades(state) { lastUp = state; if (roofOn) return hideSign();
+  let lastUp = {}, roofOn = false; const pieces = {};
+  function placePieces(lay) { GS.FLOOR.forEach((id, i) => { const k = pieces[id], sl = L.slots[lay && lay[id] != null ? lay[id] : i]; if (k && sl) k.position.set(sl.x, 0, sl.z); }); }
+  function applyUpgrades(state) { lastUp = state; placePieces(state && state.lay); if (roofOn) return hideSign();
     for (const id in ups) for (const lvl in ups[id]) ups[id][lvl].visible = id === 'cartel' || id === 'flota' ? (state[id] || 0) === Number(lvl) : (state[id] || 0) >= Number(lvl);
   }
   function hideSign() { for (const id in ups) for (const lvl in ups[id]) if (id !== 'cartel') ups[id][lvl].visible = id === 'flota' ? (lastUp[id] || 0) === Number(lvl) : (lastUp[id] || 0) >= Number(lvl); else ups[id][lvl].visible = false; }      // con el techo puesto, el cartel del frente queda debajo
@@ -403,33 +404,30 @@ GS.World = (function () {
     box(k, 1.74, 0.03, 0.34, 0x0c0c0c, 0, 0.56, 0.2);
   }
   function buildCenter(root) {
+    /* Muebles de piso: cada uno se arma centrado en su propio grupo, con el frente hacia la puerta (+z), y se ubica en uno de los lugares del salón (L.slots). */
+    const piece = id => { const g = upGroup(root, id, 1), k = new T.Group(); g.add(k); pieces[id] = k; return k; };
     { // isla Apple
-      const g = upGroup(root, 'isla', 1), b = Batch(g), i = L.isla;
-      box(g, i.w, i.h, i.d, 0xffffff, i.x, 0, i.z); box(g, i.w - 0.2, i.h - 0.3, 0.03, 0xe2e2e2, i.x, 0.2, i.z + i.d / 2 + 0.01);
-      idsOf('apple').forEach((id, k, a) => model(g, id, i.x - (a.length - 1) * 0.2 + k * 0.4, i.h, i.z + (k % 2 ? 0.14 : -0.14), 1.7));
-      rail(g, 'APPLE', i.x, i.z + i.d / 2, i.w, 'z'); b.build();
+      const k = piece('isla'), b = Batch(k), i = L.isla;
+      box(k, i.w, i.h, i.d, 0xffffff, 0, 0, 0); box(k, i.w - 0.2, i.h - 0.3, 0.03, 0xe2e2e2, 0, 0.2, i.d / 2 + 0.01);
+      idsOf('apple').forEach((id, n, a) => model(k, id, -(a.length - 1) * 0.2 + n * 0.4, i.h, n % 2 ? 0.14 : -0.14, 1.7));
+      rail(k, 'APPLE', 0, i.d / 2, i.w, 'z'); b.build();
     }
-    { // mesa de madera con PC y accesorios
-      const g = upGroup(root, 'mesa', 1), t = L.mesa, wood = 0xd9b77e;
-      box(g, t.w, 0.09, t.d, wood, t.x, t.h - 0.09, t.z);
-      box(g, t.w - 0.1, t.h - 0.09, 0.1, wood, t.x, 0, t.z - t.d / 2 + 0.05); box(g, t.w - 0.1, t.h - 0.09, 0.1, wood, t.x, 0, t.z + t.d / 2 - 0.05);
-      box(g, 0.08, t.h - 0.09, t.d, 0xc9a56b, t.x - t.w / 2 + 0.3, 0, t.z);
-      [[-1.1, 0x111111], [-0.2, 0xf4f4f4], [0.7, 0x111111]].forEach(a => box(g, 0.5, 0.62, 0.62, a[1], t.x + 0.35, 0, t.z + a[0]));
-      /* exhibición en tres zonas, todo mirando al pasillo (+x): notebooks, un puesto armado y los componentes sobre gradas */
-      const F = Math.PI / 2, it = (id, dx, dz, sc, ry, y) => model(g, id, t.x + dx, t.h + (y || 0), t.z + dz, sc, ry == null ? F : ry);
-      const tag = (dx, dz) => { const q = new T.Group(); q.position.set(t.x + dx, t.h, t.z + dz); q.rotation.y = F; g.add(q); const a = box(q, 0.2, 0.13, 0.012, 0xffffff, 0, 0, 0); a.rotation.x = -0.4; const r = box(q, 0.2, 0.04, 0.014, 0xe10600, 0, 0.085, -0.036); r.rotation.x = -0.4; };
-      box(g, 1.2, 0.012, 1.02, 0xf1f1ec, t.x - 0.05, t.h, t.z - 1.2);                                                   /* paño oscuro de las notebooks */
-      notebook(g, t.x - 0.22, t.h + 0.012, t.z - 1.45); notebook(g, t.x - 0.22, t.h + 0.012, t.z - 0.92); it('cargador', 0.36, -1.2, 1.5, F + 0.25); tag(0.55, -1.52); tag(0.55, -0.86);
-      box(g, 1.26, 0.012, 1.0, 0x8a6bff, t.x - 0.02, t.h, t.z - 0.02, GLOW(0x3a2a80)); box(g, 1.2, 0.014, 0.94, 0x17171c, t.x - 0.02, t.h, t.z - 0.02);   /* pad del puesto armado, con borde violeta */
-      it('gabinete', -0.3, -0.34, 1.55, 0); it('monitor', -0.34, 0.14, 1.75, F); it('teclado', 0.16, 0.14, 1.45, F); it('mouse', 0.2, -0.24, 1.45, F); tag(0.56, 0.4);
-      box(g, 0.5, 0.14, 0.98, 0x17171c, t.x - 0.4, t.h, t.z + 1.2); box(g, 0.5, 0.012, 0.98, 0xe10600, t.x - 0.4, t.h + 0.14, t.z + 1.2);     /* grada del fondo */
-      it('gpu', -0.4, 0.92, 1.5, F, 0.152); it('impresora', -0.4, 1.42, 1.25, F, 0.152);
-      it('ram', 0.12, 0.84, 1.45, F + 0.2); it('disco', 0.14, 1.18, 1.6, F - 0.25); it('router', 0.1, 1.52, 1.35, F); tag(0.56, 0.86); tag(0.56, 1.5);
-      rail(g, 'PC Y ACCESORIOS', t.x + t.w / 2, t.z, t.d, 'x');
+    { // mesa de madera con PC y accesorios: del tamaño de la isla, con tres zonas que miran a la puerta (notebooks, puesto armado y componentes)
+      const k = piece('mesa'), wood = 0xd9b77e, h = 0.9, w = 2.0, d = 0.95, Q = -Math.PI / 2;
+      box(k, w, 0.09, d, wood, 0, h - 0.09, 0); [-1, 1].forEach(sd => box(k, 0.1, h - 0.09, d - 0.1, wood, sd * (w / 2 - 0.08), 0, 0)); box(k, w - 0.2, h - 0.09, 0.08, 0xc9a56b, 0, 0, -d / 2 + 0.1);
+      const it = (id, x, z, sc, ry, y) => model(k, id, x, h + (y || 0), z, sc, ry || 0);
+      const tag = (x, z) => { const q = new T.Group(); q.position.set(x, h, z); k.add(q); const a = box(q, 0.18, 0.12, 0.012, 0xffffff, 0, 0, 0); a.rotation.x = -0.4; const r = box(q, 0.18, 0.036, 0.014, 0xe10600, 0, 0.078, -0.033); r.rotation.x = -0.4; };
+      box(k, 0.8, 0.012, 0.78, 0xf1f1ec, -0.57, h, -0.03);                                                                /* paño claro de las notebooks */
+      [-0.78, -0.36].forEach((x, i) => { const n = new T.Group(); n.position.set(x, h + 0.012, -0.12 - i * 0.04); n.rotation.y = Q + (i ? -0.12 : 0.1); n.scale.setScalar(0.78); k.add(n); notebook(n, 0, 0, 0); }); tag(-0.57, 0.36);
+      box(k, 0.74, 0.012, 0.8, 0x8a6bff, 0.22, h, -0.03, GLOW(0x3a2a80)); box(k, 0.7, 0.014, 0.76, 0x17171c, 0.22, h, -0.03);       /* pad del puesto armado, con borde violeta */
+      it('monitor', 0.1, -0.2, 1.5); it('gabinete', 0.47, -0.16, 1.3, Q); it('teclado', 0.1, 0.14, 1.2); it('mouse', 0.44, 0.16, 1.2); tag(0.22, 0.4);
+      box(k, 0.34, 0.12, 0.3, 0x17171c, 0.8, h, -0.24); box(k, 0.34, 0.012, 0.3, 0xe10600, 0.8, h + 0.12, -0.24);             /* grada de los componentes */
+      it('gpu', 0.8, -0.24, 1.15, 0, 0.132); it('ram', 0.74, 0.08, 1.05, 0.2); it('disco', 0.86, 0.26, 1.3, -0.25); tag(0.8, 0.42);
+      rail(k, 'PC Y ACCESORIOS', 0, d / 2, w, 'z');
     }
     { // escritorio gamer con monitor, teclado blanco y silla gris
-      const g = upGroup(root, 'escritorio', 1), e = L.escritorio;
-      const k = new T.Group(); k.position.set(e.x, 0, e.z); g.add(k);                                             /* el frente del escritorio mira a +z, donde va la silla */
+      const e = L.escritorio, k0 = piece('escritorio');
+      const k = new T.Group(); k.position.set(0, 0, -0.3); k0.add(k);                                             /* el frente del escritorio mira a +z, donde va la silla */
       box(k, e.w, 0.05, e.d, 0x17171c, 0, e.h - 0.05, 0); box(k, e.w, 0.02, 0.03, 0xff4fa3, 0, e.h - 0.07, e.d / 2 - 0.01, GLOW(0xff4fa3)); box(k, e.w - 0.1, 0.34, 0.03, 0x101014, 0, e.h - 0.4, -e.d / 2 + 0.05);
       [-1, 1].forEach(sd => { box(k, 0.06, e.h - 0.05, e.d - 0.12, 0x101014, sd * (e.w / 2 - 0.06), 0, 0); box(k, 0.1, 0.03, e.d, 0x101014, sd * (e.w / 2 - 0.06), 0, 0); });
       box(k, 1.0, 0.008, 0.42, 0x26262c, -0.12, e.h, 0.12); box(k, 1.0, 0.009, 0.02, 0x8a6bff, -0.12, e.h, 0.33, GLOW(0x8a6bff));                 /* pad XL */
@@ -440,11 +438,12 @@ GS.World = (function () {
       [-0.62, 0.38].forEach(x => { box(k, 0.1, 0.2, 0.1, 0x1d1d23, x, e.h, -0.24); cylM(k, 0.035, 0.035, 0.01, 0x55555f, x, e.h + 0.11, -0.188, 'z'); });                                   /* parlantes */
       box(k, 0.2, 0.44, 0.4, 0x15151a, 0.64, e.h, -0.08); box(k, 0.012, 0.36, 0.32, 0x56d6ff, 0.539, e.h + 0.04, -0.08, GLOW(0x2a8aa0)); [0.1, 0.22, 0.34].forEach((y, i) => cylM(k, 0.05, 0.05, 0.012, [0xff4fa3, 0x56c8ff, 0x3aff9c][i], 0.64, e.h + y, 0.121, 'z', GLOW([0xff4fa3, 0x56c8ff, 0x3aff9c][i])));   /* gabinete con vidrio */
       cylM(k, 0.07, 0.08, 0.02, 0x1b1b20, -0.66, e.h, 0.18); cylM(k, 0.014, 0.014, 0.26, 0x2c2c33, -0.66, e.h + 0.02, 0.18); { const t = new T.Mesh(new T.TorusGeometry(0.09, 0.016, 6, 12, Math.PI), mat(0x1d1d23)); t.position.set(-0.66, e.h + 0.26, 0.18); k.add(t); [-1, 1].forEach(sd => cylM(k, 0.05, 0.05, 0.04, 0xe10600, -0.66 + sd * 0.095, e.h + 0.235, 0.18, 'x')); }   /* auriculares en su soporte */
-      gamingChair(k, -0.12, e.d / 2 + 0.5, Math.PI, 0x17171c, 0xe10600);
+      k0.userData.seats = [gamingChair(k, -0.12, e.d / 2 + 0.5, Math.PI, 0x17171c, 0xe10600)];
     }
-    { // sillas gamer contra la pared izquierda
-      const g = upGroup(root, 'sillas', 1);
-      gamingChair(g, -4.9, 2.2, Math.PI / 2, 0x151515, 0xe10600); gamingChair(g, -4.9, 3.6, Math.PI / 2 + 0.3, 0x151515, 0x2d6cdf);
+    { // sillas gamer en exhibición, sobre una tarima
+      const k = piece('sillas');
+      box(k, 2.0, 0.05, 1.0, 0x17171c, 0, 0, 0); box(k, 2.0, 0.052, 0.05, 0xe10600, 0, 0, 0.475);
+      k.userData.seats = [gamingChair(k, -0.48, 0, 0.18, 0x151515, 0xe10600), gamingChair(k, 0.5, 0, -0.22, 0x151515, 0x2d6cdf)]; k.userData.seats.forEach(c => { c.position.y = 0.05; });
     }
     { // góndola de periféricos del lado derecho
       const g = upGroup(root, 'gondola', 1), b = Batch(g), gd = L.gondola;
@@ -1002,6 +1001,11 @@ GS.World = (function () {
       mopTick(t) { const k = Math.sin(t * 9); arms.forEach(a => { a.rotation.x = -0.9 + k * 0.3; }); mopG.position.z = k * 0.14; mopG.position.x = Math.cos(t * 4.5) * 0.06; },
       carry(v) { carry.visible = v; arms.forEach(a => { a.rotation.x = v ? -1.1 : 0; }); p.holding = v; },
       /* la clase: el que enseña mueve el brazo, los que escuchan asienten, y al final festejan con un saltito y una lamparita */
+      /* usar un mueble del salón: 'sit' (se sienta y gira en la silla), 'play' (se sienta y juega), 'tap' (toca un producto), 'type' (prueba un teclado). Cada tanto le sale un emoji de que le gusta. */
+      use(kind, on, seat, emos) { g.rotation.order = 'YXZ';
+        if (on) { p.using = kind; p.seat = seat || null; if (seat) { p.seatRy = seat.rotation.y; p.seatK = 0; } p.emos = emos || null; p.emoT = 0.8; return; }
+        if (!p.using) return; p.using = null; if (p.seat) { p.seat.rotation.y = p.seatRy; p.seat = null; } g.position.y = 0; g.rotation.x = 0; legs.forEach(l => { l.rotation.x = 0; }); arms.forEach(a => { a.rotation.x = 0; }); },
+      emote(ch) { if (!p.emoS) { p.emoS = new T.Sprite(new T.SpriteMaterial({ map: emoTex(ch), transparent: true, depthTest: false })); p.emoS.renderOrder = 9; g.add(p.emoS); } p.emoS.material.map = emoTex(ch); p.emoS.visible = true; p.emoA = 0; },
       gest(v) { p.gesturing = !!v; if (!v) rest(p); },
       nod(v) { p.nodding = !!v; g.rotation.order = 'YXZ'; if (!v) g.rotation.x = 0; },
       hop(sec) { p.hopT = sec || 0.9; },
@@ -1017,7 +1021,7 @@ GS.World = (function () {
   }
   let zT = null;
   function zTex() { if (zT) return zT; const c = document.createElement('canvas'); c.width = c.height = 96; const x = c.getContext('2d'); x.font = '900 78px Arial, sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.lineJoin = 'round'; x.lineWidth = 12; x.strokeStyle = '#17171c'; x.strokeText('Z', 48, 52); x.fillStyle = '#ffffff'; x.fillText('Z', 48, 52); zT = new T.CanvasTexture(c); return zT; }
-  const emoT = {};
+  const emoT = {}, tmpV = new T.Vector3();
   function emoTex(ch) { if (emoT[ch]) return emoT[ch]; const c = document.createElement('canvas'); c.width = c.height = 96; const x = c.getContext('2d'); x.font = '72px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(ch, 48, 54); return (emoT[ch] = new T.CanvasTexture(c)); }
   /* pizarra de la clase: aparece cuando le enseñás al equipo */
   let board = null;
@@ -1033,13 +1037,23 @@ GS.World = (function () {
     }
     if (v) { board.position.set(x, 0, z); board.rotation.y = ry || 0; board.visible = true; } board.userData.on = !!v;
   }
-  function rest(p) { if (p.sleeping) return; p.legs.forEach(l => { l.rotation.x = 0; }); if (!p.holding) p.arms.forEach(a => { a.rotation.x = 0; }); }
+  function rest(p) { if (p.sleeping || p.using) return; p.legs.forEach(l => { l.rotation.x = 0; }); if (!p.holding) p.arms.forEach(a => { a.rotation.x = 0; }); }
   function updatePeople(dt) {
     if (board && board.visible) { const k = board.scale.x + ((board.userData.on ? 1.15 : 0) - board.scale.x) * Math.min(1, dt * 9); board.scale.setScalar(Math.max(0.01, k)); if (!board.userData.on && k < 0.03) board.visible = false; }
     for (const p of people) {
       if (p.ideaS && p.ideaS.visible) { const k = Math.min(1, (p.t - p.ideaT) * 5), sz = 0.62 * k * (1 + Math.sin(p.t * 8) * 0.07); p.ideaS.scale.set(sz, sz, 1); }
       if (p.hopT > 0) { p.hopT -= dt; const on = p.hopT > 0; p.group.position.y = on ? Math.abs(Math.sin(p.hopT * 10)) * 0.24 : 0; p.arms.forEach(a => { a.rotation.x = on ? -2.7 : 0; }); }
       else if (!p.moving && p.gesturing) { p.arms[1].rotation.x = -2.25 + Math.sin(p.t * 7) * 0.42; p.arms[0].rotation.x = -0.5 + Math.sin(p.t * 3.5) * 0.22; }
+      if (p.emoS && p.emoS.visible) { p.emoA += dt; const u = p.emoA / 1.7, sz = 0.56 * Math.min(1, u * 7) / (p.group.scale.x || 1); p.emoS.position.set(0.1, 2.0 + u * 0.55, 0); p.emoS.scale.set(sz, sz, 1); p.emoS.material.opacity = Math.min(1, (1 - u) * 3); if (u >= 1) p.emoS.visible = false; }
+      if (p.using && !p.moving) { const g2 = p.group, A = p.arms, Lg = p.legs;
+        if (p.emos && (p.emoT -= dt) <= 0) { p.emote(p.emos[Math.floor(Math.random() * p.emos.length)]); p.emoT = 2.3 + Math.random(); }
+        if (p.seat) { p.seat.getWorldPosition(tmpV); p.seatK = Math.min(1, p.seatK + dt * 3.5); g2.position.x += (tmpV.x - g2.position.x) * p.seatK; g2.position.z += (tmpV.z - g2.position.z) * p.seatK; g2.position.y = (tmpV.y + 0.15) * p.seatK;
+          if (p.using === 'sit') p.seat.rotation.y = p.seatRy + Math.sin(p.t * 1.7) * 0.5 * p.seatK;
+          g2.rotation.y = p.seat.rotation.y; Lg.forEach(l => { l.rotation.x = -1.35 * p.seatK; });
+          if (p.using === 'play') { g2.rotation.x = 0.1; A.forEach((a, i) => { a.rotation.x = -1.2 + Math.sin(p.t * 14 + i * 2.2) * 0.17; }); }
+          else { const up = Math.max(0, Math.sin(p.t * 1.7 + 0.6)); A.forEach(a => { a.rotation.x = -0.5 - up * up * 2.0; }); } }
+        else if (p.using === 'type') { g2.rotation.x = 0.1; A.forEach((a, i) => { a.rotation.x = -1.25 + Math.sin(p.t * 13 + i * 2.4) * 0.18; }); }
+        else { g2.rotation.x = 0.09; A[1].rotation.x = -1.4 + Math.sin(p.t * 5) * 0.28; A[0].rotation.x = -0.25; } }
       if (p.nodding && !p.moving && !p.sleeping) p.group.rotation.x = 0.08 + Math.sin(p.t * 6.5) * 0.07;
       p.t += dt;
       const g = p.group;
@@ -1251,6 +1265,7 @@ GS.World = (function () {
     // El vehículo de la flota sale a repartir (después de despachar una compra por la página). Devuelve false si no hay vehículo.
     dispatch() { const k = fleetK[lastUp.flota || 0]; if (!k || disp || roofOn) return false; disp = { k, t: -0.8, cam: true, ret: cam.saved ? Object.assign({}, cam.saved) : { x: cam.gx, z: cam.gz, d: cam.gdist } }; return true; },
     zoomAt(x, z, k) { if (disp && disp.cam) { disp.cam = false; cam.saved = disp.ret; } if (!cam.saved) cam.saved = { x: cam.gx, z: cam.gz, d: cam.gdist }; cam.gx = x; cam.gz = z; cam.gdist = cam.fit * k; },
+    seatOf: (id, n) => { const k = pieces[id]; return k && k.userData.seats ? k.userData.seats[n || 0] : null; },
     debugScene: () => scene,
     lesson,
     debugCam(x, z, k) { cam.saved = null; cam.gx = x; cam.gz = z; cam.gdist = cam.fit * k; },

@@ -281,17 +281,24 @@ GS.Game = (function () {
     const cu = { id: ++uid, arche, look, request: regHi() + req.t, product, st: 'entering', pat: 1, person, slotM: slot, slotC: -1, label: makeLabel('❓') };
     day.customers.push(cu); day.spawned++;
     const sp = day.spawned > 1 && Math.random() < 0.45 ? freeSpot() : null;
-    if (sp) { day.spots[sp.i] = 1; cu.spot = sp; person.walk(sp.via.concat([sp.p]), () => { cu.st = 'browse'; cu.wait = U.rnd(2.6, 4.6); person.face(sp.f); }); }   // primero mira un rato y después se acerca
+    if (sp) { day.spots[sp.i] = 1; cu.spot = sp; person.walk(sp.via.concat([sp.p]), () => { cu.st = 'browse'; cu.wait = U.rnd(2.6, 4.6) + (sp.use ? 1.6 : 0); person.face(sp.f); useSpot(person, sp, true); }); }   // primero mira un rato y después se acerca
     else toCounter(cu, day.n === 1 && day.spawned === 1 ? [] : [[dx, L.salon.zMax + 0.2]]);          /* el primer cliente del primer día ya está frente al mostrador */
     setTimeout(() => A.play('bell'), 900);
   }
   function toCounter(cu, pre) { cu.st = 'entering'; cu.person.walk(pre.concat([[L.puerta.x, -1.3], L.colaMostrador[cu.slotM]]), () => { cu.st = 'waitM'; cu.person.face(Math.PI); }); }
   /* ---------------- Gente que entra a mirar: algunos se van callados, otros comentan algo ---------------- */
+  /* dónde está cada mueble de piso: el lugar elegido, o el que le toca por defecto */
+  const slotOf = id => { const lay = upNow().lay || {}, i = GS.FLOOR.indexOf(id); return L.slots[lay[id] != null ? lay[id] : i]; };
+  function setLay(id, k) { const u = upNow(), lay = {}; GS.FLOOR.forEach((f, i) => { lay[f] = u.lay && u.lay[f] != null ? u.lay[f] : i; }); const other = GS.FLOOR.find(f => lay[f] === k); if (other) lay[other] = lay[id]; lay[id] = k; u.lay = lay; GS.Store.set('up', u); brSave(); }
+  const upPos = g => GS.FLOOR.indexOf(g.id) >= 0 ? [slotOf(g.id).x, slotOf(g.id).z] : g.pos;
+  /* los clientes usan los muebles del salón: tocan lo de Apple, prueban el teclado, se sientan en las sillas o juegan en el escritorio */
+  const USE = { isla: ['tap', ['😍', '✨', '🤩']], mesa: ['type', ['👍', '💡', '🤓']], sillas: ['sit', ['😌', '🤩', '👌']], escritorio: ['play', ['🎮', '🔥', '😎']] };
+  function useSpot(p, sp, on) { if (!sp || !sp.use) return; const u = USE[sp.use]; if (on) p.use(u[0], true, sp.use === 'sillas' || sp.use === 'escritorio' ? W.seatOf(sp.use, 0) : null, u[1]); else p.use(null, false); }
   function freeSpot() {
     const u = upNow(), dx = L.puerta.x, H = Math.PI / 2, all = [
-      { p: [-4.2, 1.5], f: -H, via: [[dx, 1.5]] }, { p: [-4.2, 4.4], f: -H, via: [[dx, 4.4]] }, { p: [-4.2, -1.3], f: -H, via: [[dx, -1.3]] },
-      u.isla && { p: [-3.2, 1.7], f: Math.PI, via: [[dx, 1.7]] }, u.mesa && { p: [0.7, 1.0], f: H, via: [[dx, 1.0]] }, u.mesa && { p: [0.7, 2.7], f: H, via: [[dx, 2.7]] },
-      u.gondola && { p: [4.3, 2.2], f: H, via: [[dx, 5.5], [4.3, 5.5]] }, u.gondola && { p: [4.3, 4.0], f: H, via: [[dx, 5.5], [4.3, 5.5]] }, u.arcade && { p: [0.7, 9.3], f: Math.PI, via: [[dx, 9.3]] }];
+      { p: [-5.1, -1.3], f: -H, via: [[dx, -1.3]] }, { p: [-5.1, 2.1], f: -H, via: [[dx, 2.1]] }]
+      .concat(GS.FLOOR.map(id => { if (!u[id]) return null; const sl = slotOf(id), side = sl.x < dx ? 1 : -1; return id === 'escritorio' ? { p: [sl.x + side * 1.2, sl.z + 0.8], f: -side * 0.9 + Math.PI, via: [[dx, sl.z + 1.1]], use: id } : { p: [sl.x + (id === 'sillas' ? -0.48 : 0), sl.z + (id === 'sillas' ? 0.95 : 1.02)], f: Math.PI, via: [[dx, sl.z + 1.1]], use: id }; }),
+        [u.gondola && { p: [4.3, 2.2], f: H, via: [[dx, 5.5], [4.3, 5.5]] }, u.gondola && { p: [4.3, 4.0], f: H, via: [[dx, 5.5], [4.3, 5.5]] }, u.arcade && { p: [0.7, 9.3], f: Math.PI, via: [[dx, 9.3]] }]);
     const free = []; all.forEach((x, i) => { if (x && !day.spots[i]) { x.i = i; free.push(x); } });
     return free.length ? U.pick(free) : null;
   }
@@ -300,10 +307,10 @@ GS.Game = (function () {
     const p = W.makePerson(warm({ shirt: U.pick([0x6b7a8f, 0x3d7a4a, 0xd9a514, 0x4a6fb5, 0xb86fa8, 0x21a0a0, 0x7b4fd1, 0xe07a5f]), hair: U.pick(GS.HAIRS), hairStyle: U.pick(GS.HAIRSTYLES)[0], glasses: Math.random() < 0.3, beard: Math.random() < 0.2, lips: Math.random() < 0.4, speed: U.rnd(2.2, 2.9) }));
     p.voice = U.rnd(230, 480); p.setPos(L.puerta.x + U.rnd(-0.4, 0.4), L.galeria.zMax + 2.4); day.extras.push(p);
     const lk = { p, sp, st: 'in', wait: 0, hops: 0 }; day.lookers.push(lk); day.wv.lookers = (day.wv.lookers || 0) + 1;
-    p.walk(sp.via.concat([sp.p]), () => { lk.st = 'look'; lk.wait = U.rnd(3, 5.5); p.face(sp.f); });
+    p.walk(sp.via.concat([sp.p]), () => { lk.st = 'look'; lk.wait = U.rnd(3, 5.5) + (sp.use ? 2 : 0); p.face(sp.f); useSpot(p, sp, true); });
   }
   function lookerOut(lk) {
-    lk.st = 'out'; const d = day; delete d.spots[lk.sp.i];
+    lk.st = 'out'; const d = day; delete d.spots[lk.sp.i]; useSpot(lk.p, lk.sp, false);
     lk.p.walk(lk.sp.via.slice().reverse().concat([[L.puerta.x + U.rnd(-2, 2), L.galeria.zMax + 3]]), () => { lk.p.remove(); const i = d.lookers.indexOf(lk); if (i >= 0) d.lookers.splice(i, 1); });
   }
   function updateLookers(dt) {
@@ -311,11 +318,11 @@ GS.Game = (function () {
     for (const lk of day.lookers.slice()) {
       if (lk.st !== 'look' || (lk.wait -= dt) > 0) continue;
       const r = Math.random(), nx = lk.hops < 1 && r > 0.72 ? freeSpot() : null;
-      if (nx) { delete day.spots[lk.sp.i]; day.spots[nx.i] = 1; const back = lk.sp.via.slice().reverse(); lk.sp = nx; lk.hops++; lk.st = 'in'; lk.p.walk(back.concat(nx.via, [nx.p]), () => { lk.st = 'look'; lk.wait = U.rnd(2.5, 4.5); lk.p.face(nx.f); }); continue; }
+      if (nx) { useSpot(lk.p, lk.sp, false); delete day.spots[lk.sp.i]; day.spots[nx.i] = 1; const back = lk.sp.via.slice().reverse(); lk.sp = nx; lk.hops++; lk.st = 'in'; lk.p.walk(back.concat(nx.via, [nx.p]), () => { lk.st = 'look'; lk.wait = U.rnd(2.5, 4.5) + (nx.use ? 2 : 0); lk.p.face(nx.f); useSpot(lk.p, nx, true); }); continue; }
       if (r < 0.5) sayAt(lk.p, U.pick(LN.browse), 0, '', false, true);
       lookerOut(lk);
     }
-    for (const cu of day.customers) if (cu.st === 'browse' && (cu.wait -= dt) <= 0) { delete day.spots[cu.spot.i]; toCounter(cu, cu.spot.via.slice().reverse()); }
+    for (const cu of day.customers) if (cu.st === 'browse' && (cu.wait -= dt) <= 0) { useSpot(cu.person, cu.spot, false); delete day.spots[cu.spot.i]; toCounter(cu, cu.spot.via.slice().reverse()); }
   }
   /* ---------------- Compañeros: Lucho y Brian andan por el local haciendo sus cosas ---------------- */
   const STAFF = [], MOHAWK = [0xff5fa2, 0x2d6cdf, 0x3bb54a, 0xd9a514, 0xff2a2a, 0x7b4fd1, 0x57e6ff];
@@ -829,7 +836,7 @@ GS.Game = (function () {
   // Zona caminable: salón (delante del mostrador), pasillo de entrada y vereda, sin los muebles grandes que haya comprados
   function walkable(x, z) {
     const s = L.salon, area = (x > s.xMin + 0.6 && x < s.xMax - 0.5 && z > L.mostrador.z + 1.3 && z < s.zMax - 0.2) || (Math.abs(x - L.puerta.x) < 1.3 && z >= s.zMax - 0.2 && z < L.galeria.zMax + 0.2) || (z >= L.galeria.zMax + 0.2 && z < L.galeria.zMax + 3.7 && x > -11 && x < 14);
-    if (!area) return false; const u = upNow(); return !GS.UPGRADES.some(g => u[g.id] && ['mesa', 'isla', 'gondola', 'escritorio', 'sillas', 'arcade'].indexOf(g.id) >= 0 && Math.hypot(x - g.pos[0], z - g.pos[1]) < 1.25);
+    if (!area) return false; const u = upNow(); return !GS.UPGRADES.some(g => u[g.id] && (GS.FLOOR.indexOf(g.id) >= 0 ? Math.abs(x - slotOf(g.id).x) < 1.35 && z > slotOf(g.id).z - 0.85 && z < slotOf(g.id).z + (g.id === 'escritorio' ? 1.35 : 0.85) : ['gondola', 'arcade'].indexOf(g.id) >= 0 && Math.hypot(x - g.pos[0], z - g.pos[1]) < 1.25));
   }
   const clearLine = (x0, z0, x1, z1) => { const n = Math.ceil(Math.hypot(x1 - x0, z1 - z0) / 0.3); for (let i = 0; i <= n; i++) if (!walkable(x0 + (x1 - x0) * i / n, z0 + (z1 - z0) * i / n)) return false; return true; };
   function yoWalkTo(x, z, cb) {
@@ -1239,6 +1246,10 @@ GS.Game = (function () {
     const t = nextGoal(); if (t) shopSel = GS.UPGRADES.indexOf(t.g);
     renderShop();
   }
+  function layPick(g) {            /* plano chiquito del salón: los cuatro lugares, con el mueble que tiene cada uno */
+    if (GS.FLOOR.indexOf(g.id) < 0) return ''; const u = upNow(), at = k => GS.FLOOR.find(f => (u.lay && u.lay[f] != null ? u.lay[f] : GS.FLOOR.indexOf(f)) === k), ic = f => GS.UPGRADES.find(x => x.id === f).icon;
+    return '<div class="layp"><small>📍 ¿Dónde va? Tocá un lugar del salón</small><div class="layg"><i class="lay-c">Mostrador</i>' + [0, 1, 2, 3].map(k => { const f = at(k), mine = f === g.id; return (k % 2 ? '<i class="lay-a"></i>' : '') + '<button class="layb' + (mine ? ' on' : '') + (f && !u[f] && !mine ? ' off' : '') + '" data-slot="' + k + '">' + (f ? ic(f) : '') + '</button>'; }).join('') + '<i class="lay-d">Puerta</i></div></div>';
+  }
   function renderShop(preview) {
     const u = upNow(), c = coinsNow(), g = GS.UPGRADES[shopSel], own = u[g.id] || 0;
     $('shopCoins').textContent = '🪙 ' + c;
@@ -1248,10 +1259,10 @@ GS.Game = (function () {
     $('shopCards').innerHTML = g.levels.map((lv, i) => {
       const has = own > i, can = own === i && c >= lv.price, locked = own < i;
       return '<div class="card' + (has ? ' has' : '') + (i + 1 === seeLv ? ' sel' : '') + '" data-see="' + (i + 1) + '"><b>' + lv.n + '</b><span>' + lv.d + '</span><div class="row"><em>' + (has ? '✔ Ya lo tenés' : '🪙 ' + lv.price) + '</em>' +
-        (has ? '' : '<button class="btn" data-buy="' + i + '"' + (can ? '' : ' disabled') + '>' + (locked ? 'Primero el anterior' : can ? 'Comprar' : 'Te faltan ' + (lv.price - c)) + '</button>') + '</div></div>';
+        (has ? '' : '<button class="btn" data-buy="' + i + '"' + (can ? '' : ' disabled') + '>' + (locked ? 'Primero el anterior' : can ? 'Comprar' : 'Te faltan ' + (lv.price - c)) + '</button>') + '</div>' + layPick(g) + '</div>';
     }).join('') + (g.levels.length > 1 ? '' : '');
     const show = Object.assign({}, u); show[g.id] = seeLv;   // vista previa del modelo en su lugar
-    W.setUpgrades(show); W.focusAt(g.pos[0], g.pos[1], g.zoom || 0.36, 0.2);
+    W.setUpgrades(show); W.focusAt(upPos(g)[0], upPos(g)[1], g.zoom || 0.36, 0.2);
     $('shopHint').textContent = (shopSel + 1) + ' de ' + GS.UPGRADES.length + ' · ' + (g.levels.length > 1 ? 'Tocá un nivel para verlo en el local' : own >= g.levels.length ? 'Ya lo tenés en el local.' : 'Vista previa en el local');
   }
   function buy(i) {
@@ -1364,7 +1375,7 @@ GS.Game = (function () {
     day = newDay({ fin: { i: -1, t: 3.2, crowd: [], done: false } }); state = 'final'; paused = false; W.setUpgrades(upNow()); A.setMood('final'); A.play('fanfare');
     W.focusAt(0.6, -1.4, 0.66, -0.08);
     const d = day, f = d.fin, bx = 4.3, bz = -0.5, dx = L.puerta.x;
-    const spots = [[-3.3, -1.7], [-1.9, -0.9], [-0.5, -1.8], [0.5, -0.5], [-2.8, 0.5], [-1.1, 0.7], [0.3, 1.3], [-4.2, -0.4], [1.2, -1.6]];
+    const spots = [[-3.3, -1.7], [-1.9, -0.9], [-0.5, -1.8], [0.5, -0.9], [-1.7, 0.6], [-1.0, 1.5], [-0.1, 0.5], [-4.6, -1.2], [1.6, -1.6]];
     const tr = tierNow(); f.tier = tr;
     f.lines = GS.FINAL.boss.map(x => x.replace('{rank}', tr.title).replace('{fondo}', '🪙 ' + fondoNow()).replace('{meta}', goalNow()).replace('{resultado}', tr.line));
     GS.CUSTOMERS.forEach((ar, i) => {
@@ -1612,7 +1623,7 @@ GS.Game = (function () {
     $('shopPrev').addEventListener('click', () => shopStep(-1)); $('shopNext').addEventListener('click', () => shopStep(1));
     $('shopSlots').addEventListener('wheel', e => { if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) { $('shopSlots').scrollLeft += e.deltaY; e.preventDefault(); } }, { passive: false });
     $('shopSlots').addEventListener('click', e => { const b = e.target.closest('.slotb'); if (b) { shopSel = Number(b.dataset.i); A.play('click'); renderShop(); } });
-    $('shopCards').addEventListener('click', e => { const b = e.target.closest('[data-buy]'), c = e.target.closest('[data-see]'); if (b && !b.disabled) return buy(Number(b.dataset.buy)); if (c) { const x = $('shopCards').scrollLeft; A.play('click'); renderShop(Number(c.dataset.see)); $('shopCards').scrollLeft = x; } });
+    $('shopCards').addEventListener('click', e => { const sl = e.target.closest('[data-slot]'); if (sl) { const x = $('shopCards').scrollLeft; A.play('drop'); setLay(GS.UPGRADES[shopSel].id, Number(sl.dataset.slot)); renderShop(); $('shopCards').scrollLeft = x; return; } const b = e.target.closest('[data-buy]'), c = e.target.closest('[data-see]'); if (b && !b.disabled) return buy(Number(b.dataset.buy)); if (c) { const x = $('shopCards').scrollLeft; A.play('click'); renderShop(Number(c.dataset.see)); $('shopCards').scrollLeft = x; } });
     $('shopCards').addEventListener('scroll', () => { const el = $('shopCards'), i = Math.round(el.scrollLeft / Math.max(1, el.clientWidth * 0.86)); if (el._i !== i) { el._i = i; const u = upNow(), g = GS.UPGRADES[shopSel], sh = Object.assign({}, u); sh[g.id] = Math.max(u[g.id] || 0, i + 1); W.setUpgrades(sh); } });
     W.onTap(st => openStation(st)); W.onGround(groundTap);
     $('btnPlay').addEventListener('click', careerStart);

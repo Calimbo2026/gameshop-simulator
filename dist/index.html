@@ -746,6 +746,13 @@ a.mbtn { text-decoration: none; box-sizing: border-box; } .mbtn.gold { margin-to
 .dgz.hintz { border: 2px dashed rgba(245,197,24,.85); animation: hintz 1s ease-in-out infinite alternate; } @keyframes hintz { to { border-color: rgba(245,197,24,.2); } }
 .sk-ctl.guided { border-radius: 16px; padding: 4px; } #mg { position: fixed; }
 
+/* ---------- v0.59: elegir el lugar de los muebles ---------- */
+.layp { margin-top: 8px; padding-top: 8px; border-top: 1px dashed #3a3a41; display: flex; align-items: center; gap: 10px; } .layp small { flex: 1; font-size: 12px; line-height: 1.25; color: #d0d0d8; }
+.layg { flex: none; display: grid; grid-template-columns: 40px 12px 40px; gap: 4px; padding: 5px 6px; background: #101014; border: 1px solid #34343b; border-radius: 10px; }
+.layg i { font-style: normal; font-size: 9px; letter-spacing: .5px; text-transform: uppercase; color: #8a8a94; text-align: center; } .lay-c { grid-column: 1 / -1; background: #c40000; color: #fff !important; border-radius: 3px; padding: 1px 0; } .lay-d { grid-column: 1 / -1; }
+.lay-a { grid-row: span 1; border-left: 1px dashed #55555f; border-right: 1px dashed #55555f; }
+.layb { width: 40px; height: 30px; border-radius: 7px; background: #202025; border: 2px solid #34343b; font-size: 17px; line-height: 1; padding: 0; display: grid; place-items: center; } .layb.on { border-color: #f5c518; background: #2c2713; box-shadow: 0 0 0 3px rgba(245,197,24,.25); } .layb.off { opacity: .4; }
+
 </style>
 </head>
 <body>
@@ -860,7 +867,7 @@ const GS = {};
 GS.LOGO = "data:image/png;base64,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";
 
 GS.CONFIG = {
-  version: '0.58.2',
+  version: '0.59.0',
   phase: 8,
   phaseNote: 'Juego completo de punta a punta. Falta tu playtest con 5 personas y encender el lanzamiento (launched: true)',                       // fase actual del proyecto (1 a 5)
   links: { tienda: 'https://www.gameshop.com.ar', instagram: '' },   // botones del inicio y del cierre (vacío = no se muestra)
@@ -1103,6 +1110,7 @@ GS.SIMILAR = { ps5: 'xbox', xbox: 'ps5', switch2: 'deck', deck: 'switch2', quest
 
 /* Mejoras del local: lugares fijos. Se compran con las monedas que deja cada jornada.
    pos = dónde hace zoom la cámara. Cada nivel es un "modelo" con su precio y su efecto. */
+GS.FLOOR = ['isla', 'mesa', 'sillas', 'escritorio'];      /* muebles de piso, en el orden de sus lugares por defecto */
 GS.UPGRADES = [
   { id: 'cartel', name: 'Cartel del frente', icon: '🪧', pos: [0, 10.5], zoom: 0.6, base: 'Cartel pintado',
     levels: [{ n: 'Cartel luminoso', d: 'Se ve desde la esquina: +1 cliente por jornada.', price: 400 }, { n: 'Cartel pantalla LED', d: 'El mejor cartel de la cuadra: +2 clientes por jornada.', price: 1250 }] },
@@ -1486,6 +1494,7 @@ GS.LAYOUT = {
   arcade:    { x: 0.7,  z: 8.3 },
   puerta:    { x: -0.9 },                              // por dónde entran los clientes
   cartel:    { textos: ['ENTRÁ. ELEGÍ. JUGÁ.', 'EL JUEGO EMPIEZA ACÁ.'] },
+  slots: [{ x: -3.05, z: 0.3 }, { x: 1.6, z: 0.3 }, { x: -3.05, z: 3.3 }, { x: 1.6, z: 3.3 }],      // lugares para los muebles de piso: a los costados del pasillo central, con el frente hacia la puerta
   colaMostrador: [ [-3.9, -2.9], [-2.7, -2.9], [-1.5, -2.9], [-0.3, -2.9] ],
   colaCaja:      [ [2.4, -2.9], [3.5, -2.9], [4.4, -2.6], [4.4, -1.6] ],
   yoMostrador: [-1.6, -4.9], yoCaja: [2.1, -4.9], brianCaja: [3.0, -4.9]
@@ -2450,8 +2459,9 @@ GS.World = (function () {
   /* Mejoras del local: cada mueble comprable vive en su propio grupo, que se muestra según el nivel comprado */
   const ups = {};
   function upGroup(root, id, lvl) { const g = new T.Group(); root.add(g); (ups[id] = ups[id] || {})[lvl] = g; return g; }
-  let lastUp = {}, roofOn = false;
-  function applyUpgrades(state) { lastUp = state; if (roofOn) return hideSign();
+  let lastUp = {}, roofOn = false; const pieces = {};
+  function placePieces(lay) { GS.FLOOR.forEach((id, i) => { const k = pieces[id], sl = L.slots[lay && lay[id] != null ? lay[id] : i]; if (k && sl) k.position.set(sl.x, 0, sl.z); }); }
+  function applyUpgrades(state) { lastUp = state; placePieces(state && state.lay); if (roofOn) return hideSign();
     for (const id in ups) for (const lvl in ups[id]) ups[id][lvl].visible = id === 'cartel' || id === 'flota' ? (state[id] || 0) === Number(lvl) : (state[id] || 0) >= Number(lvl);
   }
   function hideSign() { for (const id in ups) for (const lvl in ups[id]) if (id !== 'cartel') ups[id][lvl].visible = id === 'flota' ? (lastUp[id] || 0) === Number(lvl) : (lastUp[id] || 0) >= Number(lvl); else ups[id][lvl].visible = false; }      // con el techo puesto, el cartel del frente queda debajo
@@ -2537,33 +2547,30 @@ GS.World = (function () {
     box(k, 1.74, 0.03, 0.34, 0x0c0c0c, 0, 0.56, 0.2);
   }
   function buildCenter(root) {
+    /* Muebles de piso: cada uno se arma centrado en su propio grupo, con el frente hacia la puerta (+z), y se ubica en uno de los lugares del salón (L.slots). */
+    const piece = id => { const g = upGroup(root, id, 1), k = new T.Group(); g.add(k); pieces[id] = k; return k; };
     { // isla Apple
-      const g = upGroup(root, 'isla', 1), b = Batch(g), i = L.isla;
-      box(g, i.w, i.h, i.d, 0xffffff, i.x, 0, i.z); box(g, i.w - 0.2, i.h - 0.3, 0.03, 0xe2e2e2, i.x, 0.2, i.z + i.d / 2 + 0.01);
-      idsOf('apple').forEach((id, k, a) => model(g, id, i.x - (a.length - 1) * 0.2 + k * 0.4, i.h, i.z + (k % 2 ? 0.14 : -0.14), 1.7));
-      rail(g, 'APPLE', i.x, i.z + i.d / 2, i.w, 'z'); b.build();
+      const k = piece('isla'), b = Batch(k), i = L.isla;
+      box(k, i.w, i.h, i.d, 0xffffff, 0, 0, 0); box(k, i.w - 0.2, i.h - 0.3, 0.03, 0xe2e2e2, 0, 0.2, i.d / 2 + 0.01);
+      idsOf('apple').forEach((id, n, a) => model(k, id, -(a.length - 1) * 0.2 + n * 0.4, i.h, n % 2 ? 0.14 : -0.14, 1.7));
+      rail(k, 'APPLE', 0, i.d / 2, i.w, 'z'); b.build();
     }
-    { // mesa de madera con PC y accesorios
-      const g = upGroup(root, 'mesa', 1), t = L.mesa, wood = 0xd9b77e;
-      box(g, t.w, 0.09, t.d, wood, t.x, t.h - 0.09, t.z);
-      box(g, t.w - 0.1, t.h - 0.09, 0.1, wood, t.x, 0, t.z - t.d / 2 + 0.05); box(g, t.w - 0.1, t.h - 0.09, 0.1, wood, t.x, 0, t.z + t.d / 2 - 0.05);
-      box(g, 0.08, t.h - 0.09, t.d, 0xc9a56b, t.x - t.w / 2 + 0.3, 0, t.z);
-      [[-1.1, 0x111111], [-0.2, 0xf4f4f4], [0.7, 0x111111]].forEach(a => box(g, 0.5, 0.62, 0.62, a[1], t.x + 0.35, 0, t.z + a[0]));
-      /* exhibición en tres zonas, todo mirando al pasillo (+x): notebooks, un puesto armado y los componentes sobre gradas */
-      const F = Math.PI / 2, it = (id, dx, dz, sc, ry, y) => model(g, id, t.x + dx, t.h + (y || 0), t.z + dz, sc, ry == null ? F : ry);
-      const tag = (dx, dz) => { const q = new T.Group(); q.position.set(t.x + dx, t.h, t.z + dz); q.rotation.y = F; g.add(q); const a = box(q, 0.2, 0.13, 0.012, 0xffffff, 0, 0, 0); a.rotation.x = -0.4; const r = box(q, 0.2, 0.04, 0.014, 0xe10600, 0, 0.085, -0.036); r.rotation.x = -0.4; };
-      box(g, 1.2, 0.012, 1.02, 0xf1f1ec, t.x - 0.05, t.h, t.z - 1.2);                                                   /* paño oscuro de las notebooks */
-      notebook(g, t.x - 0.22, t.h + 0.012, t.z - 1.45); notebook(g, t.x - 0.22, t.h + 0.012, t.z - 0.92); it('cargador', 0.36, -1.2, 1.5, F + 0.25); tag(0.55, -1.52); tag(0.55, -0.86);
-      box(g, 1.26, 0.012, 1.0, 0x8a6bff, t.x - 0.02, t.h, t.z - 0.02, GLOW(0x3a2a80)); box(g, 1.2, 0.014, 0.94, 0x17171c, t.x - 0.02, t.h, t.z - 0.02);   /* pad del puesto armado, con borde violeta */
-      it('gabinete', -0.3, -0.34, 1.55, 0); it('monitor', -0.34, 0.14, 1.75, F); it('teclado', 0.16, 0.14, 1.45, F); it('mouse', 0.2, -0.24, 1.45, F); tag(0.56, 0.4);
-      box(g, 0.5, 0.14, 0.98, 0x17171c, t.x - 0.4, t.h, t.z + 1.2); box(g, 0.5, 0.012, 0.98, 0xe10600, t.x - 0.4, t.h + 0.14, t.z + 1.2);     /* grada del fondo */
-      it('gpu', -0.4, 0.92, 1.5, F, 0.152); it('impresora', -0.4, 1.42, 1.25, F, 0.152);
-      it('ram', 0.12, 0.84, 1.45, F + 0.2); it('disco', 0.14, 1.18, 1.6, F - 0.25); it('router', 0.1, 1.52, 1.35, F); tag(0.56, 0.86); tag(0.56, 1.5);
-      rail(g, 'PC Y ACCESORIOS', t.x + t.w / 2, t.z, t.d, 'x');
+    { // mesa de madera con PC y accesorios: del tamaño de la isla, con tres zonas que miran a la puerta (notebooks, puesto armado y componentes)
+      const k = piece('mesa'), wood = 0xd9b77e, h = 0.9, w = 2.0, d = 0.95, Q = -Math.PI / 2;
+      box(k, w, 0.09, d, wood, 0, h - 0.09, 0); [-1, 1].forEach(sd => box(k, 0.1, h - 0.09, d - 0.1, wood, sd * (w / 2 - 0.08), 0, 0)); box(k, w - 0.2, h - 0.09, 0.08, 0xc9a56b, 0, 0, -d / 2 + 0.1);
+      const it = (id, x, z, sc, ry, y) => model(k, id, x, h + (y || 0), z, sc, ry || 0);
+      const tag = (x, z) => { const q = new T.Group(); q.position.set(x, h, z); k.add(q); const a = box(q, 0.18, 0.12, 0.012, 0xffffff, 0, 0, 0); a.rotation.x = -0.4; const r = box(q, 0.18, 0.036, 0.014, 0xe10600, 0, 0.078, -0.033); r.rotation.x = -0.4; };
+      box(k, 0.8, 0.012, 0.78, 0xf1f1ec, -0.57, h, -0.03);                                                                /* paño claro de las notebooks */
+      [-0.78, -0.36].forEach((x, i) => { const n = new T.Group(); n.position.set(x, h + 0.012, -0.12 - i * 0.04); n.rotation.y = Q + (i ? -0.12 : 0.1); n.scale.setScalar(0.78); k.add(n); notebook(n, 0, 0, 0); }); tag(-0.57, 0.36);
+      box(k, 0.74, 0.012, 0.8, 0x8a6bff, 0.22, h, -0.03, GLOW(0x3a2a80)); box(k, 0.7, 0.014, 0.76, 0x17171c, 0.22, h, -0.03);       /* pad del puesto armado, con borde violeta */
+      it('monitor', 0.1, -0.2, 1.5); it('gabinete', 0.47, -0.16, 1.3, Q); it('teclado', 0.1, 0.14, 1.2); it('mouse', 0.44, 0.16, 1.2); tag(0.22, 0.4);
+      box(k, 0.34, 0.12, 0.3, 0x17171c, 0.8, h, -0.24); box(k, 0.34, 0.012, 0.3, 0xe10600, 0.8, h + 0.12, -0.24);             /* grada de los componentes */
+      it('gpu', 0.8, -0.24, 1.15, 0, 0.132); it('ram', 0.74, 0.08, 1.05, 0.2); it('disco', 0.86, 0.26, 1.3, -0.25); tag(0.8, 0.42);
+      rail(k, 'PC Y ACCESORIOS', 0, d / 2, w, 'z');
     }
     { // escritorio gamer con monitor, teclado blanco y silla gris
-      const g = upGroup(root, 'escritorio', 1), e = L.escritorio;
-      const k = new T.Group(); k.position.set(e.x, 0, e.z); g.add(k);                                             /* el frente del escritorio mira a +z, donde va la silla */
+      const e = L.escritorio, k0 = piece('escritorio');
+      const k = new T.Group(); k.position.set(0, 0, -0.3); k0.add(k);                                             /* el frente del escritorio mira a +z, donde va la silla */
       box(k, e.w, 0.05, e.d, 0x17171c, 0, e.h - 0.05, 0); box(k, e.w, 0.02, 0.03, 0xff4fa3, 0, e.h - 0.07, e.d / 2 - 0.01, GLOW(0xff4fa3)); box(k, e.w - 0.1, 0.34, 0.03, 0x101014, 0, e.h - 0.4, -e.d / 2 + 0.05);
       [-1, 1].forEach(sd => { box(k, 0.06, e.h - 0.05, e.d - 0.12, 0x101014, sd * (e.w / 2 - 0.06), 0, 0); box(k, 0.1, 0.03, e.d, 0x101014, sd * (e.w / 2 - 0.06), 0, 0); });
       box(k, 1.0, 0.008, 0.42, 0x26262c, -0.12, e.h, 0.12); box(k, 1.0, 0.009, 0.02, 0x8a6bff, -0.12, e.h, 0.33, GLOW(0x8a6bff));                 /* pad XL */
@@ -2574,11 +2581,12 @@ GS.World = (function () {
       [-0.62, 0.38].forEach(x => { box(k, 0.1, 0.2, 0.1, 0x1d1d23, x, e.h, -0.24); cylM(k, 0.035, 0.035, 0.01, 0x55555f, x, e.h + 0.11, -0.188, 'z'); });                                   /* parlantes */
       box(k, 0.2, 0.44, 0.4, 0x15151a, 0.64, e.h, -0.08); box(k, 0.012, 0.36, 0.32, 0x56d6ff, 0.539, e.h + 0.04, -0.08, GLOW(0x2a8aa0)); [0.1, 0.22, 0.34].forEach((y, i) => cylM(k, 0.05, 0.05, 0.012, [0xff4fa3, 0x56c8ff, 0x3aff9c][i], 0.64, e.h + y, 0.121, 'z', GLOW([0xff4fa3, 0x56c8ff, 0x3aff9c][i])));   /* gabinete con vidrio */
       cylM(k, 0.07, 0.08, 0.02, 0x1b1b20, -0.66, e.h, 0.18); cylM(k, 0.014, 0.014, 0.26, 0x2c2c33, -0.66, e.h + 0.02, 0.18); { const t = new T.Mesh(new T.TorusGeometry(0.09, 0.016, 6, 12, Math.PI), mat(0x1d1d23)); t.position.set(-0.66, e.h + 0.26, 0.18); k.add(t); [-1, 1].forEach(sd => cylM(k, 0.05, 0.05, 0.04, 0xe10600, -0.66 + sd * 0.095, e.h + 0.235, 0.18, 'x')); }   /* auriculares en su soporte */
-      gamingChair(k, -0.12, e.d / 2 + 0.5, Math.PI, 0x17171c, 0xe10600);
+      k0.userData.seats = [gamingChair(k, -0.12, e.d / 2 + 0.5, Math.PI, 0x17171c, 0xe10600)];
     }
-    { // sillas gamer contra la pared izquierda
-      const g = upGroup(root, 'sillas', 1);
-      gamingChair(g, -4.9, 2.2, Math.PI / 2, 0x151515, 0xe10600); gamingChair(g, -4.9, 3.6, Math.PI / 2 + 0.3, 0x151515, 0x2d6cdf);
+    { // sillas gamer en exhibición, sobre una tarima
+      const k = piece('sillas');
+      box(k, 2.0, 0.05, 1.0, 0x17171c, 0, 0, 0); box(k, 2.0, 0.052, 0.05, 0xe10600, 0, 0, 0.475);
+      k.userData.seats = [gamingChair(k, -0.48, 0, 0.18, 0x151515, 0xe10600), gamingChair(k, 0.5, 0, -0.22, 0x151515, 0x2d6cdf)]; k.userData.seats.forEach(c => { c.position.y = 0.05; });
     }
     { // góndola de periféricos del lado derecho
       const g = upGroup(root, 'gondola', 1), b = Batch(g), gd = L.gondola;
@@ -3136,6 +3144,11 @@ GS.World = (function () {
       mopTick(t) { const k = Math.sin(t * 9); arms.forEach(a => { a.rotation.x = -0.9 + k * 0.3; }); mopG.position.z = k * 0.14; mopG.position.x = Math.cos(t * 4.5) * 0.06; },
       carry(v) { carry.visible = v; arms.forEach(a => { a.rotation.x = v ? -1.1 : 0; }); p.holding = v; },
       /* la clase: el que enseña mueve el brazo, los que escuchan asienten, y al final festejan con un saltito y una lamparita */
+      /* usar un mueble del salón: 'sit' (se sienta y gira en la silla), 'play' (se sienta y juega), 'tap' (toca un producto), 'type' (prueba un teclado). Cada tanto le sale un emoji de que le gusta. */
+      use(kind, on, seat, emos) { g.rotation.order = 'YXZ';
+        if (on) { p.using = kind; p.seat = seat || null; if (seat) { p.seatRy = seat.rotation.y; p.seatK = 0; } p.emos = emos || null; p.emoT = 0.8; return; }
+        if (!p.using) return; p.using = null; if (p.seat) { p.seat.rotation.y = p.seatRy; p.seat = null; } g.position.y = 0; g.rotation.x = 0; legs.forEach(l => { l.rotation.x = 0; }); arms.forEach(a => { a.rotation.x = 0; }); },
+      emote(ch) { if (!p.emoS) { p.emoS = new T.Sprite(new T.SpriteMaterial({ map: emoTex(ch), transparent: true, depthTest: false })); p.emoS.renderOrder = 9; g.add(p.emoS); } p.emoS.material.map = emoTex(ch); p.emoS.visible = true; p.emoA = 0; },
       gest(v) { p.gesturing = !!v; if (!v) rest(p); },
       nod(v) { p.nodding = !!v; g.rotation.order = 'YXZ'; if (!v) g.rotation.x = 0; },
       hop(sec) { p.hopT = sec || 0.9; },
@@ -3151,7 +3164,7 @@ GS.World = (function () {
   }
   let zT = null;
   function zTex() { if (zT) return zT; const c = document.createElement('canvas'); c.width = c.height = 96; const x = c.getContext('2d'); x.font = '900 78px Arial, sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.lineJoin = 'round'; x.lineWidth = 12; x.strokeStyle = '#17171c'; x.strokeText('Z', 48, 52); x.fillStyle = '#ffffff'; x.fillText('Z', 48, 52); zT = new T.CanvasTexture(c); return zT; }
-  const emoT = {};
+  const emoT = {}, tmpV = new T.Vector3();
   function emoTex(ch) { if (emoT[ch]) return emoT[ch]; const c = document.createElement('canvas'); c.width = c.height = 96; const x = c.getContext('2d'); x.font = '72px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(ch, 48, 54); return (emoT[ch] = new T.CanvasTexture(c)); }
   /* pizarra de la clase: aparece cuando le enseñás al equipo */
   let board = null;
@@ -3167,13 +3180,23 @@ GS.World = (function () {
     }
     if (v) { board.position.set(x, 0, z); board.rotation.y = ry || 0; board.visible = true; } board.userData.on = !!v;
   }
-  function rest(p) { if (p.sleeping) return; p.legs.forEach(l => { l.rotation.x = 0; }); if (!p.holding) p.arms.forEach(a => { a.rotation.x = 0; }); }
+  function rest(p) { if (p.sleeping || p.using) return; p.legs.forEach(l => { l.rotation.x = 0; }); if (!p.holding) p.arms.forEach(a => { a.rotation.x = 0; }); }
   function updatePeople(dt) {
     if (board && board.visible) { const k = board.scale.x + ((board.userData.on ? 1.15 : 0) - board.scale.x) * Math.min(1, dt * 9); board.scale.setScalar(Math.max(0.01, k)); if (!board.userData.on && k < 0.03) board.visible = false; }
     for (const p of people) {
       if (p.ideaS && p.ideaS.visible) { const k = Math.min(1, (p.t - p.ideaT) * 5), sz = 0.62 * k * (1 + Math.sin(p.t * 8) * 0.07); p.ideaS.scale.set(sz, sz, 1); }
       if (p.hopT > 0) { p.hopT -= dt; const on = p.hopT > 0; p.group.position.y = on ? Math.abs(Math.sin(p.hopT * 10)) * 0.24 : 0; p.arms.forEach(a => { a.rotation.x = on ? -2.7 : 0; }); }
       else if (!p.moving && p.gesturing) { p.arms[1].rotation.x = -2.25 + Math.sin(p.t * 7) * 0.42; p.arms[0].rotation.x = -0.5 + Math.sin(p.t * 3.5) * 0.22; }
+      if (p.emoS && p.emoS.visible) { p.emoA += dt; const u = p.emoA / 1.7, sz = 0.56 * Math.min(1, u * 7) / (p.group.scale.x || 1); p.emoS.position.set(0.1, 2.0 + u * 0.55, 0); p.emoS.scale.set(sz, sz, 1); p.emoS.material.opacity = Math.min(1, (1 - u) * 3); if (u >= 1) p.emoS.visible = false; }
+      if (p.using && !p.moving) { const g2 = p.group, A = p.arms, Lg = p.legs;
+        if (p.emos && (p.emoT -= dt) <= 0) { p.emote(p.emos[Math.floor(Math.random() * p.emos.length)]); p.emoT = 2.3 + Math.random(); }
+        if (p.seat) { p.seat.getWorldPosition(tmpV); p.seatK = Math.min(1, p.seatK + dt * 3.5); g2.position.x += (tmpV.x - g2.position.x) * p.seatK; g2.position.z += (tmpV.z - g2.position.z) * p.seatK; g2.position.y = (tmpV.y + 0.15) * p.seatK;
+          if (p.using === 'sit') p.seat.rotation.y = p.seatRy + Math.sin(p.t * 1.7) * 0.5 * p.seatK;
+          g2.rotation.y = p.seat.rotation.y; Lg.forEach(l => { l.rotation.x = -1.35 * p.seatK; });
+          if (p.using === 'play') { g2.rotation.x = 0.1; A.forEach((a, i) => { a.rotation.x = -1.2 + Math.sin(p.t * 14 + i * 2.2) * 0.17; }); }
+          else { const up = Math.max(0, Math.sin(p.t * 1.7 + 0.6)); A.forEach(a => { a.rotation.x = -0.5 - up * up * 2.0; }); } }
+        else if (p.using === 'type') { g2.rotation.x = 0.1; A.forEach((a, i) => { a.rotation.x = -1.25 + Math.sin(p.t * 13 + i * 2.4) * 0.18; }); }
+        else { g2.rotation.x = 0.09; A[1].rotation.x = -1.4 + Math.sin(p.t * 5) * 0.28; A[0].rotation.x = -0.25; } }
       if (p.nodding && !p.moving && !p.sleeping) p.group.rotation.x = 0.08 + Math.sin(p.t * 6.5) * 0.07;
       p.t += dt;
       const g = p.group;
@@ -3385,6 +3408,7 @@ GS.World = (function () {
     // El vehículo de la flota sale a repartir (después de despachar una compra por la página). Devuelve false si no hay vehículo.
     dispatch() { const k = fleetK[lastUp.flota || 0]; if (!k || disp || roofOn) return false; disp = { k, t: -0.8, cam: true, ret: cam.saved ? Object.assign({}, cam.saved) : { x: cam.gx, z: cam.gz, d: cam.gdist } }; return true; },
     zoomAt(x, z, k) { if (disp && disp.cam) { disp.cam = false; cam.saved = disp.ret; } if (!cam.saved) cam.saved = { x: cam.gx, z: cam.gz, d: cam.gdist }; cam.gx = x; cam.gz = z; cam.gdist = cam.fit * k; },
+    seatOf: (id, n) => { const k = pieces[id]; return k && k.userData.seats ? k.userData.seats[n || 0] : null; },
     debugScene: () => scene,
     lesson,
     debugCam(x, z, k) { cam.saved = null; cam.gx = x; cam.gz = z; cam.gdist = cam.fit * k; },
@@ -4569,17 +4593,24 @@ GS.Game = (function () {
     const cu = { id: ++uid, arche, look, request: regHi() + req.t, product, st: 'entering', pat: 1, person, slotM: slot, slotC: -1, label: makeLabel('❓') };
     day.customers.push(cu); day.spawned++;
     const sp = day.spawned > 1 && Math.random() < 0.45 ? freeSpot() : null;
-    if (sp) { day.spots[sp.i] = 1; cu.spot = sp; person.walk(sp.via.concat([sp.p]), () => { cu.st = 'browse'; cu.wait = U.rnd(2.6, 4.6); person.face(sp.f); }); }   // primero mira un rato y después se acerca
+    if (sp) { day.spots[sp.i] = 1; cu.spot = sp; person.walk(sp.via.concat([sp.p]), () => { cu.st = 'browse'; cu.wait = U.rnd(2.6, 4.6) + (sp.use ? 1.6 : 0); person.face(sp.f); useSpot(person, sp, true); }); }   // primero mira un rato y después se acerca
     else toCounter(cu, day.n === 1 && day.spawned === 1 ? [] : [[dx, L.salon.zMax + 0.2]]);          /* el primer cliente del primer día ya está frente al mostrador */
     setTimeout(() => A.play('bell'), 900);
   }
   function toCounter(cu, pre) { cu.st = 'entering'; cu.person.walk(pre.concat([[L.puerta.x, -1.3], L.colaMostrador[cu.slotM]]), () => { cu.st = 'waitM'; cu.person.face(Math.PI); }); }
   /* ---------------- Gente que entra a mirar: algunos se van callados, otros comentan algo ---------------- */
+  /* dónde está cada mueble de piso: el lugar elegido, o el que le toca por defecto */
+  const slotOf = id => { const lay = upNow().lay || {}, i = GS.FLOOR.indexOf(id); return L.slots[lay[id] != null ? lay[id] : i]; };
+  function setLay(id, k) { const u = upNow(), lay = {}; GS.FLOOR.forEach((f, i) => { lay[f] = u.lay && u.lay[f] != null ? u.lay[f] : i; }); const other = GS.FLOOR.find(f => lay[f] === k); if (other) lay[other] = lay[id]; lay[id] = k; u.lay = lay; GS.Store.set('up', u); brSave(); }
+  const upPos = g => GS.FLOOR.indexOf(g.id) >= 0 ? [slotOf(g.id).x, slotOf(g.id).z] : g.pos;
+  /* los clientes usan los muebles del salón: tocan lo de Apple, prueban el teclado, se sientan en las sillas o juegan en el escritorio */
+  const USE = { isla: ['tap', ['😍', '✨', '🤩']], mesa: ['type', ['👍', '💡', '🤓']], sillas: ['sit', ['😌', '🤩', '👌']], escritorio: ['play', ['🎮', '🔥', '😎']] };
+  function useSpot(p, sp, on) { if (!sp || !sp.use) return; const u = USE[sp.use]; if (on) p.use(u[0], true, sp.use === 'sillas' || sp.use === 'escritorio' ? W.seatOf(sp.use, 0) : null, u[1]); else p.use(null, false); }
   function freeSpot() {
     const u = upNow(), dx = L.puerta.x, H = Math.PI / 2, all = [
-      { p: [-4.2, 1.5], f: -H, via: [[dx, 1.5]] }, { p: [-4.2, 4.4], f: -H, via: [[dx, 4.4]] }, { p: [-4.2, -1.3], f: -H, via: [[dx, -1.3]] },
-      u.isla && { p: [-3.2, 1.7], f: Math.PI, via: [[dx, 1.7]] }, u.mesa && { p: [0.7, 1.0], f: H, via: [[dx, 1.0]] }, u.mesa && { p: [0.7, 2.7], f: H, via: [[dx, 2.7]] },
-      u.gondola && { p: [4.3, 2.2], f: H, via: [[dx, 5.5], [4.3, 5.5]] }, u.gondola && { p: [4.3, 4.0], f: H, via: [[dx, 5.5], [4.3, 5.5]] }, u.arcade && { p: [0.7, 9.3], f: Math.PI, via: [[dx, 9.3]] }];
+      { p: [-5.1, -1.3], f: -H, via: [[dx, -1.3]] }, { p: [-5.1, 2.1], f: -H, via: [[dx, 2.1]] }]
+      .concat(GS.FLOOR.map(id => { if (!u[id]) return null; const sl = slotOf(id), side = sl.x < dx ? 1 : -1; return id === 'escritorio' ? { p: [sl.x + side * 1.2, sl.z + 0.8], f: -side * 0.9 + Math.PI, via: [[dx, sl.z + 1.1]], use: id } : { p: [sl.x + (id === 'sillas' ? -0.48 : 0), sl.z + (id === 'sillas' ? 0.95 : 1.02)], f: Math.PI, via: [[dx, sl.z + 1.1]], use: id }; }),
+        [u.gondola && { p: [4.3, 2.2], f: H, via: [[dx, 5.5], [4.3, 5.5]] }, u.gondola && { p: [4.3, 4.0], f: H, via: [[dx, 5.5], [4.3, 5.5]] }, u.arcade && { p: [0.7, 9.3], f: Math.PI, via: [[dx, 9.3]] }]);
     const free = []; all.forEach((x, i) => { if (x && !day.spots[i]) { x.i = i; free.push(x); } });
     return free.length ? U.pick(free) : null;
   }
@@ -4588,10 +4619,10 @@ GS.Game = (function () {
     const p = W.makePerson(warm({ shirt: U.pick([0x6b7a8f, 0x3d7a4a, 0xd9a514, 0x4a6fb5, 0xb86fa8, 0x21a0a0, 0x7b4fd1, 0xe07a5f]), hair: U.pick(GS.HAIRS), hairStyle: U.pick(GS.HAIRSTYLES)[0], glasses: Math.random() < 0.3, beard: Math.random() < 0.2, lips: Math.random() < 0.4, speed: U.rnd(2.2, 2.9) }));
     p.voice = U.rnd(230, 480); p.setPos(L.puerta.x + U.rnd(-0.4, 0.4), L.galeria.zMax + 2.4); day.extras.push(p);
     const lk = { p, sp, st: 'in', wait: 0, hops: 0 }; day.lookers.push(lk); day.wv.lookers = (day.wv.lookers || 0) + 1;
-    p.walk(sp.via.concat([sp.p]), () => { lk.st = 'look'; lk.wait = U.rnd(3, 5.5); p.face(sp.f); });
+    p.walk(sp.via.concat([sp.p]), () => { lk.st = 'look'; lk.wait = U.rnd(3, 5.5) + (sp.use ? 2 : 0); p.face(sp.f); useSpot(p, sp, true); });
   }
   function lookerOut(lk) {
-    lk.st = 'out'; const d = day; delete d.spots[lk.sp.i];
+    lk.st = 'out'; const d = day; delete d.spots[lk.sp.i]; useSpot(lk.p, lk.sp, false);
     lk.p.walk(lk.sp.via.slice().reverse().concat([[L.puerta.x + U.rnd(-2, 2), L.galeria.zMax + 3]]), () => { lk.p.remove(); const i = d.lookers.indexOf(lk); if (i >= 0) d.lookers.splice(i, 1); });
   }
   function updateLookers(dt) {
@@ -4599,11 +4630,11 @@ GS.Game = (function () {
     for (const lk of day.lookers.slice()) {
       if (lk.st !== 'look' || (lk.wait -= dt) > 0) continue;
       const r = Math.random(), nx = lk.hops < 1 && r > 0.72 ? freeSpot() : null;
-      if (nx) { delete day.spots[lk.sp.i]; day.spots[nx.i] = 1; const back = lk.sp.via.slice().reverse(); lk.sp = nx; lk.hops++; lk.st = 'in'; lk.p.walk(back.concat(nx.via, [nx.p]), () => { lk.st = 'look'; lk.wait = U.rnd(2.5, 4.5); lk.p.face(nx.f); }); continue; }
+      if (nx) { useSpot(lk.p, lk.sp, false); delete day.spots[lk.sp.i]; day.spots[nx.i] = 1; const back = lk.sp.via.slice().reverse(); lk.sp = nx; lk.hops++; lk.st = 'in'; lk.p.walk(back.concat(nx.via, [nx.p]), () => { lk.st = 'look'; lk.wait = U.rnd(2.5, 4.5) + (nx.use ? 2 : 0); lk.p.face(nx.f); useSpot(lk.p, nx, true); }); continue; }
       if (r < 0.5) sayAt(lk.p, U.pick(LN.browse), 0, '', false, true);
       lookerOut(lk);
     }
-    for (const cu of day.customers) if (cu.st === 'browse' && (cu.wait -= dt) <= 0) { delete day.spots[cu.spot.i]; toCounter(cu, cu.spot.via.slice().reverse()); }
+    for (const cu of day.customers) if (cu.st === 'browse' && (cu.wait -= dt) <= 0) { useSpot(cu.person, cu.spot, false); delete day.spots[cu.spot.i]; toCounter(cu, cu.spot.via.slice().reverse()); }
   }
   /* ---------------- Compañeros: Lucho y Brian andan por el local haciendo sus cosas ---------------- */
   const STAFF = [], MOHAWK = [0xff5fa2, 0x2d6cdf, 0x3bb54a, 0xd9a514, 0xff2a2a, 0x7b4fd1, 0x57e6ff];
@@ -5117,7 +5148,7 @@ GS.Game = (function () {
   // Zona caminable: salón (delante del mostrador), pasillo de entrada y vereda, sin los muebles grandes que haya comprados
   function walkable(x, z) {
     const s = L.salon, area = (x > s.xMin + 0.6 && x < s.xMax - 0.5 && z > L.mostrador.z + 1.3 && z < s.zMax - 0.2) || (Math.abs(x - L.puerta.x) < 1.3 && z >= s.zMax - 0.2 && z < L.galeria.zMax + 0.2) || (z >= L.galeria.zMax + 0.2 && z < L.galeria.zMax + 3.7 && x > -11 && x < 14);
-    if (!area) return false; const u = upNow(); return !GS.UPGRADES.some(g => u[g.id] && ['mesa', 'isla', 'gondola', 'escritorio', 'sillas', 'arcade'].indexOf(g.id) >= 0 && Math.hypot(x - g.pos[0], z - g.pos[1]) < 1.25);
+    if (!area) return false; const u = upNow(); return !GS.UPGRADES.some(g => u[g.id] && (GS.FLOOR.indexOf(g.id) >= 0 ? Math.abs(x - slotOf(g.id).x) < 1.35 && z > slotOf(g.id).z - 0.85 && z < slotOf(g.id).z + (g.id === 'escritorio' ? 1.35 : 0.85) : ['gondola', 'arcade'].indexOf(g.id) >= 0 && Math.hypot(x - g.pos[0], z - g.pos[1]) < 1.25));
   }
   const clearLine = (x0, z0, x1, z1) => { const n = Math.ceil(Math.hypot(x1 - x0, z1 - z0) / 0.3); for (let i = 0; i <= n; i++) if (!walkable(x0 + (x1 - x0) * i / n, z0 + (z1 - z0) * i / n)) return false; return true; };
   function yoWalkTo(x, z, cb) {
@@ -5527,6 +5558,10 @@ GS.Game = (function () {
     const t = nextGoal(); if (t) shopSel = GS.UPGRADES.indexOf(t.g);
     renderShop();
   }
+  function layPick(g) {            /* plano chiquito del salón: los cuatro lugares, con el mueble que tiene cada uno */
+    if (GS.FLOOR.indexOf(g.id) < 0) return ''; const u = upNow(), at = k => GS.FLOOR.find(f => (u.lay && u.lay[f] != null ? u.lay[f] : GS.FLOOR.indexOf(f)) === k), ic = f => GS.UPGRADES.find(x => x.id === f).icon;
+    return '<div class="layp"><small>📍 ¿Dónde va? Tocá un lugar del salón</small><div class="layg"><i class="lay-c">Mostrador</i>' + [0, 1, 2, 3].map(k => { const f = at(k), mine = f === g.id; return (k % 2 ? '<i class="lay-a"></i>' : '') + '<button class="layb' + (mine ? ' on' : '') + (f && !u[f] && !mine ? ' off' : '') + '" data-slot="' + k + '">' + (f ? ic(f) : '') + '</button>'; }).join('') + '<i class="lay-d">Puerta</i></div></div>';
+  }
   function renderShop(preview) {
     const u = upNow(), c = coinsNow(), g = GS.UPGRADES[shopSel], own = u[g.id] || 0;
     $('shopCoins').textContent = '🪙 ' + c;
@@ -5536,10 +5571,10 @@ GS.Game = (function () {
     $('shopCards').innerHTML = g.levels.map((lv, i) => {
       const has = own > i, can = own === i && c >= lv.price, locked = own < i;
       return '<div class="card' + (has ? ' has' : '') + (i + 1 === seeLv ? ' sel' : '') + '" data-see="' + (i + 1) + '"><b>' + lv.n + '</b><span>' + lv.d + '</span><div class="row"><em>' + (has ? '✔ Ya lo tenés' : '🪙 ' + lv.price) + '</em>' +
-        (has ? '' : '<button class="btn" data-buy="' + i + '"' + (can ? '' : ' disabled') + '>' + (locked ? 'Primero el anterior' : can ? 'Comprar' : 'Te faltan ' + (lv.price - c)) + '</button>') + '</div></div>';
+        (has ? '' : '<button class="btn" data-buy="' + i + '"' + (can ? '' : ' disabled') + '>' + (locked ? 'Primero el anterior' : can ? 'Comprar' : 'Te faltan ' + (lv.price - c)) + '</button>') + '</div>' + layPick(g) + '</div>';
     }).join('') + (g.levels.length > 1 ? '' : '');
     const show = Object.assign({}, u); show[g.id] = seeLv;   // vista previa del modelo en su lugar
-    W.setUpgrades(show); W.focusAt(g.pos[0], g.pos[1], g.zoom || 0.36, 0.2);
+    W.setUpgrades(show); W.focusAt(upPos(g)[0], upPos(g)[1], g.zoom || 0.36, 0.2);
     $('shopHint').textContent = (shopSel + 1) + ' de ' + GS.UPGRADES.length + ' · ' + (g.levels.length > 1 ? 'Tocá un nivel para verlo en el local' : own >= g.levels.length ? 'Ya lo tenés en el local.' : 'Vista previa en el local');
   }
   function buy(i) {
@@ -5652,7 +5687,7 @@ GS.Game = (function () {
     day = newDay({ fin: { i: -1, t: 3.2, crowd: [], done: false } }); state = 'final'; paused = false; W.setUpgrades(upNow()); A.setMood('final'); A.play('fanfare');
     W.focusAt(0.6, -1.4, 0.66, -0.08);
     const d = day, f = d.fin, bx = 4.3, bz = -0.5, dx = L.puerta.x;
-    const spots = [[-3.3, -1.7], [-1.9, -0.9], [-0.5, -1.8], [0.5, -0.5], [-2.8, 0.5], [-1.1, 0.7], [0.3, 1.3], [-4.2, -0.4], [1.2, -1.6]];
+    const spots = [[-3.3, -1.7], [-1.9, -0.9], [-0.5, -1.8], [0.5, -0.9], [-1.7, 0.6], [-1.0, 1.5], [-0.1, 0.5], [-4.6, -1.2], [1.6, -1.6]];
     const tr = tierNow(); f.tier = tr;
     f.lines = GS.FINAL.boss.map(x => x.replace('{rank}', tr.title).replace('{fondo}', '🪙 ' + fondoNow()).replace('{meta}', goalNow()).replace('{resultado}', tr.line));
     GS.CUSTOMERS.forEach((ar, i) => {
@@ -5900,7 +5935,7 @@ GS.Game = (function () {
     $('shopPrev').addEventListener('click', () => shopStep(-1)); $('shopNext').addEventListener('click', () => shopStep(1));
     $('shopSlots').addEventListener('wheel', e => { if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) { $('shopSlots').scrollLeft += e.deltaY; e.preventDefault(); } }, { passive: false });
     $('shopSlots').addEventListener('click', e => { const b = e.target.closest('.slotb'); if (b) { shopSel = Number(b.dataset.i); A.play('click'); renderShop(); } });
-    $('shopCards').addEventListener('click', e => { const b = e.target.closest('[data-buy]'), c = e.target.closest('[data-see]'); if (b && !b.disabled) return buy(Number(b.dataset.buy)); if (c) { const x = $('shopCards').scrollLeft; A.play('click'); renderShop(Number(c.dataset.see)); $('shopCards').scrollLeft = x; } });
+    $('shopCards').addEventListener('click', e => { const sl = e.target.closest('[data-slot]'); if (sl) { const x = $('shopCards').scrollLeft; A.play('drop'); setLay(GS.UPGRADES[shopSel].id, Number(sl.dataset.slot)); renderShop(); $('shopCards').scrollLeft = x; return; } const b = e.target.closest('[data-buy]'), c = e.target.closest('[data-see]'); if (b && !b.disabled) return buy(Number(b.dataset.buy)); if (c) { const x = $('shopCards').scrollLeft; A.play('click'); renderShop(Number(c.dataset.see)); $('shopCards').scrollLeft = x; } });
     $('shopCards').addEventListener('scroll', () => { const el = $('shopCards'), i = Math.round(el.scrollLeft / Math.max(1, el.clientWidth * 0.86)); if (el._i !== i) { el._i = i; const u = upNow(), g = GS.UPGRADES[shopSel], sh = Object.assign({}, u); sh[g.id] = Math.max(u[g.id] || 0, i + 1); W.setUpgrades(sh); } });
     W.onTap(st => openStation(st)); W.onGround(groundTap);
     $('btnPlay').addEventListener('click', careerStart);

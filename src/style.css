@@ -719,3 +719,10 @@ a.mbtn { text-decoration: none; box-sizing: border-box; } .mbtn.gold { margin-to
 @keyframes ghand { 0% { transform: translate(0, 0) scale(1.15); opacity: 0; } 12% { opacity: 1; transform: translate(0, 0) scale(.95); } 70% { transform: translate(var(--dx), var(--dy)) scale(.95); opacity: 1; } 85%, 100% { transform: translate(var(--dx), var(--dy)) scale(1.15); opacity: 0; } }
 .dgz.hintz { border: 2px dashed rgba(245,197,24,.85); animation: hintz 1s ease-in-out infinite alternate; } @keyframes hintz { to { border-color: rgba(245,197,24,.2); } }
 .sk-ctl.guided { border-radius: 16px; padding: 4px; } #mg { position: fixed; }
+
+/* ---------- v0.59: elegir el lugar de los muebles ---------- */
+.layp { margin-top: 8px; padding-top: 8px; border-top: 1px dashed #3a3a41; display: flex; align-items: center; gap: 10px; } .layp small { flex: 1; font-size: 12px; line-height: 1.25; color: #d0d0d8; }
+.layg { flex: none; display: grid; grid-template-columns: 40px 12px 40px; gap: 4px; padding: 5px 6px; background: #101014; border: 1px solid #34343b; border-radius: 10px; }
+.layg i { font-style: normal; font-size: 9px; letter-spacing: .5px; text-transform: uppercase; color: #8a8a94; text-align: center; } .lay-c { grid-column: 1 / -1; background: #c40000; color: #fff !important; border-radius: 3px; padding: 1px 0; } .lay-d { grid-column: 1 / -1; }
+.lay-a { grid-row: span 1; border-left: 1px dashed #55555f; border-right: 1px dashed #55555f; }
+.layb { width: 40px; height: 30px; border-radius: 7px; background: #202025; border: 2px solid #34343b; font-size: 17px; line-height: 1; padding: 0; display: grid; place-items: center; } .layb.on { border-color: #f5c518; background: #2c2713; box-shadow: 0 0 0 3px rgba(245,197,24,.25); } .layb.off { opacity: .4; }
