@@ -945,7 +945,7 @@ GS.World = (function () {
       const skinC = cur.skin || SKINS[1], hairC = cur.hair == null ? 0x3a2a1a : cur.hair, topC = cur.shirt || 0x4a6fb5, botC = cur.pants || PANTS[(topC >> 3) % PANTS.length];
       parts.skin.forEach(m => { m.material = mat(skinC); }); parts.top.forEach(m => { m.material = mat(topC); }); parts.bot.forEach(m => { m.material = mat(botC); });
       if (acc) g.remove(acc); acc = new T.Group(); acc.position.y = HY; g.add(acc);
-      const hm = mat(hairC), st = cur.hairStyle || 'corto', hat = cur.hat, capHat = hat === 'gorro' || hat === 'lana';
+      const hm = mat(hairC), st = cur.hairStyle || 'corto', hat = cur.hat, capHat = hat === 'gorro' || hat === 'lana' || hat === 'ushanka' || hat === 'gorra';
       const cap = () => { const m = new T.Mesh(gCap, hm); m.rotation.x = -0.42; acc.add(m); };                    // casquete que deja la frente libre
       const tufts = () => [[0.02, 0.36, 0.1, 1], [-0.14, 0.34, 0.14, 0.85], [0.17, 0.33, 0.1, 0.8], [0, 0.3, 0.22, 0.7]].forEach(q => { const m = new T.Mesh(gTuft, hm); m.scale.set(q[3] * 1.3, q[3] * 0.8, q[3] * 1.3); m.position.set(q[0], q[1], q[2]); acc.add(m); });   // jopo despeinado
       if (hat !== 'casco') {
@@ -962,6 +962,14 @@ GS.World = (function () {
       if (cur.beard) acc.add(new T.Mesh(gBeard, hm));
       const bm = mat(botC), tm = mat(topC);
       [-1, 1].forEach(sd => { const b = box(acc, 0.12, 0.028, 0.03, bm, sd * 0.13, 0.1, HR - 0.03); b.rotation.z = sd * -0.12; });     // cejas
+      /* sombreros y detalles de los rivales: boina, sombrero de ala, ushanka, gorra, anteojos oscuros y parche */
+      { const hc = mat(cur.hatCol != null ? cur.hatCol : 0x2b2b30), hb = mat(cur.hatBand != null ? cur.hatBand : 0x17171c), cyl = (r1, r2, hh, m, y, x, z) => { const c = new T.Mesh(new T.CylinderGeometry(r1, r2, hh, 20), m); c.position.set(x || 0, y, z || 0); acc.add(c); return c; };
+        if (hat === 'boina') { cyl(HR * 1.02, HR * 0.9, 0.08, hc, HR * 0.8); const top = cyl(HR * 1.2, HR * 1.08, 0.09, hc, HR * 0.8 + 0.08, 0.06); top.rotation.z = -0.16; const pm = new T.Mesh(gEar, hc); pm.scale.setScalar(0.55); pm.position.set(0.06, HR * 0.8 + 0.15, 0); acc.add(pm); }
+        if (hat === 'ala') { cyl(HR * 1.5, HR * 1.55, 0.035, hc, HR * 0.62); cyl(HR * 0.86, HR * 0.98, 0.26, hc, HR * 0.62 + 0.14); cyl(HR * 1.0, HR * 1.0, 0.07, hb, HR * 0.62 + 0.05); }
+        if (hat === 'ushanka') { const dome = new T.Mesh(gHelmet, hc); dome.scale.setScalar(1.0); dome.position.y = 0.04; acc.add(dome); [-1, 1].forEach(sd => box(acc, 0.11, 0.34, 0.3, hc, sd * (HR + 0.03), -0.26, 0)); box(acc, HR * 1.5, 0.15, 0.09, hb, 0, 0.1, HR * 0.92); }
+        if (hat === 'gorra') { const dome = new T.Mesh(gHelmet, hc); dome.scale.setScalar(0.97); dome.position.y = 0.04; acc.add(dome); box(acc, HR * 1.25, 0.035, 0.3, hc, 0, 0.1, HR * 1.12); cyl(0.04, 0.04, 0.03, hb, HR + 0.1); }
+        if (cur.shades) { box(acc, 0.5, 0.11, 0.03, 0x111114, 0, 0, HR - 0.005); [-1, 1].forEach(sd => box(acc, 0.03, 0.03, HR, 0x111114, sd * 0.26, 0.03, HR * 0.5)); }
+        if (cur.patch) { box(acc, 0.17, 0.17, 0.03, 0x111114, 0.13, -0.03, HR - 0.005); const band = new T.Mesh(new T.TorusGeometry(HR + 0.005, 0.014, 6, 24), mat(0x111114)); band.rotation.x = Math.PI / 2; band.rotation.y = 0.28; band.position.y = 0.06; acc.add(band); } }
       if (cur.glasses) { [-1, 1].forEach(sd => { const r = new T.Mesh(new T.TorusGeometry(0.085, 0.016, 6, 14), bm); r.position.set(sd * 0.13, -0.01, HR - 0.015); acc.add(r); }); box(acc, 0.09, 0.025, 0.025, bm, 0, -0.01, HR - 0.01); }
       if (cur.lashes) [-1, 1].forEach(sd => { const l = box(acc, 0.1, 0.022, 0.03, hm, sd * 0.2, 0.04, HR - 0.07); l.rotation.z = sd * 0.5; });
       smile.visible = !cur.lips; if (cur.lips) box(acc, 0.13, 0.05, 0.05, tm, 0, -0.17, HR - 0.03);

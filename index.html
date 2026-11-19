@@ -761,6 +761,29 @@ a.mbtn { text-decoration: none; box-sizing: border-box; } .mbtn.gold { margin-to
 .logi small { flex: none; width: 40px; font: 400 14px/1.3 var(--display); color: #77777f; padding-top: 14px; } .logi span { flex: 1; min-width: 0; } .logi b { display: block; font-size: 11.5px; text-transform: uppercase; letter-spacing: .6px; color: var(--red2); }
 @media (max-width: 440px) { .hud-bar { gap: 5px; padding: 6px; } .hud-bar .icon-btn { width: 35px; height: 40px; font-size: 17px; } .score { min-width: 0; } .score b { font-size: 21px; } .score small { font-size: 10px; } .clock .t { font-size: 18px; } .clock .t small { font-size: 11px; margin-left: 5px; } }
 
+/* ---------- v0.70: rivales con marca, día de competencia y medallas ---------- */
+.toast small { display: block; margin-top: 3px; font-size: 12.5px; opacity: .8; }
+.toast.rival { background: #121216; color: #fff; border: 2px solid var(--rc, #e10600); box-shadow: 0 0 0 4px rgba(0,0,0,.35), 0 8px 22px rgba(0,0,0,.6); } .toast.rival b { color: var(--rc, #e10600); filter: brightness(1.35); }
+.say.riv { background: #121216; color: #fff; border: 2px solid var(--rc, #e10600); max-width: 240px; border-radius: 4px 14px 14px 14px; } .say.riv::before { content: attr(data-b); display: block; font-size: 11px; letter-spacing: .6px; text-transform: uppercase; font-weight: 800; color: var(--rc, #e10600); filter: brightness(1.4); }
+.chip.goal { border-color: #8a8a94; } .chip.goal.silver { border-color: #c9c9d6; color: #fff; } .chip.goal.gold { background: #f5c518; border-color: #f5c518; color: #17171c; font-weight: 800; }
+.duel { margin-top: 6px; display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,.86); border: 2px solid var(--rc, #e10600); border-radius: 14px; padding: 5px 9px; pointer-events: auto; }
+.du-s { flex: none; min-width: 62px; text-align: left; line-height: 1; } .du-s b { display: block; font: 400 21px/1 var(--display); color: #fff; } .du-s small { font-size: 10px; letter-spacing: .4px; text-transform: uppercase; color: #ff8a80; white-space: nowrap; }
+.du-s.him { text-align: right; } .du-s.him small { color: var(--rc, #e10600); filter: brightness(1.5); } .duel.ahead .du-s:not(.him) b { color: #7dff9b; } .duel:not(.ahead) .du-s.him b { color: #ffd166; }
+.du-bar { position: relative; flex: 1; height: 16px; border-radius: 8px; background: var(--rc, #555); overflow: hidden; box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); } .du-bar i { position: absolute; left: 0; top: 0; bottom: 0; width: 50%; background: #e10600; border-right: 3px solid #fff; transition: width .35s; }
+.du-bar em { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font: 400 11px/1 var(--display); font-style: normal; color: #fff; text-shadow: 0 1px 2px #000; }
+.du-q { flex: none; font-size: 12.5px; font-weight: 700; background: #26262c; border-radius: 9px; padding: 4px 7px; } .du-q.hot { background: #c40000; animation: ppBad .5s infinite; }
+.medal { display: flex; align-items: center; gap: 12px; border-radius: 14px; padding: 9px 12px; margin: 0 0 8px; background: #26262c; border: 2px solid #8a6b3f; } .medal i { font-style: normal; font-size: 42px; line-height: 1; } .medal b { display: block; font: 400 21px/1.05 var(--display); text-transform: uppercase; } .medal small { font-size: 12.5px; line-height: 1.3; color: #d0d0d8; }
+.medal.plata { border-color: #c9c9d6; } .medal.oro { border-color: #f5c518; background: linear-gradient(120deg, #3a2f08, #26262c 70%); box-shadow: 0 0 0 4px rgba(245,197,24,.18); } .medal.oro b { color: #f5c518; }
+.duelres { display: flex; align-items: center; justify-content: center; gap: 12px; border-radius: 16px; padding: 12px; margin: 0 0 6px; background: linear-gradient(100deg, #e10600 0 50%, var(--rc, #333) 50% 100%); border: 3px solid #fff; }
+.duelres span { flex: 1; text-align: center; } .duelres b { display: block; font: 400 32px/1 var(--display); color: #fff; text-shadow: 0 2px 0 rgba(0,0,0,.4); } .duelres small { font-size: 11px; letter-spacing: .5px; text-transform: uppercase; font-weight: 700; color: #fff; }
+.duelres i { font: 400 22px/1 var(--display); font-style: normal; color: #f5c518; background: #17171c; border-radius: 50%; width: 44px; height: 44px; display: grid; place-items: center; flex: none; } .duelres.win { border-color: #f5c518; box-shadow: 0 0 0 4px rgba(245,197,24,.25); } .duelres.lose { filter: saturate(.75); }
+.ep-faces.vs.duo { background: linear-gradient(100deg, #e10600 0 50%, var(--rc, #1b2340) 50% 100%); gap: 4px 14px; } .ep-faces.vs.duo { flex-wrap: nowrap; } .ep-faces.vs.duo figure { width: min(36%, 168px); flex: none; } .ep-faces.vs.duo .pf { width: 100%; height: auto; aspect-ratio: 1; border-radius: 34px; border-width: 4px; box-shadow: 0 12px 28px rgba(0,0,0,.5); } .ep-faces.vs.duo figcaption { font-size: 14px; margin-top: 7px; } .ep-faces.vs.duo.pals { background: linear-gradient(100deg, #e10600, var(--rc, #1b2340)); } .ep-faces.vs.duo.pals > b { font-size: 46px; text-shadow: none; }
+.ep-faces.big.rvl figure { width: min(60vw, 250px); } .ep-faces.big.rvl .pf { width: 100%; height: auto; aspect-ratio: 1; border-radius: 50px; border-width: 5px; box-shadow: 0 16px 40px rgba(0,0,0,.55); } .ep-emo { position: absolute; right: 12%; bottom: 14%; font-style: normal; font-size: 64px; }
+.ep-brand { position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%) rotate(-2deg); background: #121216; border: 3px solid var(--rc, #e10600); border-radius: 12px; padding: 5px 16px 6px; font: 400 24px/1 var(--display); text-transform: uppercase; color: #fff; white-space: nowrap; box-shadow: 0 6px 16px rgba(0,0,0,.6); text-align: center; z-index: 2; }
+.ep-brand i { font-style: normal; margin-right: 6px; } .ep-brand small { display: block; font: 600 10.5px/1.2 var(--body); letter-spacing: .8px; color: var(--rc, #e10600); filter: brightness(1.5); margin-top: 3px; }
+.suc small.rv { border-left: 3px solid var(--rc, #e10600); padding-left: 7px; }
+@media (max-width: 440px) { .du-s { min-width: 54px; } .du-s b { font-size: 18px; } .duel { gap: 6px; padding: 5px 7px; } }
+
 </style>
 </head>
 <body>
@@ -782,8 +805,10 @@ a.mbtn { text-decoration: none; box-sizing: border-box; } .mbtn.gold { margin-to
     <span class="chip" id="chipSales">💰 $0</span>
     <span class="chip" id="chipRep">⭐ 3,0</span>
     <span class="chip rep" id="chipCond" hidden></span>
+    <span class="chip goal" id="chipGoal" hidden></span>
     <span class="chip combo" id="chipCombo" hidden>🔥 x2</span>
   </div>
+  <div class="duel" id="duelBar" hidden><span class="du-s"><b id="duMe">0</b><small>GameShop</small></span><span class="du-bar"><i id="duFill"></i><em>VS</em></span><span class="du-s him"><b id="duHim">0</b><small id="duName">Rival</small></span><span class="du-q" id="duQ">😠 0/3</span></div>
 </div>
 <div id="toasts" aria-live="polite"></div>
 <div id="fxs" aria-hidden="true"></div>
@@ -876,7 +901,7 @@ const GS = {};
 GS.LOGO = "data:image/png;base64,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";
 
 GS.CONFIG = {
-  version: '0.60.0',
+  version: '0.70.0',
   phase: 8,
   phaseNote: 'Juego completo de punta a punta. Falta tu playtest con 5 personas y encender el lanzamiento (launched: true)',                       // fase actual del proyecto (1 a 5)
   links: { tienda: 'https://www.gameshop.com.ar', instagram: '' },   // botones del inicio y del cierre (vacío = no se muestra)
@@ -916,7 +941,7 @@ GS.CONFIG = {
 GS.PHASES = [
   { n: 1, name: 'Curva y tiempos',        desc: 'Medir y ajustar: jornadas de unos 3 minutos y monedas que no sobren ni falten.' },
   { n: 2, name: 'Feedback y resumen',     desc: 'Respuesta inmediata en cada acción y un resumen de jornada con gancho para la siguiente.' },
-  { n: 3, name: 'Economía y mostrador',   desc: 'Monedas y fondos de expansión, flota y web, errores que cuestan, limpieza, logros y calendario de 12 meses.' },
+  { n: 3, name: 'Economía y mostrador',   desc: 'Monedas, flota y web, errores que cuestan, limpieza, logros y calendario de 12 meses.' },
   { n: 4, name: 'Mapa y sucursales',      desc: 'Mapa del país, cinco regiones, empleados, delegar y tablero de control.' },
   { n: 5, name: 'Historias y competencia',desc: 'Personajes de cada sucursal en el mostrador, eventos y locales rivales.' },
   { n: 6, name: 'Minijuegos arcade',      desc: 'Stock Tetris, Defensa del mostrador y Cable Runner, como premios fuera de la jornada.' },
@@ -1136,7 +1161,7 @@ GS.UPGRADES = [
   { id: 'flota', name: 'Flota de envíos', icon: '🛵', pos: [4.2, 15.6], zoom: 0.46, levels: [
     { n: 'Moto de reparto', d: 'Envío propio en la ciudad: cada compra por la página deja 20% más y suma reputación.', price: 400 },
     { n: 'Camioneta', d: 'Llegás a toda la provincia: 40% más por cada compra por la página.', price: 900 },
-    { n: 'Camión GameShop', d: 'Cubrís toda la región con envío propio: 60% más por compra web. Con la flota completa y 5 estrellas, la región está conquistada.', price: 1600 }] },
+    { n: 'Camión GameShop', d: 'Cubrís toda la región con envío propio: 60% más por compra web. Con la flota completa y 5 estrellas, ya podés desafiar al rival de la región.', price: 1600 }] },
   { id: 'web', name: 'Página web', icon: '🌐', pos: [-3.4, -4.0], zoom: 0.3, levels: [
     { n: 'Web con buscador', d: 'www.gameshop.com.ar se encuentra fácil: entra una compra por la página más por jornada.', price: 300 },
     { n: 'Web con retiro en el local', d: 'Compran desde casa y pasan a buscar: más clientes (tickets más altos).', price: 700 },
@@ -1156,7 +1181,7 @@ GS.SKINS = [0xf6d7bd, 0xf2c9a0, 0xe0ac7e, 0xc68a5c, 0x9a643c, 0x6b4428];
 GS.HAIRS = [0x000000, 0x2b2b3a, 0x4a3a2a, 0x7a3b1e, 0xd9a514, 0xc9c9d6, 0x2d6cdf, 0xff5fa2, 0x3bb54a];
 
 /* Progresión: qué estaciones se suman en cada jornada (de menos a más) y cómo las explica el Dueño */
-GS.UNLOCKS = [['mostrador', 'caja'], ['whatsapp', 'cierre'], ['repo', 'stock', 'vidriera'], ['ml', 'proveedor'], ['pc', 'service'], ['devol']];
+GS.UNLOCKS = [['mostrador', 'caja', 'whatsapp'], ['cierre', 'repo', 'stock', 'vidriera', 'ml'], ['proveedor', 'pc', 'service', 'devol']];      /* en tres jornadas se conocen todas las tareas; desde la 4 hay meta diaria y medallas */
 GS.EXPLAIN = {
   adornos: 'Mañana empieza la semana de Navidad. Elegí el árbol, las guirnaldas y las luces: como lo armes hoy, así amanece el local.',
   vidriera: 'Armá la vidriera según el tema: elegí los 4 productos que mejor van. Si queda bien, va a entrar gente diciendo que lo vio ahí.',
@@ -1176,31 +1201,50 @@ GS.EXPLAIN = {
 /* Clientes: arquetipos inventados (ninguno es una persona real) */
 /* Regiones: una sucursal por región. Cada una con su ciudad, su paleta, sus modismos (siempre con cariño), su rival y 4 candidatos (se eligen 2). */
 GS.REGIONS = [
-  { id: 'pampeana', name: 'Pampeana', city: 'Buenos Aires', cost: 0, prov: ['Ciudad de Buenos Aires', 'Buenos Aires', 'Córdoba', 'Santa Fe', 'Entre Ríos', 'La Pampa'], clima: 'Templado y húmedo, con las cuatro estaciones bien marcadas. Los días malos son de lluvia.', decor: 'ciudad', why: 'El local original, en Av. de los Incas. Desde acá salen los envíos a Buenos Aires, Córdoba, Santa Fe, Entre Ríos y La Pampa.', hi: [] },
+  { id: 'pampeana', name: 'Pampeana', city: 'Buenos Aires', cost: 0, prov: ['Ciudad de Buenos Aires', 'Buenos Aires', 'Córdoba', 'Santa Fe', 'Entre Ríos', 'La Pampa'], clima: 'Templado y húmedo, con las cuatro estaciones bien marcadas. Los días malos son de lluvia.', decor: 'ciudad', why: 'El local original, en Av. de los Incas. Desde acá salen los envíos a Buenos Aires, Córdoba, Santa Fe, Entre Ríos y La Pampa.', hi: [],
+    rival: { name: 'Turbo Gamer', owner: 'Tito Turbo', col: '#ff7a00', mark: '⚡', motto: 'Todo en cinco minutos', rule: 'Promete todo "en cinco minutos". Nunca llega, pero la gente va a preguntar igual.', fx: '',
+      taunts: ['¡Yo ya vendí tres y vos recién abrís!', '¿Todavía embalando? Yo entrego en cinco minutos. Bueno, quince.', 'Rapidito, rapidito, que el cliente no espera.'],
+      pre: 'Tito Turbo cruzó la avenida con megáfono, cronómetro y un cartel que dice "YA". Hoy se define el barrio.', gloat: '¡Listo, listo, listo! Gané. Vuelvan mañana, que la revancha la hacemos rapidito.',
+      win: 'Pará, pará, pará... ¿Perdí? ¿Yo? ...Bueno. Fue rápido, por lo menos.', arc: 'Tito corría tanto porque a la tarde arregla gratis las compus de la escuela del barrio y nunca le alcanzan las horas. Ahora GameShop le presta el taller, y él aprendió a decir "en un rato".' } },
   { id: 'cuyo', name: 'Cuyo', city: 'Mendoza', cost: 2600, prov: ['Mendoza', 'San Juan', 'San Luis'], clima: 'Seco y soleado al pie de la cordillera: veranos calurosos, inviernos fríos y viento Zonda. Acá los días malos no son de lluvia: son de nieve.', floor: 0xf3d9c4, wall: 0xf6ead8, decor: 'cuyo', why: 'Con base en Mendoza, los envíos a San Juan y San Luis salen en el día.',
     hi: ['¡Buenas! Vengo después de la siesta, como corresponde.', 'Hola, ¿todo bien? Está lindo para unas tortitas con mate.', '¡Qué calor que hace! Menos mal que acá hay sombra.', 'Buenas, vecino. Vengo antes de la Vendimia, que después no hay tiempo.', 'Hola. Dejé la bici en la acequia, no tardo.', 'Buenas. Hoy la cordillera amaneció nevadita, una postal.', 'Hola. Vengo de la finca, disculpe la tierra en las zapatillas.', '¡Buenas! ¿Vio el sol que hay? Dicen que acá sale trescientos días al año.', 'Buenas. Traje tortitas raspadas para el mate, después convido.', 'Hola. Con este Zonda no se puede ni pensar: atiéndame despacito.', 'Buenas. Vengo de regar, hoy me tocaba el turno de agua.', 'Hola. Es un ratito nomás, que dejé el auto a la sombra de un carolino.', 'Buenas. Me vine desde San Juan, mire si le tendré fe al local.', 'Buenas tardes. Ya dormí la siesta, ya puedo decidir.', 'Hola. Me dijeron que acá atienden mejor que en el centro.'],
-    rival: { name: 'Zonda Gamer', owner: 'Don Ulises', rule: 'Cuando sopla el Zonda, baja los precios y te lleva clientes.', fx: 'Los días de Zonda (casi la mitad), los clientes tienen 20% menos de paciencia.' },
+    rival: { name: 'Zonda Gamer', owner: 'Don Ulises', col: '#d9a514', mark: '🌪️', motto: 'Precios que vuelan',
+      taunts: ['Hoy sopla Zonda: mis precios vuelan. Los suyos también, pero para arriba.', '¿Cinco estrellas? Acá las estrellas se ven mejor de noche, mijo.', 'Mi mamá pregunta si ya se rinden.'],
+      pre: 'Trajo cronómetro, banderín y a la mamá en primera fila. Hoy se define quién se queda con Cuyo.', gloat: 'Se lo dije, mijo: acá manda el Zonda. Vuelva cuando quiera, que yo no me muevo.',
+      win: '...Me ganaron en buena ley. Mi mamá dice que acá atienden mejor. Y mi mamá nunca se equivoca.', arc: 'Don Ulises abría hasta con Zonda porque los pibes del barrio no tenían dónde meterse con ese viento: les prestaba las compus. Ahora los manda a GameShop, y él trae las tortitas.', rule: 'Cuando sopla el Zonda, baja los precios y te lleva clientes.', fx: 'Los días de Zonda (casi la mitad), los clientes tienen 20% menos de paciencia.' },
     crew: [{ id: 'maru', name: 'Maru', d: 'Ordenada: etiqueta hasta el mate.', look: { skin: 0xe0ac7e, hair: 0x5a2d0c, hairStyle: 'largo', glasses: false } }, { id: 'nacho', name: 'Nacho', d: 'Sabe de PC más que el manual.', look: { skin: 0xf2c9a0, hair: 0x1b1b1f, hairStyle: 'corto', glasses: true } },
       { id: 'flor', name: 'Flor', d: 'Vende hielo en la cordillera.', look: { skin: 0xc68a5c, hair: 0xd9a514, hairStyle: 'rodete', glasses: false } }, { id: 'tomi', name: 'Tomi', d: 'Lento pero no se le escapa una.', look: { skin: 0xf6d7bd, hair: 0xb5651d, hairStyle: 'rulos', glasses: false } }] },
   { id: 'noa', name: 'NOA', city: 'Salta', cost: 1600, prov: ['Jujuy', 'Salta', 'Tucumán', 'Catamarca', 'La Rioja', 'Santiago del Estero'], clima: 'Seco y de altura en los valles y la puna, cálido en el llano. Mucho sol, y las lluvias llegan en verano.', floor: 0xf0cdb0, wall: 0xf7e3cf, decor: 'noa', why: 'Desde Salta se llega fácil a Jujuy, Tucumán, Catamarca, La Rioja y Santiago del Estero.',
     hi: ['Buen día, chango. ¿Cómo anda?', '¡Buenas! Vengo de comer unas empanadas, no me apure.', 'Hola, changuito. Qué lindo local, che.', 'Buenas tardes. A la noche hay peña, pero antes paso por acá.', 'Hola. Bajé del cerro nomás para esto.', 'Buen día. Vengo tranquilo, que el apuro no es de por acá.', 'Buenas. Dejé los tamales al fuego, tengo un ratito.', 'Hola, chango. Me vine desde Tucumán, mire lo lejos.', 'Buenas. Afuera el sol raja la tierra; acá se está lindo.', 'Buen día. Mi abuela dice que primero se saluda y después se pregunta.', 'Buenas tardes. Anoche hubo guitarreada, hábleme bajito por favor.', 'Hola, changuito. Le traje unas humitas, después se las dejo.', 'Buenas. Me vine en el colectivo desde Cafayate. Vale la pena, ¿no?', 'Hola. Para el Carnaval falta, pero ya ando de buen humor.', 'Buenas. Me dijo mi comadre que acá atienden lindo.', 'Buen día. Qué lindo día para no apurarse, ¿no?'],
-    rival: { name: 'Pachamama Play', owner: 'Doña Ramona', rule: 'Regala una empanada con cada compra. Difícil competir con eso.', fx: 'Cada cliente que se va sin comprar le cuesta más a tu reputación: se va derecho a lo de Ramona.' },
+    rival: { name: 'Pachamama Play', owner: 'Doña Ramona', col: '#e08a3c', mark: '🥟', motto: 'Con cada compra, una empanada',
+      taunts: ['Con cada compra, una empanada. ¿Usted qué regala, changuito? ¿Una bolsita?', 'Las mías son de carne cortada a cuchillo. Las suyas... ah, cierto: no tienen.', 'Vaya tranquilo nomás, que su cliente ya está comiendo en mi local.'],
+      pre: 'Amasó desde las cinco de la mañana. Hay olor a empanada en toda la cuadra y fila en su vereda. Hoy se define el Norte.', gloat: 'No se me ponga triste, changuito. Tome una empanada y vuelva mañana, que la revancha es gratis.',
+      win: 'Está bien, changuito. Me ganó sin una sola empanada. Eso sí que es saber vender.', arc: 'Doña Ramona cocinaba para medio barrio: las empanadas del local eran las que sobraban del comedor. Desde ahora, los viernes trae una docena y se lleva los joysticks arreglados.', rule: 'Regala una empanada con cada compra. Difícil competir con eso.', fx: 'Cada cliente que se va sin comprar le cuesta más a tu reputación: se va derecho a lo de Ramona.' },
     crew: [{ id: 'coya', name: 'Mayra', d: 'Tranquila: nada la apura ni la altera.', look: { skin: 0x9a643c, hair: 0x1b1b1f, hairStyle: 'largo', glasses: false } }, { id: 'rami', name: 'Ramiro', d: 'Canta coplas mientras repone.', look: { skin: 0xc68a5c, hair: 0x1b1b1f, hairStyle: 'corto', glasses: false } },
       { id: 'lucia', name: 'Lucía', d: 'Cobra más rápido que el viento.', look: { skin: 0xe0ac7e, hair: 0x5a2d0c, hairStyle: 'rodete', glasses: true } }, { id: 'beto', name: 'Beto', d: 'Conoce a todo el barrio por el nombre.', look: { skin: 0x9a643c, hair: 0x3a2a1a, hairStyle: 'rulos', glasses: false } }] },
   { id: 'nea', name: 'NEA', city: 'Posadas', cost: 1600, prov: ['Misiones', 'Corrientes', 'Chaco', 'Formosa'], clima: 'Subtropical: calor y humedad casi todo el año, lluvias fuertes y siesta obligada.', floor: 0xeab59a, wall: 0xf3ecd6, decor: 'nea', why: 'Desde Posadas se cubre Misiones, Corrientes, Chaco y Formosa.',
     hi: ['¡Hola, chamigo! ¿Todo bien?', 'Buenas. Traje el tereré, ¿querés?', '¡Qué calor, chamigo! Menos mal el aire.', 'Hola. Vengo con chipá recién hecha, convido después.', 'Buenas, che. Crucé el río nomás para venir.', '¡Buenas, chamigo! Con este calor hasta el yacaré busca sombra.', 'Buenas. Recién me levanto de la siesta, hábleme despacio.', '¡Hola! Llovió tanto que vine remando. Bueno, casi.', 'Buenas, che. Vengo de la chacra, disculpe la tierra colorada.', 'Hola, chamigo. Mi mamá manda saludos y pregunta si hay descuento.', 'Buenas. Traje mbeyú para la merienda, después le convido.', 'Hola. Esta noche hay chamamé, así que vengo contento.', '¡Buenas! El termo de tereré se queda conmigo, eso sí.', 'Hola. Me vine desde Oberá, mire si le tendré confianza.', 'Hola, chamigo. Cuarenta grados a la sombra y yo acá, fiel.'],
-    rival: { name: 'Yacaré Games', owner: 'El Tío Chelo', rule: 'A la hora de la siesta no cierra. Dice que duerme con un ojo.', fx: 'A la hora de la siesta te saca un cliente del local; a cambio entra una compra más por la página.' },
+    rival: { name: 'Yacaré Games', owner: 'El Tío Chelo', col: '#2f9a48', mark: '🐊', motto: 'Abierto a la siesta',
+      taunts: ['Usted duerma la siesta tranquilo, chamigo. Yo le cuido los clientes.', 'Mi yacaré tiene más paciencia que su mostrador.', 'A las tres de la tarde, acá mando yo.'],
+      pre: 'Cuarenta grados, la siesta en puerta y el Tío Chelo con el termo lleno. Hoy se define el Litoral.', gloat: 'No se haga drama, chamigo. Tómese un tereré, que mañana hay revancha.',
+      win: 'Me ganó despierto y a la hora de la siesta, chamigo. Eso no lo hace cualquiera.', arc: 'El Tío Chelo no cerraba a la siesta porque a esa hora salen los gurises de la escuela, y muchos no tienen compu en casa. Ahora hacen la tarea en los dos locales. Y Joystick, la rana, tiene cucha propia.', rule: 'A la hora de la siesta no cierra. Dice que duerme con un ojo.', fx: 'A la hora de la siesta te saca un cliente del local; a cambio entra una compra más por la página.' },
     crew: [{ id: 'yami', name: 'Yamila', d: 'Ceba tereré y despacha a la vez.', look: { skin: 0xc68a5c, hair: 0x1b1b1f, hairStyle: 'largo', glasses: false } }, { id: 'guille', name: 'Guille', d: 'Arregla cualquier cosa con cinta.', look: { skin: 0xe0ac7e, hair: 0x5a2d0c, hairStyle: 'corto', glasses: false } },
       { id: 'ani', name: 'Ani', d: 'Le sonríe hasta al proveedor.', look: { skin: 0xf2c9a0, hair: 0xb5651d, hairStyle: 'rulos', glasses: true } }, { id: 'pocho', name: 'Pocho', d: 'Nunca faltó. Ni cuando llovió tres días.', look: { skin: 0x9a643c, hair: 0x3a2a1a, hairStyle: 'pelado', glasses: false } }] },
   { id: 'patagonia', name: 'Patagonia', city: 'Bariloche', cost: 1800, prov: ['Neuquén', 'Río Negro', 'Chubut', 'Santa Cruz', 'Tierra del Fuego'], clima: 'Frío y ventoso, con inviernos largos. Los días malos son de nieve y la gente anda abrigada.', floor: 0xdfe6ee, wall: 0xeaf2f8, decor: 'patagonia', why: 'Desde Bariloche salen los envíos a Neuquén, Río Negro, Chubut, Santa Cruz y Tierra del Fuego.',
     hi: ['¡Buenas! Afuera el viento te despeina hasta las ideas.', 'Hola. Está fresquito, ¿no? Apenas dos bajo cero.', 'Buenas. Vine caminando: son veinte cuadras, acá es cerquita.', 'Hola, vecino. Después paso por un chocolate, ¿venís?', 'Buenas. Cerré la tranquera y me vine.', 'Buenas. Dejé la pala de nieve en la puerta, no se asuste.', 'Hola. Hoy no hay viento. Raro. Sospechoso.', 'Buenas. Vengo de El Bolsón, son dos horitas nomás.', 'Hola. Me saco los guantes y le cuento qué necesito. Deme un minuto.', 'Buenas tardes. El lago está planchado: día de suerte.', 'Buenas. Se me congeló el parabrisas, así que vine a pie.', '¡Hola! Acá adentro está calentito: me quedo un rato largo, le aviso.', 'Buenas. Para un invierno tan largo hace falta algo para entretenerse.', 'Hola. Vengo de la estepa: ciento cincuenta kilómetros, acá a la vuelta.', 'Buenas. Prendí la salamandra antes de salir, así que apuro no tengo.', 'Hola. Los turistas vienen por el chocolate; yo vengo por lo importante.'],
-    rival: { name: 'Ventisca Gaming', owner: 'El Ruso Iván', rule: 'Vende todo con campera de regalo. Nadie sabe de dónde saca las camperas.', fx: 'Para competir con la campera hay que ajustar precios: cada jornada deja 15% menos de monedas.' },
+    rival: { name: 'Ventisca Gaming', owner: 'El Ruso Iván', col: '#7f9bc4', mark: '❄️', motto: 'Con campera de regalo',
+      taunts: ['Sin campera no hay venta. Es ley del sur.', '¿Flota? Yo reparto en trineo. Bueno, en un auto viejo con cadenas.', 'El frío no perdona. Yo tampoco.'],
+      pre: 'Dos bajo cero, viento blanco y el Ruso Iván con una pila de camperas hasta el techo. Hoy se define el Sur.', gloat: 'Abríguese y vuelva mañana. El frío enseña paciencia.',
+      win: 'Llegaron antes que mi campera. Ganaron el sur. Y me parece que algo más.', arc: 'Las camperas las tejía la mamá del Ruso: las regalaba porque en invierno nadie tendría que pasar frío. Ahora GameShop le lleva los envíos al refugio, y él abriga a los repartidores.', rule: 'Vende todo con campera de regalo. Nadie sabe de dónde saca las camperas.', fx: 'Para competir con la campera hay que ajustar precios: cada jornada deja 15% menos de monedas.' },
     crew: [{ id: 'sol', name: 'Sol', d: 'Atiende con guantes y no erra un precio.', look: { skin: 0xf6d7bd, hair: 0xd9a514, hairStyle: 'largo', glasses: false } }, { id: 'lauti', name: 'Lauti', d: 'Hace los envíos aunque nieve.', look: { skin: 0xf2c9a0, hair: 0x5a2d0c, hairStyle: 'rulos', glasses: false } },
       { id: 'ema', name: 'Ema', d: 'Sabe de consolas y de fogones.', look: { skin: 0xe0ac7e, hair: 0x1b1b1f, hairStyle: 'rodete', glasses: true } }, { id: 'vasco', name: 'El Vasco', d: 'Habla poco. Vende mucho.', look: { skin: 0xf6d7bd, hair: 0xb4b4bd, hairStyle: 'corto', glasses: false } }] },
   /* Final oculto: aparece en el mapa recién cuando las 5 regiones están completas. */
   { id: 'malvinas', secret: true, name: 'Malvinas', city: 'Puerto Argentino', cost: 3000, prov: ['Islas Malvinas'], clima: 'Frío oceánico, viento casi todos los días y llovizna. Todo el mundo abrigado.', floor: 0xdfe8e2, wall: 0xeef3f1, decor: 'malvinas', why: 'La sucursal más austral y la más esperada. Los envíos llegan en barco, con viento a favor.',
     hi: ['¡Buenas! Con este viento, llegué antes de lo que pensaba.', 'Hola. Dejé las ovejas mirando la vidriera.', 'Buen día. Qué lindo ver este cartel acá.', 'Hola, vecino. Afuera hay un pingüino esperando turno.', 'Buenas. Llegó el barco de los envíos, así que hoy hay fiesta.', 'Hola. Acá el clima cambia cuatro veces por hora. Vine en la tercera.', 'Buen día. Hace años que esperábamos un local así.', 'Hola, vecino. Acá nos conocemos todos, así que usted debe ser el nuevo.', 'Buenas. Traje el abrigo, el otro abrigo y el de repuesto.', 'Hola. Los pingüinos ya preguntaron si hay joysticks para aletas.', 'Buenas. Qué lindo escuchar un buen día con tonada.', 'Hola. Con este viento, abrir un paraguas es deporte extremo.'],
-    rival: { name: 'Pirata Gaming', owner: 'El Capitán Tormenta', rule: 'Dice que las islas son suyas porque llegó en barco. Te "toma prestados" los carteles, los toldos y a veces los pedidos.', fx: 'Cada jornada se "lleva prestado" algo: hay una tarea más para resolver.' },
+    rival: { name: 'Pirata Gaming', owner: 'El Capitán Tormenta', col: '#4b3f8f', mark: '☠️', motto: 'Lo que veo, es mío', villain: true,
+      taunts: ['Estas islas tienen dueño. Y tiene sombrero.', 'Lindo cartel. Mañana va a estar en mi local.', 'Disfruten mientras puedan, marineritos de agua dulce.'],
+      pre: 'Bajó del barco con el loro, la bandera negra y una sonrisa que no le llega a los ojos. Hoy se definen las islas.', gloat: '¡Ja! Lo que es mío, es mío. Y lo de ustedes, también. Vuelvan cuando aprendan a perder.',
+      win: 'Esto no termina acá. Un día voy a volver. Y ese día... ese día van a ver.', arc: 'No aprendió nada. Levó anclas jurando volver y se fue sin saludar. El loro se quedó: ahora atiende el mostrador y pide por favor.', rule: 'Dice que las islas son suyas porque llegó en barco. Te "toma prestados" los carteles, los toldos y a veces los pedidos.', fx: 'Cada jornada se "lleva prestado" algo: hay una tarea más para resolver.' },
     crew: [{ id: 'malena', name: 'Malena', d: 'Ata todo dos veces, por el viento.', look: { skin: 0xf2c9a0, hair: 0x5a2d0c, hairStyle: 'largo', glasses: false } }, { id: 'fermin', name: 'Fermín', d: 'Fue farero: no se le pasa un barco ni un pedido.', look: { skin: 0xe0ac7e, hair: 0xb4b4bd, hairStyle: 'corto', glasses: false } },
       { id: 'isla', name: 'Isla', d: 'Nació acá. Conoce a cada vecino y a cada oveja.', look: { skin: 0xf6d7bd, hair: 0xd9a514, hairStyle: 'rodete', glasses: true } }, { id: 'nahuel', name: 'Nahuel', d: 'Vino por una semana. Hace dos años.', look: { skin: 0xc68a5c, hair: 0x1b1b1f, hairStyle: 'rulos', glasses: false } }] }
 ];
@@ -1234,31 +1278,32 @@ GS.EPIC = {
   ]
 };
 GS.MODS = [
-  { id: 'apuro', ic: '⏱️', name: 'Clientes apurados', d: 'Esperan un 25% menos. A cambio, 50% más de fondos de expansión.' },
+  { id: 'apuro', ic: '⏱️', name: 'Clientes apurados', d: 'Esperan un 25% menos. A cambio, 30% más de monedas.' },
   { id: 'sinrespiro', ic: '🔥', name: 'Sin respiros', d: 'Los respiros duran la mitad. A cambio, 30% más de monedas.' },
-  { id: 'lupa', ic: '🔍', name: 'Auditoría permanente', d: 'Los errores de caja cuestan el doble. A cambio, 50% más de fondos.' },
+  { id: 'lupa', ic: '🔍', name: 'Auditoría permanente', d: 'Los errores de caja cuestan el doble. A cambio, 30% más de monedas.' },
   { id: '', ic: '🎮', name: 'Sin modificador', d: 'El juego tal cual, con lo que ya ganaste.' }
 ];
 /* Primera vez: el Dueño explica la misión sobre el mapa. El último paso pide tocar Buenos Aires. */
 GS.ONBOARD = [
   { art: 'jefe', k: 'Tu primer día', t: 'Bienvenido a GameShop', d: 'Soy el Dueño. Te contraté para algo grande: llevar GameShop a todo el país.' },
   { art: 'mapa0', k: 'La misión', t: 'Una sucursal en cada región', d: 'Hoy hay una sola: la nuestra, en Buenos Aires. Desde cada región se envía más fácil a todas sus provincias.' },
-  { art: 'recursos', k: 'Cómo se logra', t: 'Estrellas, monedas y fondos', d: 'Para abrir una sucursal nueva hacen falta tres cosas: 5 estrellas, la flota completa (se compra con monedas) y los fondos de expansión.' },
+  { art: 'recursos', k: 'Cómo se logra', t: 'Estrellas, flota y un rival', d: 'Cada región tiene su competencia. Para quedarte con una hacen falta tres cosas: 5 estrellas, la flota completa (se compra con monedas) y ganarle al rival en el día de competencia.' },
   { art: 'jefe2', k: 'El Dueño', t: 'Podemos hacer mucho', d: 'Por GameShop. Y quién sabe: por el país. Empecemos por casa: elegí Buenos Aires en el mapa.' }
 ];
 /* Consejos del Dueño: aparecen una sola vez, la primera vez que pasa cada cosa. */
 GS.TIPS = {
   resumen: 'El cierre del día tiene cuatro pantallas: <b>cómo te fue</b>, <b>lo que cobraste</b>, <b>mejoras</b> y <b>qué sigue</b>. Deslizá o tocá Siguiente.',
   tienda: 'Tocá una mejora para verla en el local. Las que tienen niveles se pueden mirar aunque todavía no te alcance.',
-  mapa: 'Tocá una región para ver su sucursal. Para abrir una nueva hacen falta tres cosas: <b>5 estrellas</b> y <b>flota completa</b> (se compra con 🪙 monedas) en las que ya tenés, y los <b>🗺️ fondos de expansión</b>, que se juntan solos jornada a jornada.',
+  mapa: 'Tocá una región para ver su sucursal. Cada región se conquista en tres pasos: <b>5 estrellas</b>, <b>flota completa</b> (se compra con 🪙 monedas) y <b>ganarle al rival</b> en el día de competencia. Con todas las que tenés conquistadas, podés abrir la siguiente.',
   mancha: '🧹 Dejaron una mancha. Cuando tengas un rato libre, tocá <b>Limpiar el piso</b>: terminar con el local sucio baja la reputación.',
   ensenar: '🎓 En las sucursales nuevas, en los respiros podés <b>enseñarle al equipo</b>. Cuanto más saben, más tareas resuelven solos.',
   errores: 'Desde hoy, ojo: si le das <b>otro producto</b>, el cliente se va. Y cobrar mal baja la reputación.',
-  sucursal: 'Sucursal nueva: empezás con un local humilde. Llevala a <b>5 estrellas</b> y completale la <b>flota</b>: con eso la región queda conquistada. Yo te llamo cada tanto.',
+  sucursal: 'Sucursal nueva: empezás con un local humilde. Llevala a <b>5 estrellas</b> y completale la <b>flota</b>: con eso podés desafiar al rival de la zona. Yo te llamo cada tanto.',
   evento: 'A veces pasa algo inesperado. Elegí con criterio: lo que decidas deja huella en la reputación o en la caja.',
-  rival: '⚔️ Mientras el rival de la zona siga dando pelea, su regla te complica cada jornada. Cuando venga al mostrador, <b>ganale</b>: la regla se va y esta sucursal rinde 10% más.',
-  reparto: 'Cada cierre elegís a dónde va lo del día: <b>al local</b> (más monedas para mejoras) o <b>a la expansión</b> (más fondos para abrir sucursales). No alcanza para todo a la vez.',
-  arcade: '🕹️ Ganaste un juego nuevo. Está en <b>Arcade</b>, en el inicio: si llegás a la meta, te llevás un premio para tu personaje.'
+  rival: '⚔️ Cada región tiene un rival, y su regla te complica las jornadas. Cuando llegues a <b>5 estrellas</b> y tengas la <b>flota completa</b>, llega el <b>día de competencia</b>: si le ganás, la región es tuya y la sucursal rinde 10% más.',
+  medalla: '🏅 Desde hoy cada jornada tiene <b>medalla</b>: bronce, plata u oro según tu puntaje. La de oro pide jugar un poco mejor que tu promedio, paga más monedas y te da ventaja para el día de competencia.',
+  duelo: '⚔️ <b>Día de competencia</b>: arriba ves tu puntaje contra el del rival. Hay más clientes y esperan menos. Ojo con las <b>quejas</b>: a la tercera, el día se pierde. Si perdés, hay revancha.',
+    arcade: '🕹️ Ganaste un juego nuevo. Está en <b>Arcade</b>, en el inicio: si llegás a la meta, te llevás un premio para tu personaje.'
 };
 GS.MONTHS = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];   // 1 jornada = 1 mes
 GS.SANTA = { id: 'santa', name: 'Papá Noel', face: '🎅', shirt: 0xd81e2c, hair: 0xffffff, tag: 'Compras de último momento',
@@ -1276,6 +1321,10 @@ GS.ACHIEVEMENTS = [
   { id: 'palos', ic: '💰', name: 'Diez palos', d: 'Facturá 10 millones (ficticios) en total.', test: st => st.sales >= 10000000 },
   { id: 'cinco', ic: '⭐', name: 'Cinco estrellas', d: 'Llevá la reputación a 4,8 o más.', test: st => st.rep >= 4.8 },
   { id: 'platino', ic: '💎', name: 'Sucursal de platino', d: 'Completá una sucursal al 100%: todas las mejoras y todas las historias.', test: st => st.platino >= 1 },
+  { id: 'duelo1', ic: '⚔️', name: 'Primer duelo ganado', d: 'Ganale el día de competencia a un rival.', test: st => st.duels >= 1 },
+  { id: 'duelo5', ic: '🏆', name: 'Sin competencia', d: 'Ganales a los cinco rivales del país.', test: st => st.duels >= 5 },
+  { id: 'oro3', ic: '🥇', name: 'Racha dorada', d: 'Tres medallas de oro seguidas.', test: st => st.goldBest >= 3 },
+  { id: 'revancha', ic: '🔁', name: 'La revancha es dulce', d: 'Ganaste un duelo después de haberlo perdido.', hidden: true, test: st => st.revancha >= 1 },
   { id: 'camion', ic: '🚚', name: 'Flota completa', d: 'Completá la flota de envíos: moto, camioneta y camión.', test: st => st.flota >= 3 },
   { id: 'generoso', ic: '💸', name: 'Generoso sin querer', d: 'Diste vuelto de más.', hidden: true, test: st => st.vueltoMal >= 1 },
   { id: 'piso', ic: '🍽️', name: 'Se puede comer en el piso', d: 'Cinco jornadas terminadas sin una mancha.', hidden: true, test: st => st.limpio >= 5 },
@@ -1597,7 +1646,7 @@ GS.INTERRUPTS = [
    se abre GameShop 2. Las monedas se aportan desde "Mejorar el local" y algunas visitas suman (o complican).
    tiers: desde cuánto fondo (en proporción a la meta) se llega a cada final. */
 GS.PLOT = { goal: 2600, name: 'GameShop a todo el país',
-  intro: 'Te contraté para algo grande: llevar GameShop a todo el país. Con los fondos de expansión que deja cada jornada vamos a abrir una sucursal en cada región. Mirá el mapa.',
+  intro: 'Te contraté para algo grande: llevar GameShop a todo el país. En cada región hay un rival: con cinco estrellas y la flota completa lo desafiamos, y si le ganamos abrimos la siguiente. Mirá el mapa.',
   tiers: [
     { at: 0,    key: 'chico',   title: 'Mano derecha del Dueño',      line: 'No llegamos al local de al lado. Pero el nuestro quedó hecho un lujo, y eso también es tuyo.' },
     { at: 0.5,  key: 'medio',   title: 'Jefe del punto de retiro',    line: 'No alcanzó para todo el local, pero alquilamos la mitad: ahí va el punto de retiro de las compras por la página. Y lo manejás vos.' },
@@ -1635,7 +1684,7 @@ GS.STORIES = [
       { b: '¿Probó mirarlo en la página?', r: 'La miro todas las noches. Antes de dormir.', rm: 'normal', fx: { rep: 0.05 } }] },
     { m: 'surprised', t: 'Me dijeron que les entró una caja de juegos viejos. Dígame que adentro está lo que yo creo.', note: 'Le mostré la caja que le compré a Nilda: adentro estaba su Galaxia Mate.',
       need: 'galaxia', wait: { m: 'impatient', t: '¿Y? ¿Entró algo? ...No, ya veo que no.', opts: [{ b: 'Nada todavía, Anselmo', r: 'Si aparece alguien vendiendo juegos viejos, cómprele. Yo después se lo agradezco.', rm: 'sad', fx: {} }] }, opts: [
-      { b: 'Es suyo: se lo guardé', r: '¡Con el manual! Cóbrese. Y esto aparte, para ese fondo del que habla el Dueño.', rm: 'happy', fx: { rep: 0.2, fondo: 600 } },
+      { b: 'Es suyo: se lo guardé', r: '¡Con el manual! Cóbrese. Y esto aparte, para el asado del equipo.', rm: 'happy', fx: { rep: 0.2, fondo: 600 } },
       { b: 'Un revendedor ofrece el doble', r: '...Entiendo. Los negocios son los negocios.', rm: 'sad', fx: { fondo: 900, rep: -0.3, flag: 'traicion' } }] },
     { m: 'happy', t: 'Lo terminé. Dos veces. Vengo a contarle el final.', alt: { flag: 'traicion', m: 'sad', t: 'Lo conseguí igual. Me costó el triple. No le guardo rencor. Bueno, un poco.' }, note: 'Terminó de buscar. Diecisiete años.', end: true, opts: [
       { b: 'Lo escucho', r: 'Resulta que el mate era el planeta. Muy ingenioso el desarrollo argentino.', rm: 'happy', fx: { cord: 15, rep: 0.05 } }] }] },
@@ -1671,40 +1720,44 @@ GS.STORIES = [
   { id: 'c_ciclista', reg: 'cuyo', name: 'La Negra Sosa', tag: 'Ciclista de montaña', from: 2, gap: 2, look: { shirt: 0x2d6cdf, hair: 0x1b1b1f, hairStyle: 'rodete', skin: 0xc68a5c }, steps: [
     { m: 'talk', t: 'Subo al cerro en bici y quiero grabar la bajada. ¿Tenés una memoria que no se me llene a mitad de camino?', note: 'Quiere grabar la bajada del cerro en bici.', opts: [{ b: 'Esta de 128 GB y una de repuesto', r: 'Dos. Por si me entusiasmo. Te muestro el video a la vuelta.', rm: 'happy', fx: { rep: 0.1, fondo: 80 } } , { b: 'Con una de 16 te arreglás', r: 'Bueno... si vos decís.', rm: 'normal', fx: {} }] },
     { m: 'happy', t: '¡Mirá el video! Bueno, la mitad: se cortó justo en el salto. Pero la mitad que hay está buenísima.', note: 'Mostró el video de la bajada. O la mitad.', end: true, opts: [{ b: 'La próxima llevá dos memorias', r: 'Ya aprendí. Dame dos, y un parlantito para el refugio.', rm: 'happy', fx: { rep: 0.1, fondo: 150 } }] }] },
-  { id: 'rival_cuyo', reg: 'cuyo', name: 'Don Ulises', tag: 'Dueño de Zonda Gamer', from: 3, gap: 2, look: { shirt: 0xd9a514, hair: 0x3a2a1a, hairStyle: 'corto', skin: 0xe0ac7e, beard: true, glasses: true }, steps: [
+  { id: 'rival_pampeana', reg: 'pampeana', name: 'Tito Turbo', tag: 'Dueño de Turbo Gamer', from: 4, gap: 2, look: { shirt: 0xff7a00, hair: 0x1b1b1f, hairStyle: 'corto', skin: 0xe0ac7e, hat: 'gorra', hatCol: 0xff7a00, shades: true }, steps: [
+    { m: 'talk', t: '¡Hola, hola, hola! Tito Turbo, de Turbo Gamer, acá enfrente. Yo entrego todo en cinco minutos. ¿Ustedes cuánto tardan? ¿Un día? Uf.', note: 'Tito Turbo, de Turbo Gamer, promete todo en cinco minutos.', opts: [{ b: 'Lo que se compra antes de las 14 sale en el día. Y llega', r: '¿Y llega? Ah, bueno, si vamos a hilar fino...', rm: 'nervous', fx: { rep: 0.1 } }, { b: '¿Cinco minutos? ¿De verdad?', r: 'Cinco, quince, cuarenta... Es una forma de decir.', rm: 'nervous', fx: { rep: 0.05 } }] },
+    { m: 'nervous', t: 'Che, ¿no vieron un repartidor mío? Salió hace tres horas con un pedido de cinco minutos. Tiene gorra naranja y cara de perdido.', note: 'A Tito Turbo se le perdió un repartidor.', opts: [{ b: 'Está en la esquina, preguntando por el 80', r: '¡Gracias! Le dije mil veces: derecho por la avenida.', rm: 'happy', fx: { rep: 0.15 } }, { b: 'Ponele seguimiento a los envíos, Tito', r: '¿Seguimiento? ¿Y cómo corro yo detrás de cada uno?', rm: 'surprised', fx: { rep: 0.1 } }] },
+    { m: 'talk', t: 'Listo, basta de charla: el día que tengas cinco estrellas y la flota completa, competimos una jornada entera. Local contra local. El que gane se queda con el barrio. ¿Dale? ¡Dale!', note: 'Tito Turbo propuso un día de competencia, local contra local.', end: true, opts: [{ b: 'Dale. Pero sin apurarme', r: '¡Yo siempre apuro! Es mi marca registrada.', rm: 'happy', fx: { rep: 0.1 } }] }] },
+  { id: 'rival_cuyo', reg: 'cuyo', name: 'Don Ulises', tag: 'Dueño de Zonda Gamer', from: 3, gap: 2, look: { shirt: 0xd9a514, hair: 0x3a2a1a, hairStyle: 'corto', skin: 0xe0ac7e, beard: true, glasses: true, hat: 'boina', hatCol: 0x7a1f1f }, steps: [
     { m: 'talk', t: 'Así que ustedes son los de Buenos Aires. Vengo a avisar: cuando sopla el Zonda, yo bajo los precios. Y hoy sopla.', note: 'Don Ulises, de Zonda Gamer, declaró la guerra de precios.', opts: [{ b: 'Nosotros damos 10% en efectivo y garantía', r: 'Garantía... Eso es jugar sucio. Ya vuelvo.', rm: 'surprised', fx: { rep: 0.1 } } , { b: 'Entonces bajamos todo nosotros también', r: 'Bien. A ver quién aguanta más.', rm: 'angry', fx: { rep: -0.05, fondo: -100 } }] },
     { m: 'nervous', t: 'Che, una pregunta sin importancia: ¿a ustedes también les apareció el cartel dado vuelta esta mañana? Qué cosa el viento, ¿no?', note: 'Alguien dio vuelta el cartel. "El viento", dice Don Ulises.', opts: [{ b: 'Lo enderezamos y quedó más derecho que antes', r: 'Ah. Qué bien. Me alegro. Mucho.', rm: 'sad', fx: { rep: 0.1 } } , { b: 'Fue usted, Ulises. Tiene pintura roja en la manga', r: '...Es de un tomate. Me voy.', rm: 'nervous', fx: { rep: 0.15 } }] },
-    { m: 'talk', t: 'Último desafío: el que arme una PC más rápido se queda con la cuadra. Traje cronómetro. Y público: mi mamá.', note: 'Desafío final de Zonda Gamer: armar una PC contra reloj.', end: true, opts: [{ b: 'Acepto. Y la suya la armamos nosotros también', r: '...Me ganaron. Mi mamá dice que acá atienden mejor. ¿Toman pasantes?', rm: 'happy', fx: { rep: 0.25, fondo: 300 } }] }] },
+    { m: 'talk', t: 'Basta de vientos, mijo. Le propongo algo serio: el día que tenga cinco estrellas y la flota completa, competimos una jornada entera. El que venda mejor se queda con Cuyo.', note: 'Don Ulises propuso un día de competencia: una jornada entera, local contra local.', end: true, opts: [{ b: 'Trato hecho. Vaya afilando el cronómetro', r: 'Ya lo tengo afilado. Y a mi mamá, en primera fila.', rm: 'happy', fx: { rep: 0.1 } }] }] },
   { id: 'n_copla', reg: 'noa', name: 'Doña Hilaria', tag: 'Coplera', from: 1, gap: 2, look: { shirt: 0xc2452d, hair: 0x1b1b1f, hairStyle: 'rodete', skin: 0x9a643c, lips: true }, steps: [
     { m: 'talk', t: 'Mi nieta dice que mis coplas tienen que estar "en la nube". Yo las tengo acá, en la cabeza. ¿Con qué las grabo?', note: 'Quiere grabar sus coplas para la nieta.', opts: [{ b: 'Con este micrófono y la paciencia de su nieta', r: 'Entonces sobra. Ella tiene mucha. Vuelvo cuando grabe la primera.', rm: 'happy', fx: { rep: 0.1, fondo: 80 } } , { b: 'Mejor que las grabe la nieta', r: 'Ay, pero las coplas son mías.', rm: 'sad', fx: {} }] },
     { m: 'happy', t: 'Grabé doce. La nieta dice que una "se hizo viral". Yo le dije que se abrigue. Vine a agradecer con empanadas.', note: 'Sus coplas se hicieron conocidas. Trajo empanadas.', end: true, opts: [{ b: '¿De carne cortada a cuchillo?', r: '¿Y de qué otra forma, chango?', rm: 'happy', fx: { rep: 0.2 } }] }] },
   { id: 'n_guia', reg: 'noa', name: 'El Chango Reynaga', tag: 'Guía de montaña', from: 2, gap: 2, look: { shirt: 0x3bb54a, hair: 0x3a2a1a, hairStyle: 'corto', skin: 0xc68a5c }, steps: [
     { m: 'talk', t: 'Llevo turistas al cerro y siempre se les acaba la batería en la mejor foto. Necesito algo para salvarles el día.', note: 'Guía de turistas: se quedan sin batería en la mejor foto.', opts: [{ b: 'Cargadores portátiles, y le hago precio por varios', r: 'Hecho. Si funciona, los recomiendo en todas las excursiones.', rm: 'happy', fx: { rep: 0.1, fondo: 120 } } , { b: 'Que saquen menos fotos', r: 'Se nota que no viste el cerro, vos.', rm: 'normal', fx: { rep: -0.05 } }] },
     { m: 'happy', t: 'Funcionó. Ahora los turistas preguntan dónde compré los cargadores. Les digo que acá. Me deben una comisión, ¿eh? Es broma. O no.', note: 'Recomienda el local en todas las excursiones.', end: true, opts: [{ b: 'Le debemos un café y un 10% en efectivo', r: 'Trato hecho. Y me llevo auriculares para la bajada.', rm: 'happy', fx: { rep: 0.2, fondo: 150 } }] }] },
-  { id: 'rival_noa', reg: 'noa', name: 'Doña Ramona', tag: 'Dueña de Pachamama Play', from: 3, gap: 2, look: { shirt: 0xe08a3c, hair: 0x1b1b1f, hairStyle: 'largo', skin: 0x9a643c, lips: true }, steps: [
+  { id: 'rival_noa', reg: 'noa', name: 'Doña Ramona', tag: 'Dueña de Pachamama Play', from: 3, gap: 2, look: { shirt: 0xe08a3c, hair: 0x1b1b1f, hairStyle: 'largo', skin: 0x9a643c, lips: true, hat: 'ala', hatCol: 0x2b2b30, hatBand: 0xe10600 }, steps: [
     { m: 'talk', t: 'Bienvenidos al barrio. Les aviso: yo regalo una empanada con cada compra. Contra eso no hay descuento que alcance.', note: 'Doña Ramona regala empanadas con cada compra.', opts: [{ b: 'Nosotros damos 3 cuotas sin interés', r: 'Cuotas... La empanada no se paga en cuotas. Pero bueno.', rm: 'normal', fx: { rep: 0.1 } } , { b: '¿Y si regalamos empanadas también?', r: 'Las suyas van a ser de supermercado. Se va a notar.', rm: 'happy', fx: { rep: -0.05 } }] },
     { m: 'nervous', t: 'Qué raro, ¿no? Esta mañana había una llama atada en su puerta. Con moño. Yo no sé nada.', note: 'Apareció una llama con moño en la puerta.', opts: [{ b: 'La llama trajo clientes: todos se sacan fotos', r: '...Devuélvamela. Era prestada.', rm: 'sad', fx: { rep: 0.15, fondo: 100 } } , { b: 'Se llama Ramona, por el moño', r: 'Qué falta de respeto. Es Ramón.', rm: 'surprised', fx: { rep: 0.05 } }] },
-    { m: 'talk', t: 'Desafío final: mis empanadas contra su servicio técnico. Usted arregla mi notebook; si queda bien, les enseño la receta.', note: 'Desafío final: arreglar la notebook de Doña Ramona.', end: true, opts: [{ b: 'Se la arreglamos, con garantía', r: 'Anda mejor que nueva. La receta es secreta, pero les traigo una docena por semana.', rm: 'happy', fx: { rep: 0.25, fondo: 300 } }] }] },
+    { m: 'talk', t: 'Mire, changuito: cuando tenga sus cinco estrellas y su flota completa, hacemos una jornada de competencia. Mi local contra el suyo. Yo llevo las empanadas; usted lleve lo que tenga.', note: 'Doña Ramona propuso un día de competencia, local contra local.', end: true, opts: [{ b: 'Acepto, Doña Ramona. Y guárdeme una de carne', r: 'Se la guardo. Pero se la doy después de ganarle.', rm: 'happy', fx: { rep: 0.1 } }] }] },
   { id: 'e_pescador', reg: 'nea', name: 'Don Ramón', tag: 'Pescador del Paraná', from: 1, gap: 2, look: { shirt: 0x21a0a0, hair: 0xc9c9d6, hairStyle: 'pelado', skin: 0xc68a5c, beard: true }, steps: [
     { m: 'talk', t: 'Saqué un dorado así de grande y nadie me cree. Necesito algo para filmar el próximo. Que flote, por las dudas.', note: 'Nadie le cree el tamaño del dorado. Quiere filmar el próximo.', opts: [{ b: 'Cámara con funda que flota, y memoria grande', r: 'Eso. Si no vuelvo con el video, es que se la llevó el dorado.', rm: 'happy', fx: { rep: 0.1, fondo: 100 } } , { b: '¿Y si simplemente le creen?', r: 'Chamigo, vos no conocés a mis amigos.', rm: 'normal', fx: {} }] },
     { m: 'happy', t: 'Tengo el video. El dorado era más chico de lo que yo decía. Pero el surubí que salió después... ese sí.', note: 'Filmó la pesca. El surubí era enorme.', end: true, opts: [{ b: 'Lo pasamos en la tele del local', r: '¡Con música de chamamé, eh! Traigo tereré para todos.', rm: 'happy', fx: { rep: 0.2 } }] }] },
   { id: 'e_abuela', reg: 'nea', name: 'La Ñata', tag: 'Vende chipá en la esquina', from: 2, gap: 2, look: { shirt: 0xf5c518, hair: 0x5a2d0c, hairStyle: 'rodete', skin: 0xe0ac7e, lips: true }, steps: [
     { m: 'talk', t: 'Quiero cobrar la chipá con el celular, como los jóvenes. Pero mi celular es de cuando el río estaba más alto.', note: 'Vende chipá y quiere cobrar con el celular.', opts: [{ b: 'Le muestro uno sencillo, en 3 cuotas sin interés', r: 'Tres cuotas. Te las pago con chipá si querés. Bueno, no. Vuelvo.', rm: 'happy', fx: { rep: 0.1 } } , { b: 'Siga con efectivo, es más fácil', r: 'Me dijeron lo mismo del fuego, y mirá el horno que tengo.', rm: 'sad', fx: { rep: -0.05 } }] },
     { m: 'happy', t: 'Ya cobro con el celular. Vendí el doble. Les dejo una bolsa de chipá: está caliente, no la apoyen arriba de las consolas.', note: 'Cobra con el celular y vendió el doble.', end: true, opts: [{ b: 'Gracias, Ñata. Queda lejos de las consolas', r: 'Y del muchacho que duerme, que se la come toda.', rm: 'happy', fx: { rep: 0.2, fondo: 150 } }] }] },
-  { id: 'rival_nea', reg: 'nea', name: 'El Tío Chelo', tag: 'Dueño de Yacaré Games', from: 3, gap: 2, look: { shirt: 0x2f9a48, hair: 0x3a2a1a, hairStyle: 'rulos', skin: 0xc68a5c, beard: true }, steps: [
+  { id: 'rival_nea', reg: 'nea', name: 'El Tío Chelo', tag: 'Dueño de Yacaré Games', from: 3, gap: 2, look: { shirt: 0x2f9a48, hair: 0x3a2a1a, hairStyle: 'corto', skin: 0xc68a5c, beard: true, hat: 'ala', hatCol: 0xe3c98a, hatBand: 0x2f9a48 }, steps: [
     { m: 'talk', t: 'Chamigo, acá a la siesta cierra todo. Menos yo. Así que de dos a cinco, los clientes son míos.', note: 'El Tío Chelo no cierra a la siesta.', opts: [{ b: 'Nosotros tenemos la página abierta las 24 horas', r: '¿La página no duerme? Eso es trampa.', rm: 'surprised', fx: { rep: 0.1 } } , { b: 'Entonces tampoco dormimos', r: 'Vas a ver lo que es no dormir la siesta con 40 grados.', rm: 'happy', fx: { rep: -0.05 } }] },
     { m: 'nervous', t: '¿Vieron que se les llenó la vereda de ranas? Qué cosa la naturaleza. Yo pasaba, nomás.', note: 'La vereda se llenó de ranas. El Tío Chelo "pasaba nomás".', opts: [{ b: 'Las ranas se fueron solas. Y trajeron lluvia', r: '...Y con lluvia la gente compra por la página. Me salió mal.', rm: 'sad', fx: { rep: 0.15, fondo: 100 } } , { b: 'Tiene una rana en el bolsillo, Chelo', r: 'Es mi mascota. Se llama Joystick.', rm: 'nervous', fx: { rep: 0.1 } }] },
-    { m: 'talk', t: 'Último desafío: torneo de truco. Si gano, se van. Si pierdo, les mando a mis clientes de la siesta.', note: 'Desafío final: torneo de truco contra el Tío Chelo.', end: true, opts: [{ b: 'Quiero vale cuatro', r: '...Me cantó con el ancho de espadas. Tomen, la lista de mis clientes. Atiéndanlos bien.', rm: 'happy', fx: { rep: 0.25, fondo: 300 } }] }] },
+    { m: 'talk', t: 'Chamigo, esto se arregla como corresponde: el día que tenga cinco estrellas y la flota completa, competimos toda una jornada. Con siesta incluida. El que gane se queda con el Litoral.', note: 'El Tío Chelo propuso un día de competencia, con siesta incluida.', end: true, opts: [{ b: 'Hecho, Chelo. Lleve tereré para los dos', r: 'Para los tres. Joystick también toma.', rm: 'happy', fx: { rep: 0.1 } }] }] },
   { id: 'p_refugio', reg: 'patagonia', name: 'Greta', tag: 'Cuida un refugio de montaña', from: 1, gap: 2, look: { shirt: 0xd81e2c, hair: 0xd9a514, hairStyle: 'largo', skin: 0xf6d7bd }, steps: [
     { m: 'talk', t: 'En el refugio hay señal solo si te parás en una piedra, en un pie. Necesito entretener a doce montañistas cuando nieva.', note: 'Cuida un refugio sin señal. Necesita entretener montañistas.', opts: [{ b: 'Una consola con juegos para varios, sin internet', r: 'Perfecto. Si se pelean por el turno, los mando a palear nieve.', rm: 'happy', fx: { rep: 0.1, fondo: 150 } } , { b: 'Que lean un libro', r: 'Hay uno. Lo leyeron todos. Dos veces.', rm: 'normal', fx: {} }] },
     { m: 'happy', t: 'Nevó cinco días. Nadie se quiso ir. Armaron un torneo y el premio era no lavar los platos. Vengo por otro joystick.', note: 'En el refugio armaron un torneo durante la nevada.', end: true, opts: [{ b: 'Llevá dos, que el torneo crece', r: 'Y pilas. Muchas pilas.', rm: 'happy', fx: { rep: 0.2, fondo: 150 } }] }] },
   { id: 'p_petrolero', reg: 'patagonia', name: 'El Gringo', tag: 'Trabaja 14 días y descansa 7', from: 2, gap: 2, look: { shirt: 0xe07a5f, hair: 0xb5651d, hairStyle: 'corto', skin: 0xf2c9a0, beard: true }, steps: [
     { m: 'talk', t: 'Trabajo catorce días en el campo y bajo siete. Quiero una PC que me espere prendida de ganas. ¿Me la arman?', note: 'Trabaja 14 días por 7. Quiere que le armen una PC.', opts: [{ b: 'Se la armamos a medida, y la retira cuando baja', r: 'Eso. En catorce días vuelvo. Si no vengo, es el viento.', rm: 'happy', fx: { rep: 0.1 } } , { b: 'Llevate una ya armada', r: 'Mmm. Yo quería elegir las piezas.', rm: 'sad', fx: {} }] },
     { m: 'happy', t: 'Bajé. ¿Está lista? ...Es más linda que mi camioneta. No le digan a mi camioneta.', note: 'Retiró la PC armada a medida.', end: true, opts: [{ b: 'Con garantía, y el secreto queda acá', r: 'Les traigo cordero la próxima bajada.', rm: 'happy', fx: { rep: 0.2, fondo: 250 } }] }] },
-  { id: 'rival_patagonia', reg: 'patagonia', name: 'El Ruso Iván', tag: 'Dueño de Ventisca Gaming', from: 3, gap: 2, look: { shirt: 0x8494a8, hair: 0xc9c9d6, hairStyle: 'corto', skin: 0xf6d7bd, beard: true }, steps: [
+  { id: 'rival_patagonia', reg: 'patagonia', name: 'El Ruso Iván', tag: 'Dueño de Ventisca Gaming', from: 3, gap: 2, look: { shirt: 0x7f9bc4, hair: 0xc9c9d6, hairStyle: 'corto', skin: 0xf6d7bd, beard: true, hat: 'ushanka', hatCol: 0x5b4636, scarf: true }, steps: [
     { m: 'talk', t: 'Yo regalo campera con cada consola. Acá sin campera nadie compra nada. Suerte.', note: 'El Ruso Iván regala camperas con cada consola.', opts: [{ b: 'Nosotros mandamos el pedido a tu casa: no hace falta salir', r: '...No había pensado en eso.', rm: 'surprised', fx: { rep: 0.1 } } , { b: '¿De dónde saca tantas camperas?', r: 'Esa pregunta no se hace.', rm: 'nervous', fx: { rep: 0.05 } }] },
     { m: 'nervous', t: 'Alguien les dejó un muñeco de nieve en la puerta, ¿no? Con cartel de "cerrado". Los chicos de ahora.', note: 'Un muñeco de nieve con cartel de "cerrado" en la puerta.', opts: [{ b: 'Le pusimos remera roja: ahora es el empleado del mes', r: 'Le queda mejor que a mí la campera. Me voy.', rm: 'sad', fx: { rep: 0.15, fondo: 100 } } , { b: 'Tiene nieve en los guantes, Iván', r: 'Acá todos tenemos nieve en los guantes.', rm: 'nervous', fx: { rep: 0.05 } }] },
-    { m: 'talk', t: 'Es el último local que les falta, ¿no? Entonces el desafío es grande: el que haga llegar un paquete a Ushuaia primero, gana el sur.', note: 'El desafío más grande: un envío a Ushuaia contra el Ruso Iván.', end: true, opts: [{ b: 'Sale hoy, con seguimiento y camión propio', r: '...Llegó antes que mi campera. Ganaron el sur. Y el país, me parece.', rm: 'happy', fx: { rep: 0.3, fondo: 400 } }] }] },
+    { m: 'talk', t: 'Escuche bien: cuando tenga cinco estrellas y la flota completa, competimos una jornada entera. Con nieve o sin nieve. El que gane se queda con el sur.', note: 'El Ruso Iván propuso un día de competencia, con nieve o sin nieve.', end: true, opts: [{ b: 'Acepto. Abríguese, Iván', r: 'Yo nací abrigado.', rm: 'happy', fx: { rep: 0.1 } }] }] },
   { id: 'c_seno', reg: 'cuyo', name: 'La seño Rosa', tag: 'Maestra de una escuela rural', from: 4, gap: 2, look: { shirt: 0xf4f4f2, hair: 0x5a2d0c, hairStyle: 'rodete', skin: 0xe0ac7e, glasses: true, lips: true }, steps: [
     { m: 'talk', t: 'La cooperadora juntó plata con rifas y empanadas. Queremos tablets para la escuela: somos veinte chicos y un solo enchufe.', note: 'La cooperadora de una escuela rural quiere tablets.', opts: [{ b: 'Tres tablets, en 3 cuotas sin interés', r: '¡Tres! Con las cuotas llegamos. Vuelvo cuando cobremos la rifa del lechón.', rm: 'happy', fx: { rep: 0.1 } }, { b: 'Mejor una sola, la más completa', r: 'Una sola... Bueno. Van a tener que turnarse. Vuelvo con la plata.', rm: 'normal', fx: { flag: 'una' } }] },
     { m: 'happy', t: 'Cobramos la rifa. Ganó el intendente y donó el lechón de nuevo, así que la rifamos dos veces. Vengo por las tres tablets.', alt: { flag: 'una', m: 'sad', t: 'Compré la tablet. Hicimos una lista de turnos: el último la usa en marzo. ¿Me arma el presupuesto de dos más?' }, note: 'Volvió con la plata de la rifa (rifada dos veces).', opts: [{ b: 'Acá están, con funda y garantía', r: 'Con funda: usted conoce a los chicos. Le traigo novedades.', rm: 'happy', fx: { rep: 0.15, fondo: 200 } }] },
@@ -1741,10 +1794,10 @@ GS.STORIES = [
     { m: 'talk', t: 'Cuento pingüinos. Hay muchos y se mueven. Necesito una tablet que aguante viento, sal y picotazos: los pingüinos son muy curiosos y nada respetuosos.', note: 'Cuenta pingüinos y necesita una tablet resistente.', opts: [{ b: 'Esta, con funda reforzada', r: 'Reforzada. Perfecto: ya me comieron dos lapiceras.', rm: 'happy', fx: { rep: 0.15, fondo: 120, flag: 'funda' } }, { b: 'Esta, que es más liviana', r: 'Liviana... Con este viento, no sé si eso es bueno.', rm: 'normal', fx: { fondo: 80 } }] },
     { m: 'nervous', t: 'Un pingüino se la llevó. No sé cómo. La encontré en su nido, prendida. Tenía abierto un juego. Iba por el nivel cuatro.', alt: { flag: 'funda', m: 'happy', t: 'La picotearon cuarenta veces y ni un rayón. Conté ocho mil doscientos. Bueno, ocho mil doscientos uno: uno se me subió a la mochila.' }, note: 'Un pingüino se llevó la tablet y la usó.', opts: [{ b: 'Le ponemos funda con correa', r: 'Con correa. Y le dejo una vieja al pingüino, que se lo ganó.', rm: 'happy', fx: { rep: 0.15, fondo: 100 } }] },
     { m: 'happy', t: 'Terminé el censo: hay más pingüinos que nunca. Y pasa algo raro: de tarde se juntan frente a su vidriera. Lo anoté en el informe como "conducta nueva".', note: 'Terminó el censo. Los pingüinos miran la vidriera.', end: true, opts: [{ b: 'Son nuestros clientes más fieles', r: 'Y los únicos que vienen de traje.', rm: 'happy', fx: { rep: 0.25, fondo: 200 } }] }] },
-  { id: 'rival_malvinas', reg: 'malvinas', name: 'El Capitán Tormenta', tag: 'Dueño de Pirata Gaming', from: 2, gap: 2, look: { shirt: 0x1b2340, hair: 0x3a2a1a, hairStyle: 'corto', skin: 0xe0ac7e, beard: true, hat: 'bicornio', uniform: true }, steps: [
+  { id: 'rival_malvinas', reg: 'malvinas', name: 'El Capitán Tormenta', tag: 'Dueño de Pirata Gaming', from: 2, gap: 2, look: { shirt: 0x1b2340, hair: 0x3a2a1a, hairStyle: 'corto', skin: 0xe0ac7e, beard: true, hat: 'bicornio', uniform: true, patch: true }, steps: [
     { m: 'talk', t: '¡Ah del local! Soy el Capitán Tormenta, de Pirata Gaming. Llegué en barco, clavé un cartel y dije "esto es mío". Así funciona, ¿no?', note: 'El Capitán Tormenta dice que las islas son suyas porque llegó en barco.', opts: [{ b: 'No. Acá se atiende bien y se gana el lugar', r: '¿Atender bien? Qué método raro. Ya van a ver.', rm: 'surprised', fx: { rep: 0.1 } }, { b: 'Las islas ya tenían dueño, capitán', r: 'Detalles. Los piratas no leemos la letra chica.', rm: 'angry', fx: { rep: 0.1 } }] },
     { m: 'nervous', t: 'Qué casualidad: su cartel apareció en mi barco. Y su toldo. Y un pingüino con remera roja. Yo los "tomé prestados". Es cultura pirata.', note: 'Pirata Gaming "tomó prestados" el cartel, el toldo y un pingüino.', opts: [{ b: 'Devuélvalos. El pingüino trabaja acá', r: 'El pingüino se quiso volver solo. Dice que ustedes pagan mejor.', rm: 'sad', fx: { rep: 0.15, fondo: 100 } }, { b: 'Quédese el toldo: con este viento se le vuela igual', r: '...Ya se voló. Con el ancla y todo.', rm: 'nervous', fx: { rep: 0.15 } }] },
-    { m: 'talk', t: 'Basta de juegos. Duelo final: todo el pueblo hace fila en los dos locales. El que atienda a todos sin un error se queda en las islas. El otro, leva anclas.', note: 'Duelo final contra Pirata Gaming: atender a todo el pueblo sin un error.', opts: [{ b: 'Acepto. Que pase el primero', r: 'Mi fila se pasó a la de ustedes. Hasta mi loro. Está bien, me voy en mi barco. Las islas son de ustedes. Siempre lo fueron.', rm: 'sad', fx: { rep: 0.4, fondo: 500 } }], end: true }] },
+    { m: 'talk', t: 'Basta de juegos. Cuando tengan sus cinco estrellitas y su flotita, nos vemos en un duelo: una jornada entera, todo el pueblo mirando. El que pierda, leva anclas.', note: 'El Capitán Tormenta retó a duelo: una jornada entera, y el que pierde se va.', end: true, opts: [{ b: 'Acepto. Vaya preparando el barco', r: 'El barco siempre está listo. Para irme o para llevarme lo de ustedes.', rm: 'angry', fx: { rep: 0.1 } }] }] },
   { id: 'm_farero', reg: 'malvinas', name: 'Don Evaristo', tag: 'El farero', from: 1, gap: 2, look: { shirt: 0x2d6cdf, hair: 0xc9c9d6, hairStyle: 'corto', skin: 0xe0ac7e, beard: true }, steps: [
     { m: 'talk', t: 'Cuido el faro hace treinta años. De noche se ve hasta el continente, si uno tiene ganas. Quiero una radio que agarre todo.', note: 'El farero quiere una radio que agarre todo.', opts: [{ b: 'Este parlante con radio, y pilas de sobra', r: 'Con pilas de sobra. Acá todo se pide de sobra. Vuelvo cuando la pruebe.', rm: 'happy', fx: { rep: 0.15 } }, { b: 'Mejor una tele', r: 'La tele no se escucha desde arriba del faro, m\'hijo.', rm: 'normal', fx: {} }] },
     { m: 'happy', t: 'Anoche agarré un partido, un chamamé y a un señor de Jujuy que saludaba. Desde el faro vi su cartel prendido. Queda lindo.', note: 'Desde el faro se ve el cartel de GameShop prendido.', end: true, opts: [{ b: 'Lo dejamos prendido toda la noche', r: 'Entonces ya son dos faros.', rm: 'happy', fx: { rep: 0.3, fondo: 200 } }] }] },
@@ -1772,7 +1825,7 @@ GS.INTRO = [
 GS.FINAL = {
   boss: [
     'Veinte jornadas. Nadie había durado tanto desde... bueno, desde Brian.',
-    'Atendiste, cobraste, embalaste y casi nunca perdiste la cordura. Y para el local de al lado juntamos {fondo} de {meta}.',
+    'Atendiste, cobraste, embalaste y casi nunca perdiste la cordura.',
     '{resultado}',
     'Por eso, desde hoy sos {rank}. Te ganaste la llave y el grupo de WhatsApp de proveedores. Suerte con eso.',
     'Gracias por jugar. Y acordate: 10% OFF en efectivo y transferencia. Eso no cambia nunca.'
@@ -3111,7 +3164,7 @@ GS.World = (function () {
       const skinC = cur.skin || SKINS[1], hairC = cur.hair == null ? 0x3a2a1a : cur.hair, topC = cur.shirt || 0x4a6fb5, botC = cur.pants || PANTS[(topC >> 3) % PANTS.length];
       parts.skin.forEach(m => { m.material = mat(skinC); }); parts.top.forEach(m => { m.material = mat(topC); }); parts.bot.forEach(m => { m.material = mat(botC); });
       if (acc) g.remove(acc); acc = new T.Group(); acc.position.y = HY; g.add(acc);
-      const hm = mat(hairC), st = cur.hairStyle || 'corto', hat = cur.hat, capHat = hat === 'gorro' || hat === 'lana';
+      const hm = mat(hairC), st = cur.hairStyle || 'corto', hat = cur.hat, capHat = hat === 'gorro' || hat === 'lana' || hat === 'ushanka' || hat === 'gorra';
       const cap = () => { const m = new T.Mesh(gCap, hm); m.rotation.x = -0.42; acc.add(m); };                    // casquete que deja la frente libre
       const tufts = () => [[0.02, 0.36, 0.1, 1], [-0.14, 0.34, 0.14, 0.85], [0.17, 0.33, 0.1, 0.8], [0, 0.3, 0.22, 0.7]].forEach(q => { const m = new T.Mesh(gTuft, hm); m.scale.set(q[3] * 1.3, q[3] * 0.8, q[3] * 1.3); m.position.set(q[0], q[1], q[2]); acc.add(m); });   // jopo despeinado
       if (hat !== 'casco') {
@@ -3128,6 +3181,14 @@ GS.World = (function () {
       if (cur.beard) acc.add(new T.Mesh(gBeard, hm));
       const bm = mat(botC), tm = mat(topC);
       [-1, 1].forEach(sd => { const b = box(acc, 0.12, 0.028, 0.03, bm, sd * 0.13, 0.1, HR - 0.03); b.rotation.z = sd * -0.12; });     // cejas
+      /* sombreros y detalles de los rivales: boina, sombrero de ala, ushanka, gorra, anteojos oscuros y parche */
+      { const hc = mat(cur.hatCol != null ? cur.hatCol : 0x2b2b30), hb = mat(cur.hatBand != null ? cur.hatBand : 0x17171c), cyl = (r1, r2, hh, m, y, x, z) => { const c = new T.Mesh(new T.CylinderGeometry(r1, r2, hh, 20), m); c.position.set(x || 0, y, z || 0); acc.add(c); return c; };
+        if (hat === 'boina') { cyl(HR * 1.02, HR * 0.9, 0.08, hc, HR * 0.8); const top = cyl(HR * 1.2, HR * 1.08, 0.09, hc, HR * 0.8 + 0.08, 0.06); top.rotation.z = -0.16; const pm = new T.Mesh(gEar, hc); pm.scale.setScalar(0.55); pm.position.set(0.06, HR * 0.8 + 0.15, 0); acc.add(pm); }
+        if (hat === 'ala') { cyl(HR * 1.5, HR * 1.55, 0.035, hc, HR * 0.62); cyl(HR * 0.86, HR * 0.98, 0.26, hc, HR * 0.62 + 0.14); cyl(HR * 1.0, HR * 1.0, 0.07, hb, HR * 0.62 + 0.05); }
+        if (hat === 'ushanka') { const dome = new T.Mesh(gHelmet, hc); dome.scale.setScalar(1.0); dome.position.y = 0.04; acc.add(dome); [-1, 1].forEach(sd => box(acc, 0.11, 0.34, 0.3, hc, sd * (HR + 0.03), -0.26, 0)); box(acc, HR * 1.5, 0.15, 0.09, hb, 0, 0.1, HR * 0.92); }
+        if (hat === 'gorra') { const dome = new T.Mesh(gHelmet, hc); dome.scale.setScalar(0.97); dome.position.y = 0.04; acc.add(dome); box(acc, HR * 1.25, 0.035, 0.3, hc, 0, 0.1, HR * 1.12); cyl(0.04, 0.04, 0.03, hb, HR + 0.1); }
+        if (cur.shades) { box(acc, 0.5, 0.11, 0.03, 0x111114, 0, 0, HR - 0.005); [-1, 1].forEach(sd => box(acc, 0.03, 0.03, HR, 0x111114, sd * 0.26, 0.03, HR * 0.5)); }
+        if (cur.patch) { box(acc, 0.17, 0.17, 0.03, 0x111114, 0.13, -0.03, HR - 0.005); const band = new T.Mesh(new T.TorusGeometry(HR + 0.005, 0.014, 6, 24), mat(0x111114)); band.rotation.x = Math.PI / 2; band.rotation.y = 0.28; band.position.y = 0.06; acc.add(band); } }
       if (cur.glasses) { [-1, 1].forEach(sd => { const r = new T.Mesh(new T.TorusGeometry(0.085, 0.016, 6, 14), bm); r.position.set(sd * 0.13, -0.01, HR - 0.015); acc.add(r); }); box(acc, 0.09, 0.025, 0.025, bm, 0, -0.01, HR - 0.01); }
       if (cur.lashes) [-1, 1].forEach(sd => { const l = box(acc, 0.1, 0.022, 0.03, hm, sd * 0.2, 0.04, HR - 0.07); l.rotation.z = sd * 0.5; });
       smile.visible = !cur.lips; if (cur.lips) box(acc, 0.13, 0.05, 0.05, tm, 0, -0.17, HR - 0.03);
@@ -4386,10 +4447,10 @@ GS.Game = (function () {
     modal('<h2>💬 Mensajes</h2>' + (LOG.length ? '<div class="logl">' + LOG.map((m, i) => (i === 0 || LOG[i - 1].d !== m.d ? '<h4>Jornada ' + m.d + '</h4>' : '') + '<div class="logi"><small>' + (m.t || '') + '</small><span>' + m.h + '</span></div>').join('') + '</div>' : '<p>Todavía no llegó ningún mensaje. Acá vas a encontrar las llamadas del Dueño, los avisos de la competencia y las novedades del día.</p>') +
       '<button class="btn" data-close>' + (state === 'day' ? 'Seguir' : 'Cerrar') + '</button>', () => { if (inDay) paused = false; });
   }
-  function toast(html, cls, ms, noLog) {
+  function toast(html, cls, ms, noLog, col) {
     if (!noLog && html.indexOf('<b>') === 0) logMsg(html);
     const box = $('toasts'); while (box.children.length > 1) box.removeChild(box.firstChild);
-    const t = document.createElement('div'); t.className = 'toast ' + (cls || ''); t.innerHTML = html; box.appendChild(t);
+    const t = document.createElement('div'); t.className = 'toast ' + (cls || ''); t.innerHTML = html; if (col) t.style.setProperty('--rc', col); box.appendChild(t);
     setTimeout(() => { t.classList.add('out'); setTimeout(() => t.remove(), 320); }, ms || 3200);
   }
 
@@ -4417,9 +4478,9 @@ GS.Game = (function () {
   const coinsNow = () => DEV() ? 999999 : GS.Store.get('coins') || 0;
   const monthOf = n => GS.MONTHS[(n - 1) % 12] + ', año ' + (Math.floor((n - 1) / 12) + 1);
   // El rival de la zona: su regla complica las jornadas de esa sucursal hasta que se le gana en el mostrador; después, la sucursal rinde 10% más
-  const rivalId = () => GS.Store.get('branch') || 'pampeana', rivalDone = () => !!((GS.Store.get('hist') || {})['rival_' + rivalId()] || {}).done, rivalOn = () => rivalId() !== 'pampeana' && !rivalDone() && GS.STORIES.some(S => S.id === 'rival_' + rivalId());
-  const coinMult = () => { const u = upNow(); return (1 + 0.1 * ((u.mesa || 0) + (u.isla || 0) + (u.gondola || 0) + (u.luces || 0) + (u.web >= 3 ? 1 : 0)) + (rivalId() !== 'pampeana' && rivalDone() ? 0.1 : 0)) * (rivalOn() && rivalId() === 'patagonia' ? 0.85 : 1); };
-  const patMult = () => { const u = upNow(); return (1 + 0.15 * (u.escritorio || 0) + 0.1 * (u.sillas || 0) + 0.1 * (u.cafetera || 0)) * (modNow() === 'apuro' ? 0.75 : 1) * (day && day.zonda ? 0.8 : 1); };
+  const rivalId = () => GS.Store.get('branch') || 'pampeana', rivalDone = () => !!((GS.Store.get('branches') || {})[rivalId()] || {}).won, rivalOn = () => !rivalDone() && !!(GS.REGIONS.find(r => r.id === rivalId()) || {}).rival;
+  const coinMult = () => { const u = upNow(); return (1 + 0.1 * ((u.mesa || 0) + (u.isla || 0) + (u.gondola || 0) + (u.luces || 0) + (u.web >= 3 ? 1 : 0)) + (rivalDone() ? 0.1 : 0)) * (rivalOn() && rivalId() === 'patagonia' ? 0.85 : 1) * (modNow() === 'apuro' || modNow() === 'lupa' ? 1.3 : 1); };
+  const patMult = () => { const u = upNow(); return (1 + 0.15 * (u.escritorio || 0) + 0.1 * (u.sillas || 0) + 0.1 * (u.cafetera || 0)) * (modNow() === 'apuro' ? 0.75 : 1) * (day && day.zonda ? 0.8 : 1) * (day && day.duel ? 0.85 : 1) * (day && day.n <= GS.UNLOCKS.length ? 1.3 : 1); };      /* día de competencia: esperan menos; jornadas de aprendizaje: esperan más */
   const modNow = () => GS.Store.get('mod') || '';
   function conditionFor(n) {
     const forced = GS.Store.get('testCond'); if (forced) return forced === 'ninguna' ? null : forced;             // fechas especiales fijas y lluvia al azar (nunca en las primeras jornadas)
@@ -4427,15 +4488,17 @@ GS.Game = (function () {
     if (n % 12 === 0) return 'navidad';                   // diciembre
     return n >= 3 && Math.random() < 0.25 ? 'lluvia' : null;
   }
-  function planDay(n, cond) {
+  const unitsOf = plan => plan.reduce((a, w) => a + w.c + w.t + (w.ml || 0), 0);
+  function planDay(n, cond, duel) {
     const un = unlockedFor(n), pool = TASK_STATIONS.filter(s => un.indexOf(s.id) >= 0), u = upNow(), c = cond ? GS.CONDITIONS[cond] : null, r = repNow();
     let cust = Math.min(3 + n, 7) + (u.cartel || 0) + (u.arcade || 0) + (u.vidluz || 0) + (u.web >= 2 ? 1 : 0) + (r >= 4 ? 1 : r < 2 ? -1 : 0) + (c ? c.cust : 0);   // cartel, arcade y reputación traen gente
-    const want = U.clamp(cust, 3, 12); cust = Math.min(want, C.day.maxDayCustomers);       // la jornada dura siempre unos 3 minutos: lo que el cartel y las mejoras traen de más se cobra como tickets más altos
-    const tasks = pool.length ? Math.min(n - 1, C.day.maxDayTasks) : 0, extraMl = (un.indexOf('ml') >= 0 && u.web >= 1 ? 1 : 0) + (c && un.indexOf('ml') >= 0 ? c.ml : 0), nw = cust <= 5 ? 3 : 4;
+    const learn = n <= GS.UNLOCKS.length ? GS.UNLOCKS[n - 1].filter(id => TASK_STATIONS.some(x => x.id === id)) : null;      /* jornadas 1 a 3: se ven todas las tareas nuevas del día, con menos clientes */
+    const want = U.clamp(cust, 3, 12); cust = learn ? Math.min(want, 4) : Math.min(want, C.day.maxDayCustomers) + (duel ? 2 : 0);       // la jornada dura siempre unos 3 minutos: lo que el cartel y las mejoras traen de más se cobra como tickets más altos
+    const tasks = learn ? learn.length : pool.length ? Math.min(n - 1, C.day.maxDayTasks) + (duel ? 1 : 0) : 0, extraMl = (un.indexOf('ml') >= 0 && u.web >= 1 ? 1 : 0) + (c && un.indexOf('ml') >= 0 && !learn ? c.ml : 0), nw = cust <= 5 && !(learn && tasks > 2) ? 3 : 4;
     const plan = Array.from({ length: nw }, () => ({ c: 0, t: 0, ml: 0 }));
     for (let i = 0; i < cust; i++) plan[nw - 1 - (i % nw)].c++;
     for (let i = 0; i < tasks; i++) plan[nw - 1 - (i % (nw - 1))].t++;
-    for (let i = 0; i < extraMl; i++) plan[1 + (i % (nw - 1))].ml++;
+    for (let i = 0; i < (learn ? 0 : extraMl); i++) plan[1 + (i % (nw - 1))].ml++;
     if (un.indexOf('cierre') >= 0) plan.push({ c: 0, t: 1, ml: 0, final: true });
     plan.bonus = 1 + (want - cust) * 0.07;
     if (rivalOn() && rivalId() === 'nea') { const w = plan.find((x, i) => i >= 1 && !x.final && x.c > 1); if (w) { w.c--; if (un.indexOf('ml') >= 0) w.ml = (w.ml || 0) + 1; } }           // la siesta de Yacaré Games
@@ -4502,7 +4565,7 @@ GS.Game = (function () {
     if (x.it.gfx) { coach('evento');            // evento sorpresa: deja algo más que un "bien resuelto", y a veces lo que parecía mala idea sale bien
       const tw = !ok && x.it.twist && Math.random() < 0.35, f = ok ? x.it.gfx : tw ? x.it.tfx : x.it.bfx, good = ok || tw;
       if (f.rep) addRep(f.rep); if (f.coins) GS.Store.set('coins', coinsNow() + f.coins); if (f.fondo) addFondo(f.fondo);
-      fx((f.rep > 0 ? '+⭐ ' : f.rep < 0 ? '−⭐ ' : '') + (f.coins ? '+🪙' + f.coins + ' ' : '') + (f.fondo ? '+🗺️' + f.fondo : ''), good ? '' : 'bad'); A.play(good ? 'ok' : 'error'); if (good) { day.score += 60; day.intrOk++; }
+      fx((f.rep > 0 ? '+⭐ ' : f.rep < 0 ? '−⭐ ' : '') + (f.coins ? '+🪙' + f.coins + ' ' : '') + (f.fondo ? '+🪙' + f.fondo : ''), good ? '' : 'bad'); A.play(good ? 'ok' : 'error'); if (good) { day.score += 60; day.intrOk++; }
       day.moment = x.it.who + '. ' + (ok ? x.it.r : tw ? x.it.twist : x.it.rb); toast('<b>' + x.it.ic + ' ' + x.it.who + (tw ? ' · ¡salió bien igual!' : '') + '</b>' + (ok ? x.it.r : tw ? x.it.twist : x.it.rb), '', 4200); return;
     }
     if (ok) { addCord(CD.intrOk * (x.it.mate ? 2 : 1)); day.score += 40; day.intrOk++; day.wv.intrOk = 1; A.play(x.it.mate ? 'mate' : 'ok'); addRep(0.04); fx('+⭐'); toast('<b>' + x.it.ic + ' Bien resuelto</b>' + x.it.r, '', 3200); }
@@ -4512,6 +4575,8 @@ GS.Game = (function () {
   function startWave() {
     day.wave++; day.stage = 'work'; day.queue = []; day.wv = { done: {} };
     const w = day.plan[day.wave];
+    if (day.duel && !w.final && day.wave === day.plan.filter(x => !x.final).length - 1) { A.setMood('final'); toast('<b>⏰ Hora pico</b>Última tanda: ' + day.duel.rv.owner + ' aprieta el acelerador.', 'rival', 3800, false, day.duel.rv.col); }
+    if (day.rivalWalk && day.wave === 1) { day.rivalWalk = 0; const d0 = day; setTimeout(() => { if (day === d0 && state === 'day') rivalPass(); }, 4000); }
     for (let i = 0; i < w.c; i++) day.queue.push({ kind: 'c', t: 0.3 + i * C.day.customerGap });
     for (let i = 0; i < w.t; i++) day.queue.push({ kind: w.final ? 'f' : 't', t: (w.final ? 0.6 : 5) + i * C.day.taskGap });
     for (let i = 0; i < (w.ml || 0); i++) day.queue.push({ kind: 'm', t: 3 + i * C.day.taskGap });
@@ -4519,6 +4584,16 @@ GS.Game = (function () {
     day.visits.forEach(v => { if (v.wave === day.wave && !v.sent) { v.sent = 1; day.queue.push({ kind: 'v', v: v.S, t: U.rnd(3, 8) }); } });
     if (GS.DEBUG_INTR || (day.n >= CD.intrFromDay && !w.final && day.wave >= 1 && day.intrN < (day.n >= 6 ? 3 : 2) && Math.random() < 0.6)) { day.queue.push({ kind: 'i', t: U.rnd(5, 11) }); day.intrN++; }
     day.queue.sort((a, b) => a.t - b.t);
+  }
+  /* el rival pasa por la vereda, se para frente a la puerta, tira su frase (con globo de su marca) y sigue de largo */
+  function rivalPass() {
+    const rv = RV(brId()), d = day; if (!rv || !d) return; const z = L.galeria.zMax + 1.7, p = W.makePerson(Object.assign({}, warm(rv.look), { scale: 1.12, speed: 2.6 })); p.setPos(-9.5, z); d.extras.push(p);
+    p.walk([[L.puerta.x + 1.7, z]], () => { if (day !== d) return; p.face(Math.PI); sayAt(p, U.pick(rv.taunts), 0, 'riv', false, false, () => { if (day === d) p.walk([[10.5, z]], () => {}); }, rv); });
+  }
+  /* día de competencia: cada cliente que se va y cada tarea vencida es una queja; a la tercera, el día se pierde */
+  function duelQueja() {
+    const D = day && day.duel; if (!D || D.over) return; D.q++; fx('😠 Queja ' + D.q + ' de 3', 'bad');
+    if (D.q >= 3) { D.over = 'quejas'; toast('<b>😠 Tercera queja</b>La gente se cruzó a ' + D.rv.name + '. El día se terminó.', 'rival', 3600, false, D.rv.col); day.closing = true; setTimeout(endDay, 2200); }
   }
   function endWave() {
     if (day.wave >= day.plan.length - 1) { day.closing = true; setTimeout(endDay, 2800); return; }
@@ -4531,11 +4606,11 @@ GS.Game = (function () {
   }
   // Globitos de diálogo: de a uno por vez, para poder leerlos todos. Los demás esperan su turno en una fila.
   // amb = comentario de ambiente (compañeros, gente que mira): si la fila está cargada o pasó el momento, se descarta.
-  function sayAt(person, text, ms, cls, quiet, amb, onDone) {
+  function sayAt(person, text, ms, cls, quiet, amb, onDone, brand) {
     if (!day) return;
     if (cls === 'zz') { const el = document.createElement('div'); el.className = 'say zz'; el.textContent = text; $('labels').appendChild(el); day.says.push({ el, person, left: (ms || 3000) / 1000, zz: true }); return; }
     const q = day.sayQ; if (amb && q.length >= 2) return;
-    const it = { person, text, cls: cls || '', quiet, amb, onDone, age: 0, dur: U.clamp(1.5 + text.length * 0.055, 2.4, 6.5) };
+    const it = { person, text, cls: cls || '', quiet, amb, onDone, brand, age: 0, dur: U.clamp(1.5 + text.length * 0.055, 2.4, 6.5) };
     if (cls === 'boss') { let i = 0; while (i < q.length && q[i].cls === 'boss') i++; q.splice(i, 0, it); } else q.push(it);
   }
   function pumpSays(dt) {
@@ -4546,7 +4621,7 @@ GS.Game = (function () {
       if (!it.person.group.parent || (it.cls !== 'boss' && it.age > (it.amb ? 4.5 : 9))) { if (it.onDone) it.onDone(); continue; }   // ya se fue o quedó viejo
       if (it.cls === 'boss') A.play('speaker');
       if (!it.quiet) A.babble(it.text, it.cls === 'boss' ? 150 : it.person.voice || 330);
-      const el = document.createElement('div'); el.className = 'say ' + it.cls; el.textContent = it.text; $('labels').appendChild(el);
+      const el = document.createElement('div'); el.className = 'say ' + it.cls; el.textContent = it.text; if (it.brand) { el.dataset.b = it.brand.mark + ' ' + it.brand.name; el.style.setProperty('--rc', it.brand.col); } $('labels').appendChild(el);
       d.says.push({ el, person: it.person, left: it.dur, onDone: it.onDone }); d.sayGap = 0.35; return;
     }
   }
@@ -4554,20 +4629,32 @@ GS.Game = (function () {
     $('start').hidden = true; $('end').hidden = true; $('hud').hidden = false; $('modal').hidden = true; $('toasts').innerHTML = '';
     $('final').hidden = true; paused = false; W.home();
   }
-  function startDay(relaxed) {
+  const DUEL_K = { pampeana: 1, cuyo: 1.03, noa: 1.05, nea: 1.05, patagonia: 1.08, malvinas: 1.12 };      /* cuánto mejor que tu promedio juega cada rival */
+  function startDay(relaxed, skipDuel) {
     A.unlock();
     if (!GS.Store.get('avatar')) return showAvatar(() => startDay(relaxed));
+    if (!relaxed && !skipDuel && readyDuel(brId()) && !GS.Store.get('testDay')) return showDuelIntro(() => startDay(false, true));      /* cumplidos los objetivos, la jornada es el día de competencia */
     A.play('click'); clearDay(); W.setUpgrades(upNow());
-    const n = dayNumber(); applyBranch();
+    const n = dayNumber(), duel = !relaxed && readyDuel(brId()) && !GS.Store.get('testDay'); applyBranch();
     const un = unlockedFor(n), fresh = n <= GS.UNLOCKS.length ? GS.UNLOCKS[n - 1] : [];
     const cond = conditionFor(n);
-    day = newDay({ relaxed, n, cond, unlocked: un, plan: planDay(n, cond), rest: n === 1 ? 0.5 : 5.5 }); state = 'day'; enterPlay(); $('jobs').hidden = false;
+    day = newDay({ relaxed, n, cond, unlocked: un, plan: planDay(n, cond, duel), rest: n === 1 ? 0.5 : 5.5 }); state = 'day'; enterPlay(); $('jobs').hidden = false;
+    { const lt = n <= GS.UNLOCKS.length ? fresh.filter(id => TASK_STATIONS.some(x => x.id === id)) : []; if (lt.length) day.taskBag = lt.map(ST).reverse();      /* jornadas de aprendizaje: primero aparecen las tareas nuevas */
+      const b = brNow(), units = unitsOf(day.plan), pu = b.avg || 480;
+      if (duel) { brSave({ duel: 1 }); const rv = RV(brId()), tries = b.tries || 0, edge = Math.min(5, b.edge || 0); day.duel = { rv, tries, edge, q: 0, shown: 0, total: Math.round(pu * units * (DUEL_K[brId()] || 1) * (1 - 0.02 * edge) * (1 - 0.05 * Math.min(3, tries)) / 10) * 10 }; }
+      else if (!relaxed && n > GS.UNLOCKS.length) day.goal = { silver: Math.round(pu * units * 0.85 / 10) * 10, gold: Math.round(pu * units * 1.06 / 10) * 10 }; }
     A.setMood(cond === 'lluvia' ? 'rain' : cond ? 'party' : 'day');
-    if (rivalOn() && !relaxed) { const R = RG(rivalId()); day.zonda = rivalId() === 'cuyo' && Math.random() < 0.45; if (rivalId() !== 'cuyo' || day.zonda) setTimeout(() => { if (state === 'day') toast('<b>⚔️ ' + (day.zonda ? 'Hoy sopla el Zonda' : R.rival.name) + '</b>' + R.rival.fx, '', 5200); }, 6500); setTimeout(() => coach('rival'), 9000); }
+    if (rivalOn() && !relaxed) { const rv = RV(rivalId()), d0 = day; day.zonda = rivalId() === 'cuyo' && Math.random() < 0.45;
+      if (duel) { setTimeout(() => { if (day === d0 && state === 'day') toast('<b>' + rv.mark + ' Día de competencia</b>Contra ' + rv.name + '. Más puntos que ' + rv.owner + ' y menos de tres quejas.', 'rival', 5200, false, rv.col); }, 5200); setTimeout(() => coach('duelo'), 8200); }
+      else if (n > GS.UNLOCKS.length) { const act = rv.fx && (rivalId() !== 'cuyo' || day.zonda);      /* el rival se hace notar: llama para burlarse y más tarde pasa por la vereda */
+        setTimeout(() => { if (day === d0 && state === 'day') toast('<b>' + rv.mark + ' ' + rv.owner + ', de ' + rv.name + '</b>"' + U.pick(rv.taunts) + '"' + (act ? '<small>' + (day.zonda ? 'Hoy sopla el Zonda. ' : '') + rv.fx + '</small>' : ''), 'rival', 5600, false, rv.col); }, 6500); setTimeout(() => coach('rival'), 9500); day.rivalWalk = 1; } }
+    if (day.goal) setTimeout(() => coach('medalla'), 7000);
     W.setXmas(cond === 'navidad' ? (GS.Store.get('xmas') || { a: 0, g: 0, l: 0 }) : null); W.setHats(cond === 'navidad');
     if (!relaxed) { const nw = day.plan.filter(w => !w.final).length; day.visits = dueStories(n).map((S, i) => ({ S, wave: Math.min(nw - 1, i + (nw > 2 ? 1 : 0)) })); }
     const d = day, msg = n === 1 ? 'Bienvenido a GameShop. Ya tenés un cliente en el mostrador: tocá el pedido de abajo, que tu personaje va solo.'
       : cond ? GS.CONDITIONS[cond].name.slice(3) + '. ' + GS.CONDITIONS[cond].say
+      : duel ? 'Hoy es el día. ' + day.duel.rv.owner + ' abrió temprano. Atendé como sabés y cuidá las quejas: a la tercera, perdemos.'
+      : fresh.length > 2 ? 'Jornada ' + n + '. Hoy aprendés ' + fresh.filter(id => id !== 'mostrador' && id !== 'caja').length + ' tareas nuevas. Sin apuro: cuando aparezca cada una, te la explico.'
       : fresh.length ? 'Jornada ' + n + '. Hoy sumamos: ' + fresh.map(id => ST(id).name).join(' y ') + '. Cuando aparezcan, te explico.' : 'Jornada ' + n + '. ' + duenoLine();
     setTimeout(() => { if (day === d) duenoSpeak(msg); }, 500);
     if (n === 2 && !relaxed) setTimeout(() => coach('errores'), 3200); if (brId() !== 'pampeana') setTimeout(() => coach((brNow().days || 0) < 1 ? 'sucursal' : 'ensenar'), 5200);
@@ -4733,13 +4820,14 @@ GS.Game = (function () {
 
   /* ---------------- TRAMA: el fondo para el local de al lado ---------------- */
   const PL = GS.PLOT;
-  const fondoNow = () => DEV() ? 999999 : GS.Store.get('fondo') || 0, goalNow = () => { const all = brAll(), l = GS.REGIONS.filter(r => !(all[r.id] && all[r.id].open) && (!r.secret || malvOk())); return l.length ? Math.min.apply(0, l.map(r => r.cost)) : 0; };
+  /* Los fondos de expansión se retiraron: lo que antes sumaba fondos ahora suma monedas. goalNow dice si quedan regiones por abrir. */
+  const fondoNow = () => 0, goalNow = () => (GS.REGIONS.some(r => !(brAll()[r.id] || {}).open && (!r.secret || malvOk())) ? 1 : 0);
   const tierNow = () => { const r = fondoNow() / goalNow(); let t = PL.tiers[0]; PL.tiers.forEach(x => { if (r >= x.at) t = x; }); return t; };
   const daysLeft = () => Math.max(0, C.finalDay - dayNumber() + 1);
-  function addFondo(v) { GS.Store.set('fondo', Math.max(0, fondoNow() + v)); }
+  function addFondo(v) { GS.Store.set('coins', Math.max(0, coinsNow() + v)); }
   function plotHtml() {
     const f = fondoNow(), g = goalNow(), all = brAll(), open = MAIN.filter(r => all[r.id] && all[r.id].open).length, glob = Math.round(MAIN.reduce((a, r) => a + brProgress(r.id), 0) / MAIN.length);
-    return '<b>🗺️ ' + PL.name + ' · ' + glob + '%</b><span class="pb"><i style="width:' + glob + '%"></i></span><small>Sucursales: ' + open + ' de 5 · ' + (g ? 'fondos ' + f + ' de ' + g + ' para la próxima' : 'todas abiertas') + ' · tocá para ver el mapa</small>';
+    return '<b>🗺️ ' + PL.name + ' · ' + glob + '%</b><span class="pb"><i style="width:' + glob + '%"></i></span><small>Sucursales: ' + open + ' de 5 · ' + ('rivales vencidos: ' + MAIN.filter(r => conquered(r.id)).length + ' de 5') + ' · tocá para ver el mapa</small>';
   }
   /* ---------------- SUCURSALES: una por región. La activa guarda sus mejoras y su reputación; las demás quedan congeladas con su encargado ---------------- */
   const MAIN = GS.REGIONS.filter(r => !r.secret);          // las 5 regiones; Malvinas es el final oculto
@@ -4753,7 +4841,12 @@ GS.Game = (function () {
   }
   const brData = id => { const b = brAll()[id] || {}, me = id === brId(), up = me ? upNow() : b.up || {}, rep = me ? repNow() : (b.rep == null ? 3 : b.rep), h = histAll(), ss = GS.STORIES.filter(S => !S.once && (S.reg || 'pampeana') === id); let have = 0, tot = 0; GS.UPGRADES.forEach(g => { tot += g.levels.length; have += Math.min(g.levels.length, up[g.id] || 0); });
     return { open: !!b.open, rep, flota: up.flota || 0, have, tot, sd: ss.filter(S => h[S.id] && h[S.id].done).length, st: ss.length }; };
-  const conquered = id => { const x = brData(id); return x.open && x.rep >= 4.8 && x.flota >= 3; };
+  const won = id => !!(brAll()[id] || {}).won;
+  const readyDuel = id => { const x = brData(id); return x.open && !won(id) && (!!(brAll()[id] || {}).duel || (x.rep >= 4.8 && x.flota >= 3)); };      /* cumplió los dos objetivos: toca el día de competencia */
+  const conquered = id => { const x = brData(id); return x.open && won(id); };
+  const RV = id => { const R = RG(id) || {}, S = GS.STORIES.find(x => x.id === 'rival_' + id) || {}; return R.rival ? Object.assign({ col: '#e10600', mark: '⚔️', motto: '', taunts: [] }, R.rival, { look: Object.assign({ skin: 0xe0ac7e }, S.look || {}), city: R.city, id }) : null; };
+  /* partidas anteriores a los duelos: lo que ya estaba conquistado (5 estrellas y flota) queda conquistado */
+  try { if (!GS.Store.get('mig70')) { const all = GS.Store.get('branches'); if (all) { const cur = GS.Store.get('branch') || 'pampeana'; Object.keys(all).forEach(id => { const b = all[id], me = id === cur, up = me ? (GS.Store.get('up') || {}) : b.up || {}, rp = me ? GS.Store.get('rep') : b.rep; if (b.open && (rp || 0) >= 4.8 && (up.flota || 0) >= 3) b.won = 1; }); GS.Store.set('branches', all); } GS.Store.set('mig70', 1); } } catch (e) {}
   const pendingOpen = () => GS.REGIONS.filter(r => (brAll()[r.id] || {}).open && !conquered(r.id));            // sucursales abiertas a las que todavía les falta
   const canExpand = () => DEV() || !pendingOpen().length;
   const brStage = id => { const p = brProgress(id); return p < 45 ? 1 : p < 80 ? 2 : 3; }, STAGE = ['', 'Humilde', 'Mejorado', 'Estrella'];
@@ -4773,12 +4866,12 @@ GS.Game = (function () {
   const mapState = lit => { const all = brAll(), o = {}; GS.REGIONS.forEach(r => { const b = all[r.id], open = (lit && !r.secret) || !!(b && b.open); if (r.secret && !open && !malvOk()) { o[r.id] = { hidden: true }; return; } o[r.id] = { flag: !!r.secret && open && malvWon(), open, can: !open && fondoNow() >= r.cost && canExpand(), cur: !lit && r.id === brId(), stage: lit ? 3 : open ? brStage(r.id) : 0 }; }); return o; };
   function mapCard(id) {
     const all = brAll(), cur = brId(), f = fondoNow(), r = RG(id), b = all[id], open = b && b.open, me = id === cur, h = histAll(), ss = GS.STORIES.filter(S => !S.once && (S.reg || 'pampeana') === id);
-    if (!open) { const pend = pendingOpen(), ok = canExpand(), need = !ok ? 'Primero conquistá ' + pend.map(x => x.city).join(' y ') + ': 5 estrellas y flota completa' : f < r.cost ? 'Faltan ' + (r.cost - f) + ' fondos · cuesta 🗺️ ' + r.cost : 'Abrir sucursal · 🗺️ ' + r.cost;
-      return '<div class="suc lock"><b>🔒 ' + r.name + ' · ' + r.city + '</b><small>🗺️ ' + r.prov.join(' · ') + '</small><small>🌦️ ' + r.clima + '</small><small>⚔️ Zona de <b>' + r.rival.name + '</b></small><button class="btn alt" data-open="' + id + '"' + (f < r.cost || !ok ? ' disabled' : '') + '>' + need + '</button></div>'; }
+    if (!open) { const pend = pendingOpen(), ok = canExpand(), need = !ok ? 'Primero ganale al rival de ' + pend.map(x => x.city).join(' y ') : 'Abrir sucursal en ' + r.city;
+      return '<div class="suc lock"><b>🔒 ' + r.name + ' · ' + r.city + '</b><small>🗺️ ' + r.prov.join(' · ') + '</small><small>🌦️ ' + r.clima + '</small><small>⚔️ Zona de <b>' + r.rival.name + '</b></small><button class="btn alt" data-open="' + id + '"' + (!ok ? ' disabled' : '') + '>' + need + '</button></div>'; }
     const rp = me ? repNow() : (b.rep == null ? 3 : b.rep), pr = brProgress(id), up = me ? upNow() : b.up || {}, pend = GS.UPGRADES.reduce((a, g) => a + g.levels.length - Math.min(g.levels.length, up[g.id] || 0), 0);
     return '<div class="suc' + (me ? ' me' : '') + '"><b>' + r.name + ' · ' + r.city + (pr >= 100 ? ' 💎' : conquered(id) ? ' ✅' : '') + '</b>' +
-      '<small class="al">' + (conquered(id) ? '✅ Región conquistada' + (pr >= 100 ? ' · 💎 platino' : '') : 'Para conquistarla: ' + (rp < 4.8 ? '⭐ llegar a 5 estrellas' : '⭐ listo') + ' · ' + ((up.flota || 0) < 3 ? '🚚 completar la flota' : '🚚 listo')) + (b.manager && !me ? ' · encargado: ' + b.manager : '') + '</small>' + progBox(id) +
-      (r.rival ? '<small>' + ((h['rival_' + id] || {}).done ? '🏆 Le ganaste a ' + r.rival.name + ': +10% de monedas acá' : '⚔️ ' + r.rival.name + ': ' + (r.rival.fx || r.rival.rule)) + '</small>' : '') +
+      '<small class="al">' + (conquered(id) ? '✅ Región conquistada' + (pr >= 100 ? ' · 💎 platino' : '') : readyDuel(id) ? '⚔️ ¡Listo para el día de competencia!' : 'Para desafiar al rival: ' + (rp < 4.8 ? '⭐ llegar a 5 estrellas' : '⭐ listo') + ' · ' + ((up.flota || 0) < 3 ? '🚚 completar la flota' : '🚚 listo')) + (b.manager && !me ? ' · encargado: ' + b.manager : '') + '</small>' + progBox(id) +
+      (r.rival ? '<small class="rv" style="--rc:' + (r.rival.col || '#e10600') + '">' + (won(id) ? '🏆 Le ganaste a ' + r.rival.name + ': +10% de monedas acá' : (r.rival.mark || '⚔️') + ' <b>' + r.rival.name + '</b> · ' + r.rival.owner + ': ' + (r.rival.fx || r.rival.rule) + ((b.tries || 0) ? ' · revanchas: ' + b.tries : '')) + '</small>' : '') +
       (me ? '<button class="btn ghost" disabled>Estás acá</button>' : '<button class="btn" data-go="' + id + '">Viajar a ' + r.city + '</button>') + '</div>';
   }
   // Consejos del Dueño: una sola vez cada uno, sin frenar el juego
@@ -4790,7 +4883,7 @@ GS.Game = (function () {
   // Primera vez: el mapa, con el Dueño explicando la misión. Termina tocando Buenos Aires.
   let onb = -1, onbThen = null;
   function onbMap(then) {            // recién acá aparece el mapa: solo para elegir Buenos Aires
-    onb = 1; onbThen = then; $('modal').hidden = true; $('start').hidden = true; $('map').hidden = false; $('map').classList.add('onb'); $('mapSuc').textContent = '🏪 Sucursales 1 de 5'; $('mapCq').textContent = '🏆 Conquistadas 0 de 5'; $('mapBar').style.width = '0%'; $('mapFon').textContent = '🗺️ Fondos 0';
+    onb = 1; onbThen = then; $('modal').hidden = true; $('start').hidden = true; $('map').hidden = false; $('map').classList.add('onb'); $('mapSuc').textContent = '🏪 Sucursales 1 de 5'; $('mapCq').textContent = '🏆 Conquistadas 0 de 5'; $('mapBar').style.width = '0%'; $('mapFon').textContent = '⚔️ Rivales 0 de 5';
     const done = () => { onb = -1; $('map').classList.remove('onb'); GS.Map3D.close(); $('map').hidden = true; GS.Store.set('introSeen', true); const f = onbThen; onbThen = null; f(); };
     if (!GS.Map3D.open($('mapCv'), mapState(), id => { if (id !== 'pampeana') return toast('<b>Todavía no</b>Primero Buenos Aires: tocá la región verde.', '', 2200); A.play('ok'); done(); })) return done();
     GS.Map3D.select('pampeana'); $('mapCard').innerHTML = '<div class="guide"><div class="coach-face">' + avatarSvg(BOSS_LOOK, 'happy') + '</div><div style="flex:1"><p><b>Tocá Buenos Aires</b> para empezar tu primera jornada.</p><small>👆 Es la región verde, con la tiendita de GameShop</small></div></div>';
@@ -4804,7 +4897,7 @@ GS.Game = (function () {
   function mapPick(id) { GS.Map3D.select(id); $('mapCard').innerHTML = mapCard(id); A.play('click'); }
   function showMap() {
     const all = brAll(), n = MAIN.filter(r => all[r.id] && all[r.id].open).length; mapWasDay = state === 'day'; if (mapWasDay) paused = true;
-    $('modal').hidden = true; $('map').hidden = false; $('mapSuc').textContent = '🏪 Sucursales ' + n + ' de 5'; $('mapFon').textContent = '🗺️ Fondos ' + (DEV() ? '∞' : fondoNow()); $('mapX').textContent = state === 'menu' ? '← Volver al menú' : '← Volver';
+    $('modal').hidden = true; $('map').hidden = false; $('mapSuc').textContent = '🏪 Sucursales ' + n + ' de 5'; $('mapFon').textContent = '⚔️ Rivales vencidos ' + MAIN.filter(r => conquered(r.id)).length + ' de 5'; $('mapX').textContent = state === 'menu' ? '← Volver al menú' : '← Volver';
     if (!GS.Map3D.open($('mapCv'), mapState(), mapPick)) { closeMap(); return toast('<b>Ups</b>No se pudo dibujar el mapa en este navegador.', '', 2600); }
     { const cq = MAIN.filter(r => conquered(r.id)).length; $('mapCq').textContent = '🏆 Conquistadas ' + cq + ' de 5'; $('mapBar').style.width = (cq / 5 * 100) + '%'; }
     GS.Map3D.select(brId()); $('mapCard').innerHTML = mapCard(brId()); coach('mapa');
@@ -4819,23 +4912,23 @@ GS.Game = (function () {
   function leaveTo(id) { if (state === 'day') return toast('<b>Terminá la jornada</b>Se viaja entre jornadas.', '', 2200); pickManager(() => { switchBranch(id); $('modal').hidden = true; if (state === 'end') goHome(); toast('<b>✈️ ' + RG(id).city + '</b>Sucursal ' + RG(id).name + '.', '', 2600); }); }
   function openRegion(id) {
     if (state === 'day') return toast('<b>Terminá la jornada</b>Las sucursales se abren entre jornadas.', '', 2200);
-    if (!canExpand()) return toast('<b>Todavía no</b>Primero conquistá ' + pendingOpen().map(x => x.city).join(' y ') + ': 5 estrellas y flota completa.', '', 3600);
+    if (!canExpand()) return toast('<b>Todavía no</b>Primero ganale al rival de ' + pendingOpen().map(x => x.city).join(' y ') + ': 5 estrellas, flota completa y el día de competencia.', '', 4200);
     const R = RG(id), sel = [];
     { const rv = GS.STORIES.find(S => S.id === 'rival_' + id), me = Object.assign({ skin: GS.SKINS[2], hair: GS.HAIRS[0], hairStyle: 'corto', shirt: 0xe10600 }, GS.Store.get('avatar') || {}); var headR = '<div class="reg-head" style="background:linear-gradient(120deg, ' + ACC[id] + ', #15151a 115%)"><small>Nueva sucursal · Región ' + R.name + '</small><b>' + R.city + '</b></div>' +
       (rv ? '<div class="vs"><figure><div class="pf">' + avatarSvg(me, 'happy') + '</div><figcaption>GameShop</figcaption></figure><b>VS</b><figure><div class="pf">' + avatarSvg(Object.assign({ skin: 0xe0ac7e }, rv.look), 'angry') + '</div><figcaption>' + R.rival.name + '</figcaption></figure></div>' : ''); }
-    modal(headR + '<p>' + R.why + '</p><div class="ctx"><div><i>🗺️</i><span><b>Provincias de la región</b>' + R.prov.join(' · ') + '</span></div><div><i>🌦️</i><span><b>Clima</b>' + R.clima + '</span></div><div class="riv"><i>⚔️</i><span><b>Competencia: ' + R.rival.name + '</b>' + R.rival.owner + ' no va a regalar nada. ' + R.rival.rule + '</span></div></div><p><b>Elegí 2 empleados</b> de los 4 que se presentaron. Después vas a tener que enseñarles.</p><div class="crew">' +
-      R.crew.map(c => '<button class="cand" data-c="' + c.id + '">' + GS.faceSvg(Object.assign({ shirt: 0xe10600 }, c.look), 'happy') + '<b>' + c.name + '</b><small>' + c.d + '</small></button>').join('') + '</div><div class="row"><button class="btn ghost" data-close>Todavía no</button><button class="btn" id="regOk" disabled>Abrir · 🗺️ ' + R.cost + '</button></div>');
+    modal(headR + '<p>' + R.why + '</p><div class="ctx"><div><i>🗺️</i><span><b>Provincias de la región</b>' + R.prov.join(' · ') + '</span></div><div><i>🌦️</i><span><b>Clima</b>' + R.clima + '</span></div><div class="riv"><i>⚔️</i><span><b>Competencia: ' + R.rival.name + '</b>' + R.rival.owner + ' no va a regalar nada. ' + R.rival.rule + ' Para quedarte con la región vas a tener que ganarle en el día de competencia.</span></div></div><p><b>Elegí 2 empleados</b> de los 4 que se presentaron. Después vas a tener que enseñarles.</p><div class="crew">' +
+      R.crew.map(c => '<button class="cand" data-c="' + c.id + '">' + GS.faceSvg(Object.assign({ shirt: 0xe10600 }, c.look), 'happy') + '<b>' + c.name + '</b><small>' + c.d + '</small></button>').join('') + '</div><div class="row"><button class="btn ghost" data-close>Todavía no</button><button class="btn" id="regOk" disabled>Abrir sucursal</button></div>');
     $('sheet').querySelectorAll('.cand').forEach(b => b.addEventListener('click', () => { const c = b.dataset.c, k = sel.indexOf(c); if (k >= 0) sel.splice(k, 1); else if (sel.length < 2) sel.push(c); $('sheet').querySelectorAll('.cand').forEach(x => x.classList.toggle('on', sel.indexOf(x.dataset.c) >= 0)); $('regOk').disabled = sel.length !== 2; A.play('click'); }));
     $('regOk').addEventListener('click', () => pickManager(() => {
-      addFondo(-R.cost); const all = brAll(); all[id] = { open: 1, staff: sel.slice(), up: {}, rep: 4, train: 0, days: 0 }; GS.Store.set('branches', all); switchBranch(id); if (state === 'end') goHome();
+      const all = brAll(); all[id] = { open: 1, staff: sel.slice(), up: {}, rep: 4, train: 0, days: 0 }; GS.Store.set('branches', all); switchBranch(id); if (state === 'end') goHome();
       W.showAll(); GS.track('abre_sucursal', { id }); $('modal').hidden = true; epicCtx = { id };
-      showEpic([{ art: 'inaug', k: 'Sucursal ' + R.name + ' · ' + R.prov.length + ' provincias', t: '¡Inauguración en ' + R.city + '!', d: 'Hay fila desde la esquina. ' + brCrew(id).join(' y ') + ' están con la remera recién planchada. Empezás con un local humilde: llevalo a 5 estrellas y comprale el camión.' }], null,
+      showEpic([{ art: 'inaug', k: 'Sucursal ' + R.name + ' · ' + R.prov.length + ' provincias', t: '¡Inauguración en ' + R.city + '!', d: 'Hay fila desde la esquina. ' + brCrew(id).join(' y ') + ' están con la remera recién planchada. Empezás con un local humilde: llevalo a 5 estrellas, completá la flota y después desafiá a ' + R.rival.name + '.' }], null,
         '<button class="btn" id="inaGo">✂️ Cortar la cinta</button>', () => $('inaGo').addEventListener('click', () => { A.play('cash'); closeEpic(); refreshStart(); toast('<b>🎉 ' + R.city + ' ya está abierta</b>Comenzá la primera jornada cuando quieras.', '', 3600); }));
     }));
   }
   /* ---------------- FINAL: el país completo. Cambia según cómo se llegó; después, Nuevo Juego+ ---------------- */
   const allDone = () => MAIN.every(r => conquered(r.id));
-  const malvWon = () => conquered('malvinas') && !!(histAll().rival_malvinas || {}).done;
+  const malvWon = () => conquered('malvinas');
   const malvOk = () => allDone() || (DEV() && MAIN.every(r => (brAll()[r.id] || {}).open));        // en modo desarrollador alcanza con tener las 5 abiertas
   const snowy = () => brId() === 'cuyo' || brId() === 'patagonia', condInfo = c => GS.CONDITIONS[c === 'lluvia' && snowy() ? 'nieve' : c];
   /* Finales contados en imágenes: una seguidilla a pantalla completa, y al final los botones */
@@ -4892,6 +4985,14 @@ GS.Game = (function () {
     const conf = () => '<div class="conf">' + Array.from({ length: 34 }, (_, i) => '<i style="left:' + (i * 3 + Math.random() * 3) + '%;background:' + ['#f5c518', '#fff', '#74acdf', '#e10600', '#3bb54a'][i % 5] + ';animation-duration:' + (2.4 + Math.random() * 2.6) + 's;animation-delay:-' + (Math.random() * 4) + 's"></i>').join('') + '</div>';
     GS.Map3D.close();
     if (kind === 'mapa' || kind === 'sur' || kind === 'islas' || kind === 'pais') { el.innerHTML = '<canvas id="epicCv"></canvas>' + (kind === 'sur' ? '' : conf()); const st = mapState(true), mv = kind === 'sur' ? { open: false, can: true } : (kind === 'islas' || kind === 'pais') ? { open: true, stage: 3, flag: true } : { hidden: true }; st.malvinas = mv; GS.Map3D.open($('epicCv'), st, null, kind === 'sur' || kind === 'islas' ? 'malvinas' : null, kind === 'islas'); return; }
+    if (kind === 'vs' || kind === 'rival' || kind === 'rivalsad' || kind === 'rivalarc' || kind === 'duelrules') {      /* escenas con el rival de la región: su cara, su marca y su color */
+      const rv = RV(epicCtx.id) || RV('pampeana'), lk = warm(rv.look), brand = '<b class="ep-brand" style="--rc:' + rv.col + '"><i>' + rv.mark + '</i>' + rv.name + '<small>' + rv.motto + '</small></b>', bg = 'background:radial-gradient(120% 90% at 50% 28%, ' + rv.col + ', #0b0b0d)';
+      if (kind === 'vs') return void (el.innerHTML = '<div class="ep-faces vs duo" style="--rc:' + rv.col + '">' + fig(me, 'angry', 'GameShop') + '<b>VS</b>' + fig(lk, 'angry', rv.owner) + '</div>' + brand);
+      if (kind === 'rival') return void (el.innerHTML = '<div class="ep-faces big rvl" style="' + bg + '">' + fig(lk, 'happy') + '</div>' + brand);
+      if (kind === 'rivalsad') return void (el.innerHTML = '<div class="ep-faces big rvl" style="' + bg + '">' + fig(lk, rv.villain ? 'angry' : 'sad') + '</div>' + brand + conf());
+      if (kind === 'rivalarc') return void (el.innerHTML = (rv.villain ? '<div class="ep-faces big rvl" style="background:linear-gradient(160deg,#26262c,#0b0b0d)">' + fig(lk, 'angry') + '<i class="ep-emo">⛵</i></div>' : '<div class="ep-faces vs duo pals" style="--rc:' + rv.col + '">' + fig(me, 'happy', 'Vos') + '<b>🤝</b>' + fig(lk, 'happy', rv.owner) + '</div>') + conf());
+      return void (el.innerHTML = '<div class="ep-res">' + [['🏁', 'Más puntos que el rival', 'El marcador de arriba compara tu puntaje con el suyo.'], ['⏱️', 'Más clientes, menos paciencia', 'Atendé rápido y sin errores: las rachas valen mucho.'], ['😠', 'Tres quejas y se pierde', 'Cada cliente que se va y cada tarea vencida es una queja.'], ['🔁', 'Si perdés, hay revancha', 'Es gratis, y cada vez un poco más fácil.']].map(q => '<div><i>' + q[0] + '</i><span><b>' + q[1] + '</b>' + q[2] + '</span></div>').join('') + '</div>');
+    }
     if (kind === 'yo') return void (el.innerHTML = '<div class="ep-faces big">' + fig(me, 'happy') + '</div>');
     if (kind === 'equipo0') { const av = Object.assign({ skin: GS.SKINS[2], hair: GS.HAIRS[0], hairStyle: 'corto', shirt: 0xe10600 }, GS.Store.get('avatar') || {}), T = [[av, 'Vos', 'happy'], [{ shirt: 0xe10600, hair: MOHAWK[1], hairStyle: 'mohicano', skin: GS.SKINS[3], glasses: true }, 'Lucho', 'happy'], [{ shirt: 0xe10600, hair: 0x2d6cdf, hairStyle: 'corto', skin: GS.SKINS[0] }, 'Brian', 'normal']];
       return void (el.innerHTML = '<div class="ep-faces trio">' + T.map(q => fig(q[0], q[2], q[1])).join('') + '</div>'); }
@@ -4904,7 +5005,7 @@ GS.Game = (function () {
     if (kind === 'conq') { el.innerHTML = '<canvas id="epicCv"></canvas><div class="ep-cup"><i>🏆</i></div>' + conf(); GS.Map3D.open($('epicCv'), mapState(), null, epicCtx.id); return; }
     if (kind === 'jefe' || kind === 'jefe2') return void (el.innerHTML = '<div class="ep-faces big boss" style="background:radial-gradient(120% 90% at 50% 30%, #e10600, #5a0000)">' + fig(BOSS_LOOK, kind === 'jefe' ? 'talk' : 'happy') + '</div>');
     if (kind === 'mapa0') { el.innerHTML = '<canvas id="epicCv"></canvas>'; GS.Map3D.open($('epicCv'), mapState(), null); return; }
-    if (kind === 'recursos') return void (el.innerHTML = '<div class="ep-res dg">' + expDiagram() + [['⭐', 'Las estrellas suben cuando atendés bien.'], ['🚚', 'La flota se compra con las 🪙 monedas de cada venta.'], ['🗺️', 'Los fondos se juntan solos al cerrar cada jornada.']].map(q => '<div><i>' + q[0] + '</i><span>' + q[1] + '</span></div>').join('') + '</div>');
+    if (kind === 'recursos') return void (el.innerHTML = '<div class="ep-res dg">' + expDiagram() + [['⭐', 'Las estrellas suben cuando atendés bien.'], ['🚚', 'La flota se compra con las 🪙 monedas de cada venta.'], ['⚔️', 'Con las dos cosas, desafiás al rival en el día de competencia.']].map(q => '<div><i>' + q[0] + '</i><span>' + q[1] + '</span></div>').join('') + '</div>');
     if (kind === 'dueno') return void (el.innerHTML = '<div class="ep-faces big" style="background:linear-gradient(160deg,#26262c,#0b0b0d)">' + fig(BOSS_LOOK, 'happy') + '</div>' + conf());
     if (kind === 'duelo') return void (el.innerHTML = '<div class="ep-faces vs">' + fig(me, 'angry', 'Vos') + '<b>VS</b>' + fig(PIRATE(), 'angry', 'Capitán Tormenta') + '</div>');
     if (kind === 'equipo') { const all = brAll(), ppl = [[me, 'Vos'], [{ shirt: 0xe10600, hair: MOHAWK[1], hairStyle: 'mohicano', skin: GS.SKINS[3], glasses: true }, 'Lucho'], [{ shirt: 0xe10600, hair: 0x2d6cdf, hairStyle: 'corto', skin: GS.SKINS[0] }, 'Brian']];
@@ -4978,12 +5079,25 @@ GS.Game = (function () {
   const bar = (ic, label, val, k) => '<div class="cq"><i>' + ic + '</i><span><b>' + label + '<em>' + val + '</em></b><span class="pb"><i style="width:' + Math.round(Math.min(1, k) * 100) + '%"></i></span></span></div>';
   const progBox = (id, title) => { const x = brData(id); return '<div class="prog">' + (title ? '<b class="prog-t">' + title + (brProgress(id) >= 100 ? ' · 💎 platino' : conquered(id) ? ' · ✅ conquistada' : '') + '</b>' : '') +
     bar('⭐', 'Reputación', repTxt(x.rep) + ' de 5', x.rep / 4.8) + bar('🚚', 'Logística', ['sin flota', 'moto', 'camioneta', 'camión'][x.flota], x.flota / 3) + bar('🛠', 'Mejoras del local', x.have + ' de ' + x.tot, x.have / x.tot) + bar('📖', 'Historias de clientes', x.sd + ' de ' + x.st, x.st ? x.sd / x.st : 1) + '</div>'; };
+  function showDuelIntro(then) {
+    const id = brId(), rv = RV(id), b = brNow(), edge = Math.min(5, b.edge || 0); epicCtx = { id };
+    showEpic([{ art: 'vs', k: (b.tries ? 'Revancha · ' : 'Día de competencia · ') + RG(id).city, t: 'GameShop contra ' + rv.name, d: rv.pre },
+      { art: 'duelrules', k: 'Cómo se gana', t: 'Más puntos que ' + rv.owner, d: 'Hoy entran más clientes y esperan menos. Arriba vas a ver tu puntaje contra el de ' + rv.name + '.' + (edge ? ' Llegás con ventaja por tus medallas de oro.' : '') + (b.tries ? ' En la revancha ' + rv.owner + ' viene confiado: es un poco más fácil ganarle.' : '') }], null,
+      '<button class="btn" id="duGo">⚔️ A competir</button><button class="btn ghost" id="duNo">Todavía no</button>', () => { $('duGo').addEventListener('click', () => { A.play('click'); closeEpic(); then(); }); $('duNo').addEventListener('click', () => { A.play('click'); closeEpic(); }); });
+  }
+  function showDuelEnd(res, after) {
+    const id = brId(), rv = res.rv; epicCtx = { id };
+    if (res.win) return showEpic([{ art: 'rivalsad', k: 'Día de competencia · ' + rv.name, t: '¡Le ganaste a ' + rv.owner + '!', d: '"' + rv.win + '"' }, { art: 'rivalarc', k: rv.villain ? 'Y el Capitán...' : 'Lo que nadie sabía', t: rv.villain ? 'Se fue como vino' : rv.owner + ' no era el malo', d: rv.arc }], null,
+      '<button class="btn" id="duOk">Seguir</button>', () => $('duOk').addEventListener('click', () => { A.play('click'); closeEpic(); after(); }));
+    showEpic([{ art: 'rival', k: 'Día de competencia · ' + rv.name, t: res.why === 'quejas' ? 'Tres quejas, y se fueron enfrente' : 'Hoy ganó ' + rv.owner, d: '"' + rv.gloat + '" ' + (res.why === 'quejas' ? '' : 'Fueron ' + Math.round(res.him - res.me).toLocaleString('es-AR') + ' puntos de diferencia. ') + 'La revancha es gratis.' }], null,
+      '<button class="btn" id="duRe">🔁 Jugar la revancha</button><button class="btn ghost" id="duLater">Más tarde</button>', () => { $('duRe').addEventListener('click', () => { closeEpic(); startDay(false, true); }); $('duLater').addEventListener('click', () => { A.play('click'); closeEpic(); after(); }); }, true);
+  }
   function checkConquest() {
     const id = brId(), b = brNow(); if (b.cqSeen || !conquered(id) || state === 'day') return false;
-    const g = goalNow(), miss = g ? Math.max(0, g - fondoNow()) : 0, others = pendingOpen(), ready = g && !miss && canExpand();
+    const g = goalNow(), others = pendingOpen(), ready = g && canExpand();
     brSave({ cqSeen: 1 }); const x = brData(id), R = RG(id), left = x.have < x.tot || x.sd < x.st; GS.track('region_conquistada', { id }); epicCtx = { id };
-    showEpic([{ art: 'conq', k: 'Región ' + R.name + ' conquistada', t: '¡' + R.city + ' es nuestra!', d: 'Acá ya nos conocen por nuestra reputación, y con la flota propia llegamos a cada rincón de la región. ' +
-      (ready ? 'Es hora de abrir una sucursal nueva, donde vos elijas.' : !g ? 'Con esta, GameShop ya está en todas las regiones.' : others.length ? 'Para abrir otra sucursal falta conquistar también ' + others.map(o => o.city).join(' y ') + '.' : 'Para abrir la próxima faltan ' + miss + ' fondos de expansión: se juntan con las próximas jornadas.') }], null,
+    showEpic([{ art: 'conq', k: 'Región ' + R.name + ' conquistada', t: '¡' + R.city + ' es nuestra!', d: 'Cinco estrellas, flota propia y ' + R.rival.name + ' vencido en buena ley. ' +
+      (ready ? 'Es hora de abrir una sucursal nueva, donde vos elijas.' : !g ? 'Con esta, GameShop ya está en todas las regiones.' : 'Para abrir otra sucursal falta conquistar también ' + others.map(o => o.city).join(' y ') + '.') }], null,
       progBox(id) + '<small class="epic-note">' + (left ? 'Lo que falta no frena la expansión: sirve para dejar esta sucursal en 💎 platino.' : '💎 Y además la dejaste en platino: no le falta nada.') + '</small>' +
       '<button class="btn" id="cqMap">🗺️ Ver el mapa de sucursales</button>' + (left ? '<button class="btn ghost" id="cqStay">Seguir y completar esta zona</button>' : ''),
       () => { $('cqMap').addEventListener('click', () => { closeEpic(); showMap(); }); if ($('cqStay')) $('cqStay').addEventListener('click', () => { A.play('click'); closeEpic(); }); });
@@ -5056,13 +5170,13 @@ GS.Game = (function () {
     $('sheet').querySelectorAll('[data-o]').forEach(b => b.addEventListener('click', () => {
       const o = step.opts[Number(b.dataset.o)], fx = o.fx || {}, chips = []; chosen = true;
       if (fx.rep) { addRep(fx.rep); chips.push((fx.rep > 0 ? '▲' : '▼') + ' Reputación'); }
-      if (fx.fondo) { addFondo(fx.fondo); chips.push((fx.fondo > 0 ? '+' : '−') + ' 🪙 ' + Math.abs(fx.fondo) + ' al fondo'); }
+      if (fx.fondo) { addFondo(fx.fondo); chips.push((fx.fondo > 0 ? '+' : '−') + ' 🪙 ' + Math.abs(fx.fondo) + ' monedas'); }
       if (fx.cord) { addCord(fx.cord); chips.push((fx.cord > 0 ? '▲' : '▼') + ' Cordura'); }
       if (fx.goal) { GS.Store.set('goalAdj', (GS.Store.get('goalAdj') || 0) + fx.goal); chips.push(fx.goal < 0 ? '🏠 El local de al lado sale más barato' : '🏠 El local de al lado se encarece'); }
       if (fx.flag) st.flags[fx.flag] = 1;
       if (fx.gflag) { gf[fx.gflag] = 1; GS.Store.set('gflags', gf); }
       st.last = day.n; day.moment = S.name + ': "' + o.r + '"';
-      if (S.steps[st.step] && S.steps[st.step].end && /^rival_/.test(S.id)) setTimeout(() => { A.play('fanfare'); toast('<b>🏆 Le ganaste a ' + RG(brId()).rival.name + '</b>Se terminó su regla. Desde ahora esta sucursal deja 10% más de monedas.', '', 6000); }, 1800);
+      if (S.steps[st.step] && S.steps[st.step].end && /^rival_/.test(S.id)) setTimeout(() => { const rv = RV(brId()); toast('<b>' + rv.mark + ' Duelo pactado con ' + rv.name + '</b>Con 5 estrellas y la flota completa llega el día de competencia.', 'rival', 6000, false, rv.col); }, 1800);
       if (waiting) st.waits = (st.waits || 0) + 1;                 // todavía falta algo que depende de otra historia: vuelve más adelante
       else if (!o.stay) { st.step++; st.notes.push(o.note || step.note); if (step.end || st.step >= S.steps.length) st.done = true; }
       h[S.id] = st; GS.Store.set('hist', h); GS.track('visita', { quien: S.id, paso: st.step }); A.play(fx.rep < 0 || fx.fondo < 0 ? 'error' : 'ok'); A.babble(o.r, cu.person.voice);
@@ -5074,7 +5188,7 @@ GS.Game = (function () {
   function showLibreta() {
     const h = histAll(), known = GS.STORIES.filter(S => h[S.id]), unk = GS.STORIES.length - known.length, wasDay = state === 'day'; if (wasDay) paused = true;
     A.unlock(); A.play('click');
-    modal('<div class="gold-h"><i></i><b>Tu libreta</b><i></i></div><p style="font-size:13.5px;color:var(--mute);margin:0 0 4px">Acá quedan anotados los clientes con historia. Cerrar sus historias suma reputación, a veces fondos, y cuenta para dejar la sucursal en 💎 platino.</p>' +
+    modal('<div class="gold-h"><i></i><b>Tu libreta</b><i></i></div><p style="font-size:13.5px;color:var(--mute);margin:0 0 4px">Acá quedan anotados los clientes con historia. Cerrar sus historias suma reputación, a veces monedas, y cuenta para dejar la sucursal en 💎 platino.</p>' +
       (known.length ? known.map(S => { const st = h[S.id]; return '<div class="lib"><div class="lib-face">' + avatarSvg(Object.assign({ skin: 0xe0ac7e }, S.look), st.done ? 'happy' : 'normal') + '</div><div><b>' + S.name + '</b> <em>' + S.tag + '</em><ul>' + st.notes.map(n => '<li>' + n + '</li>').join('') + '</ul><small>' + (st.done ? '✔ Historia cerrada' : '… Dijo que vuelve') + '</small></div></div>'; }).join('') : '<p>Todavía no anotaste a nadie. Hay clientes que vuelven: cuando alguien quiera hablar, vas a ver una 📖 en los pedidos.</p>') +
       (unk ? '<p style="font-size:13.5px;color:var(--mute);margin:0">Te falta conocer a ' + unk + (unk === 1 ? ' persona.' : ' personas.') + '</p>' : '') + '<button class="btn" data-close>Cerrar</button>', () => { if (wasDay) paused = false; });
   }
@@ -5230,7 +5344,7 @@ GS.Game = (function () {
         me.s += (day.tt || 0) - m0;
         if (job.type !== 'caja') W.focus(null);
         if (job.type === 'mostrador' && !ok) {            // producto equivocado: se va y se pierde la venta
-          day.lostSale = (day.lostSale || 0) + 1; day.wv.lost = 1; addRep(-0.1); ref.slotM = -1; sayAt(ref.person, U.pick(LN.lostSale), 0); day.beat = 1.2; leave(ref, false); return;
+          day.lostSale = (day.lostSale || 0) + 1; day.wv.lost = 1; duelQueja(); addRep(-0.1); ref.slotM = -1; sayAt(ref.person, U.pick(LN.lostSale), 0); day.beat = 1.2; leave(ref, false); return;
         }
         if (job.type === 'mostrador') {
           addScore(100, ref.pat); addRep(0.02); { const v = GS.Store.get('vid') || 0, saw = Math.random() < v * 0.7 + (upNow().vidluz ? 0.15 : 0); if (saw) addRep(0.02); sayAt(ref.person, saw ? U.pick(LN.sawWindow) : '¡Eso! Voy a la caja.', saw ? 3000 : 1900); } ref.st = 'toCaja'; ref.slotM = -1; ref.pat = Math.max(ref.pat, 0.8);
@@ -5295,7 +5409,7 @@ GS.Game = (function () {
         else if ((cu.st === 'inM' || cu.st === 'inC') && !MG.isResolving()) cu.pat -= dt / cfg.patienceGame;
         if (cu.pat <= 0 && (cu.st === 'waitM' || cu.st === 'waitC' || cu.st === 'inM' || cu.st === 'inC')) {
           if (cu.st === 'inM' || cu.st === 'inC') { if (MG.isResolving()) { cu.pat = 0.01; continue; } MG.close(); W.focus(null); }
-          day.lost++; day.wv.lost = 1; breakCombo(); addRep(-0.15); addCord(-CD.lost); A.play('lost');
+          day.lost++; day.wv.lost = 1; duelQueja(); breakCombo(); addRep(-0.15); addCord(-CD.lost); A.play('lost');
           sayAt(cu.person, cu.arche.lost, 3600); toast('<b>' + cu.arche.name + ' se fue sin comprar</b>', '', 2200);
           leave(cu, false);
         }
@@ -5308,7 +5422,7 @@ GS.Game = (function () {
         else if (!MG.isResolving()) t.pat -= dt / (cfg.patienceGame * 1.3);
         if (t.pat <= 0) {
           if (t.st === 'in') { if (MG.isResolving()) { t.pat = 0.01; continue; } MG.close(); W.focus(null); }
-          day.tasksLate++; breakCombo(); addRep(-0.08); addCord(-CD.late); A.play('lost');
+          day.tasksLate++; duelQueja(); breakCombo(); addRep(-0.08); addCord(-CD.late); A.play('lost');
           toast('<b>' + t.station.icon + ' ' + t.station.name + '</b>' + t.station.task.late, '', 3200); removeTask(t);
         }
       }
@@ -5331,6 +5445,12 @@ GS.Game = (function () {
       $('clockS').textContent = day.closing ? 'Cerramos: son las 19' : fin ? 'Cierre de caja' : day.stage === 'rest' && day.wave >= 0 ? 'Respiro ☕' : 'Tanda ' + Math.max(1, day.wave + 1) + '/' + nw;
     }
     $('scoreV').textContent = day.score.toLocaleString('es-AR');
+    { const g = day.goal, sc = day.score, el = $('chipGoal'), nf = v => v.toLocaleString('es-AR'); el.hidden = !g; if (g) { el.textContent = sc >= g.gold ? '🥇 ¡Oro!' : sc >= g.silver ? '🥇 oro a ' + nf(g.gold) : '🥈 plata a ' + nf(g.silver); el.className = 'chip goal' + (sc >= g.gold ? ' gold' : sc >= g.silver ? ' silver' : ''); }
+      const D = day.duel; $('duelBar').hidden = !D;
+      if (D) { const un = Math.max(1, unitsOf(day.plan)), p = Math.min(1, (day.served + day.lost + (day.lostSale || 0) + day.tasksDone + day.tasksLate) / un), tgt = D.total * (p < 0.75 ? p * 0.9 : 0.675 + (p - 0.75) * 1.3);      /* el rival suma a tu ritmo y remata en la hora pico */
+        D.shown += (tgt - D.shown) * 0.035; const him = Math.round(D.shown / 10) * 10; $('duelBar').style.setProperty('--rc', D.rv.col);
+        $('duMe').textContent = nf(sc); $('duHim').textContent = nf(him); $('duName').textContent = D.rv.mark + ' ' + D.rv.name; $('duFill').style.width = (sc + him ? U.clamp(sc / (sc + him) * 100, 6, 94) : 50).toFixed(1) + '%';
+        $('duQ').textContent = '😠 ' + D.q + '/3'; $('duQ').className = 'du-q' + (D.q >= 2 ? ' hot' : ''); $('duelBar').classList.toggle('ahead', sc >= him); } }
     $('chipSales').hidden = !!day.arcade; $('chipRep').hidden = !!day.arcade; $('chipRep').textContent = '⭐ ' + repTxt(repNow());
     $('chipSales').textContent = '🪙 ' + (coinsNow() + Math.round(day.score / 20 * coinMult()));
     $('chipCombo').hidden = day.combo < 2; $('chipCombo').textContent = '🔥 racha x' + day.combo;
@@ -5466,8 +5586,17 @@ GS.Game = (function () {
     brSave({ days: (brNow().days || 0) + 1 });
     const lostSale = d.lostSale || 0, ask = d.served + d.lost + lostSale, perfect = !errs && !d.lost && !lostSale && !d.tasksLate && !d.relaxed, dirty = d.dirt >= 3;
     if (dirty) addRep(-0.1);                                                        // cerrar con el piso sucio se nota
-    const earned = Math.max(0, Math.round(d.score / 9 * coinMult() * (d.plan.bonus || 1) * (modNow() === 'sinrespiro' ? 1.3 : 1)) - (d.coinLoss || 0) * (modNow() === 'lupa' ? 2 : 1)); GS.Store.set('coins', coinsNow() + earned);
-    const fEarn = d.relaxed ? 0 : Math.round(d.sales / 9000 * (0.5 + repNow() / 5) * (modNow() === 'apuro' || modNow() === 'lupa' ? 1.5 : 1)); addFondo(fEarn);     // fondos de expansión: salen de la facturación y la reputación
+    /* medalla del día o resultado del duelo; las dos cosas cambian lo que se cobra */
+    const units = Math.max(1, unitsOf(d.plan)), b0 = brNow(), nf = v => Math.round(v).toLocaleString('es-AR'); let medal = null, duelRes = null, mBonus = 1, goldRun = 0;
+    if (d.duel) { const him = d.duel.total, win = !d.duel.over && d.score >= him, tt = GS.Store.get('tot') || {}; duelRes = { win, me: d.score, him, why: d.duel.over, rv: d.duel.rv, tries: d.duel.tries };
+      if (win) { brSave({ won: 1, duel: 0, edge: 0, tries: 0 }); tt.duels = (tt.duels || 0) + 1; if (d.duel.tries) tt.revancha = (tt.revancha || 0) + 1; mBonus = 1.5; } else brSave({ duel: 1, tries: (b0.tries || 0) + 1 });
+      GS.Store.set('tot', tt); GS.track('duelo', { region: brId(), gano: win ? 1 : 0, intento: d.duel.tries + 1 }); }
+    else if (!d.relaxed) { const pu = d.score / units;
+      if (d.goal) { medal = d.score >= d.goal.gold ? 'oro' : d.score >= d.goal.silver ? 'plata' : 'bronce'; mBonus = medal === 'oro' ? 1.2 : medal === 'plata' ? 1.08 : 1; goldRun = medal === 'oro' ? (b0.gold || 0) + 1 : 0;
+        const tt = GS.Store.get('tot') || {}; tt.goldBest = Math.max(tt.goldBest || 0, goldRun); GS.Store.set('tot', tt); brSave({ gold: goldRun, edge: Math.min(5, (b0.edge || 0) + (medal === 'oro' ? 1 : 0)) }); GS.track('medalla', { cual: medal, jornada: d.n }); }
+      brSave({ avg: Math.round(b0.avg ? b0.avg * 0.65 + pu * 0.35 : pu) }); }
+    const earned = Math.max(0, Math.round(d.score / 9 * coinMult() * (d.plan.bonus || 1) * mBonus * (modNow() === 'sinrespiro' ? 1.3 : 1)) - (d.coinLoss || 0) * (modNow() === 'lupa' ? 2 : 1)); GS.Store.set('coins', coinsNow() + earned);
+    const fEarn = 0;                                                                /* los fondos de expansión ya no existen */
     { const t = statsNow(); delete t.rep; delete t.flota; t.c += d.served; t.d++; t.caught += d.caught || 0; t.web += (d.okBy && d.okBy.ml) || 0; t.clean += d.cleaned; t.sales += d.sales;
       if (perfect) { t.perfect++; t.streak++; } else if (!d.relaxed) t.streak = 0; if (d.vueltoMal) t.vueltoMal++; if (!d.dirt && !d.relaxed) t.limpio++; if (dirty) t.sucio++; if (d.santaSold) t.santa++; GS.Store.set('tot', t); }
     const fresh = checkLogros(), mode = d.relaxed ? 'Tranquilo' : 'Normal';
@@ -5485,7 +5614,9 @@ GS.Game = (function () {
     const head = (k, t) => '<div class="sum-head"><small>' + k + '</small><b>' + t + '</b></div>', place = RG(brId()).city + ' · ' + monthOf(d.n) + (d.cond ? ' · ' + condInfo(d.cond).name : '') + (d.relaxed ? ' · turno tranquilo' : '');
     $('endCol').innerHTML = '<div class="sumS" id="sumS">' +
       /* 1 · cómo te fue */
-      '<section class="sumP">' + head(place, perfect ? '¡Jornada impecable!' : 'Jornada ' + d.n + ' cumplida') +
+      '<section class="sumP">' + head(place, duelRes ? (duelRes.win ? '¡Ganaste el día de competencia!' : duelRes.why === 'quejas' ? 'Tres quejas: se perdió el día' : 'Hoy ganó ' + duelRes.rv.name) : perfect ? '¡Jornada impecable!' : 'Jornada ' + d.n + ' cumplida') +
+      (duelRes ? '<div class="duelres ' + (duelRes.win ? 'win' : 'lose') + '" style="--rc:' + duelRes.rv.col + '"><span><b>' + nf(duelRes.me) + '</b><small>GameShop</small></span><i>VS</i><span><b>' + nf(duelRes.him) + '</b><small>' + duelRes.rv.mark + ' ' + duelRes.rv.name + '</small></span></div><p class="pay-n' + (duelRes.win ? '' : ' no') + '">' + (duelRes.win ? '🏆 La región es tuya. Cobrás 50% más de monedas por la victoria.' : duelRes.why === 'quejas' ? 'A la tercera queja la gente se cruzó enfrente. La revancha es gratis.' : 'Te faltaron ' + nf(duelRes.him - duelRes.me) + ' puntos. La revancha es gratis, y ' + duelRes.rv.owner + ' viene más confiado.') + '</p>' : '') +
+      (medal ? '<div class="medal ' + medal + '"><i>' + (medal === 'oro' ? '🥇' : medal === 'plata' ? '🥈' : '🥉') + '</i><span><b>Medalla de ' + medal + '</b><small>' + nf(d.score) + ' puntos. ' + (medal === 'oro' ? 'Superaste tu marca: +20% de monedas' + (goldRun > 1 ? ' · racha de oros: ' + goldRun : '') + '.' : medal === 'plata' ? 'El oro estaba en ' + nf(d.goal.gold) + '. +8% de monedas.' : 'Plata desde ' + nf(d.goal.silver) + ', oro desde ' + nf(d.goal.gold) + '.') + '</small></span></div>' : '') +
       '<div class="sum-rep"><i>⭐</i><span><b>' + repTxt(rv) + ' <u>de 5</u></b><small>Reputación en ' + RG(brId()).city + ' · ' + (rd > 0.004 ? 'subió ' + repTxt(rd) + ' hoy' : rd < -0.004 ? 'bajó ' + repTxt(-rd) + ' hoy' : 'hoy quedó igual') + '</small></span></div>' +
       '<div class="ticket"><h3>DETALLE DEL DÍA</h3>' +
       row(ask > 0 && d.served === ask, 'Ventas concretadas', d.served + ' de ' + ask) +
@@ -5502,10 +5633,9 @@ GS.Game = (function () {
       /* 2 · lo que cobraste */
       '<section class="sumP">' + head('Cierre de caja', 'Lo que cobraste') +
       '<div class="pay"><i>🪙</i><span><b id="sumCoins">+0</b><em>monedas</em><small>Para <u>mejorar el local</u> y comprar la flota (moto, camioneta y camión). Se gastan en Mejoras.</small></span></div>' +
-      '<div class="pay"><i>🗺️</i><span><b id="sumFondo">+' + fEarn + '</b><em>fondos de expansión</em><small>Solo sirven para <u>abrir sucursales</u>, desde el Mapa. No se gastan en mejoras.</small></span></div>' +
-      (d.coinLoss ? '<p class="pay-n no">Se fueron 🪙 ' + d.coinLoss + ' en errores de caja.</p>' : '') + (d.relaxed ? '<p class="pay-n">En el turno tranquilo no se suman fondos de expansión.</p>' : '') +
-      '<div class="pay-t"><b>Ahora tenés</b><span>🪙 ' + coinsNow() + '</span><span>🗺️ ' + fondoNow() + '</span></div>' +
-      '<p class="pay-n">Las monedas salen del puntaje del día: atender rápido y sin errores paga más. Los fondos salen de lo facturado y suben con la reputación.</p></section>' +
+      (d.coinLoss ? '<p class="pay-n no">Se fueron 🪙 ' + d.coinLoss + ' en errores de caja.</p>' : '') + (mBonus > 1 ? '<p class="pay-n">' + (duelRes ? '🏆 Victoria en el día de competencia: +50% de monedas.' : medal === 'oro' ? '🥇 Medalla de oro: +20% de monedas.' : '🥈 Medalla de plata: +8% de monedas.') + '</p>' : '') +
+      '<div class="pay-t"><b>Ahora tenés</b><span>🪙 ' + coinsNow() + '</span></div>' +
+      '<p class="pay-n">Las monedas salen del puntaje del día: atender rápido y sin errores paga más. Las medallas y ganar el día de competencia suman un extra.</p></section>' +
       /* 3 · mejoras */
       '<section class="sumP">' + head('Antes de seguir', 'Mejorá el local') + '<p class="pay-n">Las mejoras quedan para siempre en esta sucursal. No hace falta comprar ahora: las monedas se guardan.</p><div id="upBox" class="upbox">' + upHtml() + '</div></section>' +
       /* 4 · qué sigue */
@@ -5513,7 +5643,7 @@ GS.Game = (function () {
       '<div class="hook" id="hookBox"><i>' + hook[0] + '</i><span><b>Lo que viene</b>' + hook[1] + '</span></div>' +
       '<div class="row3"><button class="btn ghost" id="endMap">🗺️ Mapa</button><button class="btn ghost" id="endRecs">🏅 Logros</button><button class="btn ghost" id="endLib">📖 Libreta</button><button class="btn ghost" id="endCard">📸 Compartir</button><button class="btn ghost" id="endHome">← Inicio</button></div>' +
       '<button class="phases" id="phasesEnd" hidden></button></section></div>' +
-      '<div class="sumN"><span class="sumD" id="sumD"><i class="on"></i><i></i><i></i><i></i></span><div class="row"><button class="btn ghost" id="sumBack" hidden>‹ Atrás</button><button class="btn" id="sumNext">Siguiente ›</button><button class="btn" id="endAgain" hidden>Siguiente jornada ›</button></div>' + ((GS.Store.get('days') || 0) >= 7 ? '<button class="sumSkip" id="sumSkip">Saltar al final</button>' : '') + '</div>';
+      '<div class="sumN"><span class="sumD" id="sumD"><i class="on"></i><i></i><i></i><i></i></span><div class="row"><button class="btn ghost" id="sumBack" hidden>‹ Atrás</button><button class="btn" id="sumNext">Siguiente ›</button><button class="btn" id="endAgain" hidden>' + (duelRes && !duelRes.win ? '🔁 Jugar la revancha ›' : 'Siguiente jornada ›') + '</button></div>' + ((GS.Store.get('days') || 0) >= 7 ? '<button class="sumSkip" id="sumSkip">Saltar al final</button>' : '') + '</div>';
     $('phasesEnd').innerHTML = phasesCompact(); $('phasesEnd').addEventListener('click', showPhases);
     $('endMap').addEventListener('click', showMap); $('endCard').addEventListener('click', () => showCard()); $('endLib').addEventListener('click', showLibreta);
     $('endAgain').addEventListener('click', () => startDay(d.relaxed));
@@ -5525,8 +5655,9 @@ GS.Game = (function () {
       if (g.id === 'flota' && i === 2 && repNow() < 4.8) setTimeout(() => toast('<b>🚚 Flota completa</b>Para conquistar la región solo falta llegar a 5 estrellas (vas ' + repTxt(repNow()) + ').', '', 5000), 2500); });
     { const t = GS.Store.get('tot') || {}; if (brProgress(brId()) >= 100 && !brNow().plat) { brSave({ plat: 1 }); t.platino = (t.platino || 0) + 1; GS.Store.set('tot', t); checkLogros(); } }
     /* los festejos (región conquistada, finales) esperan a la última pantalla del resumen */
-    let cele = false; const celebrate = () => { if (cele || state !== 'end' || GS.Store.get('testDay')) return; cele = true;
+    let cele = false; const afterDuel = () => { if (state !== 'end') return; refreshStart(); $('expBox').innerHTML = expCard();
       if (allDone() && !GS.Store.get('finalN')) { GS.Store.set('finalN', 1); showFinal(); } else if (malvWon() && !GS.Store.get('finalM')) { GS.Store.set('finalM', 1); applyBranch(); showFinalM(); } else checkConquest(); };
+    const celebrate = () => { if (cele || state !== 'end' || GS.Store.get('testDay')) return; cele = true; if (duelRes) showDuelEnd(duelRes, afterDuel); else afterDuel(); };
     let page = 0, counted = false; const S = $('sumS'), go = i => { S.scrollTo({ left: i * S.clientWidth, behavior: 'smooth' }); A.play('click'); };
     const onPage = () => { const i = Math.max(0, Math.min(3, Math.round(S.scrollLeft / Math.max(1, S.clientWidth)))); if (i === page && counted !== null) { if (i !== 1 || counted) return; } page = i;
       [].forEach.call($('sumD').children, (x, k) => x.classList.toggle('on', k === i)); $('sumBack').hidden = i === 0; $('sumNext').hidden = i === 3; $('endAgain').hidden = i !== 3; if ($('sumSkip')) $('sumSkip').hidden = i === 3; if (i === 2) $('upBox').innerHTML = upHtml();
@@ -5541,9 +5672,10 @@ GS.Game = (function () {
     if (m === 0) return ['🎄', 'La próxima es diciembre: semana de Navidad. Dicen que viene alguien de rojo a comprar.'];
     const h = histAll(), back = GS.STORIES.filter(S => h[S.id] && !h[S.id].done && n >= h[S.id].last + (S.gap || 1));
     if (back.length) return ['📖', back[0].name + ' dijo que volvía. Puede aparecer en la próxima jornada.'];
-    const f = goalNow() - fondoNow(), me = brData(brId()); if (goalNow() && !conquered(brId())) return me.rep < 4.8 && me.flota < 3 ? ['⭐', 'Para conquistar esta región faltan dos cosas: llegar a 5 estrellas y tener la flota completa.'] : me.rep < 4.8 ? ['⭐', 'Ya tenés la flota completa. Falta llegar a 5 estrellas (vas ' + repTxt(me.rep) + ') para conquistar la región.'] : ['🚚', 'Ya tenés 5 estrellas. Falta tener la flota completa para conquistar la región.'];
-    if (goalNow() && f <= 0 && canExpand()) return ['🗺️', 'Región conquistada y fondos listos: abrí el mapa y elegí dónde va la próxima sucursal.'];
-    if (goalNow() && f < 1000) return ['🗺️', 'Faltan ' + f + ' fondos de expansión para abrir la próxima sucursal.'];
+    { const id = brId(), me = brData(id), rv = RV(id);
+      if (!won(id) && rv) { if (readyDuel(id)) return ['⚔️', 'La próxima jornada es el día de competencia contra ' + rv.name + '.' + ((brNow().tries || 0) ? ' Es la revancha.' : '')];
+        return me.rep < 4.8 && me.flota < 3 ? ['⭐', 'Para desafiar a ' + rv.name + ' faltan dos cosas: llegar a 5 estrellas y tener la flota completa.'] : me.rep < 4.8 ? ['⭐', 'Ya tenés la flota completa. Falta llegar a 5 estrellas (vas ' + repTxt(me.rep) + ') para desafiar a ' + rv.name + '.'] : ['🚚', 'Ya tenés 5 estrellas. Falta la flota completa para desafiar a ' + rv.name + '.']; }
+      if (goalNow() && canExpand()) return ['🗺️', 'Región conquistada: abrí el mapa y elegí dónde va la próxima sucursal.']; }
     const t = nextGoal(); if (t) return [t.g.icon, (coinsNow() >= t.lv.price ? 'Ya te alcanza para: ' : 'Te faltan 🪙 ' + (t.lv.price - coinsNow()) + ' para: ') + t.lv.n + '.'];
     return ['☕', 'Mañana abrimos de 10 a 19, como siempre.'];
   }
@@ -5557,25 +5689,25 @@ GS.Game = (function () {
   const wbtn = (ic, title, info, cur, tot, unit, full, extra) => '<i class="wb-i">' + ic + '</i><span class="wb-m"><b>' + title + (extra || '') + '</b><small>' + info + '</small>' +
     (tot ? '<span class="wb-r"><span class="wb-p"><i style="width:' + Math.min(100, cur / tot * 100).toFixed(0) + '%"></i></span><span class="wb-n' + (full ? ' ok' : '') + '">' + unit + ' ' + Math.min(cur, tot) + ' <em>de ' + tot + '</em></span></span>' : '') + '</span><i class="wb-a">›</i>';
   /* Qué falta para abrir otra sucursal: tres pasos con tilde, y para qué sirve cada recurso */
-  /* Gráfico: una sucursal + 5 estrellas + flota completa + fondos = otra sucursal. st marca lo que ya está cumplido. */
+  /* Gráfico: una sucursal + 5 estrellas + flota completa + ganarle al rival = otra sucursal. st marca lo que ya está cumplido. */
   function expDiagram(st) {
     st = st || {}; const pill = (ok, ic, t) => '<span class="' + (ok ? 'ok' : '') + '"><i>' + ic + '</i><b>' + t + '</b>' + (ok ? '<u>✓</u>' : '') + '</span>', arrow = '<svg class="ar" viewBox="0 0 24 40"><path d="M2 20H17M11 11l8 9-8 9" fill="none" stroke="#f5c518" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-    return '<div class="expd"><figure>' + storeSvg() + '<figcaption>Tu sucursal</figcaption></figure>' + arrow + '<div class="rq">' + pill(st.rep, '⭐⭐⭐⭐⭐', '5 estrellas') + '<em>+</em>' + pill(st.flota, '🛵 🚐 🚚', 'Flota completa') + '<em>+</em>' + pill(st.fondo, '🗺️', 'Fondos de expansión') + '</div>' + arrow + '<figure class="new">' + storeSvg() + '<figcaption>Sucursal nueva</figcaption></figure></div>';
+    return '<div class="expd"><figure>' + storeSvg() + '<figcaption>Tu sucursal</figcaption></figure>' + arrow + '<div class="rq">' + pill(st.rep, '⭐⭐⭐⭐⭐', '5 estrellas') + '<em>+</em>' + pill(st.flota, '🛵 🚐 🚚', 'Flota completa') + '<em>+</em>' + pill(st.duel, '⚔️', 'Ganarle al rival') + '</div>' + arrow + '<figure class="new">' + storeSvg() + '<figcaption>Sucursal nueva</figcaption></figure></div>';
   }
   function expCard() {
-    const g = goalNow(); if (!g) return '';
-    const id = brId(), me = brData(id), R = RG(id), f = fondoNow(), c = coinsNow(), fl = GS.UPGRADES.find(u => u.id === 'flota'), need = fl.levels.slice(me.flota).reduce((a, l) => a + l.price, 0), others = pendingOpen().filter(r => r.id !== id), ready = canExpand() && f >= g;
+    const id = brId(), me = brData(id), R = RG(id), rv = RV(id), w = won(id), rd = readyDuel(id), more = goalNow(), b = brNow(); if (!rv || (w && !more)) return '';
+    const c = coinsNow(), fl = GS.UPGRADES.find(u => u.id === 'flota'), need = fl.levels.slice(me.flota).reduce((a, l) => a + l.price, 0), others = pendingOpen().filter(r => r.id !== id), ready = more && canExpand();
     const row = (ok, ic, t, sub, pct) => '<div class="' + (ok ? 'ok' : '') + '"><i>' + (ok ? '✅' : ic) + '</i><span><b>' + t + '</b><small>' + sub + '</small>' + (pct != null && !ok ? '<em><u style="width:' + Math.max(3, Math.min(100, pct)).toFixed(0) + '%"></u></em>' : '') + '</span></div>';
-    return '<div class="expc' + (ready ? ' ready' : '') + '"><h4>' + (ready ? '🎉 ¡Ya podés abrir otra sucursal!' : '🗺️ Qué falta para abrir otra sucursal') + '</h4>' + expDiagram({ rep: me.rep >= 4.8, flota: me.flota >= 3, fondo: f >= g }) +
-      row(me.rep >= 4.8, '⭐', '1 · Llegar a 5 estrellas en ' + R.city, me.rep >= 4.8 ? 'Listo: acá ya nos conocen.' : 'Vas ' + repTxt(me.rep) + ' de 5. Sube cuando atendés sin errores y el local está limpio.', me.rep / 4.8 * 100) +
+    return '<div class="expc' + (ready || rd ? ' ready' : '') + '"><h4>' + (ready ? '🎉 ¡Ya podés abrir otra sucursal!' : rd ? '⚔️ ¡Llegó el día de competencia!' : '🗺️ Cómo se conquista ' + R.city) + '</h4>' + expDiagram({ rep: me.rep >= 4.8 || w, flota: me.flota >= 3, duel: w }) +
+      row(me.rep >= 4.8 || w, '⭐', '1 · Llegar a 5 estrellas en ' + R.city, me.rep >= 4.8 || w ? 'Listo: acá ya nos conocen.' : 'Vas ' + repTxt(me.rep) + ' de 5. Sube cuando atendés sin errores y el local está limpio.', me.rep / 4.8 * 100) +
       row(me.flota >= 3, '🚚', '2 · Tener la flota completa', me.flota >= 3 ? 'Listo: llegamos a toda la región.' : need <= c ? '¡Ya te alcanza! Comprá lo que falta en Mejoras → Flota de envíos.' : 'Moto, camioneta y camión: se compran con 🪙 monedas, en Mejoras → Flota de envíos. Te faltan 🪙 ' + (need - c) + '.', c / need * 100) +
-      (others.length ? row(false, '🏪', 'Lo mismo en ' + others.map(r => r.city).join(' y '), 'Cada sucursal abierta necesita sus 5 estrellas y su flota completa.') : '') +
-      row(f >= g, '🗺️', '3 · Juntar ' + g + ' fondos de expansión', f >= g ? 'Listo: tenés ' + f + '.' : 'Tenés ' + f + '. Se suman solos al cerrar cada jornada; no se gastan en mejoras.', f / g * 100) +
-      '<p>' + (ready ? 'Abrí el <b>🗺️ Mapa</b> y elegí la región.' : '<b>🪙 Monedas</b>: mejoran el local y compran la flota. <b>🗺️ Fondos</b>: solo sirven para abrir sucursales, desde el Mapa.') + '</p><p class="meta">🏁 <b>Meta del juego:</b> las 5 regiones con 5 estrellas y flota completa (' + MAIN.filter(r => conquered(r.id)).length + ' de 5).</p></div>';
+      row(w, rv.mark, '3 · Ganarle a ' + rv.name + ' en el día de competencia', w ? 'Listo: le ganaste a ' + rv.owner + '.' : rd ? 'Es la próxima jornada' + ((b.tries || 0) ? ' (revancha gratis, y es más fácil)' : '') + '. Más puntos que ' + rv.owner + ' y menos de tres quejas.' : 'Se habilita solo cuando tengas las 5 estrellas y la flota completa.' + ((b.edge || 0) ? ' Ya tenés ventaja por ' + b.edge + (b.edge === 1 ? ' medalla' : ' medallas') + ' de oro.' : '')) +
+      (others.length ? row(false, '🏪', 'Lo mismo en ' + others.map(r => r.city).join(' y '), 'Cada sucursal abierta tiene su propio rival.') : '') +
+      '<p>' + (ready ? 'Abrí el <b>🗺️ Mapa</b> y elegí la región.' : '<b>🪙 Monedas</b>: mejoran el local y compran la flota. <b>🥇 Medallas de oro</b>: te dan ventaja para el día de competencia.') + '</p><p class="meta">🏁 <b>Meta del juego:</b> ganarles a los 5 rivales del país (' + MAIN.filter(r => conquered(r.id)).length + ' de 5).</p></div>';
   }
   function sucCard() {
-    const all = brAll(), f = fondoNow(), g = goalNow(), n = MAIN.filter(r => all[r.id] && all[r.id].open).length, dots = '<span class="hc-d">' + MAIN.map(r => '<i class="' + (all[r.id] && all[r.id].open ? 'on' : '') + (r.id === brId() ? ' cur' : '') + '"></i>').join('') + '</span>';
-    return wbtn('🗺️', 'Mis sucursales', dots + ' ' + n + ' de 5' + (g ? (!canExpand() ? ' · falta ' + (brData(brId()).rep < 4.8 ? '⭐ 5 estrellas' : '') + (brData(brId()).rep < 4.8 && brData(brId()).flota < 3 ? ' y ' : '') + (brData(brId()).flota < 3 ? '🚚 flota completa' : '') + (conquered(brId()) ? 'conquistar otra sucursal' : '') : f >= g ? ' · ¡ya podés abrir otra!' : ' · juntando fondos') : ' · avance ' + Math.round(MAIN.reduce((a, r) => a + brProgress(r.id), 0) / MAIN.length) + '%'), f, g, '🗺️', f >= g && canExpand());
+    const all = brAll(), id = brId(), me = brData(id), n = MAIN.filter(r => all[r.id] && all[r.id].open).length, cq = MAIN.filter(r => conquered(r.id)).length, more = goalNow(), dots = '<span class="hc-d">' + MAIN.map(r => '<i class="' + (all[r.id] && all[r.id].open ? 'on' : '') + (r.id === id ? ' cur' : '') + '"></i>').join('') + '</span>';
+    return wbtn('🗺️', 'Mis sucursales', dots + ' ' + n + ' de 5' + (won(id) ? (more && canExpand() ? ' · ¡ya podés abrir otra!' : more ? ' · falta conquistar otra sucursal' : ' · avance ' + Math.round(MAIN.reduce((a, r) => a + brProgress(r.id), 0) / MAIN.length) + '%') : readyDuel(id) ? ' · ⚔️ día de competencia listo' : ' · falta ' + (me.rep < 4.8 ? '⭐ 5 estrellas' : '') + (me.rep < 4.8 && me.flota < 3 ? ' y ' : '') + (me.flota < 3 ? '🚚 flota completa' : '')), cq, 5, '⚔️', more && canExpand());
   }
   function goalCard() {
     const t = nextGoal(), c = coinsNow(); if (!t) return wbtn('🛠', 'Mejorar el local', '🏆 Local completo: compraste todas las mejoras', 0, 0, '', false);
@@ -5627,7 +5759,7 @@ GS.Game = (function () {
     const nh = a.hair == null ? 0x3a2a1a : Number(a.hair), ns = Number(a.skin || 0xe0ac7e), nt = Number(a.shirt || 0xe10600), id = 'a' + (++avN);
     const h = 'url(#h' + id + ')', sk = hex(ns), top = hex(nt), ink = hex(a.pants || 0x23232b), brow = sh(nh, nh > 0x909090 ? -0.35 : -0.3), FT = '<g transform="translate(50 44) scale(0.9) translate(-50 -48)">';
     const st = a.hairStyle || 'corto', m = mood || 'normal', hat = a.hat;
-    const cap = '<path d="M20.500 50 A29.500 ' + (hat === 'lana' || hat === 'gorro' ? 29 : 34.500) + ' 0 0 1 79.500 50 L75.500 50 Q73 33 50 33 Q27 33 24.500 50z" fill="' + h + '"/>';      // llega hasta arriba de la cabeza: no queda piel entre el pelo de adelante y el de atrás
+    const cap = '<path d="M20.500 50 A29.500 ' + (hat === 'lana' || hat === 'gorro' || hat === 'gorra' || hat === 'ushanka' || hat === 'boina' || hat === 'ala' ? 27 : 34.500) + ' 0 0 1 79.500 50 L75.500 50 Q73 33 50 33 Q27 33 24.500 50z" fill="' + h + '"/>';      // llega hasta arriba de la cabeza: no queda piel entre el pelo de adelante y el de atrás
     let v = '<svg viewBox="0 0 100 124" width="120" height="149"><defs><radialGradient id="s' + id + '" cx="38%" cy="30%" r="80%"><stop offset="0" stop-color="' + sh(ns, 0.22) + '"/><stop offset=".55" stop-color="' + sk + '"/><stop offset="1" stop-color="' + sh(ns, -0.2) + '"/></radialGradient>' +
       '<linearGradient id="h' + id + '" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="' + sh(nh, 0.22) + '"/><stop offset=".5" stop-color="' + hex(nh) + '"/><stop offset="1" stop-color="' + sh(nh, -0.3) + '"/></linearGradient>' +
       '<linearGradient id="t' + id + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + sh(nt, 0.16) + '"/><stop offset="1" stop-color="' + sh(nt, -0.22) + '"/></linearGradient></defs>';
@@ -5658,6 +5790,11 @@ GS.Game = (function () {
     if (hat === 'casco') v += '<path d="M17 52 A33 33 0 0 1 83 52 L78 52 Q76 36 50 36 Q24 36 22 52z" fill="' + top + '"/><rect x="76" y="14" width="3.500" height="16" fill="' + top + '"/><circle cx="77.700" cy="12" r="4.200" fill="' + h + '"/>';
     if (hat === 'corona') v += '<path d="M29 30 L27 9 L38 20 L50 5 L62 20 L73 9 L71 30 Q50 22 29 30z" fill="' + top + '"/>';
     if (hat === 'vincha') v += '<path d="M21.500 42 Q50 28 78.500 42 L78 48 Q50 35 22 48z" fill="' + top + '"/>';
+    { const hc = hex(a.hatCol != null ? a.hatCol : 0x2b2b30), hb = hex(a.hatBand != null ? a.hatBand : 0x17171c), hd = sh(Number(a.hatCol != null ? a.hatCol : 0x2b2b30), -0.28);      /* sombreros de los rivales */
+      if (hat === 'boina') v += '<path d="M18 36 Q20 12 54 10 Q88 10 90 30 Q80 40 50 38 Q30 37 18 36z" fill="' + hc + '"/><path d="M20 35 Q50 30 80 37" fill="none" stroke="' + hd + '" stroke-width="3"/><circle cx="56" cy="9" r="3.600" fill="' + hd + '"/>';
+      if (hat === 'ala') v += '<ellipse cx="50" cy="35" rx="47" ry="8.500" fill="' + hd + '"/><ellipse cx="50" cy="33" rx="47" ry="8" fill="' + hc + '"/><path d="M26 33 Q27 6 50 5 Q73 6 74 33 Q50 39 26 33z" fill="' + hc + '"/><path d="M26.300 27 Q50 33 73.700 27 L74 33 Q50 39 26 33z" fill="' + hb + '"/>';
+      if (hat === 'ushanka') v += '<path d="M19 46 Q19 10 50 9 Q81 10 81 46z" fill="' + hc + '"/><path d="M22 42 Q50 28 78 42 L78 31 Q50 18 22 31z" fill="' + hb + '"/><path d="M12 44 Q12 40 20 40 L24 74 Q16 78 13 70z" fill="' + hc + '"/><path d="M88 44 Q88 40 80 40 L76 74 Q84 78 87 70z" fill="' + hc + '"/>';
+      if (hat === 'gorra') v += '<path d="M20 44 Q20 12 50 11 Q80 12 80 44 Q50 34 20 44z" fill="' + hc + '"/><path d="M22 43 Q50 33 78 43 Q92 44 97 52 Q70 44 24 49z" fill="' + hd + '"/><circle cx="50" cy="11" r="2.800" fill="' + hd + '"/>'; }
     // ojos, cejas y boca según la mueca
     const dx = m === 'nervous' ? 2.200 : 0, ry = m === 'surprised' ? 6.800 : m === 'impatient' ? 3.200 : 5.200;
     if (m === 'happy') v += '<g fill="none" stroke="' + ink + '" stroke-width="3.200" stroke-linecap="round"><path d="M33.500 51 Q39 44 44.500 51"/><path d="M55.500 51 Q61 44 66.500 51"/></g>';
@@ -5668,6 +5805,8 @@ GS.Game = (function () {
     v += '<path d="' + (brows[m] || brows.normal) + '" fill="none" stroke="' + brow + '" stroke-width="4" stroke-linecap="round"/>';
     v += '<ellipse cx="50" cy="57.500" rx="4.400" ry="3.300" fill="' + sh(ns, -0.13) + '"/><ellipse cx="49" cy="56.400" rx="1.800" ry="1.100" fill="' + sh(ns, 0.3) + '" opacity=".8"/>';                                                    // nariz
     if (a.lashes) v += '<g stroke="' + h + '" stroke-width="1.800" stroke-linecap="round"><path d="M34 45.500l-3-2.500M66 45.500l3-2.500M36 43.500l-1.500-3M64 43.500l1.500-3"/></g>';
+    if (a.shades) v += '<path d="M25 44 H75 L73 55 Q67 60 60 55 L54 49 H46 L40 55 Q33 60 27 55z" fill="#111114"/><path d="M29 46 l9 0" stroke="rgba(255,255,255,.35)" stroke-width="1.600" stroke-linecap="round"/>';
+    if (a.patch) v += '<path d="M21 38 L79 52" stroke="#111114" stroke-width="2.400"/><ellipse cx="61" cy="50" rx="8.500" ry="8" fill="#111114"/>';
     if (a.glasses) v += '<g fill="rgba(255,255,255,.2)" stroke="' + ink + '" stroke-width="2.400"><circle cx="39" cy="50" r="9"/><circle cx="61" cy="50" r="9"/></g><path d="M48 50h4" stroke="' + ink + '" stroke-width="2.400"/>';
     const mc = a.beard ? '#fff' : ink;
     const mouths = { normal: a.lips ? '<path d="M43 64 Q46.500 61.500 50 63.500 Q53.500 61.500 57 64 Q50 71 43 64z" fill="' + top + '"/>' : '<path d="M43 64 Q50 70 57 64" fill="none" stroke="' + mc + '" stroke-width="2.600" stroke-linecap="round"/>',
@@ -5702,9 +5841,9 @@ GS.Game = (function () {
   function refreshStart() {
     const n = dayNumber(), fresh = n <= GS.UNLOCKS.length ? GS.UNLOCKS[n - 1] : [], R = RG(brId());
     $('campT').textContent = started() ? 'Seguir campaña' : 'Iniciar campaña'; $('campS').textContent = started() ? 'Jornada ' + n + ' · ' + R.city + ' · ' + MAIN.filter(r => (brAll()[r.id] || {}).open).length + ' de 5 sucursales' : 'Llevá GameShop a todo el país';
-    $('playT').textContent = 'Comenzar jornada ' + n; $('playS').textContent = monthOf(n) + (n === 1 ? ' · inducción' : fresh.length ? ' · se suma: ' + fresh.map(id => ST(id).name).join(' y ') : '');
+    { const rd = readyDuel(brId()), rv = RV(brId()); $('playT').textContent = rd ? '⚔️ Día de competencia' : 'Comenzar jornada ' + n; $('playS').textContent = rd ? 'Contra ' + rv.name + ((brNow().tries || 0) ? ' · revancha' : '') + ' · jornada ' + n : monthOf(n) + (n === 1 ? ' · inducción' : fresh.length > 2 ? ' · ' + fresh.length + ' tareas nuevas' : fresh.length ? ' · se suma: ' + fresh.map(id => ST(id).name).join(' y ') : ''); }
     $('btnShop').innerHTML = goalCard(); $('btnPlot').innerHTML = sucCard(); $('campProg').innerHTML = expCard() + progBox(brId(), 'Avance de ' + R.city);
-    $('campHead').style.background = 'linear-gradient(100deg, ' + ACC[R.id] + ', rgba(20,20,24,.92) 130%)'; $('campHead').innerHTML = '<small>' + (R.id === 'pampeana' ? 'Casa central' : 'Sucursal ' + R.name) + '</small><b>' + R.city + '</b><span>⭐ ' + repTxt(repNow()) + ' · 🪙 ' + (DEV() ? '∞' : coinsNow()) + ' · 🗺️ ' + (DEV() ? '∞' : fondoNow()) + '</span>';
+    $('campHead').style.background = 'linear-gradient(100deg, ' + ACC[R.id] + ', rgba(20,20,24,.92) 130%)'; $('campHead').innerHTML = '<small>' + (R.id === 'pampeana' ? 'Casa central' : 'Sucursal ' + R.name) + '</small><b>' + R.city + '</b><span>⭐ ' + repTxt(repNow()) + ' · 🪙 ' + (DEV() ? '∞' : coinsNow()) + (RV(R.id) ? ' · ' + (won(R.id) ? '🏆 rival vencido' : RV(R.id).mark + ' ' + RV(R.id).name) : '') + '</span>';
     $('rankT').textContent = (DEV() ? '🛠 DEV · ' : '') + (GS.Store.get('ngp') ? '➕ NJ+' + GS.Store.get('ngp') : ''); $('rankT').hidden = !$('rankT').textContent; setMenu(menuView);
   }
   function goHome() {
@@ -5751,7 +5890,7 @@ GS.Game = (function () {
   function finishFinal() {
     const f = day && day.fin; if (!f || f.done) return; f.done = true; GS.Store.set('finalSeen', true); GS.Store.set('final2Seen', true); const hh = histAll(), closed = GS.STORIES.filter(S => hh[S.id] && hh[S.id].done).length;
     day.says.forEach(x => x.el.remove()); day.says = []; day.sayQ = []; f.t = 0.5; $('final').classList.add('party'); $('finSkip').hidden = true; A.play('fanfare');
-    $('finCard').innerHTML = '<h2>Fin de la <span>temporada</span></h2><p><b>' + f.tier.title + '</b>. ' + f.tier.line + '</p><p>Fondo: 🪙 ' + fondoNow() + ' de ' + goalNow() + ' · Historias cerradas: ' + closed + ' de ' + GS.STORIES.length + '. El local sigue abierto: podés seguir jugando para alcanzar otro final y cerrar las historias que faltan.</p>' +
+    $('finCard').innerHTML = '<h2>Fin de la <span>temporada</span></h2><p><b>' + f.tier.title + '</b>. ' + f.tier.line + '</p><p>Rivales vencidos: ' + MAIN.filter(r => conquered(r.id)).length + ' de 5 · Historias cerradas: ' + closed + ' de ' + GS.STORIES.length + '. El local sigue abierto: podés seguir jugando para alcanzar otro final y cerrar las historias que faltan.</p>' +
       '<button class="btn" id="finShare">📸 Tarjeta para compartir</button><button class="btn ghost" id="finGo">Seguir jugando</button><small>Un juego de GameShop · Gracias por jugar</small>';
     $('finCard').hidden = false;
     $('finShare').addEventListener('click', () => showCard(true)); $('finGo').addEventListener('click', goHome);

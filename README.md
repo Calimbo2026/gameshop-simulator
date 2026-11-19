@@ -290,3 +290,11 @@ Tres juegos en `src/arcade.js`, que se ganan al terminar las jornadas 3, 8 y 14 
 - **Elegir el lugar**: en Mejorar el local, cada mueble de piso muestra un plano chiquito del salón; tocar un lugar lo mueve (y si estaba ocupado, intercambia). Se guarda por sucursal en `up.lay`.
 - **Mesa de PC**: del tamaño de la isla, con tres zonas (notebooks, puesto armado y componentes).
 - **Clientes**: los que entran a mirar (y los que miran antes de ir al mostrador) usan los muebles: tocan lo de Apple, prueban el teclado, se sientan y giran en las sillas, juegan en el escritorio. Les salen emojis de que les gusta.
+
+## v0.70 · Rivales, día de competencia y medallas
+
+- **Sin fondos de expansión.** Cada región se conquista en tres pasos: 5 estrellas, flota completa y ganarle al rival en el **día de competencia**. Lo que antes daba fondos ahora da monedas. La conquista queda guardada en `branches[id].won`; las partidas anteriores conservan lo que ya tenían conquistado (`mig70`).
+- **Día de competencia** (`day.duel`): más clientes, menos paciencia, marcador en vivo contra el rival (`#duelBar`), tres quejas y se pierde, hora pico en la última tanda. El puntaje del rival sale del promedio del jugador (`branches[id].avg`, puntos por cliente o tarea) por `DUEL_K`. Si se pierde, revancha gratis y 5% más fácil por intento (hasta 3).
+- **Medallas** desde la jornada 4 (`day.goal`): plata al 85% del promedio propio, oro al 106%. Oro: +20% de monedas, racha, y 2% de ventaja en el duelo por cada una (hasta 5).
+- **Rivales** (`GS.REGIONS[].rival` + historia `rival_<region>`): marca, color, lema, burlas, arco. Buenos Aires tiene rival propio (Turbo Gamer). Cada uno con su sombrero (`hat: boina | ala | ushanka | gorra`, `shades`, `patch`) en 3D y en retrato. Llaman, pasan por la vereda con globo de su marca y tienen escenas propias.
+- **Aprendizaje**: todas las tareas se conocen en las jornadas 1 a 3 (`GS.UNLOCKS`), con menos clientes y más paciencia.

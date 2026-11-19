@@ -54,10 +54,10 @@ GS.Game = (function () {
     modal('<h2>💬 Mensajes</h2>' + (LOG.length ? '<div class="logl">' + LOG.map((m, i) => (i === 0 || LOG[i - 1].d !== m.d ? '<h4>Jornada ' + m.d + '</h4>' : '') + '<div class="logi"><small>' + (m.t || '') + '</small><span>' + m.h + '</span></div>').join('') + '</div>' : '<p>Todavía no llegó ningún mensaje. Acá vas a encontrar las llamadas del Dueño, los avisos de la competencia y las novedades del día.</p>') +
       '<button class="btn" data-close>' + (state === 'day' ? 'Seguir' : 'Cerrar') + '</button>', () => { if (inDay) paused = false; });
   }
-  function toast(html, cls, ms, noLog) {
+  function toast(html, cls, ms, noLog, col) {
     if (!noLog && html.indexOf('<b>') === 0) logMsg(html);
     const box = $('toasts'); while (box.children.length > 1) box.removeChild(box.firstChild);
-    const t = document.createElement('div'); t.className = 'toast ' + (cls || ''); t.innerHTML = html; box.appendChild(t);
+    const t = document.createElement('div'); t.className = 'toast ' + (cls || ''); t.innerHTML = html; if (col) t.style.setProperty('--rc', col); box.appendChild(t);
     setTimeout(() => { t.classList.add('out'); setTimeout(() => t.remove(), 320); }, ms || 3200);
   }
 
@@ -85,9 +85,9 @@ GS.Game = (function () {
   const coinsNow = () => DEV() ? 999999 : GS.Store.get('coins') || 0;
   const monthOf = n => GS.MONTHS[(n - 1) % 12] + ', año ' + (Math.floor((n - 1) / 12) + 1);
   // El rival de la zona: su regla complica las jornadas de esa sucursal hasta que se le gana en el mostrador; después, la sucursal rinde 10% más
-  const rivalId = () => GS.Store.get('branch') || 'pampeana', rivalDone = () => !!((GS.Store.get('hist') || {})['rival_' + rivalId()] || {}).done, rivalOn = () => rivalId() !== 'pampeana' && !rivalDone() && GS.STORIES.some(S => S.id === 'rival_' + rivalId());
-  const coinMult = () => { const u = upNow(); return (1 + 0.1 * ((u.mesa || 0) + (u.isla || 0) + (u.gondola || 0) + (u.luces || 0) + (u.web >= 3 ? 1 : 0)) + (rivalId() !== 'pampeana' && rivalDone() ? 0.1 : 0)) * (rivalOn() && rivalId() === 'patagonia' ? 0.85 : 1); };
-  const patMult = () => { const u = upNow(); return (1 + 0.15 * (u.escritorio || 0) + 0.1 * (u.sillas || 0) + 0.1 * (u.cafetera || 0)) * (modNow() === 'apuro' ? 0.75 : 1) * (day && day.zonda ? 0.8 : 1); };
+  const rivalId = () => GS.Store.get('branch') || 'pampeana', rivalDone = () => !!((GS.Store.get('branches') || {})[rivalId()] || {}).won, rivalOn = () => !rivalDone() && !!(GS.REGIONS.find(r => r.id === rivalId()) || {}).rival;
+  const coinMult = () => { const u = upNow(); return (1 + 0.1 * ((u.mesa || 0) + (u.isla || 0) + (u.gondola || 0) + (u.luces || 0) + (u.web >= 3 ? 1 : 0)) + (rivalDone() ? 0.1 : 0)) * (rivalOn() && rivalId() === 'patagonia' ? 0.85 : 1) * (modNow() === 'apuro' || modNow() === 'lupa' ? 1.3 : 1); };
+  const patMult = () => { const u = upNow(); return (1 + 0.15 * (u.escritorio || 0) + 0.1 * (u.sillas || 0) + 0.1 * (u.cafetera || 0)) * (modNow() === 'apuro' ? 0.75 : 1) * (day && day.zonda ? 0.8 : 1) * (day && day.duel ? 0.85 : 1) * (day && day.n <= GS.UNLOCKS.length ? 1.3 : 1); };      /* día de competencia: esperan menos; jornadas de aprendizaje: esperan más */
   const modNow = () => GS.Store.get('mod') || '';
   function conditionFor(n) {
     const forced = GS.Store.get('testCond'); if (forced) return forced === 'ninguna' ? null : forced;             // fechas especiales fijas y lluvia al azar (nunca en las primeras jornadas)
@@ -95,15 +95,17 @@ GS.Game = (function () {
     if (n % 12 === 0) return 'navidad';                   // diciembre
     return n >= 3 && Math.random() < 0.25 ? 'lluvia' : null;
   }
-  function planDay(n, cond) {
+  const unitsOf = plan => plan.reduce((a, w) => a + w.c + w.t + (w.ml || 0), 0);
+  function planDay(n, cond, duel) {
     const un = unlockedFor(n), pool = TASK_STATIONS.filter(s => un.indexOf(s.id) >= 0), u = upNow(), c = cond ? GS.CONDITIONS[cond] : null, r = repNow();
     let cust = Math.min(3 + n, 7) + (u.cartel || 0) + (u.arcade || 0) + (u.vidluz || 0) + (u.web >= 2 ? 1 : 0) + (r >= 4 ? 1 : r < 2 ? -1 : 0) + (c ? c.cust : 0);   // cartel, arcade y reputación traen gente
-    const want = U.clamp(cust, 3, 12); cust = Math.min(want, C.day.maxDayCustomers);       // la jornada dura siempre unos 3 minutos: lo que el cartel y las mejoras traen de más se cobra como tickets más altos
-    const tasks = pool.length ? Math.min(n - 1, C.day.maxDayTasks) : 0, extraMl = (un.indexOf('ml') >= 0 && u.web >= 1 ? 1 : 0) + (c && un.indexOf('ml') >= 0 ? c.ml : 0), nw = cust <= 5 ? 3 : 4;
+    const learn = n <= GS.UNLOCKS.length ? GS.UNLOCKS[n - 1].filter(id => TASK_STATIONS.some(x => x.id === id)) : null;      /* jornadas 1 a 3: se ven todas las tareas nuevas del día, con menos clientes */
+    const want = U.clamp(cust, 3, 12); cust = learn ? Math.min(want, 4) : Math.min(want, C.day.maxDayCustomers) + (duel ? 2 : 0);       // la jornada dura siempre unos 3 minutos: lo que el cartel y las mejoras traen de más se cobra como tickets más altos
+    const tasks = learn ? learn.length : pool.length ? Math.min(n - 1, C.day.maxDayTasks) + (duel ? 1 : 0) : 0, extraMl = (un.indexOf('ml') >= 0 && u.web >= 1 ? 1 : 0) + (c && un.indexOf('ml') >= 0 && !learn ? c.ml : 0), nw = cust <= 5 && !(learn && tasks > 2) ? 3 : 4;
     const plan = Array.from({ length: nw }, () => ({ c: 0, t: 0, ml: 0 }));
     for (let i = 0; i < cust; i++) plan[nw - 1 - (i % nw)].c++;
     for (let i = 0; i < tasks; i++) plan[nw - 1 - (i % (nw - 1))].t++;
-    for (let i = 0; i < extraMl; i++) plan[1 + (i % (nw - 1))].ml++;
+    for (let i = 0; i < (learn ? 0 : extraMl); i++) plan[1 + (i % (nw - 1))].ml++;
     if (un.indexOf('cierre') >= 0) plan.push({ c: 0, t: 1, ml: 0, final: true });
     plan.bonus = 1 + (want - cust) * 0.07;
     if (rivalOn() && rivalId() === 'nea') { const w = plan.find((x, i) => i >= 1 && !x.final && x.c > 1); if (w) { w.c--; if (un.indexOf('ml') >= 0) w.ml = (w.ml || 0) + 1; } }           // la siesta de Yacaré Games
@@ -170,7 +172,7 @@ GS.Game = (function () {
     if (x.it.gfx) { coach('evento');            // evento sorpresa: deja algo más que un "bien resuelto", y a veces lo que parecía mala idea sale bien
       const tw = !ok && x.it.twist && Math.random() < 0.35, f = ok ? x.it.gfx : tw ? x.it.tfx : x.it.bfx, good = ok || tw;
       if (f.rep) addRep(f.rep); if (f.coins) GS.Store.set('coins', coinsNow() + f.coins); if (f.fondo) addFondo(f.fondo);
-      fx((f.rep > 0 ? '+⭐ ' : f.rep < 0 ? '−⭐ ' : '') + (f.coins ? '+🪙' + f.coins + ' ' : '') + (f.fondo ? '+🗺️' + f.fondo : ''), good ? '' : 'bad'); A.play(good ? 'ok' : 'error'); if (good) { day.score += 60; day.intrOk++; }
+      fx((f.rep > 0 ? '+⭐ ' : f.rep < 0 ? '−⭐ ' : '') + (f.coins ? '+🪙' + f.coins + ' ' : '') + (f.fondo ? '+🪙' + f.fondo : ''), good ? '' : 'bad'); A.play(good ? 'ok' : 'error'); if (good) { day.score += 60; day.intrOk++; }
       day.moment = x.it.who + '. ' + (ok ? x.it.r : tw ? x.it.twist : x.it.rb); toast('<b>' + x.it.ic + ' ' + x.it.who + (tw ? ' · ¡salió bien igual!' : '') + '</b>' + (ok ? x.it.r : tw ? x.it.twist : x.it.rb), '', 4200); return;
     }
     if (ok) { addCord(CD.intrOk * (x.it.mate ? 2 : 1)); day.score += 40; day.intrOk++; day.wv.intrOk = 1; A.play(x.it.mate ? 'mate' : 'ok'); addRep(0.04); fx('+⭐'); toast('<b>' + x.it.ic + ' Bien resuelto</b>' + x.it.r, '', 3200); }
@@ -180,6 +182,8 @@ GS.Game = (function () {
   function startWave() {
     day.wave++; day.stage = 'work'; day.queue = []; day.wv = { done: {} };
     const w = day.plan[day.wave];
+    if (day.duel && !w.final && day.wave === day.plan.filter(x => !x.final).length - 1) { A.setMood('final'); toast('<b>⏰ Hora pico</b>Última tanda: ' + day.duel.rv.owner + ' aprieta el acelerador.', 'rival', 3800, false, day.duel.rv.col); }
+    if (day.rivalWalk && day.wave === 1) { day.rivalWalk = 0; const d0 = day; setTimeout(() => { if (day === d0 && state === 'day') rivalPass(); }, 4000); }
     for (let i = 0; i < w.c; i++) day.queue.push({ kind: 'c', t: 0.3 + i * C.day.customerGap });
     for (let i = 0; i < w.t; i++) day.queue.push({ kind: w.final ? 'f' : 't', t: (w.final ? 0.6 : 5) + i * C.day.taskGap });
     for (let i = 0; i < (w.ml || 0); i++) day.queue.push({ kind: 'm', t: 3 + i * C.day.taskGap });
@@ -187,6 +191,16 @@ GS.Game = (function () {
     day.visits.forEach(v => { if (v.wave === day.wave && !v.sent) { v.sent = 1; day.queue.push({ kind: 'v', v: v.S, t: U.rnd(3, 8) }); } });
     if (GS.DEBUG_INTR || (day.n >= CD.intrFromDay && !w.final && day.wave >= 1 && day.intrN < (day.n >= 6 ? 3 : 2) && Math.random() < 0.6)) { day.queue.push({ kind: 'i', t: U.rnd(5, 11) }); day.intrN++; }
     day.queue.sort((a, b) => a.t - b.t);
+  }
+  /* el rival pasa por la vereda, se para frente a la puerta, tira su frase (con globo de su marca) y sigue de largo */
+  function rivalPass() {
+    const rv = RV(brId()), d = day; if (!rv || !d) return; const z = L.galeria.zMax + 1.7, p = W.makePerson(Object.assign({}, warm(rv.look), { scale: 1.12, speed: 2.6 })); p.setPos(-9.5, z); d.extras.push(p);
+    p.walk([[L.puerta.x + 1.7, z]], () => { if (day !== d) return; p.face(Math.PI); sayAt(p, U.pick(rv.taunts), 0, 'riv', false, false, () => { if (day === d) p.walk([[10.5, z]], () => {}); }, rv); });
+  }
+  /* día de competencia: cada cliente que se va y cada tarea vencida es una queja; a la tercera, el día se pierde */
+  function duelQueja() {
+    const D = day && day.duel; if (!D || D.over) return; D.q++; fx('😠 Queja ' + D.q + ' de 3', 'bad');
+    if (D.q >= 3) { D.over = 'quejas'; toast('<b>😠 Tercera queja</b>La gente se cruzó a ' + D.rv.name + '. El día se terminó.', 'rival', 3600, false, D.rv.col); day.closing = true; setTimeout(endDay, 2200); }
   }
   function endWave() {
     if (day.wave >= day.plan.length - 1) { day.closing = true; setTimeout(endDay, 2800); return; }
@@ -199,11 +213,11 @@ GS.Game = (function () {
   }
   // Globitos de diálogo: de a uno por vez, para poder leerlos todos. Los demás esperan su turno en una fila.
   // amb = comentario de ambiente (compañeros, gente que mira): si la fila está cargada o pasó el momento, se descarta.
-  function sayAt(person, text, ms, cls, quiet, amb, onDone) {
+  function sayAt(person, text, ms, cls, quiet, amb, onDone, brand) {
     if (!day) return;
     if (cls === 'zz') { const el = document.createElement('div'); el.className = 'say zz'; el.textContent = text; $('labels').appendChild(el); day.says.push({ el, person, left: (ms || 3000) / 1000, zz: true }); return; }
     const q = day.sayQ; if (amb && q.length >= 2) return;
-    const it = { person, text, cls: cls || '', quiet, amb, onDone, age: 0, dur: U.clamp(1.5 + text.length * 0.055, 2.4, 6.5) };
+    const it = { person, text, cls: cls || '', quiet, amb, onDone, brand, age: 0, dur: U.clamp(1.5 + text.length * 0.055, 2.4, 6.5) };
     if (cls === 'boss') { let i = 0; while (i < q.length && q[i].cls === 'boss') i++; q.splice(i, 0, it); } else q.push(it);
   }
   function pumpSays(dt) {
@@ -214,7 +228,7 @@ GS.Game = (function () {
       if (!it.person.group.parent || (it.cls !== 'boss' && it.age > (it.amb ? 4.5 : 9))) { if (it.onDone) it.onDone(); continue; }   // ya se fue o quedó viejo
       if (it.cls === 'boss') A.play('speaker');
       if (!it.quiet) A.babble(it.text, it.cls === 'boss' ? 150 : it.person.voice || 330);
-      const el = document.createElement('div'); el.className = 'say ' + it.cls; el.textContent = it.text; $('labels').appendChild(el);
+      const el = document.createElement('div'); el.className = 'say ' + it.cls; el.textContent = it.text; if (it.brand) { el.dataset.b = it.brand.mark + ' ' + it.brand.name; el.style.setProperty('--rc', it.brand.col); } $('labels').appendChild(el);
       d.says.push({ el, person: it.person, left: it.dur, onDone: it.onDone }); d.sayGap = 0.35; return;
     }
   }
@@ -222,20 +236,32 @@ GS.Game = (function () {
     $('start').hidden = true; $('end').hidden = true; $('hud').hidden = false; $('modal').hidden = true; $('toasts').innerHTML = '';
     $('final').hidden = true; paused = false; W.home();
   }
-  function startDay(relaxed) {
+  const DUEL_K = { pampeana: 1, cuyo: 1.03, noa: 1.05, nea: 1.05, patagonia: 1.08, malvinas: 1.12 };      /* cuánto mejor que tu promedio juega cada rival */
+  function startDay(relaxed, skipDuel) {
     A.unlock();
     if (!GS.Store.get('avatar')) return showAvatar(() => startDay(relaxed));
+    if (!relaxed && !skipDuel && readyDuel(brId()) && !GS.Store.get('testDay')) return showDuelIntro(() => startDay(false, true));      /* cumplidos los objetivos, la jornada es el día de competencia */
     A.play('click'); clearDay(); W.setUpgrades(upNow());
-    const n = dayNumber(); applyBranch();
+    const n = dayNumber(), duel = !relaxed && readyDuel(brId()) && !GS.Store.get('testDay'); applyBranch();
     const un = unlockedFor(n), fresh = n <= GS.UNLOCKS.length ? GS.UNLOCKS[n - 1] : [];
     const cond = conditionFor(n);
-    day = newDay({ relaxed, n, cond, unlocked: un, plan: planDay(n, cond), rest: n === 1 ? 0.5 : 5.5 }); state = 'day'; enterPlay(); $('jobs').hidden = false;
+    day = newDay({ relaxed, n, cond, unlocked: un, plan: planDay(n, cond, duel), rest: n === 1 ? 0.5 : 5.5 }); state = 'day'; enterPlay(); $('jobs').hidden = false;
+    { const lt = n <= GS.UNLOCKS.length ? fresh.filter(id => TASK_STATIONS.some(x => x.id === id)) : []; if (lt.length) day.taskBag = lt.map(ST).reverse();      /* jornadas de aprendizaje: primero aparecen las tareas nuevas */
+      const b = brNow(), units = unitsOf(day.plan), pu = b.avg || 480;
+      if (duel) { brSave({ duel: 1 }); const rv = RV(brId()), tries = b.tries || 0, edge = Math.min(5, b.edge || 0); day.duel = { rv, tries, edge, q: 0, shown: 0, total: Math.round(pu * units * (DUEL_K[brId()] || 1) * (1 - 0.02 * edge) * (1 - 0.05 * Math.min(3, tries)) / 10) * 10 }; }
+      else if (!relaxed && n > GS.UNLOCKS.length) day.goal = { silver: Math.round(pu * units * 0.85 / 10) * 10, gold: Math.round(pu * units * 1.06 / 10) * 10 }; }
     A.setMood(cond === 'lluvia' ? 'rain' : cond ? 'party' : 'day');
-    if (rivalOn() && !relaxed) { const R = RG(rivalId()); day.zonda = rivalId() === 'cuyo' && Math.random() < 0.45; if (rivalId() !== 'cuyo' || day.zonda) setTimeout(() => { if (state === 'day') toast('<b>⚔️ ' + (day.zonda ? 'Hoy sopla el Zonda' : R.rival.name) + '</b>' + R.rival.fx, '', 5200); }, 6500); setTimeout(() => coach('rival'), 9000); }
+    if (rivalOn() && !relaxed) { const rv = RV(rivalId()), d0 = day; day.zonda = rivalId() === 'cuyo' && Math.random() < 0.45;
+      if (duel) { setTimeout(() => { if (day === d0 && state === 'day') toast('<b>' + rv.mark + ' Día de competencia</b>Contra ' + rv.name + '. Más puntos que ' + rv.owner + ' y menos de tres quejas.', 'rival', 5200, false, rv.col); }, 5200); setTimeout(() => coach('duelo'), 8200); }
+      else if (n > GS.UNLOCKS.length) { const act = rv.fx && (rivalId() !== 'cuyo' || day.zonda);      /* el rival se hace notar: llama para burlarse y más tarde pasa por la vereda */
+        setTimeout(() => { if (day === d0 && state === 'day') toast('<b>' + rv.mark + ' ' + rv.owner + ', de ' + rv.name + '</b>"' + U.pick(rv.taunts) + '"' + (act ? '<small>' + (day.zonda ? 'Hoy sopla el Zonda. ' : '') + rv.fx + '</small>' : ''), 'rival', 5600, false, rv.col); }, 6500); setTimeout(() => coach('rival'), 9500); day.rivalWalk = 1; } }
+    if (day.goal) setTimeout(() => coach('medalla'), 7000);
     W.setXmas(cond === 'navidad' ? (GS.Store.get('xmas') || { a: 0, g: 0, l: 0 }) : null); W.setHats(cond === 'navidad');
     if (!relaxed) { const nw = day.plan.filter(w => !w.final).length; day.visits = dueStories(n).map((S, i) => ({ S, wave: Math.min(nw - 1, i + (nw > 2 ? 1 : 0)) })); }
     const d = day, msg = n === 1 ? 'Bienvenido a GameShop. Ya tenés un cliente en el mostrador: tocá el pedido de abajo, que tu personaje va solo.'
       : cond ? GS.CONDITIONS[cond].name.slice(3) + '. ' + GS.CONDITIONS[cond].say
+      : duel ? 'Hoy es el día. ' + day.duel.rv.owner + ' abrió temprano. Atendé como sabés y cuidá las quejas: a la tercera, perdemos.'
+      : fresh.length > 2 ? 'Jornada ' + n + '. Hoy aprendés ' + fresh.filter(id => id !== 'mostrador' && id !== 'caja').length + ' tareas nuevas. Sin apuro: cuando aparezca cada una, te la explico.'
       : fresh.length ? 'Jornada ' + n + '. Hoy sumamos: ' + fresh.map(id => ST(id).name).join(' y ') + '. Cuando aparezcan, te explico.' : 'Jornada ' + n + '. ' + duenoLine();
     setTimeout(() => { if (day === d) duenoSpeak(msg); }, 500);
     if (n === 2 && !relaxed) setTimeout(() => coach('errores'), 3200); if (brId() !== 'pampeana') setTimeout(() => coach((brNow().days || 0) < 1 ? 'sucursal' : 'ensenar'), 5200);
@@ -401,13 +427,14 @@ GS.Game = (function () {
 
   /* ---------------- TRAMA: el fondo para el local de al lado ---------------- */
   const PL = GS.PLOT;
-  const fondoNow = () => DEV() ? 999999 : GS.Store.get('fondo') || 0, goalNow = () => { const all = brAll(), l = GS.REGIONS.filter(r => !(all[r.id] && all[r.id].open) && (!r.secret || malvOk())); return l.length ? Math.min.apply(0, l.map(r => r.cost)) : 0; };
+  /* Los fondos de expansión se retiraron: lo que antes sumaba fondos ahora suma monedas. goalNow dice si quedan regiones por abrir. */
+  const fondoNow = () => 0, goalNow = () => (GS.REGIONS.some(r => !(brAll()[r.id] || {}).open && (!r.secret || malvOk())) ? 1 : 0);
   const tierNow = () => { const r = fondoNow() / goalNow(); let t = PL.tiers[0]; PL.tiers.forEach(x => { if (r >= x.at) t = x; }); return t; };
   const daysLeft = () => Math.max(0, C.finalDay - dayNumber() + 1);
-  function addFondo(v) { GS.Store.set('fondo', Math.max(0, fondoNow() + v)); }
+  function addFondo(v) { GS.Store.set('coins', Math.max(0, coinsNow() + v)); }
   function plotHtml() {
     const f = fondoNow(), g = goalNow(), all = brAll(), open = MAIN.filter(r => all[r.id] && all[r.id].open).length, glob = Math.round(MAIN.reduce((a, r) => a + brProgress(r.id), 0) / MAIN.length);
-    return '<b>🗺️ ' + PL.name + ' · ' + glob + '%</b><span class="pb"><i style="width:' + glob + '%"></i></span><small>Sucursales: ' + open + ' de 5 · ' + (g ? 'fondos ' + f + ' de ' + g + ' para la próxima' : 'todas abiertas') + ' · tocá para ver el mapa</small>';
+    return '<b>🗺️ ' + PL.name + ' · ' + glob + '%</b><span class="pb"><i style="width:' + glob + '%"></i></span><small>Sucursales: ' + open + ' de 5 · ' + ('rivales vencidos: ' + MAIN.filter(r => conquered(r.id)).length + ' de 5') + ' · tocá para ver el mapa</small>';
   }
   /* ---------------- SUCURSALES: una por región. La activa guarda sus mejoras y su reputación; las demás quedan congeladas con su encargado ---------------- */
   const MAIN = GS.REGIONS.filter(r => !r.secret);          // las 5 regiones; Malvinas es el final oculto
@@ -421,7 +448,12 @@ GS.Game = (function () {
   }
   const brData = id => { const b = brAll()[id] || {}, me = id === brId(), up = me ? upNow() : b.up || {}, rep = me ? repNow() : (b.rep == null ? 3 : b.rep), h = histAll(), ss = GS.STORIES.filter(S => !S.once && (S.reg || 'pampeana') === id); let have = 0, tot = 0; GS.UPGRADES.forEach(g => { tot += g.levels.length; have += Math.min(g.levels.length, up[g.id] || 0); });
     return { open: !!b.open, rep, flota: up.flota || 0, have, tot, sd: ss.filter(S => h[S.id] && h[S.id].done).length, st: ss.length }; };
-  const conquered = id => { const x = brData(id); return x.open && x.rep >= 4.8 && x.flota >= 3; };
+  const won = id => !!(brAll()[id] || {}).won;
+  const readyDuel = id => { const x = brData(id); return x.open && !won(id) && (!!(brAll()[id] || {}).duel || (x.rep >= 4.8 && x.flota >= 3)); };      /* cumplió los dos objetivos: toca el día de competencia */
+  const conquered = id => { const x = brData(id); return x.open && won(id); };
+  const RV = id => { const R = RG(id) || {}, S = GS.STORIES.find(x => x.id === 'rival_' + id) || {}; return R.rival ? Object.assign({ col: '#e10600', mark: '⚔️', motto: '', taunts: [] }, R.rival, { look: Object.assign({ skin: 0xe0ac7e }, S.look || {}), city: R.city, id }) : null; };
+  /* partidas anteriores a los duelos: lo que ya estaba conquistado (5 estrellas y flota) queda conquistado */
+  try { if (!GS.Store.get('mig70')) { const all = GS.Store.get('branches'); if (all) { const cur = GS.Store.get('branch') || 'pampeana'; Object.keys(all).forEach(id => { const b = all[id], me = id === cur, up = me ? (GS.Store.get('up') || {}) : b.up || {}, rp = me ? GS.Store.get('rep') : b.rep; if (b.open && (rp || 0) >= 4.8 && (up.flota || 0) >= 3) b.won = 1; }); GS.Store.set('branches', all); } GS.Store.set('mig70', 1); } } catch (e) {}
   const pendingOpen = () => GS.REGIONS.filter(r => (brAll()[r.id] || {}).open && !conquered(r.id));            // sucursales abiertas a las que todavía les falta
   const canExpand = () => DEV() || !pendingOpen().length;
   const brStage = id => { const p = brProgress(id); return p < 45 ? 1 : p < 80 ? 2 : 3; }, STAGE = ['', 'Humilde', 'Mejorado', 'Estrella'];
@@ -441,12 +473,12 @@ GS.Game = (function () {
   const mapState = lit => { const all = brAll(), o = {}; GS.REGIONS.forEach(r => { const b = all[r.id], open = (lit && !r.secret) || !!(b && b.open); if (r.secret && !open && !malvOk()) { o[r.id] = { hidden: true }; return; } o[r.id] = { flag: !!r.secret && open && malvWon(), open, can: !open && fondoNow() >= r.cost && canExpand(), cur: !lit && r.id === brId(), stage: lit ? 3 : open ? brStage(r.id) : 0 }; }); return o; };
   function mapCard(id) {
     const all = brAll(), cur = brId(), f = fondoNow(), r = RG(id), b = all[id], open = b && b.open, me = id === cur, h = histAll(), ss = GS.STORIES.filter(S => !S.once && (S.reg || 'pampeana') === id);
-    if (!open) { const pend = pendingOpen(), ok = canExpand(), need = !ok ? 'Primero conquistá ' + pend.map(x => x.city).join(' y ') + ': 5 estrellas y flota completa' : f < r.cost ? 'Faltan ' + (r.cost - f) + ' fondos · cuesta 🗺️ ' + r.cost : 'Abrir sucursal · 🗺️ ' + r.cost;
-      return '<div class="suc lock"><b>🔒 ' + r.name + ' · ' + r.city + '</b><small>🗺️ ' + r.prov.join(' · ') + '</small><small>🌦️ ' + r.clima + '</small><small>⚔️ Zona de <b>' + r.rival.name + '</b></small><button class="btn alt" data-open="' + id + '"' + (f < r.cost || !ok ? ' disabled' : '') + '>' + need + '</button></div>'; }
+    if (!open) { const pend = pendingOpen(), ok = canExpand(), need = !ok ? 'Primero ganale al rival de ' + pend.map(x => x.city).join(' y ') : 'Abrir sucursal en ' + r.city;
+      return '<div class="suc lock"><b>🔒 ' + r.name + ' · ' + r.city + '</b><small>🗺️ ' + r.prov.join(' · ') + '</small><small>🌦️ ' + r.clima + '</small><small>⚔️ Zona de <b>' + r.rival.name + '</b></small><button class="btn alt" data-open="' + id + '"' + (!ok ? ' disabled' : '') + '>' + need + '</button></div>'; }
     const rp = me ? repNow() : (b.rep == null ? 3 : b.rep), pr = brProgress(id), up = me ? upNow() : b.up || {}, pend = GS.UPGRADES.reduce((a, g) => a + g.levels.length - Math.min(g.levels.length, up[g.id] || 0), 0);
     return '<div class="suc' + (me ? ' me' : '') + '"><b>' + r.name + ' · ' + r.city + (pr >= 100 ? ' 💎' : conquered(id) ? ' ✅' : '') + '</b>' +
-      '<small class="al">' + (conquered(id) ? '✅ Región conquistada' + (pr >= 100 ? ' · 💎 platino' : '') : 'Para conquistarla: ' + (rp < 4.8 ? '⭐ llegar a 5 estrellas' : '⭐ listo') + ' · ' + ((up.flota || 0) < 3 ? '🚚 completar la flota' : '🚚 listo')) + (b.manager && !me ? ' · encargado: ' + b.manager : '') + '</small>' + progBox(id) +
-      (r.rival ? '<small>' + ((h['rival_' + id] || {}).done ? '🏆 Le ganaste a ' + r.rival.name + ': +10% de monedas acá' : '⚔️ ' + r.rival.name + ': ' + (r.rival.fx || r.rival.rule)) + '</small>' : '') +
+      '<small class="al">' + (conquered(id) ? '✅ Región conquistada' + (pr >= 100 ? ' · 💎 platino' : '') : readyDuel(id) ? '⚔️ ¡Listo para el día de competencia!' : 'Para desafiar al rival: ' + (rp < 4.8 ? '⭐ llegar a 5 estrellas' : '⭐ listo') + ' · ' + ((up.flota || 0) < 3 ? '🚚 completar la flota' : '🚚 listo')) + (b.manager && !me ? ' · encargado: ' + b.manager : '') + '</small>' + progBox(id) +
+      (r.rival ? '<small class="rv" style="--rc:' + (r.rival.col || '#e10600') + '">' + (won(id) ? '🏆 Le ganaste a ' + r.rival.name + ': +10% de monedas acá' : (r.rival.mark || '⚔️') + ' <b>' + r.rival.name + '</b> · ' + r.rival.owner + ': ' + (r.rival.fx || r.rival.rule) + ((b.tries || 0) ? ' · revanchas: ' + b.tries : '')) + '</small>' : '') +
       (me ? '<button class="btn ghost" disabled>Estás acá</button>' : '<button class="btn" data-go="' + id + '">Viajar a ' + r.city + '</button>') + '</div>';
   }
   // Consejos del Dueño: una sola vez cada uno, sin frenar el juego
@@ -458,7 +490,7 @@ GS.Game = (function () {
   // Primera vez: el mapa, con el Dueño explicando la misión. Termina tocando Buenos Aires.
   let onb = -1, onbThen = null;
   function onbMap(then) {            // recién acá aparece el mapa: solo para elegir Buenos Aires
-    onb = 1; onbThen = then; $('modal').hidden = true; $('start').hidden = true; $('map').hidden = false; $('map').classList.add('onb'); $('mapSuc').textContent = '🏪 Sucursales 1 de 5'; $('mapCq').textContent = '🏆 Conquistadas 0 de 5'; $('mapBar').style.width = '0%'; $('mapFon').textContent = '🗺️ Fondos 0';
+    onb = 1; onbThen = then; $('modal').hidden = true; $('start').hidden = true; $('map').hidden = false; $('map').classList.add('onb'); $('mapSuc').textContent = '🏪 Sucursales 1 de 5'; $('mapCq').textContent = '🏆 Conquistadas 0 de 5'; $('mapBar').style.width = '0%'; $('mapFon').textContent = '⚔️ Rivales 0 de 5';
     const done = () => { onb = -1; $('map').classList.remove('onb'); GS.Map3D.close(); $('map').hidden = true; GS.Store.set('introSeen', true); const f = onbThen; onbThen = null; f(); };
     if (!GS.Map3D.open($('mapCv'), mapState(), id => { if (id !== 'pampeana') return toast('<b>Todavía no</b>Primero Buenos Aires: tocá la región verde.', '', 2200); A.play('ok'); done(); })) return done();
     GS.Map3D.select('pampeana'); $('mapCard').innerHTML = '<div class="guide"><div class="coach-face">' + avatarSvg(BOSS_LOOK, 'happy') + '</div><div style="flex:1"><p><b>Tocá Buenos Aires</b> para empezar tu primera jornada.</p><small>👆 Es la región verde, con la tiendita de GameShop</small></div></div>';
@@ -472,7 +504,7 @@ GS.Game = (function () {
   function mapPick(id) { GS.Map3D.select(id); $('mapCard').innerHTML = mapCard(id); A.play('click'); }
   function showMap() {
     const all = brAll(), n = MAIN.filter(r => all[r.id] && all[r.id].open).length; mapWasDay = state === 'day'; if (mapWasDay) paused = true;
-    $('modal').hidden = true; $('map').hidden = false; $('mapSuc').textContent = '🏪 Sucursales ' + n + ' de 5'; $('mapFon').textContent = '🗺️ Fondos ' + (DEV() ? '∞' : fondoNow()); $('mapX').textContent = state === 'menu' ? '← Volver al menú' : '← Volver';
+    $('modal').hidden = true; $('map').hidden = false; $('mapSuc').textContent = '🏪 Sucursales ' + n + ' de 5'; $('mapFon').textContent = '⚔️ Rivales vencidos ' + MAIN.filter(r => conquered(r.id)).length + ' de 5'; $('mapX').textContent = state === 'menu' ? '← Volver al menú' : '← Volver';
     if (!GS.Map3D.open($('mapCv'), mapState(), mapPick)) { closeMap(); return toast('<b>Ups</b>No se pudo dibujar el mapa en este navegador.', '', 2600); }
     { const cq = MAIN.filter(r => conquered(r.id)).length; $('mapCq').textContent = '🏆 Conquistadas ' + cq + ' de 5'; $('mapBar').style.width = (cq / 5 * 100) + '%'; }
     GS.Map3D.select(brId()); $('mapCard').innerHTML = mapCard(brId()); coach('mapa');
@@ -487,23 +519,23 @@ GS.Game = (function () {
   function leaveTo(id) { if (state === 'day') return toast('<b>Terminá la jornada</b>Se viaja entre jornadas.', '', 2200); pickManager(() => { switchBranch(id); $('modal').hidden = true; if (state === 'end') goHome(); toast('<b>✈️ ' + RG(id).city + '</b>Sucursal ' + RG(id).name + '.', '', 2600); }); }
   function openRegion(id) {
     if (state === 'day') return toast('<b>Terminá la jornada</b>Las sucursales se abren entre jornadas.', '', 2200);
-    if (!canExpand()) return toast('<b>Todavía no</b>Primero conquistá ' + pendingOpen().map(x => x.city).join(' y ') + ': 5 estrellas y flota completa.', '', 3600);
+    if (!canExpand()) return toast('<b>Todavía no</b>Primero ganale al rival de ' + pendingOpen().map(x => x.city).join(' y ') + ': 5 estrellas, flota completa y el día de competencia.', '', 4200);
     const R = RG(id), sel = [];
     { const rv = GS.STORIES.find(S => S.id === 'rival_' + id), me = Object.assign({ skin: GS.SKINS[2], hair: GS.HAIRS[0], hairStyle: 'corto', shirt: 0xe10600 }, GS.Store.get('avatar') || {}); var headR = '<div class="reg-head" style="background:linear-gradient(120deg, ' + ACC[id] + ', #15151a 115%)"><small>Nueva sucursal · Región ' + R.name + '</small><b>' + R.city + '</b></div>' +
       (rv ? '<div class="vs"><figure><div class="pf">' + avatarSvg(me, 'happy') + '</div><figcaption>GameShop</figcaption></figure><b>VS</b><figure><div class="pf">' + avatarSvg(Object.assign({ skin: 0xe0ac7e }, rv.look), 'angry') + '</div><figcaption>' + R.rival.name + '</figcaption></figure></div>' : ''); }
-    modal(headR + '<p>' + R.why + '</p><div class="ctx"><div><i>🗺️</i><span><b>Provincias de la región</b>' + R.prov.join(' · ') + '</span></div><div><i>🌦️</i><span><b>Clima</b>' + R.clima + '</span></div><div class="riv"><i>⚔️</i><span><b>Competencia: ' + R.rival.name + '</b>' + R.rival.owner + ' no va a regalar nada. ' + R.rival.rule + '</span></div></div><p><b>Elegí 2 empleados</b> de los 4 que se presentaron. Después vas a tener que enseñarles.</p><div class="crew">' +
-      R.crew.map(c => '<button class="cand" data-c="' + c.id + '">' + GS.faceSvg(Object.assign({ shirt: 0xe10600 }, c.look), 'happy') + '<b>' + c.name + '</b><small>' + c.d + '</small></button>').join('') + '</div><div class="row"><button class="btn ghost" data-close>Todavía no</button><button class="btn" id="regOk" disabled>Abrir · 🗺️ ' + R.cost + '</button></div>');
+    modal(headR + '<p>' + R.why + '</p><div class="ctx"><div><i>🗺️</i><span><b>Provincias de la región</b>' + R.prov.join(' · ') + '</span></div><div><i>🌦️</i><span><b>Clima</b>' + R.clima + '</span></div><div class="riv"><i>⚔️</i><span><b>Competencia: ' + R.rival.name + '</b>' + R.rival.owner + ' no va a regalar nada. ' + R.rival.rule + ' Para quedarte con la región vas a tener que ganarle en el día de competencia.</span></div></div><p><b>Elegí 2 empleados</b> de los 4 que se presentaron. Después vas a tener que enseñarles.</p><div class="crew">' +
+      R.crew.map(c => '<button class="cand" data-c="' + c.id + '">' + GS.faceSvg(Object.assign({ shirt: 0xe10600 }, c.look), 'happy') + '<b>' + c.name + '</b><small>' + c.d + '</small></button>').join('') + '</div><div class="row"><button class="btn ghost" data-close>Todavía no</button><button class="btn" id="regOk" disabled>Abrir sucursal</button></div>');
     $('sheet').querySelectorAll('.cand').forEach(b => b.addEventListener('click', () => { const c = b.dataset.c, k = sel.indexOf(c); if (k >= 0) sel.splice(k, 1); else if (sel.length < 2) sel.push(c); $('sheet').querySelectorAll('.cand').forEach(x => x.classList.toggle('on', sel.indexOf(x.dataset.c) >= 0)); $('regOk').disabled = sel.length !== 2; A.play('click'); }));
     $('regOk').addEventListener('click', () => pickManager(() => {
-      addFondo(-R.cost); const all = brAll(); all[id] = { open: 1, staff: sel.slice(), up: {}, rep: 4, train: 0, days: 0 }; GS.Store.set('branches', all); switchBranch(id); if (state === 'end') goHome();
+      const all = brAll(); all[id] = { open: 1, staff: sel.slice(), up: {}, rep: 4, train: 0, days: 0 }; GS.Store.set('branches', all); switchBranch(id); if (state === 'end') goHome();
       W.showAll(); GS.track('abre_sucursal', { id }); $('modal').hidden = true; epicCtx = { id };
-      showEpic([{ art: 'inaug', k: 'Sucursal ' + R.name + ' · ' + R.prov.length + ' provincias', t: '¡Inauguración en ' + R.city + '!', d: 'Hay fila desde la esquina. ' + brCrew(id).join(' y ') + ' están con la remera recién planchada. Empezás con un local humilde: llevalo a 5 estrellas y comprale el camión.' }], null,
+      showEpic([{ art: 'inaug', k: 'Sucursal ' + R.name + ' · ' + R.prov.length + ' provincias', t: '¡Inauguración en ' + R.city + '!', d: 'Hay fila desde la esquina. ' + brCrew(id).join(' y ') + ' están con la remera recién planchada. Empezás con un local humilde: llevalo a 5 estrellas, completá la flota y después desafiá a ' + R.rival.name + '.' }], null,
         '<button class="btn" id="inaGo">✂️ Cortar la cinta</button>', () => $('inaGo').addEventListener('click', () => { A.play('cash'); closeEpic(); refreshStart(); toast('<b>🎉 ' + R.city + ' ya está abierta</b>Comenzá la primera jornada cuando quieras.', '', 3600); }));
     }));
   }
   /* ---------------- FINAL: el país completo. Cambia según cómo se llegó; después, Nuevo Juego+ ---------------- */
   const allDone = () => MAIN.every(r => conquered(r.id));
-  const malvWon = () => conquered('malvinas') && !!(histAll().rival_malvinas || {}).done;
+  const malvWon = () => conquered('malvinas');
   const malvOk = () => allDone() || (DEV() && MAIN.every(r => (brAll()[r.id] || {}).open));        // en modo desarrollador alcanza con tener las 5 abiertas
   const snowy = () => brId() === 'cuyo' || brId() === 'patagonia', condInfo = c => GS.CONDITIONS[c === 'lluvia' && snowy() ? 'nieve' : c];
   /* Finales contados en imágenes: una seguidilla a pantalla completa, y al final los botones */
@@ -560,6 +592,14 @@ GS.Game = (function () {
     const conf = () => '<div class="conf">' + Array.from({ length: 34 }, (_, i) => '<i style="left:' + (i * 3 + Math.random() * 3) + '%;background:' + ['#f5c518', '#fff', '#74acdf', '#e10600', '#3bb54a'][i % 5] + ';animation-duration:' + (2.4 + Math.random() * 2.6) + 's;animation-delay:-' + (Math.random() * 4) + 's"></i>').join('') + '</div>';
     GS.Map3D.close();
     if (kind === 'mapa' || kind === 'sur' || kind === 'islas' || kind === 'pais') { el.innerHTML = '<canvas id="epicCv"></canvas>' + (kind === 'sur' ? '' : conf()); const st = mapState(true), mv = kind === 'sur' ? { open: false, can: true } : (kind === 'islas' || kind === 'pais') ? { open: true, stage: 3, flag: true } : { hidden: true }; st.malvinas = mv; GS.Map3D.open($('epicCv'), st, null, kind === 'sur' || kind === 'islas' ? 'malvinas' : null, kind === 'islas'); return; }
+    if (kind === 'vs' || kind === 'rival' || kind === 'rivalsad' || kind === 'rivalarc' || kind === 'duelrules') {      /* escenas con el rival de la región: su cara, su marca y su color */
+      const rv = RV(epicCtx.id) || RV('pampeana'), lk = warm(rv.look), brand = '<b class="ep-brand" style="--rc:' + rv.col + '"><i>' + rv.mark + '</i>' + rv.name + '<small>' + rv.motto + '</small></b>', bg = 'background:radial-gradient(120% 90% at 50% 28%, ' + rv.col + ', #0b0b0d)';
+      if (kind === 'vs') return void (el.innerHTML = '<div class="ep-faces vs duo" style="--rc:' + rv.col + '">' + fig(me, 'angry', 'GameShop') + '<b>VS</b>' + fig(lk, 'angry', rv.owner) + '</div>' + brand);
+      if (kind === 'rival') return void (el.innerHTML = '<div class="ep-faces big rvl" style="' + bg + '">' + fig(lk, 'happy') + '</div>' + brand);
+      if (kind === 'rivalsad') return void (el.innerHTML = '<div class="ep-faces big rvl" style="' + bg + '">' + fig(lk, rv.villain ? 'angry' : 'sad') + '</div>' + brand + conf());
+      if (kind === 'rivalarc') return void (el.innerHTML = (rv.villain ? '<div class="ep-faces big rvl" style="background:linear-gradient(160deg,#26262c,#0b0b0d)">' + fig(lk, 'angry') + '<i class="ep-emo">⛵</i></div>' : '<div class="ep-faces vs duo pals" style="--rc:' + rv.col + '">' + fig(me, 'happy', 'Vos') + '<b>🤝</b>' + fig(lk, 'happy', rv.owner) + '</div>') + conf());
+      return void (el.innerHTML = '<div class="ep-res">' + [['🏁', 'Más puntos que el rival', 'El marcador de arriba compara tu puntaje con el suyo.'], ['⏱️', 'Más clientes, menos paciencia', 'Atendé rápido y sin errores: las rachas valen mucho.'], ['😠', 'Tres quejas y se pierde', 'Cada cliente que se va y cada tarea vencida es una queja.'], ['🔁', 'Si perdés, hay revancha', 'Es gratis, y cada vez un poco más fácil.']].map(q => '<div><i>' + q[0] + '</i><span><b>' + q[1] + '</b>' + q[2] + '</span></div>').join('') + '</div>');
+    }
     if (kind === 'yo') return void (el.innerHTML = '<div class="ep-faces big">' + fig(me, 'happy') + '</div>');
     if (kind === 'equipo0') { const av = Object.assign({ skin: GS.SKINS[2], hair: GS.HAIRS[0], hairStyle: 'corto', shirt: 0xe10600 }, GS.Store.get('avatar') || {}), T = [[av, 'Vos', 'happy'], [{ shirt: 0xe10600, hair: MOHAWK[1], hairStyle: 'mohicano', skin: GS.SKINS[3], glasses: true }, 'Lucho', 'happy'], [{ shirt: 0xe10600, hair: 0x2d6cdf, hairStyle: 'corto', skin: GS.SKINS[0] }, 'Brian', 'normal']];
       return void (el.innerHTML = '<div class="ep-faces trio">' + T.map(q => fig(q[0], q[2], q[1])).join('') + '</div>'); }
@@ -572,7 +612,7 @@ GS.Game = (function () {
     if (kind === 'conq') { el.innerHTML = '<canvas id="epicCv"></canvas><div class="ep-cup"><i>🏆</i></div>' + conf(); GS.Map3D.open($('epicCv'), mapState(), null, epicCtx.id); return; }
     if (kind === 'jefe' || kind === 'jefe2') return void (el.innerHTML = '<div class="ep-faces big boss" style="background:radial-gradient(120% 90% at 50% 30%, #e10600, #5a0000)">' + fig(BOSS_LOOK, kind === 'jefe' ? 'talk' : 'happy') + '</div>');
     if (kind === 'mapa0') { el.innerHTML = '<canvas id="epicCv"></canvas>'; GS.Map3D.open($('epicCv'), mapState(), null); return; }
-    if (kind === 'recursos') return void (el.innerHTML = '<div class="ep-res dg">' + expDiagram() + [['⭐', 'Las estrellas suben cuando atendés bien.'], ['🚚', 'La flota se compra con las 🪙 monedas de cada venta.'], ['🗺️', 'Los fondos se juntan solos al cerrar cada jornada.']].map(q => '<div><i>' + q[0] + '</i><span>' + q[1] + '</span></div>').join('') + '</div>');
+    if (kind === 'recursos') return void (el.innerHTML = '<div class="ep-res dg">' + expDiagram() + [['⭐', 'Las estrellas suben cuando atendés bien.'], ['🚚', 'La flota se compra con las 🪙 monedas de cada venta.'], ['⚔️', 'Con las dos cosas, desafiás al rival en el día de competencia.']].map(q => '<div><i>' + q[0] + '</i><span>' + q[1] + '</span></div>').join('') + '</div>');
     if (kind === 'dueno') return void (el.innerHTML = '<div class="ep-faces big" style="background:linear-gradient(160deg,#26262c,#0b0b0d)">' + fig(BOSS_LOOK, 'happy') + '</div>' + conf());
     if (kind === 'duelo') return void (el.innerHTML = '<div class="ep-faces vs">' + fig(me, 'angry', 'Vos') + '<b>VS</b>' + fig(PIRATE(), 'angry', 'Capitán Tormenta') + '</div>');
     if (kind === 'equipo') { const all = brAll(), ppl = [[me, 'Vos'], [{ shirt: 0xe10600, hair: MOHAWK[1], hairStyle: 'mohicano', skin: GS.SKINS[3], glasses: true }, 'Lucho'], [{ shirt: 0xe10600, hair: 0x2d6cdf, hairStyle: 'corto', skin: GS.SKINS[0] }, 'Brian']];
@@ -646,12 +686,25 @@ GS.Game = (function () {
   const bar = (ic, label, val, k) => '<div class="cq"><i>' + ic + '</i><span><b>' + label + '<em>' + val + '</em></b><span class="pb"><i style="width:' + Math.round(Math.min(1, k) * 100) + '%"></i></span></span></div>';
   const progBox = (id, title) => { const x = brData(id); return '<div class="prog">' + (title ? '<b class="prog-t">' + title + (brProgress(id) >= 100 ? ' · 💎 platino' : conquered(id) ? ' · ✅ conquistada' : '') + '</b>' : '') +
     bar('⭐', 'Reputación', repTxt(x.rep) + ' de 5', x.rep / 4.8) + bar('🚚', 'Logística', ['sin flota', 'moto', 'camioneta', 'camión'][x.flota], x.flota / 3) + bar('🛠', 'Mejoras del local', x.have + ' de ' + x.tot, x.have / x.tot) + bar('📖', 'Historias de clientes', x.sd + ' de ' + x.st, x.st ? x.sd / x.st : 1) + '</div>'; };
+  function showDuelIntro(then) {
+    const id = brId(), rv = RV(id), b = brNow(), edge = Math.min(5, b.edge || 0); epicCtx = { id };
+    showEpic([{ art: 'vs', k: (b.tries ? 'Revancha · ' : 'Día de competencia · ') + RG(id).city, t: 'GameShop contra ' + rv.name, d: rv.pre },
+      { art: 'duelrules', k: 'Cómo se gana', t: 'Más puntos que ' + rv.owner, d: 'Hoy entran más clientes y esperan menos. Arriba vas a ver tu puntaje contra el de ' + rv.name + '.' + (edge ? ' Llegás con ventaja por tus medallas de oro.' : '') + (b.tries ? ' En la revancha ' + rv.owner + ' viene confiado: es un poco más fácil ganarle.' : '') }], null,
+      '<button class="btn" id="duGo">⚔️ A competir</button><button class="btn ghost" id="duNo">Todavía no</button>', () => { $('duGo').addEventListener('click', () => { A.play('click'); closeEpic(); then(); }); $('duNo').addEventListener('click', () => { A.play('click'); closeEpic(); }); });
+  }
+  function showDuelEnd(res, after) {
+    const id = brId(), rv = res.rv; epicCtx = { id };
+    if (res.win) return showEpic([{ art: 'rivalsad', k: 'Día de competencia · ' + rv.name, t: '¡Le ganaste a ' + rv.owner + '!', d: '"' + rv.win + '"' }, { art: 'rivalarc', k: rv.villain ? 'Y el Capitán...' : 'Lo que nadie sabía', t: rv.villain ? 'Se fue como vino' : rv.owner + ' no era el malo', d: rv.arc }], null,
+      '<button class="btn" id="duOk">Seguir</button>', () => $('duOk').addEventListener('click', () => { A.play('click'); closeEpic(); after(); }));
+    showEpic([{ art: 'rival', k: 'Día de competencia · ' + rv.name, t: res.why === 'quejas' ? 'Tres quejas, y se fueron enfrente' : 'Hoy ganó ' + rv.owner, d: '"' + rv.gloat + '" ' + (res.why === 'quejas' ? '' : 'Fueron ' + Math.round(res.him - res.me).toLocaleString('es-AR') + ' puntos de diferencia. ') + 'La revancha es gratis.' }], null,
+      '<button class="btn" id="duRe">🔁 Jugar la revancha</button><button class="btn ghost" id="duLater">Más tarde</button>', () => { $('duRe').addEventListener('click', () => { closeEpic(); startDay(false, true); }); $('duLater').addEventListener('click', () => { A.play('click'); closeEpic(); after(); }); }, true);
+  }
   function checkConquest() {
     const id = brId(), b = brNow(); if (b.cqSeen || !conquered(id) || state === 'day') return false;
-    const g = goalNow(), miss = g ? Math.max(0, g - fondoNow()) : 0, others = pendingOpen(), ready = g && !miss && canExpand();
+    const g = goalNow(), others = pendingOpen(), ready = g && canExpand();
     brSave({ cqSeen: 1 }); const x = brData(id), R = RG(id), left = x.have < x.tot || x.sd < x.st; GS.track('region_conquistada', { id }); epicCtx = { id };
-    showEpic([{ art: 'conq', k: 'Región ' + R.name + ' conquistada', t: '¡' + R.city + ' es nuestra!', d: 'Acá ya nos conocen por nuestra reputación, y con la flota propia llegamos a cada rincón de la región. ' +
-      (ready ? 'Es hora de abrir una sucursal nueva, donde vos elijas.' : !g ? 'Con esta, GameShop ya está en todas las regiones.' : others.length ? 'Para abrir otra sucursal falta conquistar también ' + others.map(o => o.city).join(' y ') + '.' : 'Para abrir la próxima faltan ' + miss + ' fondos de expansión: se juntan con las próximas jornadas.') }], null,
+    showEpic([{ art: 'conq', k: 'Región ' + R.name + ' conquistada', t: '¡' + R.city + ' es nuestra!', d: 'Cinco estrellas, flota propia y ' + R.rival.name + ' vencido en buena ley. ' +
+      (ready ? 'Es hora de abrir una sucursal nueva, donde vos elijas.' : !g ? 'Con esta, GameShop ya está en todas las regiones.' : 'Para abrir otra sucursal falta conquistar también ' + others.map(o => o.city).join(' y ') + '.') }], null,
       progBox(id) + '<small class="epic-note">' + (left ? 'Lo que falta no frena la expansión: sirve para dejar esta sucursal en 💎 platino.' : '💎 Y además la dejaste en platino: no le falta nada.') + '</small>' +
       '<button class="btn" id="cqMap">🗺️ Ver el mapa de sucursales</button>' + (left ? '<button class="btn ghost" id="cqStay">Seguir y completar esta zona</button>' : ''),
       () => { $('cqMap').addEventListener('click', () => { closeEpic(); showMap(); }); if ($('cqStay')) $('cqStay').addEventListener('click', () => { A.play('click'); closeEpic(); }); });
@@ -724,13 +777,13 @@ GS.Game = (function () {
     $('sheet').querySelectorAll('[data-o]').forEach(b => b.addEventListener('click', () => {
       const o = step.opts[Number(b.dataset.o)], fx = o.fx || {}, chips = []; chosen = true;
       if (fx.rep) { addRep(fx.rep); chips.push((fx.rep > 0 ? '▲' : '▼') + ' Reputación'); }
-      if (fx.fondo) { addFondo(fx.fondo); chips.push((fx.fondo > 0 ? '+' : '−') + ' 🪙 ' + Math.abs(fx.fondo) + ' al fondo'); }
+      if (fx.fondo) { addFondo(fx.fondo); chips.push((fx.fondo > 0 ? '+' : '−') + ' 🪙 ' + Math.abs(fx.fondo) + ' monedas'); }
       if (fx.cord) { addCord(fx.cord); chips.push((fx.cord > 0 ? '▲' : '▼') + ' Cordura'); }
       if (fx.goal) { GS.Store.set('goalAdj', (GS.Store.get('goalAdj') || 0) + fx.goal); chips.push(fx.goal < 0 ? '🏠 El local de al lado sale más barato' : '🏠 El local de al lado se encarece'); }
       if (fx.flag) st.flags[fx.flag] = 1;
       if (fx.gflag) { gf[fx.gflag] = 1; GS.Store.set('gflags', gf); }
       st.last = day.n; day.moment = S.name + ': "' + o.r + '"';
-      if (S.steps[st.step] && S.steps[st.step].end && /^rival_/.test(S.id)) setTimeout(() => { A.play('fanfare'); toast('<b>🏆 Le ganaste a ' + RG(brId()).rival.name + '</b>Se terminó su regla. Desde ahora esta sucursal deja 10% más de monedas.', '', 6000); }, 1800);
+      if (S.steps[st.step] && S.steps[st.step].end && /^rival_/.test(S.id)) setTimeout(() => { const rv = RV(brId()); toast('<b>' + rv.mark + ' Duelo pactado con ' + rv.name + '</b>Con 5 estrellas y la flota completa llega el día de competencia.', 'rival', 6000, false, rv.col); }, 1800);
       if (waiting) st.waits = (st.waits || 0) + 1;                 // todavía falta algo que depende de otra historia: vuelve más adelante
       else if (!o.stay) { st.step++; st.notes.push(o.note || step.note); if (step.end || st.step >= S.steps.length) st.done = true; }
       h[S.id] = st; GS.Store.set('hist', h); GS.track('visita', { quien: S.id, paso: st.step }); A.play(fx.rep < 0 || fx.fondo < 0 ? 'error' : 'ok'); A.babble(o.r, cu.person.voice);
@@ -742,7 +795,7 @@ GS.Game = (function () {
   function showLibreta() {
     const h = histAll(), known = GS.STORIES.filter(S => h[S.id]), unk = GS.STORIES.length - known.length, wasDay = state === 'day'; if (wasDay) paused = true;
     A.unlock(); A.play('click');
-    modal('<div class="gold-h"><i></i><b>Tu libreta</b><i></i></div><p style="font-size:13.5px;color:var(--mute);margin:0 0 4px">Acá quedan anotados los clientes con historia. Cerrar sus historias suma reputación, a veces fondos, y cuenta para dejar la sucursal en 💎 platino.</p>' +
+    modal('<div class="gold-h"><i></i><b>Tu libreta</b><i></i></div><p style="font-size:13.5px;color:var(--mute);margin:0 0 4px">Acá quedan anotados los clientes con historia. Cerrar sus historias suma reputación, a veces monedas, y cuenta para dejar la sucursal en 💎 platino.</p>' +
       (known.length ? known.map(S => { const st = h[S.id]; return '<div class="lib"><div class="lib-face">' + avatarSvg(Object.assign({ skin: 0xe0ac7e }, S.look), st.done ? 'happy' : 'normal') + '</div><div><b>' + S.name + '</b> <em>' + S.tag + '</em><ul>' + st.notes.map(n => '<li>' + n + '</li>').join('') + '</ul><small>' + (st.done ? '✔ Historia cerrada' : '… Dijo que vuelve') + '</small></div></div>'; }).join('') : '<p>Todavía no anotaste a nadie. Hay clientes que vuelven: cuando alguien quiera hablar, vas a ver una 📖 en los pedidos.</p>') +
       (unk ? '<p style="font-size:13.5px;color:var(--mute);margin:0">Te falta conocer a ' + unk + (unk === 1 ? ' persona.' : ' personas.') + '</p>' : '') + '<button class="btn" data-close>Cerrar</button>', () => { if (wasDay) paused = false; });
   }
@@ -898,7 +951,7 @@ GS.Game = (function () {
         me.s += (day.tt || 0) - m0;
         if (job.type !== 'caja') W.focus(null);
         if (job.type === 'mostrador' && !ok) {            // producto equivocado: se va y se pierde la venta
-          day.lostSale = (day.lostSale || 0) + 1; day.wv.lost = 1; addRep(-0.1); ref.slotM = -1; sayAt(ref.person, U.pick(LN.lostSale), 0); day.beat = 1.2; leave(ref, false); return;
+          day.lostSale = (day.lostSale || 0) + 1; day.wv.lost = 1; duelQueja(); addRep(-0.1); ref.slotM = -1; sayAt(ref.person, U.pick(LN.lostSale), 0); day.beat = 1.2; leave(ref, false); return;
         }
         if (job.type === 'mostrador') {
           addScore(100, ref.pat); addRep(0.02); { const v = GS.Store.get('vid') || 0, saw = Math.random() < v * 0.7 + (upNow().vidluz ? 0.15 : 0); if (saw) addRep(0.02); sayAt(ref.person, saw ? U.pick(LN.sawWindow) : '¡Eso! Voy a la caja.', saw ? 3000 : 1900); } ref.st = 'toCaja'; ref.slotM = -1; ref.pat = Math.max(ref.pat, 0.8);
@@ -963,7 +1016,7 @@ GS.Game = (function () {
         else if ((cu.st === 'inM' || cu.st === 'inC') && !MG.isResolving()) cu.pat -= dt / cfg.patienceGame;
         if (cu.pat <= 0 && (cu.st === 'waitM' || cu.st === 'waitC' || cu.st === 'inM' || cu.st === 'inC')) {
           if (cu.st === 'inM' || cu.st === 'inC') { if (MG.isResolving()) { cu.pat = 0.01; continue; } MG.close(); W.focus(null); }
-          day.lost++; day.wv.lost = 1; breakCombo(); addRep(-0.15); addCord(-CD.lost); A.play('lost');
+          day.lost++; day.wv.lost = 1; duelQueja(); breakCombo(); addRep(-0.15); addCord(-CD.lost); A.play('lost');
           sayAt(cu.person, cu.arche.lost, 3600); toast('<b>' + cu.arche.name + ' se fue sin comprar</b>', '', 2200);
           leave(cu, false);
         }
@@ -976,7 +1029,7 @@ GS.Game = (function () {
         else if (!MG.isResolving()) t.pat -= dt / (cfg.patienceGame * 1.3);
         if (t.pat <= 0) {
           if (t.st === 'in') { if (MG.isResolving()) { t.pat = 0.01; continue; } MG.close(); W.focus(null); }
-          day.tasksLate++; breakCombo(); addRep(-0.08); addCord(-CD.late); A.play('lost');
+          day.tasksLate++; duelQueja(); breakCombo(); addRep(-0.08); addCord(-CD.late); A.play('lost');
           toast('<b>' + t.station.icon + ' ' + t.station.name + '</b>' + t.station.task.late, '', 3200); removeTask(t);
         }
       }
@@ -999,6 +1052,12 @@ GS.Game = (function () {
       $('clockS').textContent = day.closing ? 'Cerramos: son las 19' : fin ? 'Cierre de caja' : day.stage === 'rest' && day.wave >= 0 ? 'Respiro ☕' : 'Tanda ' + Math.max(1, day.wave + 1) + '/' + nw;
     }
     $('scoreV').textContent = day.score.toLocaleString('es-AR');
+    { const g = day.goal, sc = day.score, el = $('chipGoal'), nf = v => v.toLocaleString('es-AR'); el.hidden = !g; if (g) { el.textContent = sc >= g.gold ? '🥇 ¡Oro!' : sc >= g.silver ? '🥇 oro a ' + nf(g.gold) : '🥈 plata a ' + nf(g.silver); el.className = 'chip goal' + (sc >= g.gold ? ' gold' : sc >= g.silver ? ' silver' : ''); }
+      const D = day.duel; $('duelBar').hidden = !D;
+      if (D) { const un = Math.max(1, unitsOf(day.plan)), p = Math.min(1, (day.served + day.lost + (day.lostSale || 0) + day.tasksDone + day.tasksLate) / un), tgt = D.total * (p < 0.75 ? p * 0.9 : 0.675 + (p - 0.75) * 1.3);      /* el rival suma a tu ritmo y remata en la hora pico */
+        D.shown += (tgt - D.shown) * 0.035; const him = Math.round(D.shown / 10) * 10; $('duelBar').style.setProperty('--rc', D.rv.col);
+        $('duMe').textContent = nf(sc); $('duHim').textContent = nf(him); $('duName').textContent = D.rv.mark + ' ' + D.rv.name; $('duFill').style.width = (sc + him ? U.clamp(sc / (sc + him) * 100, 6, 94) : 50).toFixed(1) + '%';
+        $('duQ').textContent = '😠 ' + D.q + '/3'; $('duQ').className = 'du-q' + (D.q >= 2 ? ' hot' : ''); $('duelBar').classList.toggle('ahead', sc >= him); } }
     $('chipSales').hidden = !!day.arcade; $('chipRep').hidden = !!day.arcade; $('chipRep').textContent = '⭐ ' + repTxt(repNow());
     $('chipSales').textContent = '🪙 ' + (coinsNow() + Math.round(day.score / 20 * coinMult()));
     $('chipCombo').hidden = day.combo < 2; $('chipCombo').textContent = '🔥 racha x' + day.combo;
@@ -1134,8 +1193,17 @@ GS.Game = (function () {
     brSave({ days: (brNow().days || 0) + 1 });
     const lostSale = d.lostSale || 0, ask = d.served + d.lost + lostSale, perfect = !errs && !d.lost && !lostSale && !d.tasksLate && !d.relaxed, dirty = d.dirt >= 3;
     if (dirty) addRep(-0.1);                                                        // cerrar con el piso sucio se nota
-    const earned = Math.max(0, Math.round(d.score / 9 * coinMult() * (d.plan.bonus || 1) * (modNow() === 'sinrespiro' ? 1.3 : 1)) - (d.coinLoss || 0) * (modNow() === 'lupa' ? 2 : 1)); GS.Store.set('coins', coinsNow() + earned);
-    const fEarn = d.relaxed ? 0 : Math.round(d.sales / 9000 * (0.5 + repNow() / 5) * (modNow() === 'apuro' || modNow() === 'lupa' ? 1.5 : 1)); addFondo(fEarn);     // fondos de expansión: salen de la facturación y la reputación
+    /* medalla del día o resultado del duelo; las dos cosas cambian lo que se cobra */
+    const units = Math.max(1, unitsOf(d.plan)), b0 = brNow(), nf = v => Math.round(v).toLocaleString('es-AR'); let medal = null, duelRes = null, mBonus = 1, goldRun = 0;
+    if (d.duel) { const him = d.duel.total, win = !d.duel.over && d.score >= him, tt = GS.Store.get('tot') || {}; duelRes = { win, me: d.score, him, why: d.duel.over, rv: d.duel.rv, tries: d.duel.tries };
+      if (win) { brSave({ won: 1, duel: 0, edge: 0, tries: 0 }); tt.duels = (tt.duels || 0) + 1; if (d.duel.tries) tt.revancha = (tt.revancha || 0) + 1; mBonus = 1.5; } else brSave({ duel: 1, tries: (b0.tries || 0) + 1 });
+      GS.Store.set('tot', tt); GS.track('duelo', { region: brId(), gano: win ? 1 : 0, intento: d.duel.tries + 1 }); }
+    else if (!d.relaxed) { const pu = d.score / units;
+      if (d.goal) { medal = d.score >= d.goal.gold ? 'oro' : d.score >= d.goal.silver ? 'plata' : 'bronce'; mBonus = medal === 'oro' ? 1.2 : medal === 'plata' ? 1.08 : 1; goldRun = medal === 'oro' ? (b0.gold || 0) + 1 : 0;
+        const tt = GS.Store.get('tot') || {}; tt.goldBest = Math.max(tt.goldBest || 0, goldRun); GS.Store.set('tot', tt); brSave({ gold: goldRun, edge: Math.min(5, (b0.edge || 0) + (medal === 'oro' ? 1 : 0)) }); GS.track('medalla', { cual: medal, jornada: d.n }); }
+      brSave({ avg: Math.round(b0.avg ? b0.avg * 0.65 + pu * 0.35 : pu) }); }
+    const earned = Math.max(0, Math.round(d.score / 9 * coinMult() * (d.plan.bonus || 1) * mBonus * (modNow() === 'sinrespiro' ? 1.3 : 1)) - (d.coinLoss || 0) * (modNow() === 'lupa' ? 2 : 1)); GS.Store.set('coins', coinsNow() + earned);
+    const fEarn = 0;                                                                /* los fondos de expansión ya no existen */
     { const t = statsNow(); delete t.rep; delete t.flota; t.c += d.served; t.d++; t.caught += d.caught || 0; t.web += (d.okBy && d.okBy.ml) || 0; t.clean += d.cleaned; t.sales += d.sales;
       if (perfect) { t.perfect++; t.streak++; } else if (!d.relaxed) t.streak = 0; if (d.vueltoMal) t.vueltoMal++; if (!d.dirt && !d.relaxed) t.limpio++; if (dirty) t.sucio++; if (d.santaSold) t.santa++; GS.Store.set('tot', t); }
     const fresh = checkLogros(), mode = d.relaxed ? 'Tranquilo' : 'Normal';
@@ -1153,7 +1221,9 @@ GS.Game = (function () {
     const head = (k, t) => '<div class="sum-head"><small>' + k + '</small><b>' + t + '</b></div>', place = RG(brId()).city + ' · ' + monthOf(d.n) + (d.cond ? ' · ' + condInfo(d.cond).name : '') + (d.relaxed ? ' · turno tranquilo' : '');
     $('endCol').innerHTML = '<div class="sumS" id="sumS">' +
       /* 1 · cómo te fue */
-      '<section class="sumP">' + head(place, perfect ? '¡Jornada impecable!' : 'Jornada ' + d.n + ' cumplida') +
+      '<section class="sumP">' + head(place, duelRes ? (duelRes.win ? '¡Ganaste el día de competencia!' : duelRes.why === 'quejas' ? 'Tres quejas: se perdió el día' : 'Hoy ganó ' + duelRes.rv.name) : perfect ? '¡Jornada impecable!' : 'Jornada ' + d.n + ' cumplida') +
+      (duelRes ? '<div class="duelres ' + (duelRes.win ? 'win' : 'lose') + '" style="--rc:' + duelRes.rv.col + '"><span><b>' + nf(duelRes.me) + '</b><small>GameShop</small></span><i>VS</i><span><b>' + nf(duelRes.him) + '</b><small>' + duelRes.rv.mark + ' ' + duelRes.rv.name + '</small></span></div><p class="pay-n' + (duelRes.win ? '' : ' no') + '">' + (duelRes.win ? '🏆 La región es tuya. Cobrás 50% más de monedas por la victoria.' : duelRes.why === 'quejas' ? 'A la tercera queja la gente se cruzó enfrente. La revancha es gratis.' : 'Te faltaron ' + nf(duelRes.him - duelRes.me) + ' puntos. La revancha es gratis, y ' + duelRes.rv.owner + ' viene más confiado.') + '</p>' : '') +
+      (medal ? '<div class="medal ' + medal + '"><i>' + (medal === 'oro' ? '🥇' : medal === 'plata' ? '🥈' : '🥉') + '</i><span><b>Medalla de ' + medal + '</b><small>' + nf(d.score) + ' puntos. ' + (medal === 'oro' ? 'Superaste tu marca: +20% de monedas' + (goldRun > 1 ? ' · racha de oros: ' + goldRun : '') + '.' : medal === 'plata' ? 'El oro estaba en ' + nf(d.goal.gold) + '. +8% de monedas.' : 'Plata desde ' + nf(d.goal.silver) + ', oro desde ' + nf(d.goal.gold) + '.') + '</small></span></div>' : '') +
       '<div class="sum-rep"><i>⭐</i><span><b>' + repTxt(rv) + ' <u>de 5</u></b><small>Reputación en ' + RG(brId()).city + ' · ' + (rd > 0.004 ? 'subió ' + repTxt(rd) + ' hoy' : rd < -0.004 ? 'bajó ' + repTxt(-rd) + ' hoy' : 'hoy quedó igual') + '</small></span></div>' +
       '<div class="ticket"><h3>DETALLE DEL DÍA</h3>' +
       row(ask > 0 && d.served === ask, 'Ventas concretadas', d.served + ' de ' + ask) +
@@ -1170,10 +1240,9 @@ GS.Game = (function () {
       /* 2 · lo que cobraste */
       '<section class="sumP">' + head('Cierre de caja', 'Lo que cobraste') +
       '<div class="pay"><i>🪙</i><span><b id="sumCoins">+0</b><em>monedas</em><small>Para <u>mejorar el local</u> y comprar la flota (moto, camioneta y camión). Se gastan en Mejoras.</small></span></div>' +
-      '<div class="pay"><i>🗺️</i><span><b id="sumFondo">+' + fEarn + '</b><em>fondos de expansión</em><small>Solo sirven para <u>abrir sucursales</u>, desde el Mapa. No se gastan en mejoras.</small></span></div>' +
-      (d.coinLoss ? '<p class="pay-n no">Se fueron 🪙 ' + d.coinLoss + ' en errores de caja.</p>' : '') + (d.relaxed ? '<p class="pay-n">En el turno tranquilo no se suman fondos de expansión.</p>' : '') +
-      '<div class="pay-t"><b>Ahora tenés</b><span>🪙 ' + coinsNow() + '</span><span>🗺️ ' + fondoNow() + '</span></div>' +
-      '<p class="pay-n">Las monedas salen del puntaje del día: atender rápido y sin errores paga más. Los fondos salen de lo facturado y suben con la reputación.</p></section>' +
+      (d.coinLoss ? '<p class="pay-n no">Se fueron 🪙 ' + d.coinLoss + ' en errores de caja.</p>' : '') + (mBonus > 1 ? '<p class="pay-n">' + (duelRes ? '🏆 Victoria en el día de competencia: +50% de monedas.' : medal === 'oro' ? '🥇 Medalla de oro: +20% de monedas.' : '🥈 Medalla de plata: +8% de monedas.') + '</p>' : '') +
+      '<div class="pay-t"><b>Ahora tenés</b><span>🪙 ' + coinsNow() + '</span></div>' +
+      '<p class="pay-n">Las monedas salen del puntaje del día: atender rápido y sin errores paga más. Las medallas y ganar el día de competencia suman un extra.</p></section>' +
       /* 3 · mejoras */
       '<section class="sumP">' + head('Antes de seguir', 'Mejorá el local') + '<p class="pay-n">Las mejoras quedan para siempre en esta sucursal. No hace falta comprar ahora: las monedas se guardan.</p><div id="upBox" class="upbox">' + upHtml() + '</div></section>' +
       /* 4 · qué sigue */
@@ -1181,7 +1250,7 @@ GS.Game = (function () {
       '<div class="hook" id="hookBox"><i>' + hook[0] + '</i><span><b>Lo que viene</b>' + hook[1] + '</span></div>' +
       '<div class="row3"><button class="btn ghost" id="endMap">🗺️ Mapa</button><button class="btn ghost" id="endRecs">🏅 Logros</button><button class="btn ghost" id="endLib">📖 Libreta</button><button class="btn ghost" id="endCard">📸 Compartir</button><button class="btn ghost" id="endHome">← Inicio</button></div>' +
       '<button class="phases" id="phasesEnd" hidden></button></section></div>' +
-      '<div class="sumN"><span class="sumD" id="sumD"><i class="on"></i><i></i><i></i><i></i></span><div class="row"><button class="btn ghost" id="sumBack" hidden>‹ Atrás</button><button class="btn" id="sumNext">Siguiente ›</button><button class="btn" id="endAgain" hidden>Siguiente jornada ›</button></div>' + ((GS.Store.get('days') || 0) >= 7 ? '<button class="sumSkip" id="sumSkip">Saltar al final</button>' : '') + '</div>';
+      '<div class="sumN"><span class="sumD" id="sumD"><i class="on"></i><i></i><i></i><i></i></span><div class="row"><button class="btn ghost" id="sumBack" hidden>‹ Atrás</button><button class="btn" id="sumNext">Siguiente ›</button><button class="btn" id="endAgain" hidden>' + (duelRes && !duelRes.win ? '🔁 Jugar la revancha ›' : 'Siguiente jornada ›') + '</button></div>' + ((GS.Store.get('days') || 0) >= 7 ? '<button class="sumSkip" id="sumSkip">Saltar al final</button>' : '') + '</div>';
     $('phasesEnd').innerHTML = phasesCompact(); $('phasesEnd').addEventListener('click', showPhases);
     $('endMap').addEventListener('click', showMap); $('endCard').addEventListener('click', () => showCard()); $('endLib').addEventListener('click', showLibreta);
     $('endAgain').addEventListener('click', () => startDay(d.relaxed));
@@ -1193,8 +1262,9 @@ GS.Game = (function () {
       if (g.id === 'flota' && i === 2 && repNow() < 4.8) setTimeout(() => toast('<b>🚚 Flota completa</b>Para conquistar la región solo falta llegar a 5 estrellas (vas ' + repTxt(repNow()) + ').', '', 5000), 2500); });
     { const t = GS.Store.get('tot') || {}; if (brProgress(brId()) >= 100 && !brNow().plat) { brSave({ plat: 1 }); t.platino = (t.platino || 0) + 1; GS.Store.set('tot', t); checkLogros(); } }
     /* los festejos (región conquistada, finales) esperan a la última pantalla del resumen */
-    let cele = false; const celebrate = () => { if (cele || state !== 'end' || GS.Store.get('testDay')) return; cele = true;
+    let cele = false; const afterDuel = () => { if (state !== 'end') return; refreshStart(); $('expBox').innerHTML = expCard();
       if (allDone() && !GS.Store.get('finalN')) { GS.Store.set('finalN', 1); showFinal(); } else if (malvWon() && !GS.Store.get('finalM')) { GS.Store.set('finalM', 1); applyBranch(); showFinalM(); } else checkConquest(); };
+    const celebrate = () => { if (cele || state !== 'end' || GS.Store.get('testDay')) return; cele = true; if (duelRes) showDuelEnd(duelRes, afterDuel); else afterDuel(); };
     let page = 0, counted = false; const S = $('sumS'), go = i => { S.scrollTo({ left: i * S.clientWidth, behavior: 'smooth' }); A.play('click'); };
     const onPage = () => { const i = Math.max(0, Math.min(3, Math.round(S.scrollLeft / Math.max(1, S.clientWidth)))); if (i === page && counted !== null) { if (i !== 1 || counted) return; } page = i;
       [].forEach.call($('sumD').children, (x, k) => x.classList.toggle('on', k === i)); $('sumBack').hidden = i === 0; $('sumNext').hidden = i === 3; $('endAgain').hidden = i !== 3; if ($('sumSkip')) $('sumSkip').hidden = i === 3; if (i === 2) $('upBox').innerHTML = upHtml();
@@ -1209,9 +1279,10 @@ GS.Game = (function () {
     if (m === 0) return ['🎄', 'La próxima es diciembre: semana de Navidad. Dicen que viene alguien de rojo a comprar.'];
     const h = histAll(), back = GS.STORIES.filter(S => h[S.id] && !h[S.id].done && n >= h[S.id].last + (S.gap || 1));
     if (back.length) return ['📖', back[0].name + ' dijo que volvía. Puede aparecer en la próxima jornada.'];
-    const f = goalNow() - fondoNow(), me = brData(brId()); if (goalNow() && !conquered(brId())) return me.rep < 4.8 && me.flota < 3 ? ['⭐', 'Para conquistar esta región faltan dos cosas: llegar a 5 estrellas y tener la flota completa.'] : me.rep < 4.8 ? ['⭐', 'Ya tenés la flota completa. Falta llegar a 5 estrellas (vas ' + repTxt(me.rep) + ') para conquistar la región.'] : ['🚚', 'Ya tenés 5 estrellas. Falta tener la flota completa para conquistar la región.'];
-    if (goalNow() && f <= 0 && canExpand()) return ['🗺️', 'Región conquistada y fondos listos: abrí el mapa y elegí dónde va la próxima sucursal.'];
-    if (goalNow() && f < 1000) return ['🗺️', 'Faltan ' + f + ' fondos de expansión para abrir la próxima sucursal.'];
+    { const id = brId(), me = brData(id), rv = RV(id);
+      if (!won(id) && rv) { if (readyDuel(id)) return ['⚔️', 'La próxima jornada es el día de competencia contra ' + rv.name + '.' + ((brNow().tries || 0) ? ' Es la revancha.' : '')];
+        return me.rep < 4.8 && me.flota < 3 ? ['⭐', 'Para desafiar a ' + rv.name + ' faltan dos cosas: llegar a 5 estrellas y tener la flota completa.'] : me.rep < 4.8 ? ['⭐', 'Ya tenés la flota completa. Falta llegar a 5 estrellas (vas ' + repTxt(me.rep) + ') para desafiar a ' + rv.name + '.'] : ['🚚', 'Ya tenés 5 estrellas. Falta la flota completa para desafiar a ' + rv.name + '.']; }
+      if (goalNow() && canExpand()) return ['🗺️', 'Región conquistada: abrí el mapa y elegí dónde va la próxima sucursal.']; }
     const t = nextGoal(); if (t) return [t.g.icon, (coinsNow() >= t.lv.price ? 'Ya te alcanza para: ' : 'Te faltan 🪙 ' + (t.lv.price - coinsNow()) + ' para: ') + t.lv.n + '.'];
     return ['☕', 'Mañana abrimos de 10 a 19, como siempre.'];
   }
@@ -1225,25 +1296,25 @@ GS.Game = (function () {
   const wbtn = (ic, title, info, cur, tot, unit, full, extra) => '<i class="wb-i">' + ic + '</i><span class="wb-m"><b>' + title + (extra || '') + '</b><small>' + info + '</small>' +
     (tot ? '<span class="wb-r"><span class="wb-p"><i style="width:' + Math.min(100, cur / tot * 100).toFixed(0) + '%"></i></span><span class="wb-n' + (full ? ' ok' : '') + '">' + unit + ' ' + Math.min(cur, tot) + ' <em>de ' + tot + '</em></span></span>' : '') + '</span><i class="wb-a">›</i>';
   /* Qué falta para abrir otra sucursal: tres pasos con tilde, y para qué sirve cada recurso */
-  /* Gráfico: una sucursal + 5 estrellas + flota completa + fondos = otra sucursal. st marca lo que ya está cumplido. */
+  /* Gráfico: una sucursal + 5 estrellas + flota completa + ganarle al rival = otra sucursal. st marca lo que ya está cumplido. */
   function expDiagram(st) {
     st = st || {}; const pill = (ok, ic, t) => '<span class="' + (ok ? 'ok' : '') + '"><i>' + ic + '</i><b>' + t + '</b>' + (ok ? '<u>✓</u>' : '') + '</span>', arrow = '<svg class="ar" viewBox="0 0 24 40"><path d="M2 20H17M11 11l8 9-8 9" fill="none" stroke="#f5c518" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-    return '<div class="expd"><figure>' + storeSvg() + '<figcaption>Tu sucursal</figcaption></figure>' + arrow + '<div class="rq">' + pill(st.rep, '⭐⭐⭐⭐⭐', '5 estrellas') + '<em>+</em>' + pill(st.flota, '🛵 🚐 🚚', 'Flota completa') + '<em>+</em>' + pill(st.fondo, '🗺️', 'Fondos de expansión') + '</div>' + arrow + '<figure class="new">' + storeSvg() + '<figcaption>Sucursal nueva</figcaption></figure></div>';
+    return '<div class="expd"><figure>' + storeSvg() + '<figcaption>Tu sucursal</figcaption></figure>' + arrow + '<div class="rq">' + pill(st.rep, '⭐⭐⭐⭐⭐', '5 estrellas') + '<em>+</em>' + pill(st.flota, '🛵 🚐 🚚', 'Flota completa') + '<em>+</em>' + pill(st.duel, '⚔️', 'Ganarle al rival') + '</div>' + arrow + '<figure class="new">' + storeSvg() + '<figcaption>Sucursal nueva</figcaption></figure></div>';
   }
   function expCard() {
-    const g = goalNow(); if (!g) return '';
-    const id = brId(), me = brData(id), R = RG(id), f = fondoNow(), c = coinsNow(), fl = GS.UPGRADES.find(u => u.id === 'flota'), need = fl.levels.slice(me.flota).reduce((a, l) => a + l.price, 0), others = pendingOpen().filter(r => r.id !== id), ready = canExpand() && f >= g;
+    const id = brId(), me = brData(id), R = RG(id), rv = RV(id), w = won(id), rd = readyDuel(id), more = goalNow(), b = brNow(); if (!rv || (w && !more)) return '';
+    const c = coinsNow(), fl = GS.UPGRADES.find(u => u.id === 'flota'), need = fl.levels.slice(me.flota).reduce((a, l) => a + l.price, 0), others = pendingOpen().filter(r => r.id !== id), ready = more && canExpand();
     const row = (ok, ic, t, sub, pct) => '<div class="' + (ok ? 'ok' : '') + '"><i>' + (ok ? '✅' : ic) + '</i><span><b>' + t + '</b><small>' + sub + '</small>' + (pct != null && !ok ? '<em><u style="width:' + Math.max(3, Math.min(100, pct)).toFixed(0) + '%"></u></em>' : '') + '</span></div>';
-    return '<div class="expc' + (ready ? ' ready' : '') + '"><h4>' + (ready ? '🎉 ¡Ya podés abrir otra sucursal!' : '🗺️ Qué falta para abrir otra sucursal') + '</h4>' + expDiagram({ rep: me.rep >= 4.8, flota: me.flota >= 3, fondo: f >= g }) +
-      row(me.rep >= 4.8, '⭐', '1 · Llegar a 5 estrellas en ' + R.city, me.rep >= 4.8 ? 'Listo: acá ya nos conocen.' : 'Vas ' + repTxt(me.rep) + ' de 5. Sube cuando atendés sin errores y el local está limpio.', me.rep / 4.8 * 100) +
+    return '<div class="expc' + (ready || rd ? ' ready' : '') + '"><h4>' + (ready ? '🎉 ¡Ya podés abrir otra sucursal!' : rd ? '⚔️ ¡Llegó el día de competencia!' : '🗺️ Cómo se conquista ' + R.city) + '</h4>' + expDiagram({ rep: me.rep >= 4.8 || w, flota: me.flota >= 3, duel: w }) +
+      row(me.rep >= 4.8 || w, '⭐', '1 · Llegar a 5 estrellas en ' + R.city, me.rep >= 4.8 || w ? 'Listo: acá ya nos conocen.' : 'Vas ' + repTxt(me.rep) + ' de 5. Sube cuando atendés sin errores y el local está limpio.', me.rep / 4.8 * 100) +
       row(me.flota >= 3, '🚚', '2 · Tener la flota completa', me.flota >= 3 ? 'Listo: llegamos a toda la región.' : need <= c ? '¡Ya te alcanza! Comprá lo que falta en Mejoras → Flota de envíos.' : 'Moto, camioneta y camión: se compran con 🪙 monedas, en Mejoras → Flota de envíos. Te faltan 🪙 ' + (need - c) + '.', c / need * 100) +
-      (others.length ? row(false, '🏪', 'Lo mismo en ' + others.map(r => r.city).join(' y '), 'Cada sucursal abierta necesita sus 5 estrellas y su flota completa.') : '') +
-      row(f >= g, '🗺️', '3 · Juntar ' + g + ' fondos de expansión', f >= g ? 'Listo: tenés ' + f + '.' : 'Tenés ' + f + '. Se suman solos al cerrar cada jornada; no se gastan en mejoras.', f / g * 100) +
-      '<p>' + (ready ? 'Abrí el <b>🗺️ Mapa</b> y elegí la región.' : '<b>🪙 Monedas</b>: mejoran el local y compran la flota. <b>🗺️ Fondos</b>: solo sirven para abrir sucursales, desde el Mapa.') + '</p><p class="meta">🏁 <b>Meta del juego:</b> las 5 regiones con 5 estrellas y flota completa (' + MAIN.filter(r => conquered(r.id)).length + ' de 5).</p></div>';
+      row(w, rv.mark, '3 · Ganarle a ' + rv.name + ' en el día de competencia', w ? 'Listo: le ganaste a ' + rv.owner + '.' : rd ? 'Es la próxima jornada' + ((b.tries || 0) ? ' (revancha gratis, y es más fácil)' : '') + '. Más puntos que ' + rv.owner + ' y menos de tres quejas.' : 'Se habilita solo cuando tengas las 5 estrellas y la flota completa.' + ((b.edge || 0) ? ' Ya tenés ventaja por ' + b.edge + (b.edge === 1 ? ' medalla' : ' medallas') + ' de oro.' : '')) +
+      (others.length ? row(false, '🏪', 'Lo mismo en ' + others.map(r => r.city).join(' y '), 'Cada sucursal abierta tiene su propio rival.') : '') +
+      '<p>' + (ready ? 'Abrí el <b>🗺️ Mapa</b> y elegí la región.' : '<b>🪙 Monedas</b>: mejoran el local y compran la flota. <b>🥇 Medallas de oro</b>: te dan ventaja para el día de competencia.') + '</p><p class="meta">🏁 <b>Meta del juego:</b> ganarles a los 5 rivales del país (' + MAIN.filter(r => conquered(r.id)).length + ' de 5).</p></div>';
   }
   function sucCard() {
-    const all = brAll(), f = fondoNow(), g = goalNow(), n = MAIN.filter(r => all[r.id] && all[r.id].open).length, dots = '<span class="hc-d">' + MAIN.map(r => '<i class="' + (all[r.id] && all[r.id].open ? 'on' : '') + (r.id === brId() ? ' cur' : '') + '"></i>').join('') + '</span>';
-    return wbtn('🗺️', 'Mis sucursales', dots + ' ' + n + ' de 5' + (g ? (!canExpand() ? ' · falta ' + (brData(brId()).rep < 4.8 ? '⭐ 5 estrellas' : '') + (brData(brId()).rep < 4.8 && brData(brId()).flota < 3 ? ' y ' : '') + (brData(brId()).flota < 3 ? '🚚 flota completa' : '') + (conquered(brId()) ? 'conquistar otra sucursal' : '') : f >= g ? ' · ¡ya podés abrir otra!' : ' · juntando fondos') : ' · avance ' + Math.round(MAIN.reduce((a, r) => a + brProgress(r.id), 0) / MAIN.length) + '%'), f, g, '🗺️', f >= g && canExpand());
+    const all = brAll(), id = brId(), me = brData(id), n = MAIN.filter(r => all[r.id] && all[r.id].open).length, cq = MAIN.filter(r => conquered(r.id)).length, more = goalNow(), dots = '<span class="hc-d">' + MAIN.map(r => '<i class="' + (all[r.id] && all[r.id].open ? 'on' : '') + (r.id === id ? ' cur' : '') + '"></i>').join('') + '</span>';
+    return wbtn('🗺️', 'Mis sucursales', dots + ' ' + n + ' de 5' + (won(id) ? (more && canExpand() ? ' · ¡ya podés abrir otra!' : more ? ' · falta conquistar otra sucursal' : ' · avance ' + Math.round(MAIN.reduce((a, r) => a + brProgress(r.id), 0) / MAIN.length) + '%') : readyDuel(id) ? ' · ⚔️ día de competencia listo' : ' · falta ' + (me.rep < 4.8 ? '⭐ 5 estrellas' : '') + (me.rep < 4.8 && me.flota < 3 ? ' y ' : '') + (me.flota < 3 ? '🚚 flota completa' : '')), cq, 5, '⚔️', more && canExpand());
   }
   function goalCard() {
     const t = nextGoal(), c = coinsNow(); if (!t) return wbtn('🛠', 'Mejorar el local', '🏆 Local completo: compraste todas las mejoras', 0, 0, '', false);
@@ -1295,7 +1366,7 @@ GS.Game = (function () {
     const nh = a.hair == null ? 0x3a2a1a : Number(a.hair), ns = Number(a.skin || 0xe0ac7e), nt = Number(a.shirt || 0xe10600), id = 'a' + (++avN);
     const h = 'url(#h' + id + ')', sk = hex(ns), top = hex(nt), ink = hex(a.pants || 0x23232b), brow = sh(nh, nh > 0x909090 ? -0.35 : -0.3), FT = '<g transform="translate(50 44) scale(0.9) translate(-50 -48)">';
     const st = a.hairStyle || 'corto', m = mood || 'normal', hat = a.hat;
-    const cap = '<path d="M20.500 50 A29.500 ' + (hat === 'lana' || hat === 'gorro' ? 29 : 34.500) + ' 0 0 1 79.500 50 L75.500 50 Q73 33 50 33 Q27 33 24.500 50z" fill="' + h + '"/>';      // llega hasta arriba de la cabeza: no queda piel entre el pelo de adelante y el de atrás
+    const cap = '<path d="M20.500 50 A29.500 ' + (hat === 'lana' || hat === 'gorro' || hat === 'gorra' || hat === 'ushanka' || hat === 'boina' || hat === 'ala' ? 27 : 34.500) + ' 0 0 1 79.500 50 L75.500 50 Q73 33 50 33 Q27 33 24.500 50z" fill="' + h + '"/>';      // llega hasta arriba de la cabeza: no queda piel entre el pelo de adelante y el de atrás
     let v = '<svg viewBox="0 0 100 124" width="120" height="149"><defs><radialGradient id="s' + id + '" cx="38%" cy="30%" r="80%"><stop offset="0" stop-color="' + sh(ns, 0.22) + '"/><stop offset=".55" stop-color="' + sk + '"/><stop offset="1" stop-color="' + sh(ns, -0.2) + '"/></radialGradient>' +
       '<linearGradient id="h' + id + '" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="' + sh(nh, 0.22) + '"/><stop offset=".5" stop-color="' + hex(nh) + '"/><stop offset="1" stop-color="' + sh(nh, -0.3) + '"/></linearGradient>' +
       '<linearGradient id="t' + id + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + sh(nt, 0.16) + '"/><stop offset="1" stop-color="' + sh(nt, -0.22) + '"/></linearGradient></defs>';
@@ -1326,6 +1397,11 @@ GS.Game = (function () {
     if (hat === 'casco') v += '<path d="M17 52 A33 33 0 0 1 83 52 L78 52 Q76 36 50 36 Q24 36 22 52z" fill="' + top + '"/><rect x="76" y="14" width="3.500" height="16" fill="' + top + '"/><circle cx="77.700" cy="12" r="4.200" fill="' + h + '"/>';
     if (hat === 'corona') v += '<path d="M29 30 L27 9 L38 20 L50 5 L62 20 L73 9 L71 30 Q50 22 29 30z" fill="' + top + '"/>';
     if (hat === 'vincha') v += '<path d="M21.500 42 Q50 28 78.500 42 L78 48 Q50 35 22 48z" fill="' + top + '"/>';
+    { const hc = hex(a.hatCol != null ? a.hatCol : 0x2b2b30), hb = hex(a.hatBand != null ? a.hatBand : 0x17171c), hd = sh(Number(a.hatCol != null ? a.hatCol : 0x2b2b30), -0.28);      /* sombreros de los rivales */
+      if (hat === 'boina') v += '<path d="M18 36 Q20 12 54 10 Q88 10 90 30 Q80 40 50 38 Q30 37 18 36z" fill="' + hc + '"/><path d="M20 35 Q50 30 80 37" fill="none" stroke="' + hd + '" stroke-width="3"/><circle cx="56" cy="9" r="3.600" fill="' + hd + '"/>';
+      if (hat === 'ala') v += '<ellipse cx="50" cy="35" rx="47" ry="8.500" fill="' + hd + '"/><ellipse cx="50" cy="33" rx="47" ry="8" fill="' + hc + '"/><path d="M26 33 Q27 6 50 5 Q73 6 74 33 Q50 39 26 33z" fill="' + hc + '"/><path d="M26.300 27 Q50 33 73.700 27 L74 33 Q50 39 26 33z" fill="' + hb + '"/>';
+      if (hat === 'ushanka') v += '<path d="M19 46 Q19 10 50 9 Q81 10 81 46z" fill="' + hc + '"/><path d="M22 42 Q50 28 78 42 L78 31 Q50 18 22 31z" fill="' + hb + '"/><path d="M12 44 Q12 40 20 40 L24 74 Q16 78 13 70z" fill="' + hc + '"/><path d="M88 44 Q88 40 80 40 L76 74 Q84 78 87 70z" fill="' + hc + '"/>';
+      if (hat === 'gorra') v += '<path d="M20 44 Q20 12 50 11 Q80 12 80 44 Q50 34 20 44z" fill="' + hc + '"/><path d="M22 43 Q50 33 78 43 Q92 44 97 52 Q70 44 24 49z" fill="' + hd + '"/><circle cx="50" cy="11" r="2.800" fill="' + hd + '"/>'; }
     // ojos, cejas y boca según la mueca
     const dx = m === 'nervous' ? 2.200 : 0, ry = m === 'surprised' ? 6.800 : m === 'impatient' ? 3.200 : 5.200;
     if (m === 'happy') v += '<g fill="none" stroke="' + ink + '" stroke-width="3.200" stroke-linecap="round"><path d="M33.500 51 Q39 44 44.500 51"/><path d="M55.500 51 Q61 44 66.500 51"/></g>';
@@ -1336,6 +1412,8 @@ GS.Game = (function () {
     v += '<path d="' + (brows[m] || brows.normal) + '" fill="none" stroke="' + brow + '" stroke-width="4" stroke-linecap="round"/>';
     v += '<ellipse cx="50" cy="57.500" rx="4.400" ry="3.300" fill="' + sh(ns, -0.13) + '"/><ellipse cx="49" cy="56.400" rx="1.800" ry="1.100" fill="' + sh(ns, 0.3) + '" opacity=".8"/>';                                                    // nariz
     if (a.lashes) v += '<g stroke="' + h + '" stroke-width="1.800" stroke-linecap="round"><path d="M34 45.500l-3-2.500M66 45.500l3-2.500M36 43.500l-1.500-3M64 43.500l1.500-3"/></g>';
+    if (a.shades) v += '<path d="M25 44 H75 L73 55 Q67 60 60 55 L54 49 H46 L40 55 Q33 60 27 55z" fill="#111114"/><path d="M29 46 l9 0" stroke="rgba(255,255,255,.35)" stroke-width="1.600" stroke-linecap="round"/>';
+    if (a.patch) v += '<path d="M21 38 L79 52" stroke="#111114" stroke-width="2.400"/><ellipse cx="61" cy="50" rx="8.500" ry="8" fill="#111114"/>';
     if (a.glasses) v += '<g fill="rgba(255,255,255,.2)" stroke="' + ink + '" stroke-width="2.400"><circle cx="39" cy="50" r="9"/><circle cx="61" cy="50" r="9"/></g><path d="M48 50h4" stroke="' + ink + '" stroke-width="2.400"/>';
     const mc = a.beard ? '#fff' : ink;
     const mouths = { normal: a.lips ? '<path d="M43 64 Q46.500 61.500 50 63.500 Q53.500 61.500 57 64 Q50 71 43 64z" fill="' + top + '"/>' : '<path d="M43 64 Q50 70 57 64" fill="none" stroke="' + mc + '" stroke-width="2.600" stroke-linecap="round"/>',
@@ -1370,9 +1448,9 @@ GS.Game = (function () {
   function refreshStart() {
     const n = dayNumber(), fresh = n <= GS.UNLOCKS.length ? GS.UNLOCKS[n - 1] : [], R = RG(brId());
     $('campT').textContent = started() ? 'Seguir campaña' : 'Iniciar campaña'; $('campS').textContent = started() ? 'Jornada ' + n + ' · ' + R.city + ' · ' + MAIN.filter(r => (brAll()[r.id] || {}).open).length + ' de 5 sucursales' : 'Llevá GameShop a todo el país';
-    $('playT').textContent = 'Comenzar jornada ' + n; $('playS').textContent = monthOf(n) + (n === 1 ? ' · inducción' : fresh.length ? ' · se suma: ' + fresh.map(id => ST(id).name).join(' y ') : '');
+    { const rd = readyDuel(brId()), rv = RV(brId()); $('playT').textContent = rd ? '⚔️ Día de competencia' : 'Comenzar jornada ' + n; $('playS').textContent = rd ? 'Contra ' + rv.name + ((brNow().tries || 0) ? ' · revancha' : '') + ' · jornada ' + n : monthOf(n) + (n === 1 ? ' · inducción' : fresh.length > 2 ? ' · ' + fresh.length + ' tareas nuevas' : fresh.length ? ' · se suma: ' + fresh.map(id => ST(id).name).join(' y ') : ''); }
     $('btnShop').innerHTML = goalCard(); $('btnPlot').innerHTML = sucCard(); $('campProg').innerHTML = expCard() + progBox(brId(), 'Avance de ' + R.city);
-    $('campHead').style.background = 'linear-gradient(100deg, ' + ACC[R.id] + ', rgba(20,20,24,.92) 130%)'; $('campHead').innerHTML = '<small>' + (R.id === 'pampeana' ? 'Casa central' : 'Sucursal ' + R.name) + '</small><b>' + R.city + '</b><span>⭐ ' + repTxt(repNow()) + ' · 🪙 ' + (DEV() ? '∞' : coinsNow()) + ' · 🗺️ ' + (DEV() ? '∞' : fondoNow()) + '</span>';
+    $('campHead').style.background = 'linear-gradient(100deg, ' + ACC[R.id] + ', rgba(20,20,24,.92) 130%)'; $('campHead').innerHTML = '<small>' + (R.id === 'pampeana' ? 'Casa central' : 'Sucursal ' + R.name) + '</small><b>' + R.city + '</b><span>⭐ ' + repTxt(repNow()) + ' · 🪙 ' + (DEV() ? '∞' : coinsNow()) + (RV(R.id) ? ' · ' + (won(R.id) ? '🏆 rival vencido' : RV(R.id).mark + ' ' + RV(R.id).name) : '') + '</span>';
     $('rankT').textContent = (DEV() ? '🛠 DEV · ' : '') + (GS.Store.get('ngp') ? '➕ NJ+' + GS.Store.get('ngp') : ''); $('rankT').hidden = !$('rankT').textContent; setMenu(menuView);
   }
   function goHome() {
@@ -1419,7 +1497,7 @@ GS.Game = (function () {
   function finishFinal() {
     const f = day && day.fin; if (!f || f.done) return; f.done = true; GS.Store.set('finalSeen', true); GS.Store.set('final2Seen', true); const hh = histAll(), closed = GS.STORIES.filter(S => hh[S.id] && hh[S.id].done).length;
     day.says.forEach(x => x.el.remove()); day.says = []; day.sayQ = []; f.t = 0.5; $('final').classList.add('party'); $('finSkip').hidden = true; A.play('fanfare');
-    $('finCard').innerHTML = '<h2>Fin de la <span>temporada</span></h2><p><b>' + f.tier.title + '</b>. ' + f.tier.line + '</p><p>Fondo: 🪙 ' + fondoNow() + ' de ' + goalNow() + ' · Historias cerradas: ' + closed + ' de ' + GS.STORIES.length + '. El local sigue abierto: podés seguir jugando para alcanzar otro final y cerrar las historias que faltan.</p>' +
+    $('finCard').innerHTML = '<h2>Fin de la <span>temporada</span></h2><p><b>' + f.tier.title + '</b>. ' + f.tier.line + '</p><p>Rivales vencidos: ' + MAIN.filter(r => conquered(r.id)).length + ' de 5 · Historias cerradas: ' + closed + ' de ' + GS.STORIES.length + '. El local sigue abierto: podés seguir jugando para alcanzar otro final y cerrar las historias que faltan.</p>' +
       '<button class="btn" id="finShare">📸 Tarjeta para compartir</button><button class="btn ghost" id="finGo">Seguir jugando</button><small>Un juego de GameShop · Gracias por jugar</small>';
     $('finCard').hidden = false;
     $('finShare').addEventListener('click', () => showCard(true)); $('finGo').addEventListener('click', goHome);
