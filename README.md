@@ -276,3 +276,10 @@ Tres juegos en `src/arcade.js`, que se ganan al terminar las jornadas 3, 8 y 14 
 - **Música**: melodía tipo kalimba con un eco corto, dos frases por clima y un tramo de descanso sin melodía para que el loop no canse. Limitador en la salida.
 - **Efectos**: sonidos nuevos para levantar, apoyar, contar billetes, dar vuelta, enviar mensaje, sellar y encender la PC; el de error ya no es una chicharra.
 - **Guías**: cada minijuego nuevo explica el gesto la primera vez (manito animada o resaltado) y no vuelve a mostrarlo. Textos del Dueño actualizados.
+
+## v0.58 · La clase, uniones prolijas y saludos regionales sin repetir
+
+- **Enseñarle al equipo**: ahora es una escena. Los dos empleados dejan lo que hacen y vienen al salón, aparece una pizarra, tu personaje explica moviendo el brazo, ellos asienten, se les prende la lamparita y festejan con un saltito. La cámara se acerca y vuelve sola.
+- **Uniones**: corregidas las caras superpuestas en la trompa del utilitario, las columnas del frente y los banderines; además cada material empuja apenas su profundidad, así dos caras en el mismo plano ya no parpadean.
+- **Colectivo**: queda una sola pregunta, "¿dónde para el 80?", solo en Buenos Aires.
+- **Saludos regionales**: de 5 a unos 15 por región, y salen como un mazo: no se repite ninguno hasta que salieron todos.

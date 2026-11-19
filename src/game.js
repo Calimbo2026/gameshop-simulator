@@ -278,7 +278,7 @@ GS.Game = (function () {
     const look = warm(lookOf(arche)), person = W.makePerson(look);
     const dx = L.puerta.x; person.setPos(dx + U.rnd(-0.5, 0.5), day.spawned === 0 ? (day.n === 1 ? -0.6 : L.salon.zMax + 1) : L.galeria.zMax + 2.4);
     person.voice = 230 + (k % 7) * 45;
-    const cu = { id: ++uid, arche, look, request: (RG(brId()).hi.length && Math.random() < 0.6 ? U.pick(RG(brId()).hi) + ' ' : '') + req.t, product, st: 'entering', pat: 1, person, slotM: slot, slotC: -1, label: makeLabel('❓') };
+    const cu = { id: ++uid, arche, look, request: regHi() + req.t, product, st: 'entering', pat: 1, person, slotM: slot, slotC: -1, label: makeLabel('❓') };
     day.customers.push(cu); day.spawned++;
     const sp = day.spawned > 1 && Math.random() < 0.45 ? freeSpot() : null;
     if (sp) { day.spots[sp.i] = 1; cu.spot = sp; person.walk(sp.via.concat([sp.p]), () => { cu.st = 'browse'; cu.wait = U.rnd(2.6, 4.6); person.face(sp.f); }); }   // primero mira un rato y después se acerca
@@ -325,6 +325,12 @@ GS.Game = (function () {
   function staffInit() {
     const ps = W.staff();
     STAFF.push({ p: ps[0], hub: [4.0, 0.9], q: [['wait', 2]], w: { repo: 4, taller: 2, mate: 1, vidriera: 1, siesta: 1 } }, { p: ps[1], hub: [3.6, 1.7], q: [['wait', 6]], w: { celu: 3, siesta: 2, repo: 2, mate: 1, vidriera: 1 } });
+  }
+  const hiBag = {};
+  function regHi() {
+    const id = brId(), all = RG(id).hi; if (!all.length || Math.random() > 0.5) return '';
+    let b = hiBag[id]; if (!b || !b.left.length) { const last = b && b.last; b = hiBag[id] = { left: U.shuffle(all.slice()), last }; if (b.left.length > 1 && b.left[b.left.length - 1] === last) b.left.unshift(b.left.pop()); }
+    b.last = b.left.pop(); return b.last + ' ';
   }
   function staffPlan(st) {
     const P = st.p, out = [[4.5, -1.2]], dd = [[4.6, -4.4], [6.0, -4.4], [7.4, -4.4]], rev = a => a.slice().reverse(), go = pts => ['go', pts];
@@ -629,8 +635,35 @@ GS.Game = (function () {
       () => { $('cqMap').addEventListener('click', () => { closeEpic(); showMap(); }); if ($('cqStay')) $('cqStay').addEventListener('click', () => { A.play('click'); closeEpic(); }); });
     return true;
   }
+  /* Enseñarle al equipo: una clase cortita en el salón. Vos explicás con la pizarra, ellos escuchan, y al final festejan. */
+  const CLASS = { yo: [4.2, -0.3], board: [2.75, -0.25, 0.75], seats: [[3.1, 1.35, 3.5], [4.3, 1.5, 3.1]] };
+  function routeToClass(x, z) {                 /* por dónde vuelve cada uno al salón, según dónde lo agarró la clase */
+    if (x > 5.7 && z < -1.5) return [[7.4, -4.4], [6.0, -4.4], [4.6, -4.4], [4.5, -1.2]];        /* depósito */
+    if (z < -3.2) return [[4.0, -5.3], [4.6, -4.4], [4.5, -1.2]];                                /* detrás del mostrador */
+    if (x > 5.2 && z > 4.5) return [[7.3, 5.9], [6.0, 5.5], [4.0, 5.5]];                         /* taller */
+    if (z > 5.0) return [[-0.3, 5.5], [4.0, 5.5]];                                               /* galería y vidriera */
+    if (x < 3.0) return [[-0.6, -1.6], [4.5, -1.2]];                                             /* salón */
+    return [];
+  }
   function teach() {
-    const t = brNow().train || 0, p = W.staff()[t % 2]; day.taught = 1; day.jobSig = ''; brSave({ train: t + 1 }); A.play('ok'); fx('🎓 Equipo nivel ' + (t + 1)); day.score += 60; sayAt(p, U.pick(LN.teach), 0); yoGo('H'); day.beat = 1;
+    const t = brNow().train || 0, yo = W.player(); day.taught = 1; day.jobSig = ''; brSave({ train: t + 1 }); A.play('click');
+    const ls = day.lesson = { t: 0, ph: 0, lv: t + 1, who: t % 2, yoIn: false, inN: 0 }; W.zoomAt(3.7, 0.3, 0.42);
+    STAFF.forEach((st, i) => { const P = st.p, g = P.group.position, seat = CLASS.seats[i]; P.lie(false); P.carry(false); if (P.phone) P.phone(false); st.q = []; st.act = null; st.moving = false; st.busy = true;
+      P.walk(routeToClass(g.x, g.z).concat([[seat[0], seat[1]]]), () => { if (day.lesson === ls) { P.face(seat[2]); ls.inN++; } }); });
+    yoGo('H', () => { if (day.lesson !== ls) return; yo.walk([CLASS.yo], () => { if (day.lesson === ls) { yo.face(0); ls.yoIn = true; } }); });
+  }
+  function endLesson(cut) {
+    const ls = day && day.lesson; if (!ls) return; day.lesson = null; const yo = W.player();
+    W.lesson(false); if (!cut) W.focus(); if (yo) { yo.gest(false); if (ls.yoIn) { yoAt = 'H'; yoFree = true; } }
+    STAFF.forEach(st => { st.p.nod(false); st.p.idea(false); st.busy = false; st.moving = false; st.q = cut ? [['wait', 0.4], ['go', [st.hub]]] : [['wait', 1.6], ['go', [st.hub]], ['wait', 2]]; });
+    if (cut) { fx('🎓 Equipo nivel ' + ls.lv); day.score += 60; }
+  }
+  function updateLesson(dt) {
+    const ls = day.lesson; if (!ls) return; ls.t += dt; const yo = W.player();
+    if (ls.ph === 0) { if ((ls.yoIn && ls.inN >= 2) || (ls.yoIn && ls.t > 9) || ls.t > 14) { ls.ph = 1; ls.t = 0; W.lesson(true, CLASS.board[0], CLASS.board[1], CLASS.board[2]); A.play('pick'); yo.face(-0.15); yo.gest(true); STAFF.forEach((st, i) => { if (!st.p.moving) st.p.face(CLASS.seats[i][2]); st.p.nod(true); }); sayAt(yo, U.pick(LN.teachYo), 2600); } }
+    else if (ls.ph === 1 && ls.t > 2.9) { ls.ph = 2; STAFF.forEach(st => st.p.idea(true)); A.play('intr'); sayAt(STAFF[ls.who].p, U.pick(LN.teach), 2200); }
+    else if (ls.ph === 2 && ls.t > 5.0) { ls.ph = 3; yo.gest(false); STAFF.forEach(st => { st.p.nod(false); st.p.hop(1.0); }); yo.hop(0.7); A.play('ok'); fx('🎓 Equipo nivel ' + ls.lv); day.score += 60; }
+    else if (ls.ph === 3 && ls.t > 6.3) endLesson(false);
   }
   /* ---------------- VISITAS CON HISTORIA: clientes que vuelven, con decisiones chiquitas que dejan marca ---------------- */
   const histAll = () => GS.Store.get('hist') || {};
@@ -827,7 +860,8 @@ GS.Game = (function () {
     if (job.type !== 'limpiar') stopMop();
     if (job.type === 'historia') return openStory(job.ref);
     if (job.type === 'limpiar') return cleanUp();
-    if (job.type === 'ensenar') return teach();
+    if (job.type === 'ensenar') { if (!day.lesson) teach(); return; }
+    if (day.lesson) endLesson(true);
     A.unlock(); A.play('click');
     const ref = job.ref, isCust = job.type === 'mostrador' || job.type === 'caja';
     ref.st = isCust ? (job.type === 'mostrador' ? 'inM' : 'inC') : 'in'; ref.pat = Math.max(ref.pat, 0.55);
@@ -1536,6 +1570,7 @@ GS.Game = (function () {
     if (state === 'day' && !paused) updateDay(dt);
     if (state === 'final' && !paused) updateFinal(dt);
     if (!paused) updateStaff(dt);
+    if (state === 'day' && day && !paused && day.lesson) updateLesson(dt);
     // calidad automática: si el equipo no llega a unos 22 cuadros por segundo durante un rato, baja un escalón sola
     if ((GS.Store.get('quality') || 'auto') === 'auto' && dt > 0) { fpsT += dt; fpsN++; if (fpsT >= 4) { const fps = fpsN / fpsT; fpsT = fpsN = 0; if (fps < 22 && autoQ !== 'baja') { autoQ = autoQ === 'alta' ? 'media' : 'baja'; W.setQuality(autoQ); GS.track('calidad_auto', { nivel: autoQ }); } } }
     if (!paused && (walkT -= dt) <= 0 && walkers < 4) {                 // peatones: pasan por la vereda y siguen de largo
