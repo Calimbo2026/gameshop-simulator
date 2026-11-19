@@ -287,11 +287,14 @@ GS.Game = (function () {
   }
   function toCounter(cu, pre) { cu.st = 'entering'; cu.person.walk(pre.concat([[L.puerta.x, -1.3], L.colaMostrador[cu.slotM]]), () => { cu.st = 'waitM'; cu.person.face(Math.PI); }); }
   /* ---------------- Gente que entra a mirar: algunos se van callados, otros comentan algo ---------------- */
+  /* dónde está cada mueble de piso: el lugar elegido, o el que le toca por defecto */
+  const slotOf = id => { const lay = upNow().lay || {}, i = GS.FLOOR.indexOf(id); return L.slots[lay[id] != null ? lay[id] : i]; };
+  const upPos = g => GS.FLOOR.indexOf(g.id) >= 0 ? [slotOf(g.id).x, slotOf(g.id).z] : g.pos;
   function freeSpot() {
     const u = upNow(), dx = L.puerta.x, H = Math.PI / 2, all = [
-      { p: [-4.2, 1.5], f: -H, via: [[dx, 1.5]] }, { p: [-4.2, 4.4], f: -H, via: [[dx, 4.4]] }, { p: [-4.2, -1.3], f: -H, via: [[dx, -1.3]] },
-      u.isla && { p: [-3.2, 1.7], f: Math.PI, via: [[dx, 1.7]] }, u.mesa && { p: [0.7, 1.0], f: H, via: [[dx, 1.0]] }, u.mesa && { p: [0.7, 2.7], f: H, via: [[dx, 2.7]] },
-      u.gondola && { p: [4.3, 2.2], f: H, via: [[dx, 5.5], [4.3, 5.5]] }, u.gondola && { p: [4.3, 4.0], f: H, via: [[dx, 5.5], [4.3, 5.5]] }, u.arcade && { p: [0.7, 9.3], f: Math.PI, via: [[dx, 9.3]] }];
+      { p: [-5.1, -1.3], f: -H, via: [[dx, -1.3]] }, { p: [-5.1, 2.1], f: -H, via: [[dx, 2.1]] }]
+      .concat(GS.FLOOR.map(id => { if (!u[id]) return null; const sl = slotOf(id), side = sl.x < dx ? 1 : -1; return id === 'escritorio' ? { p: [sl.x + side * 1.25, sl.z + 0.75], f: -side * 0.9 + Math.PI, via: [[dx, sl.z + 1.1]] } : { p: [sl.x, sl.z + 1.1], f: Math.PI, via: [[dx, sl.z + 1.1]] }; }),
+        [u.gondola && { p: [4.3, 2.2], f: H, via: [[dx, 5.5], [4.3, 5.5]] }, u.gondola && { p: [4.3, 4.0], f: H, via: [[dx, 5.5], [4.3, 5.5]] }, u.arcade && { p: [0.7, 9.3], f: Math.PI, via: [[dx, 9.3]] }]);
     const free = []; all.forEach((x, i) => { if (x && !day.spots[i]) { x.i = i; free.push(x); } });
     return free.length ? U.pick(free) : null;
   }
@@ -829,7 +832,7 @@ GS.Game = (function () {
   // Zona caminable: salón (delante del mostrador), pasillo de entrada y vereda, sin los muebles grandes que haya comprados
   function walkable(x, z) {
     const s = L.salon, area = (x > s.xMin + 0.6 && x < s.xMax - 0.5 && z > L.mostrador.z + 1.3 && z < s.zMax - 0.2) || (Math.abs(x - L.puerta.x) < 1.3 && z >= s.zMax - 0.2 && z < L.galeria.zMax + 0.2) || (z >= L.galeria.zMax + 0.2 && z < L.galeria.zMax + 3.7 && x > -11 && x < 14);
-    if (!area) return false; const u = upNow(); return !GS.UPGRADES.some(g => u[g.id] && ['mesa', 'isla', 'gondola', 'escritorio', 'sillas', 'arcade'].indexOf(g.id) >= 0 && Math.hypot(x - g.pos[0], z - g.pos[1]) < 1.25);
+    if (!area) return false; const u = upNow(); return !GS.UPGRADES.some(g => u[g.id] && (GS.FLOOR.indexOf(g.id) >= 0 ? Math.abs(x - slotOf(g.id).x) < 1.35 && z > slotOf(g.id).z - 0.85 && z < slotOf(g.id).z + (g.id === 'escritorio' ? 1.35 : 0.85) : ['gondola', 'arcade'].indexOf(g.id) >= 0 && Math.hypot(x - g.pos[0], z - g.pos[1]) < 1.25));
   }
   const clearLine = (x0, z0, x1, z1) => { const n = Math.ceil(Math.hypot(x1 - x0, z1 - z0) / 0.3); for (let i = 0; i <= n; i++) if (!walkable(x0 + (x1 - x0) * i / n, z0 + (z1 - z0) * i / n)) return false; return true; };
   function yoWalkTo(x, z, cb) {
@@ -1251,7 +1254,7 @@ GS.Game = (function () {
         (has ? '' : '<button class="btn" data-buy="' + i + '"' + (can ? '' : ' disabled') + '>' + (locked ? 'Primero el anterior' : can ? 'Comprar' : 'Te faltan ' + (lv.price - c)) + '</button>') + '</div></div>';
     }).join('') + (g.levels.length > 1 ? '' : '');
     const show = Object.assign({}, u); show[g.id] = seeLv;   // vista previa del modelo en su lugar
-    W.setUpgrades(show); W.focusAt(g.pos[0], g.pos[1], g.zoom || 0.36, 0.2);
+    W.setUpgrades(show); W.focusAt(upPos(g)[0], upPos(g)[1], g.zoom || 0.36, 0.2);
     $('shopHint').textContent = (shopSel + 1) + ' de ' + GS.UPGRADES.length + ' · ' + (g.levels.length > 1 ? 'Tocá un nivel para verlo en el local' : own >= g.levels.length ? 'Ya lo tenés en el local.' : 'Vista previa en el local');
   }
   function buy(i) {
@@ -1364,7 +1367,7 @@ GS.Game = (function () {
     day = newDay({ fin: { i: -1, t: 3.2, crowd: [], done: false } }); state = 'final'; paused = false; W.setUpgrades(upNow()); A.setMood('final'); A.play('fanfare');
     W.focusAt(0.6, -1.4, 0.66, -0.08);
     const d = day, f = d.fin, bx = 4.3, bz = -0.5, dx = L.puerta.x;
-    const spots = [[-3.3, -1.7], [-1.9, -0.9], [-0.5, -1.8], [0.5, -0.5], [-2.8, 0.5], [-1.1, 0.7], [0.3, 1.3], [-4.2, -0.4], [1.2, -1.6]];
+    const spots = [[-3.3, -1.7], [-1.9, -0.9], [-0.5, -1.8], [0.5, -0.9], [-1.7, 0.6], [-1.0, 1.5], [-0.1, 0.5], [-4.6, -1.2], [1.6, -1.6]];
     const tr = tierNow(); f.tier = tr;
     f.lines = GS.FINAL.boss.map(x => x.replace('{rank}', tr.title).replace('{fondo}', '🪙 ' + fondoNow()).replace('{meta}', goalNow()).replace('{resultado}', tr.line));
     GS.CUSTOMERS.forEach((ar, i) => {

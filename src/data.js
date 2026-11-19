@@ -7,7 +7,7 @@
 const GS = {};
 
 GS.CONFIG = {
-  version: '0.58.1',
+  version: '0.59.0-muebles',
   phase: 8,
   phaseNote: 'Juego completo de punta a punta. Falta tu playtest con 5 personas y encender el lanzamiento (launched: true)',                       // fase actual del proyecto (1 a 5)
   links: { tienda: 'https://www.gameshop.com.ar', instagram: '' },   // botones del inicio y del cierre (vacío = no se muestra)
@@ -250,6 +250,7 @@ GS.SIMILAR = { ps5: 'xbox', xbox: 'ps5', switch2: 'deck', deck: 'switch2', quest
 
 /* Mejoras del local: lugares fijos. Se compran con las monedas que deja cada jornada.
    pos = dónde hace zoom la cámara. Cada nivel es un "modelo" con su precio y su efecto. */
+GS.FLOOR = ['isla', 'mesa', 'sillas', 'escritorio'];      /* muebles de piso, en el orden de sus lugares por defecto */
 GS.UPGRADES = [
   { id: 'cartel', name: 'Cartel del frente', icon: '🪧', pos: [0, 10.5], zoom: 0.6, base: 'Cartel pintado',
     levels: [{ n: 'Cartel luminoso', d: 'Se ve desde la esquina: +1 cliente por jornada.', price: 400 }, { n: 'Cartel pantalla LED', d: 'El mejor cartel de la cuadra: +2 clientes por jornada.', price: 1250 }] },
@@ -633,6 +634,7 @@ GS.LAYOUT = {
   arcade:    { x: 0.7,  z: 8.3 },
   puerta:    { x: -0.9 },                              // por dónde entran los clientes
   cartel:    { textos: ['ENTRÁ. ELEGÍ. JUGÁ.', 'EL JUEGO EMPIEZA ACÁ.'] },
+  slots: [{ x: -3.05, z: 0.3 }, { x: 1.6, z: 0.3 }, { x: -3.05, z: 3.3 }, { x: 1.6, z: 3.3 }],      // lugares para los muebles de piso: a los costados del pasillo central, con el frente hacia la puerta
   colaMostrador: [ [-3.9, -2.9], [-2.7, -2.9], [-1.5, -2.9], [-0.3, -2.9] ],
   colaCaja:      [ [2.4, -2.9], [3.5, -2.9], [4.4, -2.6], [4.4, -1.6] ],
   yoMostrador: [-1.6, -4.9], yoCaja: [2.1, -4.9], brianCaja: [3.0, -4.9]
