@@ -942,9 +942,9 @@ GS.World = (function () {
     const sh = new T.Mesh(gShadow, shadowMat); sh.rotation.x = -Math.PI / 2; sh.position.y = 0.02; g.add(sh);
     const carry = box(g, 0.36, 0.28, 0.3, 0xc49a6c, 0, 0.5, 0.3); carry.visible = false;
     const mopG = new T.Group(); mopG.visible = false; g.add(mopG); { const st = new T.Mesh(new T.CylinderGeometry(0.03, 0.03, 1.35, 6), mat(0xb5894f)); st.position.set(0, 0.62, 0.42); st.rotation.x = -0.5; mopG.add(st); box(mopG, 0.5, 0.1, 0.22, 0x57b7e6, 0, 0, 0.76); box(mopG, 0.5, 0.05, 0.3, 0xe9f4fb, 0, 0, 0.82); }      // mopa
-    let phone = null, phGlow = null;      /* celular: va en la mano izquierda, con la pantalla prendida; al usarlo lo levanta frente a la cara y le ilumina la cara */
+    let phone = null;      /* celular: va en la mano izquierda, con la pantalla prendida; al usarlo lo levanta frente a la cara y baja la mirada */
     if (o.phone) { phone = new T.Group(); phone.position.set(0, -0.5, 0.045); arms[0].add(phone); const bd = new T.Mesh(unitBox, mat(0x15151a)); bd.scale.set(0.125, 0.23, 0.022); phone.add(bd); const sc = new T.Mesh(new T.PlaneGeometry(0.108, 0.205), new T.MeshBasicMaterial({ map: phoneTex() })); sc.position.z = 0.0125; phone.add(sc);
-      const cm = new T.Mesh(gEye, mat(0x3a3a44)); cm.scale.set(0.35, 0.35, 0.2); cm.position.set(0.035, -0.08, -0.013); phone.add(cm); }
+      const cm = new T.Mesh(gEye, mat(0x3a3a44)); cm.scale.set(0.35, 0.35, 0.2); cm.position.set(-0.035, 0.085, -0.013); phone.add(cm); }
     let cargo = null;
     if (o.cart) {
       box(g, 0.62, 0.06, 0.8, 0x3a6fd1, 0, 0.16, 0.85); box(g, 0.05, 0.9, 0.05, 0x3a6fd1, -0.26, 0.16, 0.48); box(g, 0.05, 0.9, 0.05, 0x3a6fd1, 0.26, 0.16, 0.48);
@@ -1078,7 +1078,7 @@ GS.World = (function () {
       walk(points, cb) { p.path = points.slice(); p.onArrive = cb || null; p.moving = true; },
       bag(v) { bag.visible = v; p.bagOn = v; },
       lookUp(v) { p.upG = v || 0; },
-      phVis: () => !!phone && phone.visible, phTilt(k) { phone.rotation.set(-1.39 * k, 0, k > 0.5 ? Math.PI : 0); },      /* al levantarlo, el celular queda parado y con la pantalla hacia la cara */ phG(k) { if (phGlow) phGlow.material.opacity = 0.34 * k * (0.9 + Math.sin(p.t * 9) * 0.1); },
+      phVis: () => !!phone && phone.visible, phTilt(k) { phone.rotation.set(-1.5 * k, 0, k > 0.5 ? Math.PI : 0); },      /* al levantarlo, el celular queda parado y con la pantalla hacia la cara */
       /* halo de las visitas especiales: aro de luz en el piso, columna suave y chispas que suben */
       aura(col, plain) { if (p.au) return; const c = new T.Color(col || 0xf5c518), mk = (geo, op) => new T.Mesh(geo, new T.MeshBasicMaterial({ color: c, transparent: true, opacity: op, depthWrite: false, blending: T.AdditiveBlending, side: T.DoubleSide })), A2 = new T.Group(); g.add(A2);
         const ring = mk(new T.RingGeometry(0.46, 0.62, 36), 0.85), disc = mk(new T.CircleGeometry(0.62, 30), 0.3), col2 = mk(new T.CylinderGeometry(0.42, 0.56, 1.7, 24, 1, true), 0.13); ring.rotation.x = disc.rotation.x = -Math.PI / 2; ring.position.y = 0.035; disc.position.y = 0.03; col2.position.y = 0.87; A2.add(ring, disc); if (!plain) A2.add(col2);
@@ -1088,7 +1088,7 @@ GS.World = (function () {
       look(a) { style(a); },
       cargo(v) { if (cargo) cargo.visible = v; },
       phone(v) { if (phone) phone.visible = v; },
-      usePhone(sec) { if (!phone) return; if (!phGlow) { phGlow = new T.Mesh(new T.SphereGeometry(HR + 0.006, 24, 14, Math.PI * 0.2, Math.PI * 0.6, Math.PI * 0.2, Math.PI * 0.62), new T.MeshBasicMaterial({ color: 0xbfe2ff, transparent: true, opacity: 0, depthWrite: false, blending: T.AdditiveBlending })); phGlow.position.y = HY - NK; hd.add(phGlow); } p.ph = p.ph || { k: 0, t: 0 }; p.ph.t = sec || 4; },
+      usePhone(sec) { if (!phone) return; p.ph = p.ph || { k: 0, t: 0 }; p.ph.t = sec || 4; },
       mop(v) { mopG.visible = v; p.holding = v; arms.forEach(a => { a.rotation.x = v ? -0.9 : 0; }); mopG.position.z = 0; },
       mopTick(t) { const k = Math.sin(t * 9); arms.forEach(a => { a.rotation.x = -0.9 + k * 0.3; }); mopG.position.z = k * 0.14; mopG.position.x = Math.cos(t * 4.5) * 0.06; },
       carry(v) { carry.visible = v; arms.forEach(a => { a.rotation.x = v ? -1.1 : 0; }); p.holding = v; },
@@ -1151,7 +1151,7 @@ GS.World = (function () {
       const g = p.group;
       if (p.upG != null) { const h2 = p.hd; h2.rotation.x += (-p.upG - h2.rotation.x) * Math.min(1, dt * 6); if (!p.upG && Math.abs(h2.rotation.x) < 0.002) { h2.rotation.x = 0; p.upG = null; } }
       if (p.ph) { const P = p.ph, free = !p.moving && !p.holding && !p.using && !p.sleeping && !p.nodding && p.phVis(); P.t -= dt; if (free && P.t < -8) P.t = 3.6; const on = free && P.t > 0; P.k += ((on ? 1 : 0) - P.k) * Math.min(1, dt * 6);      /* cada tanto mira el celular: brazo arriba, cabeza baja y luz en la cara */
-        if (free || P.k > 0.02) { if (!p.moving && !p.holding) { p.arms[0].rotation.x = -1.75 * P.k; p.arms[0].rotation.z = -0.16 + 0.56 * P.k; p.phTilt(P.k); } p.hd.rotation.x = 0.2 * P.k; } p.phG(P.k); }
+        if (free || P.k > 0.02) { if (!p.moving && !p.holding) { p.arms[0].rotation.x = -1.42 * P.k; p.arms[0].rotation.z = -0.16 + 0.5 * P.k; p.phTilt(P.k); } p.hd.rotation.x = 0.32 * P.k; } }
       if (p.au) { const k = 1 + Math.sin(p.t * 3.2) * 0.09; p.au.ring.scale.set(k, k, 1); p.au.ring.material.opacity = 0.65 + Math.sin(p.t * 3.2) * 0.2; p.au.col2.rotation.y = p.t * 0.6; p.au.sp.forEach(q => { const u = (p.t * 0.42 + q.userData.ph) % 1, an = q.userData.ph * 6.283 * 2 + p.t * 1.3, sz = 0.26 * Math.sin(u * Math.PI); q.position.set(Math.cos(an) * 0.5, 0.1 + u * 1.75, Math.sin(an) * 0.5); q.scale.set(sz, sz, 1); }); }
       if (p.gf) { const G = p.gf; G.t += dt; const u = Math.min(1, G.t / 1.15), e = u < 0.3 ? 0 : (u - 0.3) / 0.7; G.m.position.set(-0.5 * e, 0.78 + Math.sin(e * Math.PI) * 0.95 + e * 0.4, 0.42 - e * 0.64); G.m.rotation.set(e * 4, e * 3, 0); G.m.scale.setScalar(1 - e * 0.35); p.arms.forEach(a => { a.rotation.x = -1.5 - e * 1.2; }); if (u >= 1) { g.remove(G.m); p.gf = null; p.holding = false; p.arms.forEach(a => { a.rotation.x = 0; }); } }
       if (p.sleeping) { if (p.zs) p.zs.forEach(z => { const u = (p.t / 2.7 + z.userData.ph) % 1, sz = 0.2 + u * 0.3; z.position.set(0.3 + u * 0.5 + Math.sin(u * 7) * 0.07, 1.14 + 0.3 + u * 1.1, 0.25); z.scale.set(sz, sz, 1); z.material.opacity = Math.min(1, u * 5, (1 - u) * 2.5); }); const br = Math.sin(p.t * 2.1); g.rotation.x = -0.4 + br * 0.025; g.scale.y = (g.userData.base || 1) * (1 + br * 0.018); continue; }
