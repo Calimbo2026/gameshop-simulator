@@ -1454,7 +1454,7 @@ GS.Game = (function () {
       nervous: '<path d="M42 66 q3.500-3.500 7 0 t7 0" fill="none" stroke="' + mc + '" stroke-width="2.600" stroke-linecap="round"/>', sad: '<path d="M44 68 Q50 63 56 68" fill="none" stroke="' + mc + '" stroke-width="2.600" stroke-linecap="round"/>',
       surprised: '<ellipse cx="50" cy="67" rx="4.200" ry="5.400" fill="' + mc + '"/>' };
     v += mouths[m] || mouths.normal;
-    if (a.beard === 'bigote') v += '<path d="M50 60.500 Q43 57 35 61 Q30 63.500 28 59.500 Q31 68 41 66 Q47 65 50 62.500 Q53 65 59 66 Q69 68 72 59.500 Q70 63.500 65 61 Q57 57 50 60.500z" fill="' + h + '"/>';
+    if (a.beard === 'bigote') v += '<path d="M50.0 59.2 C52.6 57.2 56.6 57.7 59.9 60.5 C61.7 61.8 63.2 62.7 64.7 62.5 C67.6 62.7 68.3 60.3 66.1 60.0 C67.2 57.7 71.6 57.4 72.0 62.1 C72.4 66.7 66.5 69.3 61.0 68.9 C55.5 68.4 52.2 64.5 50.0 63.2zM50.0 59.2 C47.4 57.2 43.4 57.7 40.1 60.5 C38.3 61.8 36.8 62.7 35.3 62.5 C32.4 62.7 31.7 60.3 33.9 60.0 C32.8 57.7 28.4 57.4 28.0 62.1 C27.6 66.7 33.5 69.3 39.0 68.9 C44.5 68.4 47.8 64.5 50.0 63.2z" fill="' + h + '"/>';
     if (a.beard === 'larga') v += '<path d="M50 60 Q42 56 32 62 Q40 68 50 63 Q60 68 68 62 Q58 56 50 60z" fill="' + h + '"/>';
     if (a.santa) v += '<path d="M50 60 Q42 56 32 62 Q40 68 50 63 Q60 68 68 62 Q58 56 50 60z" fill="#fff" stroke="#dfe3ea" stroke-width=".800"/>';
     if (m === 'nervous') v += '<path d="M80 30 q4 6 0 9 q-4-3 0-9z" fill="#57b8ff"/>';
