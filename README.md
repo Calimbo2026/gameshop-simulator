@@ -313,3 +313,9 @@ Tres juegos en `src/arcade.js`, que se ganan al terminar las jornadas 3, 8 y 14 
 - Zapatillas redondeadas para todos; la bolsa cuelga de la mano por las manijas, con el logo centrado.
 - Los rivales no hacen la cola: se plantan en el medio del salón, la cámara va con ellos, cortan lo que se esté diciendo y hablan con el globo de su marca (`cu.rv`, `#modal.low`). `GS.Game.debugVisit(id)` para probar.
 - La cámara se sigue acomodando con el juego en pausa.
+
+## v0.73.0
+- Cámara a 40° (`GS.CONFIG.camera.tilt`).
+- Menú y editor de personaje con el personaje parado en la puerta del local (`W.stage`, `stageMenu`, `#stageGap`); cada cambio del editor se ve al instante en 3D.
+- Al comenzar la jornada, vuelo de dron desde la puerta hasta la vista normal (`W.droneHome`) y el personaje entra caminando hasta el mostrador.
+- Hombros unidos al brazo (`gShoulder`). Se restauran los peinados largo, rodete, rulos y mohicano en 3D, que se habían perdido en v0.71.

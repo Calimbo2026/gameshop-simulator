@@ -770,3 +770,10 @@ a.mbtn { text-decoration: none; box-sizing: border-box; } .mbtn.gold { margin-to
 .story.rv { border: 2px solid var(--rc); border-radius: 18px; padding: 12px; background: #121216; box-shadow: 0 0 0 4px color-mix(in srgb, var(--rc) 28%, transparent); } .story.rv .st-brand { align-self: flex-start; font-style: normal; font-family: var(--display); letter-spacing: .06em; text-transform: uppercase; font-size: 15px; background: var(--rc); color: #fff; padding: 4px 10px; border-radius: 8px; text-shadow: 0 1px 0 rgba(0,0,0,.45); }
 .story.rv .st-face { border-color: var(--rc); background: radial-gradient(120% 90% at 50% 28%, var(--rc), #0b0b0d); } .story.rv .st-head b { color: #fff; } .story.rv .bubble { background: #fff; color: #111; border-left: 5px solid var(--rc); }
 #modal.low { align-items: flex-end; background: linear-gradient(to bottom, rgba(0,0,0,.12) 0 38%, rgba(0,0,0,.82) 64%); }
+
+/* v0.73: el personaje en la puerta del local, en el menú y en el editor */
+#stageGap { display: none; } #start.staged #stageGap { display: block; height: clamp(150px, 31vh, 300px); flex: none; }
+#start.staged { background: linear-gradient(180deg, rgba(0,0,0,.86) 0, rgba(0,0,0,.5) 15%, rgba(0,0,0,.06) 27%, rgba(0,0,0,.06) 47%, rgba(0,0,0,.8) 60%, rgba(0,0,0,.92) 100%); } #start.staged .tag { display: none; } #start.staged .col { margin-top: 0; }
+#start.peek { visibility: hidden; }
+#modal.low.clear { background: linear-gradient(to bottom, rgba(0,0,0,0) 0 40%, rgba(0,0,0,.7) 62%); padding-bottom: calc(8px + var(--sab)); } .aved { display: flex; flex-direction: column; gap: 5px; } .aved h2 { margin: 0 0 2px; font-size: 21px; } .aved .setting { padding: 2px 0; } .aved .sw button { width: 30px; height: 30px; } .aved .btn { margin-top: 4px; }
+@media (orientation: landscape) and (max-height: 520px) { #start.staged #stageGap { display: none; } }

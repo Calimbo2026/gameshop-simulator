@@ -7,7 +7,7 @@
 const GS = {};
 
 GS.CONFIG = {
-  version: '0.72.0',
+  version: '0.73.0',
   phase: 8,
   phaseNote: 'Juego completo de punta a punta. Falta tu playtest con 5 personas y encender el lanzamiento (launched: true)',                       // fase actual del proyecto (1 a 5)
   links: { tienda: 'https://www.gameshop.com.ar', instagram: '' },   // botones del inicio y del cierre (vacío = no se muestra)
@@ -17,7 +17,7 @@ GS.CONFIG = {
   shareUrl: '',                   // dirección que se imprime en la tarjeta para compartir (vacío = la dirección desde donde se juega)
   finalDay: 20,                   // jornada que cierra la temporada y dispara la escena final
   promoMode: null,                // 'hotsale' | 'cyber' | null (Fase 3)
-  camera: { tilt: 55, rot: 38, fov: 22 },
+  camera: { tilt: 40, rot: 38, fov: 22 },
   day: {
     seconds: 180,                 // duración de la jornada normal
     relaxedCustomers: 8,          // clientes del turno tranquilo

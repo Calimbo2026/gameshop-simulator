@@ -29,10 +29,12 @@ GS.World = (function () {
     cam.gz = U.clamp(cam.gz, L.salon.zMin, L.galeria.zMax + 1);
     cam.gdist = U.clamp(cam.gdist, cam.fit * 0.3, cam.fit * 1.75);
   }
+  let stg = null, stVy = 0, stOff = false, drone = null; const tiltBase = GS.CONFIG.camera.tilt * DEG;
   function applyCam() {
     const ch = Math.cos(tilt), sh = Math.sin(tilt);
     camera.position.set(cam.tx + cam.dist * Math.sin(rot) * ch, 0.8 + cam.dist * sh, cam.tz + cam.dist * Math.cos(rot) * ch);
     camera.lookAt(cam.tx, 0.8, cam.tz);
+    if (Math.abs(stVy) > 0.002) { const w = canvas.clientWidth || 1, h = canvas.clientHeight || 1; camera.setViewOffset(w, h, 0, stVy * h, w, h); stOff = true; } else if (stOff) { camera.clearViewOffset(); stOff = false; }
     camera.near = Math.max(1, cam.dist * 0.2, cam.dist - 42); camera.far = cam.dist * 2 + 110;      /* rango de profundidad ajustado: más precisión, menos parpadeo en las uniones */
     camera.updateProjectionMatrix();
   }
@@ -903,7 +905,7 @@ GS.World = (function () {
         gTorso = new T.CylinderGeometry(0.15, 0.2, 0.36, 12), gHip = new T.CylinderGeometry(0.2, 0.19, 0.16, 12), gLegP = new T.CylinderGeometry(0.085, 0.08, 0.14, 8),
         gLeg = new T.CylinderGeometry(0.06, 0.055, 0.2, 8), gArm = new T.CylinderGeometry(0.052, 0.046, 0.26, 8), gSleeve = new T.CylinderGeometry(0.075, 0.07, 0.13, 8),
         gHand = new T.SphereGeometry(0.062, 8, 6), gSmile = new T.TorusGeometry(0.075, 0.016, 6, 10, Math.PI),
-        gShadow = new T.CircleGeometry(0.36, 16), gShoe = new T.SphereGeometry(0.07, 10, 8);
+        gShadow = new T.CircleGeometry(0.36, 16), gShoe = new T.SphereGeometry(0.07, 10, 8), gShoulder = new T.SphereGeometry(0.076, 12, 8);
   const shadowMat = new T.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.2, depthWrite: false });
   const gBun = new T.SphereGeometry(0.16, 8, 8), gCurl = new T.SphereGeometry(0.14, 7, 6), gTuft = new T.SphereGeometry(0.13, 7, 6),
         gBeard = new T.SphereGeometry(HR + 0.018, 14, 6, Math.PI * 0.06, Math.PI * 0.88, Math.PI * 0.6, Math.PI * 0.36),
@@ -925,7 +927,7 @@ GS.World = (function () {
     add(g, gHip, 'bot', 0, 0.46, 0); add(g, gTorso, 'top', 0, 0.7, 0);
     // brazos (giran desde el hombro): manga, brazo y mano
     const arms = [-1, 1].map(sd => { const A2 = new T.Group(); A2.position.set(sd * 0.2, 0.82, 0); A2.rotation.z = sd * 0.16; g.add(A2);
-      add(A2, gSleeve, 'top', 0, -0.06, 0); add(A2, gArm, 'skin', 0, -0.24, 0); add(A2, gHand, 'skin', 0, -0.39, 0); return A2; });
+      add(A2, gSleeve, 'top', 0, -0.06, 0); add(A2, gShoulder, 'top', 0, 0.005, 0); add(A2, gArm, 'skin', 0, -0.24, 0); add(A2, gHand, 'skin', 0, -0.39, 0); return A2; });
     const bag = new T.Group(); bag.visible = false;      /* bolsa de compras negra con el logo de GameShop: cuelga de la mano por las manijas */
     { arms[1].add(bag); bag.position.set(0.02, -0.6, 0.03); bag.rotation.z = -0.16; box(bag, 0.36, 0.27, 0.07, 0x0a0a0a, 0, -0.135, 0); const lm = bagLogoMat(); plane(bag, 0.35, 0.175, lm, 0, 0, 0.037); plane(bag, 0.35, 0.175, lm, 0, 0, -0.037, Math.PI);
       [-1, 1].forEach(sd => { const h = new T.Mesh(new T.TorusGeometry(0.095, 0.02, 6, 16, Math.PI), mat(0xf4f4f2)); h.position.set(0, 0.13, sd * 0.03); bag.add(h); }); }
@@ -953,9 +955,9 @@ GS.World = (function () {
       if (acc) g.remove(acc); acc = new T.Group(); acc.position.y = HY; g.add(acc);
       if (bacc) g.remove(bacc); bacc = new T.Group(); g.add(bacc); armX.forEach(m => m.parent.remove(m)); armX = [];
       { const tmB = mat(topC), gold = mat(0xf5c518), sph = (r, m, x, y, z, sx, sy, sz) => { const q = new T.Mesh(new T.SphereGeometry(r, 14, 10), m); q.position.set(x, y, z); q.scale.set(sx || 1, sy || 1, sz || 1); bacc.add(q); return q; }, cy = (r1, r2, hh, m, x, y, z) => { const q = new T.Mesh(new T.CylinderGeometry(r1, r2, hh, 18), m); q.position.set(x, y, z); bacc.add(q); return q; };
-        const fat = cur.build === 'robusto' ? 1.34 : cur.santa ? 1.25 : 1; arms.forEach((a, i) => { a.scale.set(fat, 1, fat); a.position.x = (i ? 1 : -1) * (0.2 + (fat - 1) * 0.16); }); legs.forEach(l => l.scale.set(fat > 1 ? 1.2 : 1, 1, fat > 1 ? 1.2 : 1));
+        const fat = cur.build === 'robusto' ? 1.34 : cur.santa ? 1.25 : 1; arms.forEach((a, i) => { a.scale.set(fat, 1, fat); a.position.x = (i ? 1 : -1) * (0.2 + (fat - 1) * 0.13); a.position.y = fat > 1 ? 0.8 : 0.82; }); legs.forEach(l => l.scale.set(fat > 1 ? 1.2 : 1, 1, fat > 1 ? 1.2 : 1));
         if (cur.build === 'robusto') {                 /* contextura grande: pecho ancho, hombros y algo de panza */
-          cy(0.215, 0.25, 0.4, tmB, 0, 0.7, 0.005); sph(0.235, tmB, 0, 0.6, 0.04, 1.05, 0.85, 1); [-1, 1].forEach(sd => sph(0.105, tmB, sd * 0.215, 0.85, 0)); cy(0.125, 0.135, 0.1, mat(skinC), 0, 0.91, 0); cy(0.235, 0.225, 0.12, mat(botC), 0, 0.46, 0);
+          cy(0.215, 0.25, 0.4, tmB, 0, 0.7, 0.005); sph(0.235, tmB, 0, 0.6, 0.04, 1.05, 0.85, 1); cy(0.125, 0.135, 0.1, mat(skinC), 0, 0.91, 0); cy(0.235, 0.225, 0.12, mat(botC), 0, 0.46, 0);
           if (cur.top === 'chomba') { const c1 = new T.Mesh(new T.TorusGeometry(0.135, 0.035, 8, 18), mat(0xe10600)); c1.rotation.x = Math.PI / 2; c1.position.y = 0.9; bacc.add(c1); box(bacc, 0.05, 0.16, 0.02, 0xe10600, 0, 0.8, 0.222); box(bacc, 0.07, 0.05, 0.02, 0xe10600, 0.11, 0.78, 0.215); }
           if (cur.top === 'campera') { box(bacc, 0.15, 0.36, 0.02, 0xe10600, 0, 0.7, 0.235); const c1 = new T.Mesh(new T.TorusGeometry(0.15, 0.04, 8, 18), tmB); c1.rotation.x = Math.PI / 2; c1.position.y = 0.9; bacc.add(c1); [-1, 1].forEach(sd => box(bacc, 0.025, 0.36, 0.03, 0x3a3a42, sd * 0.085, 0.7, 0.24)); }
         }
@@ -984,6 +986,12 @@ GS.World = (function () {
         if (st === 'corto' && !capHat && hat !== 'boina' && hat !== 'ala' && hat !== 'bicornio') tufts();
         if (st === 'jopo') { cap();      /* corto a los costados (más claro) y peinado hacia arriba adelante */
           { const tp = new T.Mesh(gHead, hm); tp.scale.set(0.93, 0.6, 0.99); tp.position.set(0, 0.17, -0.02); acc.add(tp); const q1 = new T.Mesh(gHead, hm); q1.scale.set(0.72, 0.3, 0.4); q1.position.set(0.03, 0.32, 0.19); q1.rotation.x = -0.35; acc.add(q1); } }
+        if (st === 'largo') { const m = new T.Mesh(gMass, hm); m.scale.set(1.06, 1.3, 0.8); m.position.set(0, -0.2, -0.17); acc.add(m); }
+        if (st === 'rodete' && !capHat) { const b = new T.Mesh(gBun, hm); b.position.set(0, 0.42, -0.12); acc.add(b); }
+        if (st === 'rulos' && capHat) cap();
+        if (st === 'rulos' && !capHat) { for (let i = 0; i < 9; i++) { const an = i / 9 * Math.PI * 2, c = new T.Mesh(gCurl, hm); c.scale.setScalar(1.25); c.position.set(Math.cos(an) * 0.27, 0.22, Math.sin(an) * 0.27 - 0.05); acc.add(c); }
+          [[0, 0.39, -0.04], [0.15, 0.36, 0.06], [-0.15, 0.36, 0.06], [0, 0.35, -0.2]].forEach(q => { const c = new T.Mesh(gCurl, hm); c.scale.setScalar(1.3); c.position.set(q[0], q[1], q[2]); acc.add(c); }); }
+        if (st === 'mohicano' && !capHat) [[0.3, 0.2, 0.9], [0.4, 0.08, 1.15], [0.43, -0.06, 1.3], [0.38, -0.2, 1.15], [0.27, -0.31, 0.95]].forEach(q => { const m = new T.Mesh(gTuft, hm); m.scale.set(0.62, q[2] * 1.25, 1.05); m.position.set(0, q[0], q[1]); acc.add(m); });   // cresta de mechones, más alta en el medio
       }
       if (cur.beard) acc.add(new T.Mesh(gBeard, hm));
       if (cur.stubble) { const mix = (a, b, k) => ((Math.round((a >> 16 & 255) * (1 - k) + (b >> 16 & 255) * k) << 16) | (Math.round((a >> 8 & 255) * (1 - k) + (b >> 8 & 255) * k) << 8) | Math.round((a & 255) * (1 - k) + (b & 255) * k)), sb = new T.Mesh(gBeard, mat(mix(skinC, 0x4a4a52, 0.38))); sb.scale.setScalar(0.975); acc.add(sb); }
@@ -1233,6 +1241,8 @@ GS.World = (function () {
     if (slideDoors.length) { let near = false; const zD = L.salon.zMax, hw = L.galeria.pasillo + 0.4; for (const q of people) { const gp = q.group.position; if (q.group.visible && q.group.parent && Math.abs(gp.z - zD) < 1.6 && Math.abs(gp.x) < hw) { near = true; break; } }
       doorK += ((near ? 1 : 0) - doorK) * Math.min(1, dt * 7); slideDoors.forEach(d => { d.g.position.x = d.x0 + d.sd * doorK * (L.galeria.pasillo - 0.3); }); }
     if (!ok) return;
+    if (drone) { const D = drone; D.t += camDt != null ? camDt : dt; const u0 = reduceMotion ? 1 : Math.min(1, D.t / D.dur), u = u0 * u0 * (3 - 2 * u0), lp = (a, b) => a + (b - a) * u;      /* vuelo de dron: de la puerta, a ras del piso, hasta la vista normal del local */
+      tilt = lp(D.tilt, tiltBase); stVy = lp(D.vy, 0); cam.tx = lp(D.x, cam.gx); cam.tz = lp(D.z, cam.gz); cam.dist = lp(D.d, cam.gdist); if (u0 >= 1) drone = null; applyCam(); updateWalls(); return; }
     const k = reduceMotion ? 1 : 1 - Math.pow(0.002, camDt != null ? camDt : dt);      /* la cámara se sigue acomodando aunque el juego esté en pausa */
     cam.tx += (cam.gx - cam.tx) * k; cam.tz += (cam.gz - cam.tz) * k; cam.dist += (cam.gdist - cam.dist) * k;
     applyCam(); updatePeople(dt);
@@ -1252,7 +1262,17 @@ GS.World = (function () {
     setReduceMotion(v) { reduceMotion = v; },
     makePerson,
     setUpgrades: applyUpgrades,
-    setPlayerLook(a) { if (yo && a) yo.look(a); },
+    setPlayerLook(a) { if (yo && a) yo.look(a); if (stg && stg.clone && a) stg.clone.look(a); },
+    /* escenario: el personaje parado en la puerta del local, con la cámara baja y cerca (menú y editor de personaje) */
+    stage(o) {
+      if (!o) { if (!stg) return; if (stg.clone) stg.clone.remove(); if (stg.save) { const s = stg.save; cam.gx = cam.tx = s.x; cam.gz = cam.tz = s.z; cam.gdist = cam.dist = s.d; cam.saved = s.saved; } tilt = tiltBase; stVy = 0; stg = null; drone = null; applyCam(); return; }
+      const pos = [L.puerta.x, L.galeria.zMax + 1.25]; drone = null;
+      if (!stg) { stg = { save: o.clone ? { x: cam.gx, z: cam.gz, d: cam.gdist, saved: cam.saved } : null, clone: null }; if (o.clone) { stg.clone = makePerson(Object.assign({}, o.look)); } else if (yo) { yo.stop(); } }
+      const who = stg.clone || yo; if (who) { who.setPos(pos[0], pos[1]); who.face(rot); }
+      tilt = 0.3; stVy = o.vy || 0; cam.saved = null; cam.gx = cam.tx = pos[0]; cam.gz = cam.tz = pos[1]; cam.gdist = cam.dist = cam.fit * (o.k || 0.15); applyCam();
+    },
+    staged: () => !!stg,
+    droneHome(dur) { if (!stg) return; const D = { t: 0, dur: dur || 2.6, tilt, vy: stVy, x: cam.tx, z: cam.tz, d: cam.dist }; stg = null; cam.saved = null; cam.gx = 0; cam.gz = 0.2; cam.gdist = cam.fit; drone = D; },
     // El Dueño: un solo personaje que vive en su oficina
     // Hora del día (0 = 10 hs, 1 = 19 hs): cambia la luz, el color de la vereda y prende los faroles al anochecer
     setDayTime(f, rain) {

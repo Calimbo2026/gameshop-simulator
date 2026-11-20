@@ -235,7 +235,15 @@ GS.Game = (function () {
   }
   function enterPlay() {
     $('start').hidden = true; $('end').hidden = true; $('hud').hidden = false; $('modal').hidden = true; $('toasts').innerHTML = '';
-    $('final').hidden = true; paused = false; W.home();
+    $('final').hidden = true; paused = false; $('start').classList.remove('staged');
+    if (W.staged()) { W.droneHome(2.8); setTimeout(() => { const yo = W.player(), dx = L.puerta.x; if (!yo || state !== 'day') return;      /* entra por la puerta y va a su lugar, atrás del mostrador */
+      yo.setPos(dx, L.galeria.zMax + 1.25); yo.walk([[dx, L.salon.zMax + 0.2], [dx, -1.2], [NAV.O[0], NAV.O[1]], [NAV.A[0], NAV.A[1]], [NAV.X[0], NAV.X[1]], [NAV.caja[0], NAV.caja[1]], [NAV.most[0], NAV.most[1]]], () => yo.face(0)); }, 40); }
+    else W.home();
+  }
+  /* menú con el personaje en la puerta del local */
+  function stageMenu() {
+    const av = GS.Store.get('avatar'), on = !!av && state === 'menu' && !$('start').hidden; $('start').classList.toggle('staged', on); if (!on) return;
+    W.setPlayerLook(av); const r = $('stageGap').getBoundingClientRect(), vy = r.height > 40 ? 0.5 - (r.top + r.height * 0.56) / window.innerHeight : 0; W.stage({ k: 0.15, vy });
   }
   const DUEL_K = { pampeana: 1, cuyo: 1.03, noa: 1.05, nea: 1.05, patagonia: 1.08, malvinas: 1.12 };      /* cuánto mejor que tu promedio juega cada rival */
   function startDay(relaxed, skipDuel) {
@@ -1338,7 +1346,7 @@ GS.Game = (function () {
   const rankOf = n => { let rk = GS.RANKS[0][1]; GS.RANKS.forEach(r => { if (n >= r[0]) rk = r[1]; }); return rk; };
   let shopSel = 0;
   function openShop() { coach('tienda');
-    A.unlock(); A.play('click'); A.setMood('menu'); state = 'shop'; $('start').hidden = true; $('end').hidden = true; $('shop').hidden = false; shopSel = 0;
+    A.unlock(); A.play('click'); A.setMood('menu'); state = 'shop'; W.stage(null); $('start').hidden = true; $('end').hidden = true; $('shop').hidden = false; shopSel = 0;
     const t = nextGoal(); if (t) shopSel = GS.UPGRADES.indexOf(t.g);
     renderShop();
   }
@@ -1366,7 +1374,7 @@ GS.Game = (function () {
     u[g.id] = i + 1; GS.Store.set('up', u); GS.Store.set('newUp', true); GS.Store.set('coins', coinsNow() - lv.price); A.play('cash'); toast('<b>¡Mejora comprada!</b>' + lv.n, '', 2600); renderShop();
     if (g.id === 'flota' && i === 2) { if (repNow() >= 4.8) setTimeout(() => { if (!$('shop').hidden) closeShop(); }, 1500); else setTimeout(() => toast('<b>🚚 Flota completa</b>Para conquistar la región solo falta llegar a 5 estrellas (vas ' + repTxt(repNow()) + ').', '', 5000), 2700); }      // el camión era lo último: el festejo es ahora, no una jornada después
   }
-  function closeShop() { $('shop').hidden = true; W.setUpgrades(upNow()); state = 'menu'; $('start').hidden = false; refreshStart(); W.showAll(); A.play('click'); brSave(); checkConquest(); }
+  function closeShop() { $('shop').hidden = true; W.setUpgrades(upNow()); state = 'menu'; $('start').hidden = false; refreshStart(); W.showAll(); A.play('click'); brSave(); checkConquest(); stageMenu(); }
   // Cara y busto de un personaje, en el mismo estilo que el muñeco 3D (4 colores: piel, pelo, remera y pantalón).
   // mood = la mueca: normal, talk (hablando), happy, angry, impatient, nervous, sad, surprised.
   let avN = 0;
@@ -1449,12 +1457,16 @@ GS.Game = (function () {
   function showAvatar(then) {
     const a = Object.assign({ skin: GS.SKINS[2], hair: GS.HAIRS[0], hairStyle: 'corto', glasses: false, beard: false, lips: false }, GS.Store.get('avatar') || {}), hex = n => '#' + n.toString(16).padStart(6, '0');
     const sw = (key, list) => '<div class="sw" data-k="' + key + '">' + list.map(c => '<button style="background:' + hex(c) + '" data-c="' + c + '" class="' + (a[key] === c ? 'on' : '') + '"></button>').join('') + '</div>';
-    modal('<h2>' + (GS.Store.get('introSeen') ? 'Tu personaje' : 'Primero, armá tu personaje') + '</h2><p>Sos quien atiende el mostrador. Combiná lo que quieras; después lo podés cambiar desde Opciones.</p><div class="avprev" id="avPrev"></div>' +
+    const inDay = state === 'day';
+    modal('<div class="aved"><h2>' + (GS.Store.get('introSeen') ? 'Tu personaje' : 'Armá tu personaje') + '</h2>' +
       '<div class="setting"><span>Piel</span>' + sw('skin', GS.SKINS) + '</div><div class="setting"><span>Pelo</span>' + sw('hair', GS.HAIRS) + '</div>' +
       '<div class="setting"><span>Peinado</span><div class="seg" id="avStyle">' + GS.HAIRSTYLES.map(h => '<button data-v="' + h[0] + '" class="' + (a.hairStyle === h[0] ? 'on' : '') + '">' + h[1] + '</button>').join('') + '</div></div>' +
       '<div class="setting"><span>Accesorios</span><div class="seg" id="avAcc">' + [['glasses', 'Anteojos'], ['beard', 'Barba'], ['lips', 'Labios pintados'], ['lashes', 'Pestañas']].map(x => '<button data-v="' + x[0] + '" class="' + (a[x[0]] ? 'on' : '') + '">' + x[1] + '</button>').join('') + '</div></div>' +
-      '<button class="btn" data-close>Listo</button>', () => { GS.Store.set('avatar', a); W.setPlayerLook(a); if (then) then(); });
-    const paint = () => { $('avPrev').innerHTML = avatarSvg(a); W.setPlayerLook(a); };
+      '<button class="btn" data-close>Listo</button></div>', () => { GS.Store.set('avatar', a); W.setPlayerLook(a); $('modal').classList.remove('low', 'clear'); $('start').classList.remove('peek'); if (inDay) W.stage(null); else stageMenu(); if (then) then(); });
+    /* el personaje se ve de cuerpo entero en la puerta del local, y cada cambio se ve al instante */
+    $('modal').classList.add('low', 'clear'); $('start').classList.add('peek');
+    { const r = $('sheet').getBoundingClientRect(), free = Math.max(120, r.top); W.stage({ k: 0.115, vy: 0.5 - (free * 0.56) / window.innerHeight, clone: inDay, look: Object.assign({ shirt: 0xe10600 }, a) }); }
+    const paint = () => { W.setPlayerLook(a); };
     $('sheet').querySelectorAll('.sw').forEach(s => s.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; a[s.dataset.k] = Number(b.dataset.c); s.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); paint(); }));
     $('avStyle').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; a.hairStyle = b.dataset.v; $('avStyle').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); paint(); });
     $('avAcc').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; a[b.dataset.v] = !a[b.dataset.v]; b.classList.toggle('on', a[b.dataset.v]); paint(); });
@@ -1475,7 +1487,7 @@ GS.Game = (function () {
   function goHome() {
     A.play('click'); A.setMood('menu'); clearDay(); $('rain').hidden = true; $('final').hidden = true; $('intro').hidden = true; setSky(0.3, false);
     day = null; state = 'menu'; paused = false;
-    $('end').hidden = true; $('hud').hidden = true; $('jobs').hidden = true; $('start').hidden = false; $('toasts').innerHTML = ''; W.showAll(); setMenu('camp'); refreshStart();
+    $('end').hidden = true; $('hud').hidden = true; $('jobs').hidden = true; $('start').hidden = false; $('toasts').innerHTML = ''; W.showAll(); setMenu('camp'); refreshStart(); setTimeout(stageMenu, 0);
   }
 
   /* ---------------- Escena final: el Dueño sale, los clientes festejan y queda la tarjeta ---------------- */
@@ -1698,7 +1710,7 @@ GS.Game = (function () {
     if (state === 'day' && day && !paused && day.lesson) updateLesson(dt);
     // calidad automática: si el equipo no llega a unos 22 cuadros por segundo durante un rato, baja un escalón sola
     if ((GS.Store.get('quality') || 'auto') === 'auto' && dt > 0) { fpsT += dt; fpsN++; if (fpsT >= 4) { const fps = fpsN / fpsT; fpsT = fpsN = 0; if (fps < 22 && autoQ !== 'baja') { autoQ = autoQ === 'alta' ? 'media' : 'baja'; W.setQuality(autoQ); GS.track('calidad_auto', { nivel: autoQ }); } } }
-    if (!paused && (walkT -= dt) <= 0 && walkers < 4) {                 // peatones: pasan por la vereda y siguen de largo
+    if (!paused && !W.staged() && (walkT -= dt) <= 0 && walkers < 4) {                 // peatones: pasan por la vereda y siguen de largo
       walkT = U.rnd(3, 7) * (day && day.cond === 'lluvia' ? 2.2 : 1); walkers++;
       const dir = Math.random() < 0.5 ? 1 : -1, z = L.galeria.zMax + U.rnd(1.6, 2.6), hs = U.pick(GS.HAIRSTYLES)[0];
       const w = W.makePerson(warm({ shirt: U.pick([0x6b7a8f, 0x3d7a4a, 0xd9a514, 0x4a6fb5, 0xb86fa8, 0x21a0a0, 0x555560]), hair: U.pick(GS.HAIRS), hairStyle: hs, glasses: Math.random() < 0.3, beard: Math.random() < 0.2, speed: U.rnd(1.3, 2) }));
@@ -1708,7 +1720,7 @@ GS.Game = (function () {
   }
 
   function boot() {
-    $('logoImg').src = GS.LOGO; refreshStart();
+    $('logoImg').src = GS.LOGO; refreshStart(); setTimeout(stageMenu, 60); window.addEventListener('resize', () => { if (W.staged() && state === 'menu' && $('modal').hidden) stageMenu(); });
     $('phasesStart').innerHTML = phasesCompact();
     $('chipPhase').hidden = true; $('phasesStart').hidden = true;
     const q = GS.Store.get('quality') || 'auto';
