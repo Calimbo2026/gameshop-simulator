@@ -932,9 +932,10 @@ GS.World = (function () {
     const bag = new T.Group(); bag.visible = false;      /* bolsa de compras negra con el logo de GameShop: cuelga de la mano por las manijas */
     { arms[1].add(bag); bag.position.set(0.02, -0.6, 0.03); bag.rotation.z = -0.16; box(bag, 0.36, 0.27, 0.07, 0x0a0a0a, 0, -0.135, 0); const lm = bagLogoMat(); plane(bag, 0.35, 0.175, lm, 0, 0, 0.037); plane(bag, 0.35, 0.175, lm, 0, 0, -0.037, Math.PI);
       [-1, 1].forEach(sd => { const h = new T.Mesh(new T.TorusGeometry(0.095, 0.02, 6, 16, Math.PI), mat(0xf4f4f2)); h.position.set(0, 0.13, sd * 0.03); bag.add(h); }); }
-    const head = add(g, gHead, 'skin', 0, HY, 0); [-1, 1].forEach(sd => add(g, gEar, 'skin', sd * (HR - 0.01), HY - 0.03, 0));
-    const eyes = [-1, 1].map(sd => { const e = new T.Mesh(gEye, mat(0x1c1c22)); e.position.set(sd * 0.13, HY - 0.012, HR - 0.04); e.rotation.y = sd * 0.36; e.scale.set(1.08, 1.42, 0.5); g.add(e); const gl = new T.Mesh(gEye, glintMat); gl.scale.set(0.3, 0.24, 0.3); gl.position.set(0.014, 0.02, 0.043); e.add(gl); const g2 = new T.Mesh(gEye, glintMat); g2.scale.set(0.14, 0.11, 0.14); g2.position.set(-0.016, -0.016, 0.046); e.add(g2); return e; });      /* ojos apoyados en la cara, con dos brillos */
-    const smile = add(g, gSmile, 'ink', 0, HY - 0.12, HR - 0.03); smile.rotation.z = Math.PI; smile.rotation.x = 0.36;      /* la sonrisa sigue la curva de la cara: queda al ras */
+    const NK = 0.9, hd = new T.Group(); hd.position.y = NK; g.add(hd);      /* la cabeza gira desde el cuello: sirve para mirar hacia arriba */
+    const head = add(hd, gHead, 'skin', 0, (HY - NK), 0); [-1, 1].forEach(sd => add(hd, gEar, 'skin', sd * (HR - 0.01), (HY - NK) - 0.03, 0));
+    const eyes = [-1, 1].map(sd => { const e = new T.Mesh(gEye, mat(0x1c1c22)); e.position.set(sd * 0.13, (HY - NK) - 0.012, HR - 0.04); e.rotation.y = sd * 0.36; e.scale.set(1.08, 1.42, 0.5); hd.add(e); const gl = new T.Mesh(gEye, glintMat); gl.scale.set(0.3, 0.24, 0.3); gl.position.set(0.014, 0.02, 0.043); e.add(gl); const g2 = new T.Mesh(gEye, glintMat); g2.scale.set(0.14, 0.11, 0.14); g2.position.set(-0.016, -0.016, 0.046); e.add(g2); return e; });      /* ojos apoyados en la cara, con dos brillos */
+    const smile = add(hd, gSmile, 'ink', 0, (HY - NK) - 0.12, HR - 0.03); smile.rotation.z = Math.PI; smile.rotation.x = 0.36;      /* la sonrisa sigue la curva de la cara: queda al ras */
     const sh = new T.Mesh(gShadow, shadowMat); sh.rotation.x = -Math.PI / 2; sh.position.y = 0.02; g.add(sh);
     const carry = box(g, 0.36, 0.28, 0.3, 0xc49a6c, 0, 0.5, 0.3); carry.visible = false;
     const mopG = new T.Group(); mopG.visible = false; g.add(mopG); { const st = new T.Mesh(new T.CylinderGeometry(0.03, 0.03, 1.35, 6), mat(0xb5894f)); st.position.set(0, 0.62, 0.42); st.rotation.x = -0.5; mopG.add(st); box(mopG, 0.5, 0.1, 0.22, 0x57b7e6, 0, 0, 0.76); box(mopG, 0.5, 0.05, 0.3, 0xe9f4fb, 0, 0, 0.82); }      // mopa
@@ -953,7 +954,7 @@ GS.World = (function () {
       cur = Object.assign({}, cur, a);
       const skinC = cur.skin || SKINS[1], hairC = cur.hair == null ? 0x3a2a1a : cur.hair, topC = cur.shirt || 0x4a6fb5, botC = cur.pants || PANTS[(topC >> 3) % PANTS.length];
       parts.skin.forEach(m => { m.material = mat(skinC); }); parts.top.forEach(m => { m.material = mat(topC); }); parts.bot.forEach(m => { m.material = mat(botC); }); const inkC = lumC(botC) < 95 ? botC : 0x1c1c22; parts.ink.forEach(m => { m.material = mat(inkC); }); eyes.forEach(e => { e.material = mat(inkC); });      /* trazos de la cara: el color del pantalón si es oscuro, si no tinta */
-      if (acc) g.remove(acc); acc = new T.Group(); acc.position.y = HY; g.add(acc);
+      if (acc) hd.remove(acc); acc = new T.Group(); acc.position.y = HY - NK; hd.add(acc);
       if (bacc) g.remove(bacc); bacc = new T.Group(); g.add(bacc); armX.forEach(m => m.parent.remove(m)); armX = [];
       { const tmB = mat(topC), gold = mat(0xf5c518), sph = (r, m, x, y, z, sx, sy, sz) => { const q = new T.Mesh(new T.SphereGeometry(r, 14, 10), m); q.position.set(x, y, z); q.scale.set(sx || 1, sy || 1, sz || 1); bacc.add(q); return q; }, cy = (r1, r2, hh, m, x, y, z) => { const q = new T.Mesh(new T.CylinderGeometry(r1, r2, hh, 18), m); q.position.set(x, y, z); bacc.add(q); return q; };
         const fat = cur.build === 'robusto' ? 1.34 : cur.santa ? 1.25 : 1; arms.forEach((a, i) => { a.scale.set(fat, 1, fat); a.position.x = (i ? 1 : -1) * (0.2 + (fat - 1) * 0.13); a.position.y = fat > 1 ? 0.8 : 0.82; }); legs.forEach(l => l.scale.set(fat > 1 ? 1.2 : 1, 1, fat > 1 ? 1.2 : 1));
@@ -1049,11 +1050,12 @@ GS.World = (function () {
     style(o);
     scene.add(g);
     const p = {
-      group: g, path: [], speed: o.speed || 2.9, t: Math.random() * 6, onArrive: null, moving: false, legs, arms,
+      group: g, path: [], speed: o.speed || 2.9, t: Math.random() * 6, onArrive: null, moving: false, legs, arms, hd,
       setPos(x, z) { g.position.set(x, 0, z); },
       face(ry) { g.rotation.y = ry; },
       walk(points, cb) { p.path = points.slice(); p.onArrive = cb || null; p.moving = true; },
       bag(v) { bag.visible = v; p.bagOn = v; },
+      lookUp(v) { p.upG = v || 0; },
       /* halo de las visitas especiales: aro de luz en el piso, columna suave y chispas que suben */
       aura(col) { if (p.au) return; const c = new T.Color(col || 0xf5c518), mk = (geo, op) => new T.Mesh(geo, new T.MeshBasicMaterial({ color: c, transparent: true, opacity: op, depthWrite: false, blending: T.AdditiveBlending, side: T.DoubleSide })), A2 = new T.Group(); g.add(A2);
         const ring = mk(new T.RingGeometry(0.46, 0.62, 36), 0.85), disc = mk(new T.CircleGeometry(0.62, 30), 0.3), col2 = mk(new T.CylinderGeometry(0.42, 0.56, 1.7, 24, 1, true), 0.13); ring.rotation.x = disc.rotation.x = -Math.PI / 2; ring.position.y = 0.035; disc.position.y = 0.03; col2.position.y = 0.87; A2.add(ring, disc, col2);
@@ -1123,6 +1125,7 @@ GS.World = (function () {
       if (p.nodding && !p.moving && !p.sleeping) p.group.rotation.x = 0.08 + Math.sin(p.t * 6.5) * 0.07;
       p.t += dt;
       const g = p.group;
+      if (p.upG != null) { const h2 = p.hd; h2.rotation.x += (-p.upG - h2.rotation.x) * Math.min(1, dt * 6); if (!p.upG && Math.abs(h2.rotation.x) < 0.002) { h2.rotation.x = 0; p.upG = null; } }
       if (p.au) { const k = 1 + Math.sin(p.t * 3.2) * 0.09; p.au.ring.scale.set(k, k, 1); p.au.ring.material.opacity = 0.65 + Math.sin(p.t * 3.2) * 0.2; p.au.col2.rotation.y = p.t * 0.6; p.au.sp.forEach(q => { const u = (p.t * 0.42 + q.userData.ph) % 1, an = q.userData.ph * 6.283 * 2 + p.t * 1.3, sz = 0.26 * Math.sin(u * Math.PI); q.position.set(Math.cos(an) * 0.5, 0.1 + u * 1.75, Math.sin(an) * 0.5); q.scale.set(sz, sz, 1); }); }
       if (p.gf) { const G = p.gf; G.t += dt; const u = Math.min(1, G.t / 1.15), e = u < 0.3 ? 0 : (u - 0.3) / 0.7; G.m.position.set(-0.5 * e, 0.78 + Math.sin(e * Math.PI) * 0.95 + e * 0.4, 0.42 - e * 0.64); G.m.rotation.set(e * 4, e * 3, 0); G.m.scale.setScalar(1 - e * 0.35); p.arms.forEach(a => { a.rotation.x = -1.5 - e * 1.2; }); if (u >= 1) { g.remove(G.m); p.gf = null; p.holding = false; p.arms.forEach(a => { a.rotation.x = 0; }); } }
       if (p.sleeping) { if (p.zs) p.zs.forEach(z => { const u = (p.t / 2.7 + z.userData.ph) % 1, sz = 0.2 + u * 0.3; z.position.set(0.3 + u * 0.5 + Math.sin(u * 7) * 0.07, 1.14 + 0.3 + u * 1.1, 0.25); z.scale.set(sz, sz, 1); z.material.opacity = Math.min(1, u * 5, (1 - u) * 2.5); }); const br = Math.sin(p.t * 2.1); g.rotation.x = -0.4 + br * 0.025; g.scale.y = (g.userData.base || 1) * (1 + br * 0.018); continue; }

@@ -776,7 +776,7 @@ GS.Game = (function () {
     const cu = { id: ++uid, arche: { id: S.id, name: S.name, tag: S.tag, face: '📖', bye: '', lost: '' }, look, story: S, rv: rvV, st: 'entering', pat: 1, person, slotM: slot, slotC: -1, label: makeLabel(rvV ? rvV.mark : '📖') };
     day.customers.push(cu);
     if (rvV) { const d = day, at = [dx + 1.15, 1.8];      /* el rival no hace la cola: se planta en el medio del salón, mira a la pantalla y la cámara va con él */
-      person.walk([[dx, L.salon.zMax + 0.2], [dx, at[1]], at], () => { if (day !== d) return; cu.st = 'waitM'; person.face(GS.CONFIG.camera.rot * Math.PI / 180); A.play('speaker');
+      person.walk([[dx, L.salon.zMax + 0.2], [dx, at[1]], at], () => { if (day !== d) return; cu.st = 'waitM'; person.face(GS.CONFIG.camera.rot * Math.PI / 180); person.lookUp(0.5); A.play('speaker');
         toast('<b>' + rvV.mark + ' ' + rvV.owner + ' entró al local</b>' + rvV.name + ' · quiere hablar con vos.', 'rival', 4200, false, rvV.col);
         if (!MG.isOpen() && !paused) W.zoomAt(at[0], at[1], 0.4);
         sayAt(person, rvV.hi, 0, 'riv', false, false, () => { if (day !== d || cu.st !== 'waitM' || state !== 'day') return; if (!MG.isOpen() && !paused) openStory(cu); }, rvV); }); }
@@ -786,7 +786,7 @@ GS.Game = (function () {
     const S = cu.story, h = histAll(), st = h[S.id] || { step: 0, flags: {}, notes: [] }, real = S.steps[st.step], gf = GS.Store.get('gflags') || {};
     const waiting = !!(real.need && !gf[real.need] && !(real.waitMax && (st.waits || 0) >= real.waitMax)), step = waiting ? real.wait : real, alt = step.alt && st.flags[step.alt.flag] ? step.alt : null;
     const text = alt ? alt.t : step.t, mood = alt ? alt.m : step.m; let chosen = false;
-    A.unlock(); A.play('click'); cu.st = 'inM'; paused = true; if (cu.rv) W.zoomAt(cu.person.group.position.x + 2.0, cu.person.group.position.z + 2.6, 0.36); else { yoGo('most'); focusFor('mostrador'); } A.babble(text, cu.person.voice);
+    A.unlock(); A.play('click'); cu.st = 'inM'; paused = true; if (cu.rv) W.zoomAt(cu.person.group.position.x + 1.4, cu.person.group.position.z + 1.8, 0.25); else { yoGo('most'); focusFor('mostrador'); } A.babble(text, cu.person.voice);
     const faceBox = m => '<div class="st-face">' + avatarSvg(cu.look, m) + '</div>';
     const stCls = cu.rv ? '<div class="story rv" style="--rc:' + cu.rv.col + '"><em class="st-brand">' + cu.rv.mark + ' ' + cu.rv.name + '</em>' : '<div class="story">';
     modal(stCls + '<div class="st-head">' + faceBox(mood) + '<div><b>' + S.name + '</b><span>' + S.tag + (st.step ? ' · vez ' + (st.step + 1) : '') + '</span></div></div>' +
@@ -865,7 +865,7 @@ GS.Game = (function () {
   }
   function leave(cu, withBag) {
     if (!cu.story && cu.st !== 'entering') dropDirt();
-    cu.st = 'leaving'; cu.slotM = -1; cu.slotC = -1; cu.label.hidden = true; cu.person.bag(!!withBag);
+    cu.st = 'leaving'; cu.slotM = -1; cu.slotC = -1; cu.label.hidden = true; cu.person.bag(!!withBag); if (cu.rv) cu.person.lookUp(0);
     const dx = L.puerta.x, d = day;
     cu.person.walk((cu.rv ? [[dx, 1.8]] : [[dx, -1.2]]).concat([[dx, L.salon.zMax + 0.2], [dx + U.rnd(-2, 2), L.galeria.zMax + 3]]), () => {
       cu.person.remove(); cu.label.remove(); const i = d.customers.indexOf(cu); if (i >= 0) d.customers.splice(i, 1);
