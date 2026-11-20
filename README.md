@@ -340,3 +340,7 @@ Tres juegos en `src/arcade.js`, que se ganan al terminar las jornadas 3, 8 y 14 
 - Personajes con vida: ánimo en la cara 3D (`person.mood`: normal, happy, impatient, angry, sad, surprised), parpadeo, respiración, mirada hacia quien los atiende (`person.gaze`), boca y mano al hablar (`person.talk`), brazos en jarra al enojarse y pie que golpea al impacientarse.
 - Los clientes cambian de cara según su paciencia, festejan al comprar, y varían de altura. El que va apurado camina inclinado. Manos con pulgar.
 - Arreglo: durante el vuelo de dron los personajes quedaban congelados.
+
+## v0.80.0
+- Día de inducción antes de la jornada 1 (`GS.INDUC`, `startDay(true, true, true)`, `inducWave`, `inducEnd`): una estación por tanda, sin reloj ni quejas, con barras de cine, cartel de estación, música de entrenamiento (`train`) y el Dueño de entrenador. El cliente es un muñeco de paja (`look.dummy`). Se puede saltear con "Ya sé jugar". Se guarda en `Store.induc`.
+- `GS.UNLOCKS` queda vacío: desde la jornada 1 están todas las tareas, y las jornadas arrancan con pocos clientes y suman una tarea por jornada.

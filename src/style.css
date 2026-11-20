@@ -792,3 +792,11 @@ a.mbtn { text-decoration: none; box-sizing: border-box; } .mbtn.gold { margin-to
 #modal.low.clear { touch-action: none; cursor: grab; }
 
 .av-panel { height: 246px; } .av-panel .sw[data-k=hair] { gap: 5px; flex-wrap: nowrap; } .av-panel .sw[data-k=hair] button { width: 27px; height: 27px; flex: none; border-width: 2px; } .av-panel .av-chip { padding: 7px 10px; } .av-sl { margin-top: 6px; grid-template-columns: 70px 1fr; } .av-sl input { height: 12px; } .av-card { min-height: 70px; padding: 6px 4px; }
+
+/* v0.80: día de inducción, en clave de película de entrenamiento */
+.cine-bar { position: fixed; left: 0; right: 0; height: 0; background: #000; z-index: 24; pointer-events: none; transition: height .6s ease; } .cine-bar.top { top: 0; } .cine-bar.bot { bottom: 0; } body.cine .cine-bar { height: 5.5vh; }
+body.cine #hud { top: 5.5vh; } body.cine #jobs { bottom: calc(5.5vh + 4px); } body.cine #chipGoal, body.cine #duelBar, body.cine #chipCond { display: none !important; } body.cine #c { filter: contrast(1.06) saturate(1.12); }
+#cineCard { position: fixed; left: 0; right: 0; top: 30%; z-index: 26; pointer-events: none; text-align: center; opacity: 0; } #cineCard small { display: block; font-size: 13px; letter-spacing: .34em; color: #f5c518; font-weight: 800; text-shadow: 0 2px 0 #000; } #cineCard b { display: inline-block; font-family: var(--display); font-size: clamp(26px, 8.4vw, 52px); max-width: 92vw; line-height: 1.02; color: #fff; text-transform: uppercase; letter-spacing: .02em; padding: 4px 18px 6px; background: linear-gradient(90deg, transparent, rgba(225,6,0,.92) 12% 88%, transparent); text-shadow: 0 4px 0 #000; transform: skewX(-8deg); }
+#cineCard.go { animation: cineSlam 2.3s cubic-bezier(.2,.9,.2,1) both; } @keyframes cineSlam { 0% { opacity: 0; transform: scale(2.4); } 10% { opacity: 1; transform: scale(.96); } 16% { transform: scale(1); } 80% { opacity: 1; transform: scale(1.03); } 100% { opacity: 0; transform: scale(1.1) translateY(-8px); } }
+.induc-ask { display: flex; flex-direction: column; gap: 10px; text-align: center; } .induc-ask small { letter-spacing: .3em; color: #f5c518; font-weight: 800; font-size: 12px; } .induc-ask h2 { margin: 0; font-size: 30px; } .induc-ask p { margin: 0 0 4px; }
+@media (prefers-reduced-motion: reduce) { #cineCard.go { animation: none; opacity: 1; } }

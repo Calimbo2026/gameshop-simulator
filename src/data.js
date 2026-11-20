@@ -7,7 +7,7 @@
 const GS = {};
 
 GS.CONFIG = {
-  version: '0.78.1',
+  version: '0.80.0',
   phase: 8,
   phaseNote: 'Juego completo de punta a punta. Falta tu playtest con 5 personas y encender el lanzamiento (launched: true)',                       // fase actual del proyecto (1 a 5)
   links: { tienda: 'https://www.gameshop.com.ar', instagram: '' },   // botones del inicio y del cierre (vacío = no se muestra)
@@ -287,7 +287,17 @@ GS.SKINS = [0xf6d7bd, 0xf2c9a0, 0xe0ac7e, 0xc68a5c, 0x9a643c, 0x6b4428];
 GS.HAIRS = [0x000000, 0x2b2b3a, 0x4a3a2a, 0x7a3b1e, 0xd9a514, 0xc9c9d6, 0x2d6cdf, 0xff5fa2, 0x3bb54a];
 
 /* Progresión: qué estaciones se suman en cada jornada (de menos a más) y cómo las explica el Dueño */
-GS.UNLOCKS = [['mostrador', 'caja', 'whatsapp'], ['cierre', 'repo', 'stock', 'vidriera', 'ml'], ['proveedor', 'pc', 'service', 'devol']];      /* en tres jornadas se conocen todas las tareas; desde la 4 hay meta diaria y medallas */
+GS.UNLOCKS = [];      /* ya no se aprende por jornadas: todo se aprende en el día de inducción, y desde la jornada 1 están todas las tareas */
+/* Día de inducción: el Dueño entrena al jugador, una estación por vez. El cliente es un muñeco de paja. */
+GS.INDUC = {
+  order: ['whatsapp', 'ml', 'stock', 'repo', 'proveedor', 'vidriera', 'pc', 'service', 'devol'],
+  dummy: { id: 'dummy', name: 'Cliente de paja', face: '🎯', shirt: 0xd9b77a, hair: 0xe8c33c, tag: 'No se queja nunca. Todavía.', look: { dummy: true, hairStyle: 'pelado', glasses: false, beard: false, lips: false, lashes: false, skin: 0xd9b77a, pants: 0x7a5a36, scale: 1 },
+    bye: '(El Dueño, haciendo la voz) "¡Qué atención! Vuelvo mañana con toda la familia."', lost: '' },
+  open: '¡Arriba! Hoy no abrimos: hoy entrenamos. Ese de paja es tu primer cliente. No muerde. Tocá el pedido de abajo.',
+  say: { caja: '¡Ahora cobrale! Contá bien el vuelto, que el de paja no perdona.', whatsapp: '¡Los mensajes no se contestan solos! ¡Rápido y amable!', ml: '¡Compra por la página! Embalá como si adentro viajara tu abuela.', stock: '¡A contar! El sistema dice una cosa. Vos decime la verdad.', repo: '¡Depósito! Cada caja en su lugar. ¡Otra vez! ¡Con ganas!', proveedor: '¡Llegó el camión! Lo que no está en el remito, no entra.', vidriera: '¡La vidriera es la cara del local! ¡Que brille!', pc: '¡A armar una PC! Cada pieza en su lugar, sin forzar nada.', service: '¡Al taller! Escuchá al equipo: siempre te dice qué le duele.', devol: '¡Una devolución! Mirá bien el producto antes de decir que sí.', cierre: '¡Última estación! Contá la caja. Si cierra, ya sos de los nuestros.' },
+  cheer: ['¡Eso!', '¡Así se hace!', '¡Otra! ¡Vamos!', '¡Mirá vos!', '¡Con esa actitud!', '¡Sin aflojar!', '¡Ya casi, ya casi!'],
+  end: [{ art: 'jefe2', k: 'Día de inducción', t: '¡Estás listo!', d: 'Atendiste, cobraste, embalaste, contaste y arreglaste. El de paja quedó conforme, y eso que es exigente.' }, { art: 'equipo0', k: 'Mañana abrimos', t: 'Ahora, con gente de verdad', d: 'Desde la jornada 1 hacés de todo. Llevá el local a 5 estrellas, completá la flota y vas a conocer a la competencia. Yo te voy a estar mirando. Desde la oficina. Con mate.' }]
+};
 GS.EXPLAIN = {
   adornos: 'Mañana empieza la semana de Navidad. Elegí el árbol, las guirnaldas y las luces: como lo armes hoy, así amanece el local.',
   vidriera: 'Armá la vidriera según el tema: elegí los 4 productos que mejor van. Si queda bien, va a entrar gente diciendo que lo vio ahí.',

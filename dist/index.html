@@ -819,6 +819,14 @@ a.mbtn { text-decoration: none; box-sizing: border-box; } .mbtn.gold { margin-to
 
 .av-panel { height: 246px; } .av-panel .sw[data-k=hair] { gap: 5px; flex-wrap: nowrap; } .av-panel .sw[data-k=hair] button { width: 27px; height: 27px; flex: none; border-width: 2px; } .av-panel .av-chip { padding: 7px 10px; } .av-sl { margin-top: 6px; grid-template-columns: 70px 1fr; } .av-sl input { height: 12px; } .av-card { min-height: 70px; padding: 6px 4px; }
 
+/* v0.80: día de inducción, en clave de película de entrenamiento */
+.cine-bar { position: fixed; left: 0; right: 0; height: 0; background: #000; z-index: 24; pointer-events: none; transition: height .6s ease; } .cine-bar.top { top: 0; } .cine-bar.bot { bottom: 0; } body.cine .cine-bar { height: 5.5vh; }
+body.cine #hud { top: 5.5vh; } body.cine #jobs { bottom: calc(5.5vh + 4px); } body.cine #chipGoal, body.cine #duelBar, body.cine #chipCond { display: none !important; } body.cine #c { filter: contrast(1.06) saturate(1.12); }
+#cineCard { position: fixed; left: 0; right: 0; top: 30%; z-index: 26; pointer-events: none; text-align: center; opacity: 0; } #cineCard small { display: block; font-size: 13px; letter-spacing: .34em; color: #f5c518; font-weight: 800; text-shadow: 0 2px 0 #000; } #cineCard b { display: inline-block; font-family: var(--display); font-size: clamp(26px, 8.4vw, 52px); max-width: 92vw; line-height: 1.02; color: #fff; text-transform: uppercase; letter-spacing: .02em; padding: 4px 18px 6px; background: linear-gradient(90deg, transparent, rgba(225,6,0,.92) 12% 88%, transparent); text-shadow: 0 4px 0 #000; transform: skewX(-8deg); }
+#cineCard.go { animation: cineSlam 2.3s cubic-bezier(.2,.9,.2,1) both; } @keyframes cineSlam { 0% { opacity: 0; transform: scale(2.4); } 10% { opacity: 1; transform: scale(.96); } 16% { transform: scale(1); } 80% { opacity: 1; transform: scale(1.03); } 100% { opacity: 0; transform: scale(1.1) translateY(-8px); } }
+.induc-ask { display: flex; flex-direction: column; gap: 10px; text-align: center; } .induc-ask small { letter-spacing: .3em; color: #f5c518; font-weight: 800; font-size: 12px; } .induc-ask h2 { margin: 0; font-size: 30px; } .induc-ask p { margin: 0 0 4px; }
+@media (prefers-reduced-motion: reduce) { #cineCard.go { animation: none; opacity: 1; } }
+
 </style>
 </head>
 <body>
@@ -866,6 +874,7 @@ a.mbtn { text-decoration: none; box-sizing: border-box; } .mbtn.gold { margin-to
 <div id="mg" hidden></div>
 
 <!-- Inicio -->
+<div id="cineCard" hidden></div><i class="cine-bar top"></i><i class="cine-bar bot"></i>
 <section class="screen" id="start">
   <div class="col">
     <div>
@@ -937,7 +946,7 @@ const GS = {};
 GS.LOGO = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAtAAAAC0CAMAAACKc+vLAAAAYFBMVEX////+/v79/f38/Pz7+/vl5eXHx8eamppra2tQUFA1NTUVFRUFBQUDAwMCAgIBAQH/AAD+AAD9AAD8AAD7AADtAADPAACTAABdAAA6AAASAAAEAAADAAACAAABAAAAAABASjaiAAAeAElEQVR42u2diZaiSgxA2cQNQRBxQeD//3KSYlWhEhBtuyd558zM62GwkFupVCqLUYiI/CEx5CsQEaBFRARoEREBWkREgBYRoEVEBGgREQFaRESAFhERoEUEaBERAVpERIAWERGgRUTmBjrw/V0rvh8E8iW+RfI8u3Uky3P5TuYFOvC9nd/zc3/n7QTrWVm+pbes58dZmmaC9SxAI8zln7bbzWZdy2az3XrlzwFq+TbngDlLS5bT6/VyuZyVwB+u17S8IBOoXwbaVzB7m/Vq6S4WltGK6SwW7nK13uIFO2H6Vclu+Ov1cj4lyTHedyQ+JsnpdL4orNNMY6loRYCucN6slgunotiya2nYBqoV1L02iQhT0M7IAeZjTfGhkZbrEur8Jl/XNKB9QHS7ck3E1nZsyzLNroY2TcDbUWAvlitgWrT0ZO0MOF9OScltfIjCsKuhwzA6HOIS7OR0Qfx7ZkRxTvRyKbL/GugAcN4sHQWz1SX5QUxLQb1YbsA0ETYnqWfEGa2M+HCP8p0g1nhNcoYZ8GRApMV5r5dzcfufgd4hzkCqbRu0mHiVs9yqWSAy1kkHOKOREe1piZBpULZPcALQoMWHJT7830Dviu0S1LJtGkwxQZcvVmoiiIxUz+fjPjyEe56ECP7pWqTPGjrWzYT/WkODol0vQO+yca6RBiUtRI/k+QrqOd6PEUAalPRNgOYCDWclK9NwjLFi2sZiI0SP4/mS7NnaufXk7eMHPgXoYaD9wFvCXs+YII7hrIXoUTwfR6rnms8HQAXoQaAhZGNpOKYxSWzD2RSyM+TbG8f9YT9FYHd4R6gAPQR04BXLCeZGS/RiK+Ed3LPuazJJP5devLjrWRagh4DeFasXeEail+K84yro02SeEdHk2vqjBegBoP1i49jmC0DDbBAzmsnz+QWecWd4alW0AN0PtO9vF4b1Cs+GZS48MTo4ByrXYxS9ALQyOm4CtBbo3UsGdG10rERF04IIHvavyAFUtACtBdovtgvLfBFoVNGFqGhKQYOHI4xeAjoMj9fa6BCge4GeQ0ED0WJF8yzo1xQ0quiGUgG6D+ig2Dqm+TLQtuGKL5o2oZOQADqiTGxwdNxyAXoYaA9cdlR0HcRBU8jDsflWiNZLVlxjSv2qX3XH4uE+rm0OAboH6CDYuaZNaV+DDsKTbeHrW0IA+ZgcSV90jakA3QP0rtgYJqV8jQUmZJnU4QoD6ACSxr1OYQT4sz/7XrKtvODzrpuW8ovPsusWeQhIDZ0QAJ4u1/QKkdIh4YpOJwENGblVlYR0UiILVFpIO6UW4M/vSFps6zkw8oONXovDIXBebrbedrXQE20ZhJ8j2HlDfPnzJZEHu/tZpfnMB7iDcR/Te2Nt4nBepMd9pOW5uvKsc4Uc9skUkyN/KJVwy0Zmp/fTe5s3Kz2/3S8p1JzpMTkKV2tCm7azKq/cLohoPEsTouRXynILRRFWq2UtK6iNUFVG8D2NOg0IaTnDO23X6hNWZXp6L2OYO1lU18EoNl4xIj/S94IyL36zbh4FPmyz1T9HVlwije6F3R7gAanatxSOxw/aXWGRjwRa5ZenUCbhhAKVEor+NMWhwiFFmZ5+Kf99KVBu4VpRl+m3wtzU9Lwc5aUZJd5Xi7TR44R2tJoXLQmsLAPxS2v95nHYcRcomrcbLIvwvBo4WBlBweC/qqd3SNmy8xkLV2Xy9udOup2xLFQa+46lm8u58PwsTpMMvxs0oSO9Py6t8mdh8xgOG9rgiR4HNCbkXiG9vL04Vpm3rDoH9Vw4JcfHWRYek6rUwu02TyLPDfKG70eZFrpEX+PZ4tBjCobEVmkzUJLEAbkDu0JvADPIJF8uqjs6jtMURoA/NkStNsOFEbytXmqt663cKl9d3b3M5AXvS9CbOwljqUahRgDskzMqKB+mmgtm91HszhTydwNAxzrvRRNJl4OxfZgN6Fwl5Kq9ZpWCWKaTY+btjZOcDnMhKYcTxXE3ZXFfZaWfr5pKC7erXtIW5+s56Y4yLkeZakZpjI2zc9qtHmWcOP27QtSa6xIAVRbh2SVoWXb51+5AYQS/WC604qL1Dh8EOWQAWeczID29THv075jcIs7312HRkcW60G/sEGevpBnmwuOzwIOoKeRgMnzPY6TaQLuo4RSuzDVXtn47HtBZlV8eQamEbkzIvi9N8cl0buZCHEdP6elQbKGk7oj6Psv67ayjTpJjuYrAfEgR5zC+H2W4f0490wO91FIKzrigonQX6E8U8WiltzDCGrWmTbj9VBK5UqfPs8IvXL0fBrejiCl8jEWlPQKyyL3dnx9Z6EKsVM2Shf5h1HOY7qbnMTLKNM6LnOHfa1U5C2hMYIx7fduQpni8aImuay1EXcp64qXqtPQ078vPIdyQKjYFJ07SmwUfPaeeaYAGveZq7YiOYUwlAfS5OSqcbVZwalMYwX+6iwu6b1AcCz7YKzaLHpzL0k+G26Q9woiWxsActixcZAKNhY44kw+jEo2xvkPw6OVI9EDXPKsj8mgY6MMIoNPimuyHPjbexxrtB+r5eor2nPRHlcAOWjrPeoCOYG0YlDhCoEE9n8Khog6HfbO7IIHGwCTtntA0Ni3QeuvEBHO7CJ4KIyhOxhZG8J80tK2fSZCy7gyPzmkSeWFE7gD35ccPOtNhCdi4xvC/vV+tzJ76DmOAvug2hSOAzlUCYzh8xTDRmaq1wM7mRX0PH3fr09Ch3qsOThRQz8NBAWE8eEL0DPTG1AFtdnxxNNCPh98KAVbVmoeF37u/DwNoGJvOqejgZPMrnh3tpw+4ajArHqaMxY9t6anvkGi8HO8BGhMY9Zccr722r1Ka42otAJDJk1HOATrVzzpcAIbmndFzTqj1Qhv2CKDN+3oGO7QCxsfxoYVwPzNooCHlRr8OOIYLzscdLkj6YyQT0iP9XvN50FIZnBvuY32HzwOdJkR4X9yJr37I5U14hZ3uNOnTBo4BdIYrwYGYK0n/Ac4z0OsZgTbuXiDw7Bi2YUxJ6HLvjBcaaDrlBo0Jj+S5vM7v4RmqPIzNUlOGjvejQF/ohK/Dvq+i48RaC/HTNpOjoc/RPmKknt1YQK9mAxou7i7XyjyfxHOpTzs7QxJolw4YVGmPNM9guJjPdXPgWMmdsNaoGjz+zwEdhudjFJJAJ8/OiWxq7ZDDo1FOA32+RHTSQwR5DX3HQMbTucryTUBDsIM7ledHnzYBNDq4TUYGgrvhjMh+VtHwLNNyIOzKdP8hoHkmcE9MXqbsjYn5B8c7jU8BHe6T4z4aldfwMaDvzr5frIxgW517kUCzpwljT2eaT2VzplctQaI7S83Hgd6HHFSSB5sDIpGm1w4Boq8d7x0FNHOQoKJhIck/D7TXHF+8lqgI+rRNI58LaF5q+1McLG40plaVKk13HtDHtCZ6NqBDVpZi/GBFv1Y7BHaG2W0E0FHITKbss/X7gHbeATRxAqmiHwisWhU9F9Amk/r7A6LX5uadH1AHNB4A1pptPg3NrfWRPtYOCV+7322Mhh5/148DHWCw6fDxsEnrS9tsVfRsGprJvfXgrVm+8OlW1w+YUNF2t4aC4Urm8SGeF2gwdrptESHW77XUdDgLbxLT5wMaTbLix4DWek8AZ3e1WrmEKWt0jqs/CrR9FzZIeTbH7G8TfXx/42u9Eb0m5gW6G+dXGRzz1Q6ZDehOLuUPAA0IDiYqQgTcWl20snUruWMufwjoe1c05FwSceC2NrrDtFuFrwW6ExAN9TvOOmGGj46pjNDYHFl+ifVmLfR90Z+4gH6/dBabeYC+H+WHgVZpA/qUAUjH0y/lVhsa8mmTo2tEo4K29CtJk0dMFHjQx3JgBQMIIL2NTLqN5zZPSQXNyEyPW8cJC2g42obo1JGm/ieB1pVGwJAPlTKgSuqZutvVmo0DNAQjWzwDmbyu+9CwJdR+NppPS8x9sXRmdPkgGYUK1hatyMpTneQjgIaINsbZSuMxzLC4k76MwhHSoxLCI3GoVTQH6APL3XHo1qn8MNCgfE1Ho7ACTsmmti4CA2irJIfnuLPINPd1a+1sbE1NElhG1qpR6VJDdO0HJIFGssboaI4f+tAhhuMxJO4J1sQJEwkhrlSHfWtFM4CGg++knCMhVWHnhzaF2ijrdpPkBSv9Ur1kA42K0l3QjjkL0mLcBW1Er1i7W9wObFQxhEI3QrM6L0xp9+6hJ17tRZMDeizHBFEqqStjFXdSmekpJs2edRq1TRNj+KFVbgDcFRuDUaPMfwhoTeZte9SA5qmpP1spdTkJNB5rY3IUVdOsuU6vo1ugVRCHpTWPVQY4pBdoPtsuvxgOfwd8u2k+E9DgQMN0v6u+0Af+ZW0hQBBHHGoz0zOV4p3rM9P3zbaQBBpjSTCvHHNW4pDvjPkk0FpS2UC3CQMU0BjzqdJc1vrwe1UiFa9bGRbP04YWB5Gg5jWLiKVz2PjEcUnn5PjMLTBAAo2OAZXanVD7vNbk1XLaehpu2UW3L4zDExNoRD8tGHNk3/GdzAW06Zgasc0KaG25PDbQbaEPCmi7vGXg0QmSeB2U1aDv53MK/7XRK9r9QOWwyYtrTBNdttjMshmAhkU6RX2a5hd9/E/cVlDQsg+HlHWcBlTNISJTSrOcAjpqg/3SXF8prS8+6VUNTTgIOkA7rwPduDkooOFClcm7C7QuNvCvbNShHbXWtJVUie+ndcRQt8TrCAY6+y6lpPOXga7dcXlOfHCT4pRjmF3EMmMp9KtjEAroziEMXBrqL50daIeQxuRYzgP0mgV0k/sV6KvmNJ5tzNOxCKCDcjPgE5HYPKCrpSFlBv0clJKm7Q4KaCAgTzm+5QZoVdxpT+tddU+tHRNWtxwBNNrvnwQ6IMu9bJtzwuUcJkfjt2NkrCgAYYS6zBXYEvrqOmySZPCA5rrK9UBXz8wyokvfMSjpG6mk2ZWTbqQq71wYzQJ0bcWwkmQ71YYJ9tMZgR5R/XM+oD1ukmxQK1SLyanFAJoqlMbX0OqGIzpSHMpCF7e5gL7wNDRR8HcU0KfvBxr6zeolYNRYeivQ2gvHA03VGuYCDSPc4R1HxP2AMziiNoejgI54QGuNohFA1+d6MwId/5iGnglo58eBpiv/sYFWRhG+spAbqQPnFrg5TD8J9G02oOtoTwH6u4BeEcWieEA3LvVxuSCxsjvy7HNA5ySlI4BWlc0E6L8JdOWHoWMzH7vV645ZvhzomwD9h4Guvsax0fPl5nCgSP7sQFNniqOALgOeBOi/CXR9YZ5dOYcrd5vDQSX9BqCzZCa3XX0GI0D/baBLD1o4LlMDj1luAvScQAc7ngQCNFUlbXyNgFCF4PWcsgjQ36WhqZafvwLoqrObt+MCraq4jExCVTW/n8usCNATgQ6w4RNL6iNoJtBLoh3Gb9DQtXCBVklO+2hsDv/+lD4FAwvQE4GG2AeDJ2XwBRNo33d5XYi+FmjTgL50legiV+8Ls6rKniOJDlUuSyZAzwW0zRHHXo8A2iPyqX8B0Aa/ZFO3ds0Nw8rGlnKJn4kWoN+soZ0RGjrApijmrwfabDq9mCNKZ6uS9YeXiRagPwi0OYwfAg3+kA3Ra/nvauiK6Hg80fdl7AXoDwENaf3anSPm4UGmKl10/88CXag2OYdwQlXFXID+AaBJxx42e7OM/xdo7GFy2o93391VwxKgPwb0YMT0zvNUZ1mD0bHkTwNddU0bp6TDQ9RNfBagf1pDq8bvW6w7yqnb9beBxrBQbJ46yttx34VNgP5ZoP2yaNaC24rzjwONQKbQeHhUbfFupVoB+ieBDjDOo+xibzO7V/55oJsO16OIbo0OAfrHgN41ynlEt7+/DzSUwFJKekzMP3ijs1yA/kmgVRGYbamcxzSv/A+AVoHO45R0pzqFAP0TQAetcuZ3yv5/gEYlje4OdleTTgtKAfrzQOMZinJrQOcGc3RriP8BaOzSo3zS3M1hq6IF6E8Djdp5u1qoRiPGhF4n/wfQjd0RMVV03YJSgJ4ONB2A0wN0jfMUmn8J0BZLbMvSAo12xxU2hwdmP6hLW+dIgP6cht5BwIYe5/8lOMkgNHSjpFnujqb2sgA9HehFKWOAhn/lGrqewqb9+zW0yxUykw3qhDKjOxRWAvRrSbKeEn0O4B3QUIgZ4um0DfwMY/HL46ExBSso5pLS3XHghHSUNocA/VqS7K7gAx1gjWhTXybfXK2tv5L1zZOckDKolBV0J0C/BnQAQnStugNa1TzXlxZdrP9QGYOZJMUK+jE3oEOAfk1De3wNjSU3HD2s7rbY/W9AX/WSqTBpWkcfqkatAvSngA4CPTElz95/pqGh8eZRJwkScCvoWmE1VwL0p4CmrG1b6efdnwI6IGtKYSdZnTQEHENeo0wB+kNAg73t6hK6Vf3vXbH7/zR0FEdDcoiqDlOpvs9Jp8WUAP0hoInWJKqh8O5v1baDW661AjWl9L2+25ZpKaPk7kWA/iDQBKl175S/VqyROinkAp3lV8LoCAXojwJNNxwJgr8HNBSOGi4pZY8Amq6KXjUJFqA/pqGXRNO+3f9YTpcPdH6JIgH6twBtVo2MBeghoLGfIdnwXYD+oJdDx1XTEUqAnthHW4D+KqCRFgFaDzRV5V+A/jKgg0KA1gGdCtC/B+hmTyhAa4A+C9C/CWhPgBagBWgBWoAWoAXo/w5oW4B+P9CQ9e3/BqBna40c/lxrZAH6Q72+/yugf6jXNxW4XKoWPtBrAXoA6O1vABo+fz6gk2xmoA8soNeGzS0o8X8Cbc8CNJyO+vrjkq8AWj/nRgLd9Db/JqCtcUD/MZODGiEX6HKEY4DWH6y8K3yU+uARQGPeY84A+jAO6BsJ9EZfQ9GulC7HJfL3gMYaaLoh8oF2SVrGAL3/fqBrzTsK6AsB9JkEmnq1TTB++Xr/N6ADfeoNG+jyhgygM1Ysx9tSsOCXM9dtl9NApyygk3aKXLQxhhygIf3PJYB2600htLB36V7GfwxoT3shF+jyuB/5O7CAJvdmpTJ/B9Bapu5CXFOty/pQdaCjgO48dprrH6fbjWMQ6B3ltzOdKnq52Pkb0zT/K6DVomTPoaHxSVD9Db/aMAzr9wWwHDmK8h2bQn0kNhjveVoVtdbbB/tQWUUk0Eh+dUsqUSfkAE2WI7SRv10Q+B7ls2YDXdPiBfod6RcADV+P6eg+ud5h7AKtOWai8zPDd6t/s+X7umWXQ/gThWYwn5HY6tWOhpTyh5RuaA7Q1S2zjJpMx4de5/0amlK7qF1KWZnWDM3rAT8/CDibzC8AGr4eIt03qLO+6ZwGIhEFMWXB8r5SYLSWjGK4MgWBDZwukRdL/mYctx3e8lKoO1If3dk1a2xofLdaoIHi5WbrbddQfJEseM7wQ0ON8DUoZ2xWsVmYX25yEFc25pPv63aPtrnEjUhe5PpICXyztxsJS7M7egvQ+itBTZ7VhRetUdSY0Byg98lFTePTnkikTJ54fgYarUTTIRsqLBYOVZ6cq6HRh+Up+LaMPeYPA417DE0NVdME1evtdp7e1q5dRaTz4nipYdFXMYgv7zI51CqiJ3qfnM7n00E/xMY8oIFGp83pdD5RFdD63NA9QKMRTXWMUK/Ksg0u0ORWyt142OeN+ODvAHqtd3NATTO8I5hjpv7guwJQv+sJgZVzQqq0To2lmYEms7+aoWmHeAiTytxlAF0PLaKKCLOAJqoc1ZrIJNUzO+sbMTAW7sIwLOPrgcayk0RVs9V6rdp8affVfnNy8DIsQEtln74H6AtF1iGG/0KyU1fKBhoquMdxHJGNC85PJ989QNPHJcaoLj8coA2lzciG398ANBm+Zd39RvhC8pRYV8PDIToQsLS0vAPoHPwc4ZhezUQvRRbQe1arpPjZydEHNLGoTgGa0WuH07XwK4BWKlobz+FYtrajqG26XlDwSiLx3mxbBG9+oEm7aM9spZgW8wINe8L8md4eoKEy/8K0ZtbQs8yRrwCabsRhkDuQJhwmo/wXHGltybcAnWdp8iLRHQU9H9BN7y8K6Nff2Njqo78L6MDfvjTh4WaBHxS8CjIcBR1VPo43AY0Xk1YPux35nBq6x4TuBZra94wHGiNETPuPAF2213gF6E4N6RtZ+3nPabCSFW8EmnZ0MDpmdKfHLECHfccq/UBPUNED/DdAe7NsNL8EaHqPq3+IZbcmOnG0zFPQ+XuBzrPrK4NUBkfGBzpizfDGtcMAGuI05lHRDdAQR+yYfwZo+H7cqUTDrTw/6PYivOxfWs8f929vABovj6Opgwzvg+I4GjqcbHH0Az16UbUct9dEbrtgAYKv2xzfAjTOz8W0Xa5lOg9NK15cz2PY69/yNwNddsWYRnT4cP5BAQ3Oi4RhhUVhG4lNA134gTvC6ADQNoy2bpwbWr8CaIxRcqZsnC3LWT80YXnNiQA8d5bztwGtbP1DNAPPjJzCMywH0Zh9JgvoLV8FqYic3ss7jTd9nzNFrN+hoXFTsJ5ANJwftfk+nTd8nHpyEd9HUL4PaHXrMJpg4SPP+SigTzh5KKMkah2BHKBRo5o8MxoimZbewKavCzQwQx0Fwge69u8AusDQQGPkvsA2nGeeSwt1ko6OwH1w7YL3RqDx3vFo2wieCrZueTEO6IwmOh5Q0INAs4kGXJYY+dlrUXSb1+/I00IL41J1h3DfBDQMBIIDxxjSMPMX696mbyn2qI8nbLb2p/Rup/9OoNVKMs7sgBFCbOk9zywNjfHfkT4YNUmzfBTQCKBJ7gzhJYHS8YOBk5Mu0KSzC/5upQ+f/yqg4Xm8FZgdXKThaN/d9OjnEkToUR+NUtIRgJuci3vP1VuBxr7jJzyg41vPGNjcMy9ooOFBQs2iFWFcbVaMAxrNxIX+faHfAl4SeqH6I57vgIYTNnd4kYb3DfrL/0VAY8DcBpS0zYhCMeEac+kNNuW8KVbY/jsIWYIA49P1Ufu9F2j8CSwlPC2N0xND/2/FBKBv1aIVDl0SD/GsAxq+fVxUB5HGeOgFvCSv0ucQlPMojtVdY4Pyfr3vG6pdLLHZ98ayrUFxrBbonk/rXNcBWnOhY3WA1t+wD2hofgxKGgNFHcvUbg1wYVpuiqaGWl9T2eJyAlDoM+ZQ0axwfqIFMNC0po3g71qgeRcWDx4ZmHhHVL5aHx6c9UTlCPOsmAZ0uWj1Ig1rE+jntBgPNLAYrBZoVzy9L3hH8CMHGKxeEuba9cmqq5T8wodF2nyYIqaN7xs0PaSRD9ylkWWrobXS1dA66WpozoXP31DhrdVG1rF7oTYt9XQO4rwLNN81psNeTrF6YYchXMLooF5xnJwR57zHGCemQ0dD6+XUv+eCH14x4QDG0D/KMIrUGpH0TbgxpcBAS+PceZg6IS4PPYYMD2g0JkoVZGC3SKWsysaR6h2vtu1LgguHGgDfRYmoRdqw6tvhb+p9rxXOZD/hTQ3gmpBGFxLX6Uf/9MF9ShoMj6XrGPVjNStM80U56psKfKLz9w219Dk5lrueUpq+30rKV3s8Ic09OKt8qbNeqvAH+sJLkQ9OvOxySqJ2lHdjrIeYlg80Hehy0YqrT6k/YF/uHAZ5JoBWKmgH7+tRfy3cJTKzo15S3/02y8XDvVjv+1slwDkdbFbLRd+O14Gn28AFPqelfYYEXCGZ7jhgCB8he++CNGe3/MceWJVWSHHq9Y3yAGO8pMUQzmOKNZaLVhLdfwM4VbJiMtDokQPZrldL13UXC/jFXa7WKm/Ou2dw1ydBj9IvtpvmbtW9mvcd7LTiaz+sIwXzQu512unmq+/Ig8dSzwUPVn5P8HCbvm9Kg3SqQL1eLufT6ZR0BP4XWC7rVaSZhja95KMv7P+QdpR3YzyX863Q/PsR1Udh3mKG8PnU3n9obeIDrRirUvg9kMcfjpeaouZugfdbtXM3XMlv8VYSNP/rB+MUYIfXLE2v1/TuBz+om+8P7Nv4ORhkmjZWQK4f4higK6RxRbimtdrWP7/BG7/fKimfVFicKVJRHeymT4zvg/pe56un9INpuCgtmT0q3iz/pgcuR9mZbKwhjgO6um1efwkZNShjzBtTMtv7n/NmXwV2MNsXldfyzc87cpCjgW4+hHV7oxAR+aRMA5otArSIAC0iIkCLiAjQIgK0AC0iQIuICNAiIpOAPkCx0kGJDwK0yG/T0FMiVwVokW8UzBHQy7nIBGgREQFa5EckT3VySzMBWkREgBYRoEVEBGgREQFaRESAFhERoEUEaBERAVpERIAWERGgRQRoEREBWkREgBYREaBFRJjyD4H1QCGJ0zcfAAAAAElFTkSuQmCC";
 
 GS.CONFIG = {
-  version: '0.78.1',
+  version: '0.80.0',
   phase: 8,
   phaseNote: 'Juego completo de punta a punta. Falta tu playtest con 5 personas y encender el lanzamiento (launched: true)',                       // fase actual del proyecto (1 a 5)
   links: { tienda: 'https://www.gameshop.com.ar', instagram: '' },   // botones del inicio y del cierre (vacío = no se muestra)
@@ -1217,7 +1226,17 @@ GS.SKINS = [0xf6d7bd, 0xf2c9a0, 0xe0ac7e, 0xc68a5c, 0x9a643c, 0x6b4428];
 GS.HAIRS = [0x000000, 0x2b2b3a, 0x4a3a2a, 0x7a3b1e, 0xd9a514, 0xc9c9d6, 0x2d6cdf, 0xff5fa2, 0x3bb54a];
 
 /* Progresión: qué estaciones se suman en cada jornada (de menos a más) y cómo las explica el Dueño */
-GS.UNLOCKS = [['mostrador', 'caja', 'whatsapp'], ['cierre', 'repo', 'stock', 'vidriera', 'ml'], ['proveedor', 'pc', 'service', 'devol']];      /* en tres jornadas se conocen todas las tareas; desde la 4 hay meta diaria y medallas */
+GS.UNLOCKS = [];      /* ya no se aprende por jornadas: todo se aprende en el día de inducción, y desde la jornada 1 están todas las tareas */
+/* Día de inducción: el Dueño entrena al jugador, una estación por vez. El cliente es un muñeco de paja. */
+GS.INDUC = {
+  order: ['whatsapp', 'ml', 'stock', 'repo', 'proveedor', 'vidriera', 'pc', 'service', 'devol'],
+  dummy: { id: 'dummy', name: 'Cliente de paja', face: '🎯', shirt: 0xd9b77a, hair: 0xe8c33c, tag: 'No se queja nunca. Todavía.', look: { dummy: true, hairStyle: 'pelado', glasses: false, beard: false, lips: false, lashes: false, skin: 0xd9b77a, pants: 0x7a5a36, scale: 1 },
+    bye: '(El Dueño, haciendo la voz) "¡Qué atención! Vuelvo mañana con toda la familia."', lost: '' },
+  open: '¡Arriba! Hoy no abrimos: hoy entrenamos. Ese de paja es tu primer cliente. No muerde. Tocá el pedido de abajo.',
+  say: { caja: '¡Ahora cobrale! Contá bien el vuelto, que el de paja no perdona.', whatsapp: '¡Los mensajes no se contestan solos! ¡Rápido y amable!', ml: '¡Compra por la página! Embalá como si adentro viajara tu abuela.', stock: '¡A contar! El sistema dice una cosa. Vos decime la verdad.', repo: '¡Depósito! Cada caja en su lugar. ¡Otra vez! ¡Con ganas!', proveedor: '¡Llegó el camión! Lo que no está en el remito, no entra.', vidriera: '¡La vidriera es la cara del local! ¡Que brille!', pc: '¡A armar una PC! Cada pieza en su lugar, sin forzar nada.', service: '¡Al taller! Escuchá al equipo: siempre te dice qué le duele.', devol: '¡Una devolución! Mirá bien el producto antes de decir que sí.', cierre: '¡Última estación! Contá la caja. Si cierra, ya sos de los nuestros.' },
+  cheer: ['¡Eso!', '¡Así se hace!', '¡Otra! ¡Vamos!', '¡Mirá vos!', '¡Con esa actitud!', '¡Sin aflojar!', '¡Ya casi, ya casi!'],
+  end: [{ art: 'jefe2', k: 'Día de inducción', t: '¡Estás listo!', d: 'Atendiste, cobraste, embalaste, contaste y arreglaste. El de paja quedó conforme, y eso que es exigente.' }, { art: 'equipo0', k: 'Mañana abrimos', t: 'Ahora, con gente de verdad', d: 'Desde la jornada 1 hacés de todo. Llevá el local a 5 estrellas, completá la flota y vas a conocer a la competencia. Yo te voy a estar mirando. Desde la oficina. Con mate.' }]
+};
 GS.EXPLAIN = {
   adornos: 'Mañana empieza la semana de Navidad. Elegí el árbol, las guirnaldas y las luces: como lo armes hoy, así amanece el local.',
   vidriera: 'Armá la vidriera según el tema: elegí los 4 productos que mejor van. Si queda bien, va a entrar gente diciendo que lo vio ahí.',
@@ -2182,6 +2201,7 @@ GS.Audio = (function () {
     day:   { bpm: 78, prog: [[48, 64, 67, 71], [45, 60, 64, 67], [41, 60, 65, 69], [43, 62, 65, 71]], mel: [2, null, 3, null, 4, null, null, 3, null, 2, null, 0, null, null, 1, null], melB: [4, null, null, 5, null, 4, 2, null, 3, null, null, 2, null, 0, null, null], kick: 0.08, hat: 0 },
     rain:  { bpm: 62, prog: [[45, 64, 67, 72], [41, 64, 69, 72], [48, 64, 67, 71], [43, 62, 67, 71]], mel: [4, null, null, null, 3, null, 2, null, null, null, 0, null, null, null, null, null], melB: [2, null, null, null, 4, null, null, 3, null, null, null, null, 1, null, null, null], kick: 0, hat: 0 },
     party: { bpm: 92, prog: [[48, 64, 67, 72], [43, 62, 67, 71], [45, 64, 69, 72], [41, 65, 69, 72]], mel: [0, null, 2, 3, null, 4, null, 3, 2, null, 3, null, 5, null, 4, null], melB: [4, null, 5, null, 4, 3, null, 2, 3, null, 2, null, 0, null, null, null], kick: 0.13, hat: 0.02 },
+    train: { bpm: 126, prog: [[45, 60, 64, 69], [41, 60, 65, 69], [48, 60, 64, 67], [43, 62, 67, 71]], mel: [0, null, 2, 4, null, 4, 5, null, 4, null, 2, 4, 7, null, null, null], melB: [7, null, 5, 4, null, 5, 7, null, 6, null, 7, 5, 7, null, null, null], kick: 0.16, hat: 0.03 },
     final: { bpm: 96, prog: [[48, 64, 67, 72], [41, 65, 69, 72], [43, 62, 67, 71], [48, 64, 67, 76]], mel: [2, 3, 4, null, 5, null, 4, 3, 4, null, 5, 6, 7, null, null, null], melB: [7, null, 6, 5, null, 4, 5, null, 6, null, 4, null, 5, null, null, null], kick: 0.13, hat: 0.022 }
   };
   let mood = 'menu', mStep = 0, mNext = 0, mTimer = null, mLp = null, hatBuf = null;
@@ -3243,7 +3263,7 @@ GS.World = (function () {
       box(cargo, 0.5, 0.36, 0.5, 0xc49a6c, 0, 0.22, 0.9); box(cargo, 0.44, 0.3, 0.44, 0xb98d5e, 0.02, 0.58, 0.9); box(cargo, 0.3, 0.22, 0.3, 0xc49a6c, -0.04, 0.88, 0.9);
     }
     // Estilo libre: cualquier combinación de peinado y accesorios (sin distinguir géneros), siempre con los cuatro colores
-    let acc = null, bacc = null, armX = [], cur = {}, brows = []; g.rotation.order = 'YXZ'; const smY = smile.position.y;
+    const p0 = {}; let acc = null, bacc = null, armX = [], cur = {}, brows = []; g.rotation.order = 'YXZ'; const smY = smile.position.y;
     const MOOD = { normal: [Math.PI, 1, 1, 0, -0.14, 0], happy: [Math.PI, 1.22, 1.25, -0.008, -0.2, 0.02], impatient: [Math.PI, 0.95, 0.14, -0.02, 0.02, -0.014], angry: [0, 0.95, 0.9, -0.062, 0.44, -0.022], sad: [0, 0.9, 0.8, -0.062, -0.44, 0.004], surprised: [Math.PI, 0.5, 1.15, -0.012, -0.14, 0.035] };      /* boca (giro, ancho, alto, altura) y cejas (inclinación, altura) de cada ánimo */
     function style(a) {
       cur = Object.assign({}, cur, a);
@@ -3258,7 +3278,7 @@ GS.World = (function () {
           cy(0.215, 0.25, 0.4, tmB, 0, 0.7, 0.005); sph(0.235, tmB, 0, 0.6, 0.04, 1.05, 0.85, 1); cy(0.125, 0.135, 0.1, mat(skinC), 0, 0.91, 0); cy(0.235, 0.225, 0.12, mat(botC), 0, 0.46, 0);
           if (cur.top === 'campera') { box(bacc, 0.15, 0.36, 0.02, 0xe10600, 0, 0.7, 0.235); const c1 = new T.Mesh(new T.TorusGeometry(0.15, 0.04, 8, 18), tmB); c1.rotation.x = Math.PI / 2; c1.position.y = 0.9; bacc.add(c1); [-1, 1].forEach(sd => box(bacc, 0.025, 0.36, 0.03, 0x3a3a42, sd * 0.085, 0.7, 0.24)); }
         }
-        if (!cur.santa && !cur.uniform) {      /* ropa: buzo canguro (manga larga, capucha, bolsillo y cordones), remera (cuello) y chomba (cuello con solapas, cartera con botones, vivos y escudo) */
+        if (!cur.santa && !cur.uniform && !cur.dummy) {      /* ropa: buzo canguro (manga larga, capucha, bolsillo y cordones), remera (cuello) y chomba (cuello con solapas, cartera con botones, vivos y escudo) */
           const rb = cur.build === 'robusto', dk = mat(mixC(topC, 0x000000, 0.24)), ny = rb ? 0.905 : 0.885, nr = rb ? 0.128 : 0.1, accC = (topC >> 16) > 0xb0 && (topC & 255) < 0x60 ? 0x17171c : 0xe10600, am = mat(accC);
           const fz = y => rb ? Math.max(0.25 - (y - 0.5) * 0.0875, y < 0.74 ? 0.04 + Math.sqrt(Math.max(0, 0.0552 - Math.pow((y - 0.6) / 0.85, 2))) : 0) : 0.2 - (y - 0.52) * 0.139, tl = rb ? -0.04 : -0.138;
           const put = (m, x, y, off) => { m.position.set(x, y, fz(y) + (off || 0)); m.rotation.x = tl; bacc.add(m); return m; };
@@ -3314,6 +3334,17 @@ GS.World = (function () {
           [[0, 0.39, -0.04], [0.15, 0.36, 0.06], [-0.15, 0.36, 0.06], [0, 0.35, -0.2]].forEach(q => { const c = new T.Mesh(gCurl, hm); c.scale.setScalar(1.3); c.position.set(q[0], q[1], q[2]); acc.add(c); }); }
         if (st === 'mohicano' && !capHat) [[0.3, 0.2, 0.9], [0.4, 0.08, 1.15], [0.43, -0.06, 1.3], [0.38, -0.2, 1.15], [0.27, -0.31, 0.95]].forEach(q => { const m = new T.Mesh(gTuft, hm); m.scale.set(0.62, q[2] * 1.25, 1.05); m.position.set(0, q[0], q[1]); acc.add(m); });   // cresta de mechones, más alta en el medio
       }
+      eyes.forEach(e => { e.visible = !cur.dummy; }); legs.forEach(l => { l.visible = !cur.dummy; }); p0.hopWalk = !!cur.dummy;
+      if (cur.dummy) {      /* muñeco de paja: bolsa de arpillera con costuras, paja en la cabeza y las mangas, blanco de tiro en el pecho y un palo por piernas */
+        const ink = mat(0x4a3520), straw = mat(0xe8c33c), stick = mat(0x7a5a36), red = mat(0xe10600), wh = mat(0xfff6e0);
+        [-1, 1].forEach(sd => { [0.6, -0.6].forEach(r => { const x = box(acc, 0.1, 0.02, 0.02, ink, sd * 0.13, -0.02, HR - 0.012); x.rotation.z = r; }); });
+        box(acc, 0.2, 0.018, 0.02, ink, 0, -0.14, HR - 0.03); [-0.07, 0, 0.07].forEach(x => box(acc, 0.016, 0.06, 0.02, ink, x, -0.16, HR - 0.03)); box(acc, 0.016, 0.13, 0.02, ink, 0.02, 0.17, HR - 0.075).rotation.set(-0.5, 0, 0.1); [0.2, 0.25].forEach(y => box(acc, 0.06, 0.014, 0.02, ink, 0.02, y, HR - 0.09 - (y - 0.2) * 0.6).rotation.x = -0.5);
+        for (let i = 0; i < 9; i++) { const an = i / 9 * 6.283, c = new T.Mesh(new T.ConeGeometry(0.035, 0.26, 5), straw); c.position.set(Math.cos(an) * 0.13, HR + 0.06, Math.sin(an) * 0.13); c.rotation.set(Math.sin(an) * 0.6, 0, -Math.cos(an) * 0.6); acc.add(c); }
+        const tie = new T.Mesh(new T.TorusGeometry(0.17, 0.03, 6, 16), stick); tie.rotation.x = Math.PI / 2; tie.position.y = -HR + 0.05; acc.add(tie);
+        [[0.15, red], [0.105, wh], [0.06, red]].forEach((q, i) => { const d = new T.Mesh(new T.CylinderGeometry(q[0], q[0], 0.012, 20), q[1]); d.rotation.x = Math.PI / 2 - 0.14; d.position.set(0, 0.68, 0.178 + i * 0.008); bacc.add(d); });
+        const pole = new T.Mesh(new T.CylinderGeometry(0.035, 0.035, 0.5, 8), stick); pole.position.y = 0.25; bacc.add(pole); const base = new T.Mesh(new T.CylinderGeometry(0.2, 0.22, 0.05, 14), stick); base.position.y = 0.025; bacc.add(base);
+        arms.forEach((a, i) => { a.rotation.z = (i ? 1 : -1) * 1.35; for (let k = 0; k < 5; k++) { const c = new T.Mesh(new T.ConeGeometry(0.022, 0.16, 5), straw); c.position.set((k - 2) * 0.022, -0.44, 0); c.rotation.z = Math.PI + (k - 2) * 0.25; a.add(c); armX.push(c); } });
+      }
       if (cur.beard === 'larga') [[0, -0.33, 0.18, 0.22, 1.2, 0.95, 0.8], [-0.19, -0.285, 0.17, 0.15, 1, 1.05, 0.9], [0.19, -0.285, 0.17, 0.15, 1, 1.05, 0.9], [0, -0.46, 0.16, 0.14, 1.1, 1, 0.8], [-0.075, -0.168, 0.315, 0.065, 1.45, 0.62, 0.8], [0.075, -0.168, 0.315, 0.065, 1.45, 0.62, 0.8]].forEach(q => { const m = new T.Mesh(gHead, hm); m.scale.set(q[3] / HR * q[4], q[3] / HR * q[5], q[3] / HR * q[6]); m.position.set(q[0], q[1], q[2]); acc.add(m); });      /* barba larga: tupida, con bigote, del color del pelo; empieza por debajo de los anteojos */
       else if (cur.beard === 'bigote') [-1, 1].forEach(sd => { const m = new T.Mesh(mustGeo(), hm); m.scale.x = sd; acc.add(m); });      /* bigote clásico: silueta de manubrio con las puntas enruladas, curvada sobre la cara */
       else if (cur.beard && !cur.santa) { const sb = new T.Mesh(gBeard, mat(mixC(skinC, mixC(hairC, 0x2a2a30, 0.5), 0.42))); sb.scale.setScalar(0.9585); acc.add(sb); }      /* barba corta: una sombra pegada a la piel */
@@ -3322,7 +3353,7 @@ GS.World = (function () {
         const ns = new T.Mesh(gEar, mat(0xe58a7a)); ns.scale.setScalar(0.75); ns.position.set(0, -0.06, HR + 0.02); acc.add(ns); }
       brows = []; const bm = mat(inkC), tm = mat(topC), temple = (sd, m) => { const t = new T.Mesh(new T.TorusGeometry(HR + 0.016, 0.011, 6, 24, 1.105), m); t.rotation.set(Math.PI / 2, 0, -0.12 * sd); t.scale.x = sd;      /* el arco se espeja con su giro, así queda igual de los dos lados */ t.position.y = -0.012; acc.add(t); };      /* patilla: un arco pegado a la cabeza, del borde del cristal hasta atrás de la oreja */
       [-1, 1].forEach(sd => { const b = new T.Mesh(gEar, bm); b.scale.set(0.78, 0.2, 0.22); b.position.set(sd * 0.135, 0.105, HR - 0.036); b.rotation.set(-0.3, sd * 0.4, sd * -0.14); b.userData.sd = sd; acc.add(b); brows.push(b); });     // cejas redondeadas
-      if (!cur.santa) { const ns = new T.Mesh(gEar, mat(mixC(skinC, 0x6b3a1e, 0.16))); ns.scale.set(0.42, 0.34, 0.36); ns.position.set(0, -0.055, HR - 0.006); acc.add(ns);      /* nariz chiquita y un poco de color en las mejillas */
+      if (!cur.santa && !cur.dummy) { const ns = new T.Mesh(gEar, mat(mixC(skinC, 0x6b3a1e, 0.16))); ns.scale.set(0.42, 0.34, 0.36); ns.position.set(0, -0.055, HR - 0.006); acc.add(ns);      /* nariz chiquita y un poco de color en las mejillas */
         [-1, 1].forEach(sd => { const ck = new T.Mesh(gEar, mat(mixC(skinC, 0xff5a5a, 0.3))); ck.scale.set(0.62, 0.42, 0.14); ck.position.set(sd * 0.215, -0.095, HR * 0.775); ck.rotation.y = sd * 0.66; ck.rotation.x = 0.28; acc.add(ck); }); }
       /* sombreros y detalles de los rivales: boina, sombrero de ala, ushanka, gorra, anteojos oscuros y parche */
       { const hc = mat(cur.hatCol != null ? cur.hatCol : 0x2b2b30), hb = mat(cur.hatBand != null ? cur.hatBand : 0x17171c), cyl = (r1, r2, hh, m, y, x, z) => { const c = new T.Mesh(new T.CylinderGeometry(r1, r2, hh, 20), m); c.position.set(x || 0, y, z || 0); acc.add(c); return c; };
@@ -3335,7 +3366,7 @@ GS.World = (function () {
         if (cur.patch) { box(acc, 0.17, 0.17, 0.03, 0x111114, 0.13, -0.03, HR - 0.005); const band = new T.Mesh(new T.TorusGeometry(HR + 0.005, 0.014, 6, 24), mat(0x111114)); band.rotation.x = Math.PI / 2; band.rotation.y = 0.28; band.position.y = 0.06; acc.add(band); } }
       if (cur.glasses) { [-1, 1].forEach(sd => { const r = new T.Mesh(new T.TorusGeometry(0.088, 0.013, 8, 28), bm); r.position.set(sd * 0.132, -0.012, HR - 0.012); r.rotation.y = sd * 0.34; acc.add(r); temple(sd, bm); }); box(acc, 0.075, 0.02, 0.02, bm, 0, -0.01, HR + 0.004); }      /* marcos finos, puente y patillas */
       if (cur.lashes) [-1, 1].forEach(sd => [[0.192, 0.052, 0.75], [0.206, 0.02, 0.35]].forEach(q => { const l = new T.Mesh(gEar, bm); l.scale.set(0.3, 0.075, 0.12); l.position.set(sd * q[0], q[1], Math.sqrt(HR * HR - q[0] * q[0] - q[1] * q[1]) + 0.003); l.rotation.set(0, sd * 0.62, sd * q[2]); acc.add(l); }));      /* pestañas: dos trazos finos que salen del borde de afuera del ojo */
-      smile.visible = !cur.lips; if (cur.lips) { const lm = cur.lipCol != null ? mat(cur.lipCol) : tm, lp = new T.Mesh(gHead, lm); lp.scale.set(0.2, 0.075, 0.06); lp.position.set(0, -0.165, HR * 0.885); lp.rotation.x = 0.48; acc.add(lp); }
+      brows.forEach(b => { b.visible = !cur.dummy; }); smile.visible = !cur.lips && !cur.dummy; if (cur.lips) { const lm = cur.lipCol != null ? mat(cur.lipCol) : tm, lp = new T.Mesh(gHead, lm); lp.scale.set(0.2, 0.075, 0.06); lp.position.set(0, -0.165, HR * 0.885); lp.rotation.x = 0.48; acc.add(lp); }
       // sombreros de los disfraces (siempre con los colores del personaje)
       if (hat === 'gorro') {                       // gorrito navideño (rojo y blanco, es un accesorio de la semana de Navidad)
         const red = mat(0xd81e2c), wh = mat(0xffffff), band = new T.Mesh(new T.TorusGeometry(HR - 0.005, 0.075, 8, 20), wh); band.rotation.x = Math.PI / 2; band.position.y = 0.17; acc.add(band);
@@ -3362,7 +3393,7 @@ GS.World = (function () {
     }
     style(o);
     scene.add(g);
-    const p = {
+    const p = Object.assign(p0, {
       group: g, path: [], speed: o.speed || 2.9, t: Math.random() * 6, onArrive: null, moving: false, legs, arms, hd,
       setPos(x, z) { g.position.set(x, 0, z); },
       face(ry) { g.rotation.y = ry; },
@@ -3406,7 +3437,7 @@ GS.World = (function () {
         arms.forEach((a, i) => { a.rotation.x = v ? -0.5 : 0; a.rotation.z = (i ? 1 : -1) * (v ? -0.1 : 0.16); }); eyes.forEach(e => { e.scale.y = v ? 0.16 : 1.35; }); },
       stop() { p.path = []; p.moving = false; p.onArrive = null; g.position.y = 0; rest(p); },
       remove() { scene.remove(g); const i = people.indexOf(p); if (i >= 0) people.splice(i, 1); }
-    };
+    });
     people.push(p); return p;
   }
   let zT = null;
@@ -3468,7 +3499,7 @@ GS.World = (function () {
           if (!reduceMotion) {                                                  // pasitos: piernas y brazos alternados
             const sw = Math.sin(p.t * (7 + p.speed * 1.6)) * 0.75;
             p.legs[0].rotation.x = sw; p.legs[1].rotation.x = -sw; if (!p.holding) { p.arms[0].rotation.x = -sw * 0.8; p.arms[1].rotation.x = sw * (p.bagOn ? 0.16 : 0.8); }
-            g.position.y = Math.abs(sw) * (p.speed < 2.5 ? 0.02 : 0.035); g.rotation.x = Math.max(0, Math.min(0.15, (p.speed - 3) * 0.045));      /* el que va apurado se inclina hacia adelante */
+            g.position.y = Math.abs(sw) * (p.hopWalk ? 0.3 : p.speed < 2.5 ? 0.02 : 0.035);      /* el muñeco de paja avanza a los saltos sobre su palo */ g.rotation.x = Math.max(0, Math.min(0.15, (p.speed - 3) * 0.045));      /* el que va apurado se inclina hacia adelante */
           }
         }
       } else if (!reduceMotion) {
@@ -3635,6 +3666,7 @@ GS.World = (function () {
     setNext() {},
     addDirt, clearDirt, removeDirt, setRegion,
     bossVisible(v) { if (boss) boss.group.visible = v; },
+    bossTrain(on) { if (boss) boss.look({ hat: on ? 'vincha' : null, shirt: on ? 0xe10600 : GS.BOSS_LOOK.shirt }); },      /* de entrenador: vincha y remera roja */
     boss: () => boss,
     staff: () => [lucho, brian],
     player: () => yo,
@@ -4658,7 +4690,7 @@ GS.Game = (function () {
   // Jornada N de la carrera: de menos a más. Cada jornada suma clientes y, según GS.UNLOCKS, estaciones nuevas.
   // (Parte B de la Etapa 3: acá entran el cartel del frente, el clima y las fechas especiales.)
   function dayNumber() { return GS.Store.get('testDay') || (GS.Store.get('days') || 0) + 1; }
-  function unlockedFor(n) { return GS.UNLOCKS.slice(0, n).reduce((a, b) => a.concat(b), []); }
+  function unlockedFor(n) { return GS.STATIONS.map(s => s.id); }
   const upNow = () => GS.Store.get('up') || {};
   /* Herramientas de prueba (solo con la clave en la dirección): monedas y fondos infinitos. No toca los valores guardados de la partida. */
   const DEV = () => !!GS.Store.get('dev');
@@ -4764,12 +4796,12 @@ GS.Game = (function () {
   function planTotals(plan) { return plan.reduce((a, w) => ({ c: a.c + w.c, t: a.t + w.t + (w.ml || 0) }), { c: 0, t: 0 }); }
   function startWave() {
     day.wave++; day.stage = 'work'; day.queue = []; day.wv = { done: {} };
-    const w = day.plan[day.wave];
+    const w = day.plan[day.wave]; if (day.induc) inducWave();
     if (day.duel && !w.final && day.wave === day.plan.filter(x => !x.final).length - 1) { A.setMood('final'); toast('<b>⏰ Hora pico</b>Última tanda: ' + day.duel.rv.owner + ' aprieta el acelerador.', 'rival', 3800, false, day.duel.rv.col); }
     if (day.rivalWalk && day.wave === 1) { day.rivalWalk = 0; const d0 = day; setTimeout(() => { if (day === d0 && state === 'day') rivalPass(); }, 4000); }
     for (let i = 0; i < w.c; i++) day.queue.push({ kind: 'c', t: 0.3 + i * C.day.customerGap });
-    for (let i = 0; i < w.t; i++) day.queue.push({ kind: w.final ? 'f' : 't', t: (w.final ? 0.6 : 5) + i * C.day.taskGap });
-    for (let i = 0; i < (w.ml || 0); i++) day.queue.push({ kind: 'm', t: 3 + i * C.day.taskGap });
+    for (let i = 0; i < w.t; i++) day.queue.push({ kind: w.final ? 'f' : 't', t: (w.final ? 0.6 : day.induc ? 2.2 : 5) + i * C.day.taskGap });
+    for (let i = 0; i < (w.ml || 0); i++) day.queue.push({ kind: 'm', t: (day.induc ? 2.2 : 3) + i * C.day.taskGap });
     if (!day.arcade && !day.relaxed && day.n % 12 === 11 && !day.xq && (day.wave >= 1 || day.plan.filter(w => !w.final).length < 2) && !w.final) { day.xq = 1; day.queue.push({ kind: 'x', t: 5 }); }    // víspera de la semana de Navidad
     day.visits.forEach(v => { if (v.wave === day.wave && !v.sent) { v.sent = 1; day.queue.push({ kind: 'v', v: v.S, t: U.rnd(3, 8) }); } });
     if (GS.DEBUG_INTR || (day.n >= CD.intrFromDay && !w.final && day.wave >= 1 && day.intrN < (day.n >= 6 ? 3 : 2) && Math.random() < 0.6)) { day.queue.push({ kind: 'i', t: U.rnd(5, 11) }); day.intrN++; }
@@ -4787,7 +4819,7 @@ GS.Game = (function () {
   }
   function endWave() {
     if (day.wave >= day.plan.length - 1) { day.closing = true; setTimeout(endDay, 2800); return; }
-    day.stage = 'rest'; day.rest = C.day.restSeconds * (modNow() === 'sinrespiro' ? 0.5 : 1); W.focus(null); W.home();
+    day.stage = 'rest'; day.rest = day.induc ? 1.5 : C.day.restSeconds * (modNow() === 'sinrespiro' ? 0.5 : 1); W.focus(null); W.home(); if (day.induc) { const d0 = day; fx(U.pick(GS.INDUC.cheer), ''); const yo = W.player(); if (yo) yo.hop(0.5); }
     const d = day;
     setTimeout(() => {                       // en el respiro habla el Dueño, sin nada tapando el local
       if (day !== d || state !== 'day' || d.stage !== 'rest') return;
@@ -4835,20 +4867,41 @@ GS.Game = (function () {
     W.setPlayerLook(av); const r = $('stageGap').getBoundingClientRect(), vy = r.height > 40 ? 0.5 - (r.top + r.height * 0.56) / window.innerHeight : 0; W.stage({ k: 0.15, vy });
   }
   const DUEL_K = { pampeana: 1, cuyo: 1.03, noa: 1.05, nea: 1.05, patagonia: 1.08, malvinas: 1.12 };      /* cuánto mejor que tu promedio juega cada rival */
-  function startDay(relaxed, skipDuel) {
+  /* ---------------- Día de inducción: entrenamiento de película antes de la jornada 1 ---------------- */
+  const needInduc = () => !GS.Store.get('induc') && (GS.Store.get('days') || 0) === 0 && brId() === 'pampeana' && !GS.Store.get('testDay');
+  function inducDone(skip) { GS.Store.set('induc', 1); if (skip) { const s = GS.Store.get('seen') || {}; Object.keys(GS.EXPLAIN).forEach(k => { s[k] = 1; }); GS.Store.set('seen', s); } GS.track('induccion', { modo: skip ? 'salteada' : 'completa' }); }
+  function inducAsk() {
+    modal('<div class="induc-ask"><small>ANTES DE ABRIR</small><h2>Día de inducción</h2><p>El Dueño te entrena en todas las tareas del local, una por una y sin apuro. Son unos minutos. Después, las jornadas son de verdad.</p><button class="btn" id="inGo">🥊 Empezar el entrenamiento</button><button class="btn ghost" id="inSkip">Ya sé jugar</button></div>');
+    $('inGo').addEventListener('click', () => { $('modal').hidden = true; startDay(true, true, true); }); $('inSkip').addEventListener('click', () => { $('modal').hidden = true; inducDone(true); startDay(false); });
+  }
+  function cineCard(k, t) { const el = $('cineCard'); el.innerHTML = '<small>' + k + '</small><b>' + t + '</b>'; el.hidden = false; el.classList.remove('go'); void el.offsetWidth; el.classList.add('go'); A.play('stamp'); }
+  function inducWave() {
+    const I = GS.INDUC, d = day, tot = d.plan.length + 1, n = d.wave === 0 ? 1 : d.wave + 2, id = d.wave === 0 ? 'mostrador' : d.plan[d.wave].final ? 'cierre' : d.inOrder[d.wave - 1], st = ST(id);
+    cineCard('ESTACIÓN ' + n + ' DE ' + tot, st.icon + ' ' + st.name); W.zoomAt(st.pos[0], st.pos[1] + 1.2, 0.5); setTimeout(() => { if (day === d && !MG.isOpen()) W.focus(null); }, 2100);
+    if (I.say[id]) setTimeout(() => { if (day === d) duenoSpeak(I.say[id]); }, 700);
+  }
+  function inducEnd() {
+    const I = GS.INDUC; inducDone(false); document.body.classList.remove('cine'); $('cineCard').hidden = true; W.bossTrain(false); clearDay(); $('hud').hidden = true; $('jobs').hidden = true; day = null; state = 'menu'; A.play('fanfare');
+    epicCtx = { id: 'pampeana' }; showEpic(I.end, null, '<button class="btn" id="inOk">Empezar la jornada 1</button>', () => $('inOk').addEventListener('click', () => { closeEpic(); startDay(false); }));
+  }
+  function startDay(relaxed, skipDuel, induc) {
     A.unlock();
     if (!GS.Store.get('avatar')) return showAvatar(() => startDay(relaxed));
+    if (!relaxed && !induc && needInduc()) return inducAsk();
     if (!relaxed && !skipDuel && readyDuel(brId()) && !GS.Store.get('testDay')) return showDuelIntro(() => startDay(false, true));      /* cumplidos los objetivos, la jornada es el día de competencia */
     A.play('click'); clearDay(); W.setUpgrades(upNow());
     const n = dayNumber(), duel = !relaxed && readyDuel(brId()) && !GS.Store.get('testDay'); applyBranch();
     const un = unlockedFor(n), fresh = n <= GS.UNLOCKS.length ? GS.UNLOCKS[n - 1] : [];
     const cond = conditionFor(n);
     day = newDay({ relaxed, n, cond, unlocked: un, plan: planDay(n, cond, duel), rest: n === 1 ? 0.5 : 5.5 }); state = 'day'; enterPlay(); $('jobs').hidden = false;
+    document.body.classList.toggle('cine', !!induc); $('cineCard').hidden = true; W.bossTrain(!!induc);
+    if (induc) { const ord = GS.INDUC.order.filter(id => TASK_STATIONS.some(s => s.id === id) && id !== 'ml'); day.induc = true; day.inOrder = ['whatsapp', 'ml'].concat(ord.filter(id => id !== 'whatsapp')); day.rest = 2.4;      /* una estación por tanda: primero el cliente de paja (mostrador y caja), después cada tarea, y al final el cierre */
+      day.plan = [{ c: 1, t: 0, ml: 0 }].concat(day.inOrder.map(id => id === 'ml' ? { c: 0, t: 0, ml: 1 } : { c: 0, t: 1, ml: 0 }), [{ c: 0, t: 1, ml: 0, final: true }]); day.plan.bonus = 1; day.taskBag = day.inOrder.filter(id => id !== 'ml').map(ST).reverse(); }
     { const lt = n <= GS.UNLOCKS.length ? fresh.filter(id => TASK_STATIONS.some(x => x.id === id)) : []; if (lt.length) day.taskBag = lt.map(ST).reverse();      /* jornadas de aprendizaje: primero aparecen las tareas nuevas */
       const b = brNow(), units = unitsOf(day.plan), pu = b.avg || 480;
       if (duel) { brSave({ duel: 1 }); const rv = RV(brId()), tries = b.tries || 0, edge = Math.min(5, b.edge || 0); day.duel = { rv, tries, edge, q: 0, shown: 0, total: Math.round(pu * units * (DUEL_K[brId()] || 1) * (1 - 0.02 * edge) * (1 - 0.05 * Math.min(3, tries)) / 10) * 10 }; }
       else if (!relaxed && n > GS.UNLOCKS.length) day.goal = { silver: Math.round(pu * units * 0.85 / 10) * 10, gold: Math.round(pu * units * 1.06 / 10) * 10 }; }
-    A.setMood(cond === 'lluvia' ? 'rain' : cond ? 'party' : 'day');
+    A.setMood(induc ? 'train' : cond === 'lluvia' ? 'rain' : cond ? 'party' : 'day');
     if (rivalOn() && !relaxed) { const rv = RV(rivalId()), d0 = day; day.zonda = rivalId() === 'cuyo' && Math.random() < 0.45;
       if (duel) { setTimeout(() => { if (day === d0 && state === 'day') toast('<b>' + rv.mark + ' Día de competencia</b>Contra ' + rv.name + '. Más puntos que ' + rv.owner + ' y menos de tres quejas.', 'rival', 5200, false, rv.col); }, 5200); setTimeout(() => coach('duelo'), 8200); }
       else if (n > GS.UNLOCKS.length) { const act = rv.fx && (rivalId() !== 'cuyo' || day.zonda);      /* el rival se hace notar: llama para burlarse y más tarde pasa por la vereda */
@@ -4856,7 +4909,7 @@ GS.Game = (function () {
     if (day.goal) setTimeout(() => coach('medalla'), 7000);
     W.setXmas(cond === 'navidad' ? (GS.Store.get('xmas') || { a: 0, g: 0, l: 0 }) : null); W.setHats(cond === 'navidad');
     if (!relaxed) { const nw = day.plan.filter(w => !w.final).length; day.visits = dueStories(n).map((S, i) => ({ S, wave: Math.min(nw - 1, i + (nw > 2 ? 1 : 0)) })); }
-    const d = day, msg = n === 1 ? 'Bienvenido a GameShop. Ya tenés un cliente en el mostrador: tocá el pedido de abajo, que tu personaje va solo.'
+    const d = day, msg = induc ? GS.INDUC.open : n === 1 ? 'Bienvenido a GameShop. Ya tenés un cliente en el mostrador: tocá el pedido de abajo, que tu personaje va solo.'
       : cond ? GS.CONDITIONS[cond].name.slice(3) + '. ' + GS.CONDITIONS[cond].say
       : duel ? 'Hoy es el día. ' + day.duel.rv.owner + ' abrió temprano. Atendé como sabés y cuidá las quejas: a la tercera, perdemos.'
       : fresh.length > 2 ? 'Jornada ' + n + '. Hoy aprendés ' + fresh.filter(id => id !== 'mostrador' && id !== 'caja').length + ' tareas nuevas. Sin apuro: cuando aparezca cada una, te la explico.'
@@ -4867,9 +4920,9 @@ GS.Game = (function () {
     if (n >= 2 && !relaxed && !GS.Store.get('plotIntro') && n <= C.finalDay) { GS.Store.set('plotIntro', true); setTimeout(() => { if (day === d) duenoSpeak(PL.intro.replace('{n}', C.finalDay)); }, 3200); }
     document.body.classList.toggle('snow', snowy());
     $('rain').hidden = cond !== 'lluvia'; $('chipCond').hidden = !cond; if (cond) { $('chipCond').textContent = condInfo(cond).name; toast('<b>Hoy</b>' + condInfo(cond).name, 'dueno', 3800); }
-    $('clockS').textContent = relaxed ? 'Turno tranquilo' : 'Abrimos';
+    $('clockS').textContent = induc ? 'Entrenamiento' : relaxed ? 'Turno tranquilo' : 'Abrimos';
     updateHud();
-    GS.track('inicio_partida', { modo: relaxed ? 'tranquilo' : 'normal' });
+    GS.track('inicio_partida', { modo: induc ? 'induccion' : relaxed ? 'tranquilo' : 'normal' });
     
   }
   /* Guía del primer día: una flecha señala dónde tocar hasta completar la primera venta y el primer cobro */
@@ -4912,12 +4965,12 @@ GS.Game = (function () {
     const slot = freeSlot('slotM', L.colaMostrador.length); if (slot < 0) return;
     if (!day.reqBag.length) day.reqBag = U.shuffle(GS.REQUESTS);
     if (!day.archBag.length) day.archBag = U.shuffle(GS.CUSTOMERS);
-    const req = day.reqBag.pop(), arche = day.cond === 'navidad' && !day.santa && day.spawned >= 2 ? (day.santa = 1, GS.SANTA) : day.archBag.pop(), product = GS.CATALOG.find(p => p.id === req.p);
+    const req = day.reqBag.pop(), arche = day.induc ? GS.INDUC.dummy : day.cond === 'navidad' && !day.santa && day.spawned >= 2 ? (day.santa = 1, GS.SANTA) : day.archBag.pop(), product = GS.CATALOG.find(p => p.id === req.p);
     const k = arche.id.charCodeAt(0) + arche.id.length * 7;   // cada personaje mantiene su look
     const look = warm(lookOf(arche)), person = W.makePerson(look);
     const dx = L.puerta.x; person.setPos(dx + U.rnd(-0.5, 0.5), day.spawned === 0 ? (day.n === 1 ? -0.6 : L.salon.zMax + 1) : L.galeria.zMax + 2.4);
     person.voice = 230 + (k % 7) * 45; if (arche.id === 'santa') person.aura(0xffe9a8);
-    const cu = { id: ++uid, arche, look, request: regHi() + req.t, product, st: 'entering', pat: 1, person, slotM: slot, slotC: -1, label: makeLabel('❓') };
+    const cu = { id: ++uid, arche, look, request: (day.induc ? '(El Dueño, haciendo la voz) ' : regHi()) + req.t, product, st: 'entering', pat: 1, person, slotM: slot, slotC: -1, label: makeLabel('❓') };
     day.customers.push(cu); day.spawned++;
     const sp = day.spawned > 1 && Math.random() < 0.45 ? freeSpot() : null;
     if (sp) { day.spots[sp.i] = 1; cu.spot = sp; person.walk(sp.via.concat([sp.p]), () => { cu.st = 'browse'; cu.wait = U.rnd(2.6, 4.6) + (sp.use ? 1.6 : 0); person.face(sp.f); useSpot(person, sp, true); }); }   // primero mira un rato y después se acerca
@@ -5430,7 +5483,7 @@ GS.Game = (function () {
     return -1;
   }
   // Limpieza: los clientes dejan manchas; se limpian en los ratos libres. Terminar con el piso sucio baja la reputación.
-  function dropDirt() {
+  function dropDirt() { if (day && day.induc) return;
     if (!day || day.arcade || day.dirt >= 5 || Math.random() > (upNow().plantas ? 0.22 : 0.45)) return;
     coach('mancha'); day.dirt++; day.jobSig = ''; { const x = U.rnd(-3.6, 0.6), z = U.rnd(-2.0, 4.6); day.dirtPos.push([x, z]); W.addDirt(x, z); }
   }
@@ -5657,7 +5710,7 @@ GS.Game = (function () {
       const fin = day.wave >= 0 && day.plan[day.wave].final, nw = day.plan.filter(w => !w.final).length, m = Math.round((600 + f * 540) / 10) * 10;
       setSky((m - 600) / 540, day.cond === 'lluvia');
       $('clockT').textContent = '🕙 ' + String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0'); $('clockB').style.width = (f * 100).toFixed(1) + '%';
-      $('clockS').textContent = day.closing ? 'Cerramos: son las 19' : fin ? 'Cierre de caja' : day.stage === 'rest' && day.wave >= 0 ? 'Respiro ☕' : 'Tanda ' + Math.max(1, day.wave + 1) + '/' + nw;
+      $('clockS').textContent = day.induc ? 'Entrenamiento · estación ' + Math.min(day.plan.length + 1, day.wave <= 0 ? 1 : day.wave + 2) + ' de ' + (day.plan.length + 1) : day.closing ? 'Cerramos: son las 19' : fin ? 'Cierre de caja' : day.stage === 'rest' && day.wave >= 0 ? 'Respiro ☕' : 'Tanda ' + Math.max(1, day.wave + 1) + '/' + nw;
     }
     $('scoreV').textContent = day.score.toLocaleString('es-AR');
     { const g = day.goal, sc = day.score, el = $('chipGoal'), nf = v => v.toLocaleString('es-AR'); el.hidden = !g; if (g) { el.textContent = sc >= g.gold ? '🥇 ¡Oro!' : sc >= g.silver ? '🥇 oro a ' + nf(g.gold) : '🥈 plata a ' + nf(g.silver); el.className = 'chip goal' + (sc >= g.gold ? ' gold' : sc >= g.silver ? ' silver' : ''); }
@@ -5787,6 +5840,7 @@ GS.Game = (function () {
   /* ---------------- Cierre de caja ---------------- */
   function endDay() {
     if (!day || state !== 'day' || day.arcade) return;
+    if (day.induc) { stopMop(); MG.close(); W.focus(null); return inducEnd(); }
     stopMop(); state = 'end'; MG.close(); W.focus(null); W.showAll(); A.play('endDay'); A.setMood('menu'); $('rain').hidden = true;
     const d = day; d.intr = null;
     d.customers.slice().forEach(c => { if (c.st !== 'leaving') leave(c, false); }); d.lookers.slice().forEach(lk => { if (lk.st !== 'out') { lk.p.stop(); lookerOut(lk); } });

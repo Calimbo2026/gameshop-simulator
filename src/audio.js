@@ -54,6 +54,7 @@ GS.Audio = (function () {
     day:   { bpm: 78, prog: [[48, 64, 67, 71], [45, 60, 64, 67], [41, 60, 65, 69], [43, 62, 65, 71]], mel: [2, null, 3, null, 4, null, null, 3, null, 2, null, 0, null, null, 1, null], melB: [4, null, null, 5, null, 4, 2, null, 3, null, null, 2, null, 0, null, null], kick: 0.08, hat: 0 },
     rain:  { bpm: 62, prog: [[45, 64, 67, 72], [41, 64, 69, 72], [48, 64, 67, 71], [43, 62, 67, 71]], mel: [4, null, null, null, 3, null, 2, null, null, null, 0, null, null, null, null, null], melB: [2, null, null, null, 4, null, null, 3, null, null, null, null, 1, null, null, null], kick: 0, hat: 0 },
     party: { bpm: 92, prog: [[48, 64, 67, 72], [43, 62, 67, 71], [45, 64, 69, 72], [41, 65, 69, 72]], mel: [0, null, 2, 3, null, 4, null, 3, 2, null, 3, null, 5, null, 4, null], melB: [4, null, 5, null, 4, 3, null, 2, 3, null, 2, null, 0, null, null, null], kick: 0.13, hat: 0.02 },
+    train: { bpm: 126, prog: [[45, 60, 64, 69], [41, 60, 65, 69], [48, 60, 64, 67], [43, 62, 67, 71]], mel: [0, null, 2, 4, null, 4, 5, null, 4, null, 2, 4, 7, null, null, null], melB: [7, null, 5, 4, null, 5, 7, null, 6, null, 7, 5, 7, null, null, null], kick: 0.16, hat: 0.03 },
     final: { bpm: 96, prog: [[48, 64, 67, 72], [41, 65, 69, 72], [43, 62, 67, 71], [48, 64, 67, 76]], mel: [2, 3, 4, null, 5, null, 4, 3, 4, null, 5, 6, 7, null, null, null], melB: [7, null, 6, 5, null, 4, 5, null, 6, null, 4, null, 5, null, null, null], kick: 0.13, hat: 0.022 }
   };
   let mood = 'menu', mStep = 0, mNext = 0, mTimer = null, mLp = null, hatBuf = null;
