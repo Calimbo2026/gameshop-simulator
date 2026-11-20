@@ -231,6 +231,7 @@ GS.Game = (function () {
       if (it.person.usePhone && /celu|stock|pantalla|mensaje|WhatsApp|chequ/i.test(it.text)) it.person.usePhone(it.dur + 0.6);
       if (!it.quiet) A.babble(it.text, it.cls === 'boss' ? 150 : it.person.voice || 330);
       const el = document.createElement('div'); el.className = 'say ' + it.cls; el.textContent = it.text; if (it.brand) { el.dataset.b = it.brand.mark + ' ' + it.brand.name; el.style.setProperty('--rc', it.brand.col); } $('labels').appendChild(el);
+      if (it.person.talk) it.person.talk(it.dur);
       d.says.push({ el, person: it.person, left: it.dur, onDone: it.onDone }); d.sayGap = 0.35; return;
     }
   }
@@ -322,7 +323,7 @@ GS.Game = (function () {
   // Cada personaje mantiene siempre su look (los mismos rasgos de siempre), tanto en el muñeco 3D como en la cara del diálogo
   function lookOf(ar) {
     const k = ar.id.charCodeAt(0) + ar.id.length * 7;
-    return Object.assign({ shirt: ar.shirt, hair: ar.hair, skin: 0xe0ac7e, hairStyle: ar.hairStyle || GS.HAIRSTYLES[k % 4][0], glasses: k % 3 === 0, beard: !ar.hat && k % 4 === 1, lips: ar.lips != null ? ar.lips : k % 2 === 0, lashes: k % 5 < 2, hat: ar.hat, top: [undefined, 'remera', 'chomba'][k % 3], pantsLong: k % 2 === 0 }, k % 4 === 2 ? { build: 'robusto', wide: true } : {}, ar.look || {});      /* uno de cada cuatro es de contextura grande, como el Dueño */   // look = rasgos definidos a mano para que acompañen al nombre
+    return Object.assign({ shirt: ar.shirt, hair: ar.hair, skin: 0xe0ac7e, hairStyle: ar.hairStyle || GS.HAIRSTYLES[k % 4][0], glasses: k % 3 === 0, beard: !ar.hat && k % 4 === 1, lips: ar.lips != null ? ar.lips : k % 2 === 0, lashes: k % 5 < 2, hat: ar.hat, top: [undefined, 'remera', 'chomba'][k % 3], pantsLong: k % 2 === 0, scale: [1, 0.93, 1.07, 1, 0.96, 1.04][k % 6] }, k % 4 === 2 ? { build: 'robusto', wide: true } : {}, ar.look || {});      /* uno de cada cuatro es de contextura grande, como el Dueño */   // look = rasgos definidos a mano para que acompañen al nombre
   }
   function spawnCustomer() {
     const slot = freeSlot('slotM', L.colaMostrador.length); if (slot < 0) return;
@@ -866,7 +867,7 @@ GS.Game = (function () {
   }
   function leave(cu, withBag) {
     if (!cu.story && cu.st !== 'entering') dropDirt();
-    cu.st = 'leaving'; cu.slotM = -1; cu.slotC = -1; cu.label.hidden = true; cu.person.bag(!!withBag); if (cu.rv) cu.person.lookUp(0);
+    cu.st = 'leaving'; cu.slotM = -1; cu.slotC = -1; cu.label.hidden = true; cu.person.bag(!!withBag); cu.person.gaze(null); if (withBag) { cu.person.mood('happy'); cu.person.hop(0.6); } else if (!cu.story && cu.pat <= 0.05) cu.person.mood('angry'); if (cu.rv) cu.person.lookUp(0);
     const dx = L.puerta.x, d = day;
     cu.person.walk((cu.rv ? [[dx, 1.8]] : [[dx, -1.2]]).concat([[dx, L.salon.zMax + 0.2], [dx + U.rnd(-2, 2), L.galeria.zMax + 3]]), () => {
       cu.person.remove(); cu.label.remove(); const i = d.customers.indexOf(cu); if (i >= 0) d.customers.splice(i, 1);
@@ -1033,6 +1034,7 @@ GS.Game = (function () {
     // paciencia (en el turno tranquilo no baja)
     if (!day.relaxed) {
       for (const cu of day.customers.slice()) {
+        { const w8 = cu.st === 'waitM' || cu.st === 'waitC' || cu.st === 'inM' || cu.st === 'inC'; cu.person.gaze(w8 ? W.player() : null); if (w8 && !cu.story) cu.person.mood(cu.pat > 0.55 ? 'normal' : cu.pat > 0.28 ? 'impatient' : 'angry'); }      /* miran a quien los atiende, y la cara acompaña la paciencia */
         if (cu.story) continue;                       // las visitas con historia esperan sin apuro
         if (cu.st === 'waitC') cu.wc = (cu.wc || 0) + dt;
         if (cu.st === 'waitM' || cu.st === 'waitC') cu.pat -= dt / (cfg.patienceWait * patMult());

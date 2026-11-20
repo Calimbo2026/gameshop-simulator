@@ -936,7 +936,7 @@ GS.World = (function () {
     add(g, gHip, 'bot', 0, 0.46, 0); add(g, gTorso, 'top', 0, 0.7, 0);
     // brazos (giran desde el hombro): manga, brazo y mano
     const arms = [-1, 1].map(sd => { const A2 = new T.Group(); A2.position.set(sd * 0.2, 0.82, 0); A2.rotation.z = sd * 0.16; g.add(A2);
-      add(A2, gSleeve, 'top', 0, -0.06, 0); add(A2, gShoulder, 'top', 0, 0.005, 0); armSk.push(add(A2, gArm, 'skin', 0, -0.24, 0)); add(A2, gHand, 'skin', 0, -0.39, 0); return A2; });
+      add(A2, gSleeve, 'top', 0, -0.06, 0); add(A2, gShoulder, 'top', 0, 0.005, 0); armSk.push(add(A2, gArm, 'skin', 0, -0.24, 0)); add(A2, gHand, 'skin', 0, -0.39, 0); add(A2, gHand, 'skin', -sd * 0.012, -0.375, 0.052).scale.setScalar(0.52); return A2; });      /* mano con pulgar */
     const bag = new T.Group(); bag.visible = false;      /* bolsa de compras negra con el logo de GameShop: cuelga de la mano por las manijas */
     { arms[1].add(bag); bag.position.set(0.02, -0.6, 0.03); bag.rotation.z = -0.16; box(bag, 0.36, 0.27, 0.07, 0x0a0a0a, 0, -0.135, 0); const lm = bagLogoMat(); plane(bag, 0.35, 0.175, lm, 0, 0, 0.037); plane(bag, 0.35, 0.175, lm, 0, 0, -0.037, Math.PI);
       [-1, 1].forEach(sd => { const h = new T.Mesh(new T.TorusGeometry(0.095, 0.02, 6, 16, Math.PI), mat(0xf4f4f2)); h.position.set(0, 0.13, sd * 0.03); bag.add(h); }); }
@@ -959,7 +959,8 @@ GS.World = (function () {
       box(cargo, 0.5, 0.36, 0.5, 0xc49a6c, 0, 0.22, 0.9); box(cargo, 0.44, 0.3, 0.44, 0xb98d5e, 0.02, 0.58, 0.9); box(cargo, 0.3, 0.22, 0.3, 0xc49a6c, -0.04, 0.88, 0.9);
     }
     // Estilo libre: cualquier combinación de peinado y accesorios (sin distinguir géneros), siempre con los cuatro colores
-    let acc = null, bacc = null, armX = [], cur = {};
+    let acc = null, bacc = null, armX = [], cur = {}, brows = []; g.rotation.order = 'YXZ'; const smY = smile.position.y;
+    const MOOD = { normal: [Math.PI, 1, 1, 0, -0.14, 0], happy: [Math.PI, 1.22, 1.25, -0.008, -0.2, 0.02], impatient: [Math.PI, 0.95, 0.14, -0.02, 0.02, -0.014], angry: [0, 0.95, 0.9, -0.062, 0.44, -0.022], sad: [0, 0.9, 0.8, -0.062, -0.44, 0.004], surprised: [Math.PI, 0.5, 1.15, -0.012, -0.14, 0.035] };      /* boca (giro, ancho, alto, altura) y cejas (inclinación, altura) de cada ánimo */
     function style(a) {
       cur = Object.assign({}, cur, a);
       const skinC = cur.skin || SKINS[1], hairC = cur.hair == null ? 0x3a2a1a : cur.hair, topC = cur.shirt || 0x4a6fb5, botC = cur.pants || PANTS[(topC >> 3) % PANTS.length];
@@ -1035,8 +1036,8 @@ GS.World = (function () {
       if (cur.stubble) { const sb = new T.Mesh(gBeard, mat(mixC(skinC, 0x4a4a52, 0.38))); sb.scale.setScalar(0.975); acc.add(sb); }
       if (cur.santa) { const wh = mat(0xffffff); [[0, -0.3, 0.2, 0.25, 1.25, 1.05, 0.8], [-0.2, -0.2, 0.2, 0.15, 1, 1.1, 0.9], [0.2, -0.2, 0.2, 0.15, 1, 1.1, 0.9], [0, -0.47, 0.18, 0.15, 1.1, 1, 0.8], [-0.085, -0.115, 0.335, 0.075, 1.5, 0.75, 0.8], [0.085, -0.115, 0.335, 0.075, 1.5, 0.75, 0.8]].forEach(q => { const m = new T.Mesh(gHead, wh); m.scale.set(q[3] / HR * q[4], q[3] / HR * q[5], q[3] / HR * q[6]); m.position.set(q[0], q[1], q[2]); acc.add(m); });
         const ns = new T.Mesh(gEar, mat(0xe58a7a)); ns.scale.setScalar(0.75); ns.position.set(0, -0.06, HR + 0.02); acc.add(ns); }
-      const bm = mat(inkC), tm = mat(topC), temple = (sd, m) => { const t = new T.Mesh(new T.TorusGeometry(HR + 0.016, 0.011, 6, 24, 1.105), m); t.rotation.set(Math.PI / 2, 0, -0.12 * sd); t.scale.x = sd;      /* el arco se espeja con su giro, así queda igual de los dos lados */ t.position.y = -0.012; acc.add(t); };      /* patilla: un arco pegado a la cabeza, del borde del cristal hasta atrás de la oreja */
-      [-1, 1].forEach(sd => { const b = new T.Mesh(gEar, bm); b.scale.set(0.78, 0.2, 0.22); b.position.set(sd * 0.135, 0.105, HR - 0.036); b.rotation.set(-0.3, sd * 0.4, sd * -0.14); acc.add(b); });     // cejas redondeadas
+      brows = []; const bm = mat(inkC), tm = mat(topC), temple = (sd, m) => { const t = new T.Mesh(new T.TorusGeometry(HR + 0.016, 0.011, 6, 24, 1.105), m); t.rotation.set(Math.PI / 2, 0, -0.12 * sd); t.scale.x = sd;      /* el arco se espeja con su giro, así queda igual de los dos lados */ t.position.y = -0.012; acc.add(t); };      /* patilla: un arco pegado a la cabeza, del borde del cristal hasta atrás de la oreja */
+      [-1, 1].forEach(sd => { const b = new T.Mesh(gEar, bm); b.scale.set(0.78, 0.2, 0.22); b.position.set(sd * 0.135, 0.105, HR - 0.036); b.rotation.set(-0.3, sd * 0.4, sd * -0.14); b.userData.sd = sd; acc.add(b); brows.push(b); });     // cejas redondeadas
       if (!cur.santa) { const ns = new T.Mesh(gEar, mat(mixC(skinC, 0x6b3a1e, 0.16))); ns.scale.set(0.42, 0.34, 0.36); ns.position.set(0, -0.055, HR - 0.006); acc.add(ns);      /* nariz chiquita y un poco de color en las mejillas */
         [-1, 1].forEach(sd => { const ck = new T.Mesh(gEar, mat(mixC(skinC, 0xff5a5a, 0.3))); ck.scale.set(0.62, 0.42, 0.14); ck.position.set(sd * 0.215, -0.095, HR * 0.775); ck.rotation.y = sd * 0.66; ck.rotation.x = 0.28; acc.add(ck); }); }
       /* sombreros y detalles de los rivales: boina, sombrero de ala, ushanka, gorra, anteojos oscuros y parche */
@@ -1084,6 +1085,13 @@ GS.World = (function () {
       walk(points, cb) { p.path = points.slice(); p.onArrive = cb || null; p.moving = true; },
       bag(v) { bag.visible = v; p.bagOn = v; },
       lookUp(v) { p.upG = v || 0; },
+      /* vida: ánimo en la cara, hablar, mirar a alguien */
+      mood(m) { p.md = MOOD[m] ? m : 'normal'; }, talk(sec) { p.talkT = sec || 2; }, gaze(t) { p.gazeT = t || null; },
+      faceTick(dt, idle) { const M = MOOD[p.md || 'normal'], k = Math.min(1, dt * 9), tk = p.talkT > 0 ? 0.45 + Math.abs(Math.sin(p.t * 11)) * 0.85 : 1; p.fz = p.fz == null ? M[0] : p.fz + (M[0] - p.fz) * k; smile.rotation.z = p.fz; smile.scale.x += (M[1] - smile.scale.x) * k; smile.scale.y += (M[2] * tk - smile.scale.y) * Math.min(1, dt * 22); smile.position.y += (smY + M[3] - smile.position.y) * k;
+        brows.forEach(b => { b.rotation.z += (b.userData.sd * M[4] - b.rotation.z) * k; b.position.y += (0.105 + M[5] - b.position.y) * k; });
+        if (!p.sleeping) { p.blk = (p.blk == null ? 1 + Math.random() * 4 : p.blk) - dt; if (p.blk < -0.11) p.blk = 2.2 + Math.random() * 3.6; const ey = p.blk < 0 ? 0.12 : p.md === 'surprised' ? 1.62 : p.md === 'angry' ? 1.2 : 1.42; eyes.forEach(e => { e.scale.y = ey; }); }
+        hd.position.y = NK + (idle && !reduceMotion ? Math.sin(p.t * 2.1) * 0.006 : 0);
+        let ty = 0; const G = p.gazeT; if (G && idle && G.group.parent) { let a = Math.atan2(G.group.position.x - g.position.x, G.group.position.z - g.position.z) - g.rotation.y; a = Math.atan2(Math.sin(a), Math.cos(a)); ty = Math.max(-0.8, Math.min(0.8, a)); } hd.rotation.y += (ty - hd.rotation.y) * Math.min(1, dt * 5); },
       phVis: () => !!phone && phone.visible, phTilt(k) { phone.rotation.set(-1.5 * k, 0, k > 0.5 ? Math.PI : 0); },      /* al levantarlo, el celular queda parado y con la pantalla hacia la cara */
       /* halo de las visitas especiales: aro de luz en el piso, columna suave y chispas que suben */
       aura(col, plain) { if (p.au) return; const c = new T.Color(col || 0xf5c518), mk = (geo, op) => new T.Mesh(geo, new T.MeshBasicMaterial({ color: c, transparent: true, opacity: op, depthWrite: false, blending: T.AdditiveBlending, side: T.DoubleSide })), A2 = new T.Group(); g.add(A2);
@@ -1156,6 +1164,10 @@ GS.World = (function () {
       p.t += dt;
       const g = p.group;
       if (p.upG != null) { const h2 = p.hd; h2.rotation.x += (-p.upG - h2.rotation.x) * Math.min(1, dt * 6); if (!p.upG && Math.abs(h2.rotation.x) < 0.002) { h2.rotation.x = 0; p.upG = null; } }
+      { const idle = !p.moving && !p.using && !p.sleeping, freeA = idle && !p.holding && !p.gesturing && !(p.hopT > 0) && !(p.ph && p.ph.k > 0.05) && !p.gf; p.faceTick(dt, idle);
+        if (p.talkT > 0) { p.talkT -= dt; if (freeA) p.arms[1].rotation.x = p.talkT > 0 ? -0.6 + Math.sin(p.t * 5.5) * 0.28 : 0; }      /* al hablar mueve la boca y acompaña con la mano */
+        const jar = p.md === 'angry' && freeA; if (jar !== !!p.jarOn) { p.jarOn = jar; p.arms.forEach((a, i) => { a.rotation.z = (i ? 1 : -1) * (jar ? 0.62 : 0.16); }); }      /* enojado: brazos en jarra */
+        const tap = p.md === 'impatient' && idle; if (tap) p.legs[1].rotation.x = -Math.max(0, Math.sin(p.t * 9)) * 0.28; else if (p.tapOn) p.legs[1].rotation.x = 0; p.tapOn = tap; }      /* impaciente: golpea el piso con el pie */
       if (p.ph) { const P = p.ph, free = !p.moving && !p.holding && !p.using && !p.sleeping && !p.nodding && p.phVis(); P.t -= dt; if (free && P.t < -8) P.t = 3.6; const on = free && P.t > 0; P.k += ((on ? 1 : 0) - P.k) * Math.min(1, dt * 6);      /* cada tanto mira el celular: brazo arriba, cabeza baja y luz en la cara */
         if (free || P.k > 0.02) { if (!p.moving && !p.holding) { p.arms[0].rotation.x = -1.42 * P.k; p.arms[0].rotation.z = -0.16 + 0.5 * P.k; p.phTilt(P.k); } p.hd.rotation.x = 0.32 * P.k; } }
       if (p.au) { const k = 1 + Math.sin(p.t * 3.2) * 0.09; p.au.ring.scale.set(k, k, 1); p.au.ring.material.opacity = 0.65 + Math.sin(p.t * 3.2) * 0.2; p.au.col2.rotation.y = p.t * 0.6; p.au.sp.forEach(q => { const u = (p.t * 0.42 + q.userData.ph) % 1, an = q.userData.ph * 6.283 * 2 + p.t * 1.3, sz = 0.26 * Math.sin(u * Math.PI); q.position.set(Math.cos(an) * 0.5, 0.1 + u * 1.75, Math.sin(an) * 0.5); q.scale.set(sz, sz, 1); }); }
@@ -1165,14 +1177,14 @@ GS.World = (function () {
         const tx = p.path[0][0], tz = p.path[0][1], dx = tx - g.position.x, dz = tz - g.position.z, d = Math.hypot(dx, dz), step = p.speed * dt;
         if (d <= step) {
           g.position.x = tx; g.position.z = tz; p.path.shift();
-          if (!p.path.length) { p.moving = false; g.position.y = 0; rest(p); const cb = p.onArrive; p.onArrive = null; if (cb) cb(); }
+          if (!p.path.length) { p.moving = false; g.position.y = 0; g.rotation.x = 0; rest(p); const cb = p.onArrive; p.onArrive = null; if (cb) cb(); }
         } else {
           g.position.x += dx / d * step; g.position.z += dz / d * step;
           g.rotation.y = Math.atan2(dx, dz);
           if (!reduceMotion) {                                                  // pasitos: piernas y brazos alternados
             const sw = Math.sin(p.t * (7 + p.speed * 1.6)) * 0.75;
             p.legs[0].rotation.x = sw; p.legs[1].rotation.x = -sw; if (!p.holding) { p.arms[0].rotation.x = -sw * 0.8; p.arms[1].rotation.x = sw * (p.bagOn ? 0.16 : 0.8); }
-            g.position.y = Math.abs(sw) * 0.035;
+            g.position.y = Math.abs(sw) * (p.speed < 2.5 ? 0.02 : 0.035); g.rotation.x = Math.max(0, Math.min(0.15, (p.speed - 3) * 0.045));      /* el que va apurado se inclina hacia adelante */
           }
         }
       } else if (!reduceMotion) {
@@ -1289,7 +1301,7 @@ GS.World = (function () {
       doorK += ((near ? 1 : 0) - doorK) * Math.min(1, dt * 7); slideDoors.forEach(d => { d.g.position.x = d.x0 + d.sd * doorK * (L.galeria.pasillo - 0.3); }); }
     if (!ok) return;
     if (drone) { const D = drone; D.t += camDt != null ? camDt : dt; const u0 = reduceMotion ? 1 : Math.min(1, D.t / D.dur), u = u0 * u0 * (3 - 2 * u0), lp = (a, b) => a + (b - a) * u;      /* vuelo de dron: de la puerta, a ras del piso, hasta la vista normal del local */
-      tilt = lp(D.tilt, tiltBase); stVy = lp(D.vy, 0); stTy = lp(D.ty, 0.8); cam.tx = lp(D.x, cam.gx); cam.tz = lp(D.z, cam.gz); cam.dist = lp(D.d, cam.gdist); if (u0 >= 1) drone = null; applyCam(); updateWalls(); return; }
+      tilt = lp(D.tilt, tiltBase); stVy = lp(D.vy, 0); stTy = lp(D.ty, 0.8); cam.tx = lp(D.x, cam.gx); cam.tz = lp(D.z, cam.gz); cam.dist = lp(D.d, cam.gdist); if (u0 >= 1) drone = null; applyCam(); updateWalls(); updatePeople(dt); return; }
     const k = reduceMotion ? 1 : 1 - Math.pow(0.002, camDt != null ? camDt : dt);      /* la cámara se sigue acomodando aunque el juego esté en pausa */
     cam.tx += (cam.gx - cam.tx) * k; cam.tz += (cam.gz - cam.tz) * k; cam.dist += (cam.gdist - cam.dist) * k; stTy += (stTyG - stTy) * k;
     applyCam(); updatePeople(dt);

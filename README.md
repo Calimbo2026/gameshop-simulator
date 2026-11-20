@@ -335,3 +335,8 @@ Tres juegos en `src/arcade.js`, que se ganan al terminar las jornadas 3, 8 y 14 
 - Buzo canguro de manga larga con puños, cintura, bolsillo con forma, cordones y capucha apoyada en la espalda. Chomba con cuello y solapas, cartera con botones, vivos en las mangas y escudo, en el color de contraste.
 - Los clientes varían entre buzo, remera y chomba, y entre pantalón y short.
 - La boca, los ojos y las cejas ya no toman el color del pantalón cuando es de color o claro.
+
+## v0.78.0
+- Personajes con vida: ánimo en la cara 3D (`person.mood`: normal, happy, impatient, angry, sad, surprised), parpadeo, respiración, mirada hacia quien los atiende (`person.gaze`), boca y mano al hablar (`person.talk`), brazos en jarra al enojarse y pie que golpea al impacientarse.
+- Los clientes cambian de cara según su paciencia, festejan al comprar, y varían de altura. El que va apurado camina inclinado. Manos con pulgar.
+- Arreglo: durante el vuelo de dron los personajes quedaban congelados.
