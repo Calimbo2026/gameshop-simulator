@@ -1060,7 +1060,7 @@ GS.World = (function () {
         const pom = new T.Mesh(gEar, wh); pom.scale.setScalar(1.15); pom.position.set(0.17, 0.8, -0.02); acc.add(pom);
       }
       if (hat === 'orejas') { [-1, 1].forEach(sd => { const e = new T.Mesh(gTuft, hm); e.scale.set(0.9, 1, 0.5); e.position.set(sd * 0.22, 0.37, 0); acc.add(e); }); }
-      if (hat === 'casco') { const h = new T.Mesh(gHelmet, tm); h.rotation.x = -0.5; acc.add(h); box(acc, 0.05, 0.2, 0.05, tm, 0.28, 0.42, -0.05); const b = new T.Mesh(gEar, hm); b.position.set(0.28, 0.64, -0.05); acc.add(b); }
+      if (hat === 'casco') { const h = new T.Mesh(gHelmet, tm); h.rotation.x = -0.5; acc.add(h); const an = new T.Mesh(new T.CylinderGeometry(0.022, 0.03, 0.26, 10), tm); an.position.set(0.2, 0.47, -0.05); an.rotation.z = -0.3; acc.add(an); const b = new T.Mesh(gEar, hm); b.scale.setScalar(0.8); b.position.set(0.24, 0.6, -0.05); acc.add(b); }      /* antena: nace del casco, inclinada, con la bolita en la punta */
       if (hat === 'corona') { const gd = mat(0xf5c518), gd2 = mat(0xf5c518, { side: T.DoubleSide }), R = 0.21, band = new T.Mesh(new T.CylinderGeometry(R, R * 0.9, 0.13, 18, 1, true), gd2); band.position.y = HR + 0.02; acc.add(band);
         const rim = new T.Mesh(new T.TorusGeometry(R * 0.9, 0.022, 6, 18), gd); rim.rotation.x = Math.PI / 2; rim.position.y = HR - 0.045; acc.add(rim);
         for (let i = 0; i < 6; i++) { const an = i / 6 * Math.PI * 2 + 0.26, cx = Math.cos(an) * R, cz = Math.sin(an) * R, sp = new T.Mesh(new T.ConeGeometry(0.06, 0.17, 4), gd); sp.position.set(cx, HR + 0.165, cz); sp.rotation.y = -an; acc.add(sp);
