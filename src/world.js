@@ -29,11 +29,11 @@ GS.World = (function () {
     cam.gz = U.clamp(cam.gz, L.salon.zMin, L.galeria.zMax + 1);
     cam.gdist = U.clamp(cam.gdist, cam.fit * 0.3, cam.fit * 1.75);
   }
-  let stg = null, stVy = 0, stOff = false, drone = null; const tiltBase = GS.CONFIG.camera.tilt * DEG;
+  let stg = null, stVy = 0, stOff = false, drone = null, stTy = 0.8, stTyG = 0.8; const tiltBase = GS.CONFIG.camera.tilt * DEG;
   function applyCam() {
     const ch = Math.cos(tilt), sh = Math.sin(tilt);
-    camera.position.set(cam.tx + cam.dist * Math.sin(rot) * ch, 0.8 + cam.dist * sh, cam.tz + cam.dist * Math.cos(rot) * ch);
-    camera.lookAt(cam.tx, 0.8, cam.tz);
+    camera.position.set(cam.tx + cam.dist * Math.sin(rot) * ch, stTy + cam.dist * sh, cam.tz + cam.dist * Math.cos(rot) * ch);
+    camera.lookAt(cam.tx, stTy, cam.tz);
     if (Math.abs(stVy) > 0.002) { const w = canvas.clientWidth || 1, h = canvas.clientHeight || 1; camera.setViewOffset(w, h, 0, stVy * h, w, h); stOff = true; } else if (stOff) { camera.clearViewOffset(); stOff = false; }
     camera.near = Math.max(1, cam.dist * 0.2, cam.dist - 42); camera.far = cam.dist * 2 + 110;      /* rango de profundidad ajustado: más precisión, menos parpadeo en las uniones */
     camera.updateProjectionMatrix();
@@ -904,7 +904,7 @@ GS.World = (function () {
   const gHead = new T.SphereGeometry(HR, 16, 12), gEar = new T.SphereGeometry(0.085, 8, 6), gEye = new T.SphereGeometry(0.05, 8, 6),
         gTorso = new T.CylinderGeometry(0.15, 0.2, 0.36, 12), gHip = new T.CylinderGeometry(0.2, 0.19, 0.16, 12), gLegP = new T.CylinderGeometry(0.085, 0.08, 0.14, 8),
         gLeg = new T.CylinderGeometry(0.06, 0.055, 0.2, 8), gArm = new T.CylinderGeometry(0.052, 0.046, 0.26, 8), gSleeve = new T.CylinderGeometry(0.075, 0.07, 0.13, 8),
-        gHand = new T.SphereGeometry(0.062, 8, 6), gSmile = new T.TorusGeometry(0.075, 0.016, 6, 10, Math.PI),
+        gHand = new T.SphereGeometry(0.062, 8, 6), gSmile = new T.TorusGeometry(0.075, 0.013, 6, 12, Math.PI),
         gShadow = new T.CircleGeometry(0.36, 16), gShoe = new T.SphereGeometry(0.07, 10, 8), gShoulder = new T.SphereGeometry(0.076, 12, 8);
   const shadowMat = new T.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.2, depthWrite: false });
   const gBun = new T.SphereGeometry(0.16, 8, 8), gCurl = new T.SphereGeometry(0.14, 7, 6), gTuft = new T.SphereGeometry(0.13, 7, 6),
@@ -933,7 +933,7 @@ GS.World = (function () {
       [-1, 1].forEach(sd => { const h = new T.Mesh(new T.TorusGeometry(0.095, 0.02, 6, 16, Math.PI), mat(0xf4f4f2)); h.position.set(0, 0.13, sd * 0.03); bag.add(h); }); }
     const head = add(g, gHead, 'skin', 0, HY, 0); [-1, 1].forEach(sd => add(g, gEar, 'skin', sd * (HR - 0.01), HY - 0.03, 0));
     const eyes = [-1, 1].map(sd => { const e = add(g, gEye, 'bot', sd * 0.13, HY - 0.01, HR - 0.045); e.scale.set(1, 1.35, 0.6); return e; });
-    const smile = add(g, gSmile, 'bot', 0, HY - 0.13, HR - 0.035); smile.rotation.z = Math.PI; smile.rotation.x = -0.25;
+    const smile = add(g, gSmile, 'bot', 0, HY - 0.12, HR - 0.03); smile.rotation.z = Math.PI; smile.rotation.x = 0.36;      /* la sonrisa sigue la curva de la cara: queda al ras */
     const sh = new T.Mesh(gShadow, shadowMat); sh.rotation.x = -Math.PI / 2; sh.position.y = 0.02; g.add(sh);
     const carry = box(g, 0.36, 0.28, 0.3, 0xc49a6c, 0, 0.5, 0.3); carry.visible = false;
     const mopG = new T.Group(); mopG.visible = false; g.add(mopG); { const st = new T.Mesh(new T.CylinderGeometry(0.03, 0.03, 1.35, 6), mat(0xb5894f)); st.position.set(0, 0.62, 0.42); st.rotation.x = -0.5; mopG.add(st); box(mopG, 0.5, 0.1, 0.22, 0x57b7e6, 0, 0, 0.76); box(mopG, 0.5, 0.05, 0.3, 0xe9f4fb, 0, 0, 0.82); }      // mopa
@@ -960,6 +960,10 @@ GS.World = (function () {
           cy(0.215, 0.25, 0.4, tmB, 0, 0.7, 0.005); sph(0.235, tmB, 0, 0.6, 0.04, 1.05, 0.85, 1); cy(0.125, 0.135, 0.1, mat(skinC), 0, 0.91, 0); cy(0.235, 0.225, 0.12, mat(botC), 0, 0.46, 0);
           if (cur.top === 'chomba') { const c1 = new T.Mesh(new T.TorusGeometry(0.135, 0.035, 8, 18), mat(0xe10600)); c1.rotation.x = Math.PI / 2; c1.position.y = 0.9; bacc.add(c1); box(bacc, 0.05, 0.16, 0.02, 0xe10600, 0, 0.8, 0.222); box(bacc, 0.07, 0.05, 0.02, 0xe10600, 0.11, 0.78, 0.215); }
           if (cur.top === 'campera') { box(bacc, 0.15, 0.36, 0.02, 0xe10600, 0, 0.7, 0.235); const c1 = new T.Mesh(new T.TorusGeometry(0.15, 0.04, 8, 18), tmB); c1.rotation.x = Math.PI / 2; c1.position.y = 0.9; bacc.add(c1); [-1, 1].forEach(sd => box(bacc, 0.025, 0.36, 0.03, 0x3a3a42, sd * 0.085, 0.7, 0.24)); }
+        }
+        if (cur.build !== 'robusto' && !cur.santa && !cur.uniform) {      /* chomba y campera en el cuerpo común */
+          if (cur.top === 'chomba') { const c1 = new T.Mesh(new T.TorusGeometry(0.105, 0.032, 8, 18), mat(0xe10600)); c1.rotation.x = Math.PI / 2; c1.position.y = 0.885; bacc.add(c1); box(bacc, 0.045, 0.15, 0.02, 0xe10600, 0, 0.72, 0.158).rotation.x = -0.13; box(bacc, 0.06, 0.045, 0.02, 0xe10600, 0.085, 0.74, 0.15).rotation.x = -0.13; }
+          if (cur.top === 'campera') { box(bacc, 0.12, 0.33, 0.02, 0xe10600, 0, 0.54, 0.172).rotation.x = -0.135; const c1 = new T.Mesh(new T.TorusGeometry(0.115, 0.036, 8, 18), tmB); c1.rotation.x = Math.PI / 2; c1.position.y = 0.885; bacc.add(c1); [-1, 1].forEach(sd => { box(bacc, 0.022, 0.33, 0.03, 0x3a3a42, sd * 0.07, 0.54, 0.176).rotation.x = -0.135; }); }
         }
         if (cur.santa) {                              /* Papá Noel: panza, cinturón con hebilla, borde blanco y la bolsa de regalos al hombro */
           const wh = mat(0xffffff), dk = mat(0x17171c), sk2 = mat(0xb07a3f);
@@ -1004,12 +1008,12 @@ GS.World = (function () {
         if (hat === 'boina') { const bd = new T.Mesh(new T.TorusGeometry(HR * 0.93, 0.05, 8, 22), hb); bd.rotation.x = Math.PI / 2 + 0.12; bd.position.set(0, HR * 0.62, -0.02); acc.add(bd); const top = new T.Mesh(gHead, hc); top.scale.set(1.34, 0.42, 1.3); top.position.set(0.05, HR * 0.9, -0.03); top.rotation.set(0.1, 0, -0.14); acc.add(top); const pm = new T.Mesh(gEar, hc); pm.scale.setScalar(0.5); pm.position.set(0.07, HR * 0.9 + 0.16, -0.03); acc.add(pm); }
         if (hat === 'ala') { cyl(HR * 1.5, HR * 1.55, 0.035, hc, HR * 0.62); cyl(HR * 0.86, HR * 0.98, 0.26, hc, HR * 0.62 + 0.14); cyl(HR * 1.0, HR * 1.0, 0.07, hb, HR * 0.62 + 0.05); }
         if (hat === 'ushanka') { const dome = new T.Mesh(gHelmet, hc); dome.scale.setScalar(1.0); dome.position.y = 0.04; acc.add(dome); [-1, 1].forEach(sd => box(acc, 0.11, 0.34, 0.3, hc, sd * (HR + 0.03), -0.26, 0)); box(acc, HR * 1.5, 0.15, 0.09, hb, 0, 0.1, HR * 0.92); }
-        if (hat === 'gorra') { const dome = new T.Mesh(gHelmet, hc); dome.scale.setScalar(0.97); dome.position.y = 0.04; acc.add(dome); box(acc, HR * 1.25, 0.035, 0.3, hc, 0, 0.1, HR * 1.12); cyl(0.04, 0.04, 0.03, hb, HR + 0.1); }
+        if (hat === 'gorra') { const dome = new T.Mesh(new T.SphereGeometry(HR + 0.04, 18, 10, 0, Math.PI * 2, 0, Math.PI * 0.46), hc); dome.rotation.x = -0.3; dome.position.y = 0.01; acc.add(dome); const vs = new T.Mesh(new T.CylinderGeometry(HR * 0.72, HR * 0.72, 0.03, 18, 1, false, -Math.PI / 2, Math.PI), hb); vs.scale.set(1, 1.4, 1.05); vs.position.set(0, 0.2, HR * 0.86); vs.rotation.x = 0.2; acc.add(vs); const bt = new T.Mesh(gEar, hb); bt.scale.setScalar(0.5); bt.position.set(0, HR + 0.03, -0.11); acc.add(bt); }      /* gorra: casquete que deja la cara libre, visera y botón */
         if (cur.shades) { box(acc, 0.5, 0.11, 0.03, 0x111114, 0, 0, HR - 0.005); [-1, 1].forEach(sd => box(acc, 0.03, 0.03, HR, 0x111114, sd * 0.26, 0.03, HR * 0.5)); }
         if (cur.patch) { box(acc, 0.17, 0.17, 0.03, 0x111114, 0.13, -0.03, HR - 0.005); const band = new T.Mesh(new T.TorusGeometry(HR + 0.005, 0.014, 6, 24), mat(0x111114)); band.rotation.x = Math.PI / 2; band.rotation.y = 0.28; band.position.y = 0.06; acc.add(band); } }
       if (cur.glasses) { [-1, 1].forEach(sd => { const r = new T.Mesh(new T.TorusGeometry(0.085, 0.016, 6, 14), bm); r.position.set(sd * 0.13, -0.01, HR - 0.015); acc.add(r); }); box(acc, 0.09, 0.025, 0.025, bm, 0, -0.01, HR - 0.01); }
       if (cur.lashes) [-1, 1].forEach(sd => { const l = box(acc, 0.1, 0.022, 0.03, hm, sd * 0.2, 0.04, HR - 0.07); l.rotation.z = sd * 0.5; });
-      smile.visible = !cur.lips; if (cur.lips) box(acc, 0.13, 0.05, 0.05, tm, 0, -0.17, HR - 0.03);
+      smile.visible = !cur.lips; if (cur.lips) { const lm = cur.lipCol != null ? mat(cur.lipCol) : tm, lp = new T.Mesh(gHead, lm); lp.scale.set(0.2, 0.075, 0.06); lp.position.set(0, -0.165, HR * 0.885); lp.rotation.x = 0.48; acc.add(lp); }
       // sombreros de los disfraces (siempre con los colores del personaje)
       if (hat === 'gorro') {                       // gorrito navideño (rojo y blanco, es un accesorio de la semana de Navidad)
         const red = mat(0xd81e2c), wh = mat(0xffffff), band = new T.Mesh(new T.TorusGeometry(HR - 0.005, 0.075, 8, 20), wh); band.rotation.x = Math.PI / 2; band.position.y = 0.17; acc.add(band);
@@ -1242,9 +1246,9 @@ GS.World = (function () {
       doorK += ((near ? 1 : 0) - doorK) * Math.min(1, dt * 7); slideDoors.forEach(d => { d.g.position.x = d.x0 + d.sd * doorK * (L.galeria.pasillo - 0.3); }); }
     if (!ok) return;
     if (drone) { const D = drone; D.t += camDt != null ? camDt : dt; const u0 = reduceMotion ? 1 : Math.min(1, D.t / D.dur), u = u0 * u0 * (3 - 2 * u0), lp = (a, b) => a + (b - a) * u;      /* vuelo de dron: de la puerta, a ras del piso, hasta la vista normal del local */
-      tilt = lp(D.tilt, tiltBase); stVy = lp(D.vy, 0); cam.tx = lp(D.x, cam.gx); cam.tz = lp(D.z, cam.gz); cam.dist = lp(D.d, cam.gdist); if (u0 >= 1) drone = null; applyCam(); updateWalls(); return; }
+      tilt = lp(D.tilt, tiltBase); stVy = lp(D.vy, 0); stTy = lp(D.ty, 0.8); cam.tx = lp(D.x, cam.gx); cam.tz = lp(D.z, cam.gz); cam.dist = lp(D.d, cam.gdist); if (u0 >= 1) drone = null; applyCam(); updateWalls(); return; }
     const k = reduceMotion ? 1 : 1 - Math.pow(0.002, camDt != null ? camDt : dt);      /* la cámara se sigue acomodando aunque el juego esté en pausa */
-    cam.tx += (cam.gx - cam.tx) * k; cam.tz += (cam.gz - cam.tz) * k; cam.dist += (cam.gdist - cam.dist) * k;
+    cam.tx += (cam.gx - cam.tx) * k; cam.tz += (cam.gz - cam.tz) * k; cam.dist += (cam.gdist - cam.dist) * k; stTy += (stTyG - stTy) * k;
     applyCam(); updatePeople(dt);
     if (pingT > 0) { pingT -= dt; const k = 1 - pingT / 0.7; pingM.scale.setScalar(0.6 + k * 0.9); pingM.material.opacity = 1 - k; if (pingT <= 0) pingM.visible = false; }
     if (critters.length) updateCritters(dt);
@@ -1265,14 +1269,16 @@ GS.World = (function () {
     setPlayerLook(a) { if (yo && a) yo.look(a); if (stg && stg.clone && a) stg.clone.look(a); },
     /* escenario: el personaje parado en la puerta del local, con la cámara baja y cerca (menú y editor de personaje) */
     stage(o) {
-      if (!o) { if (!stg) return; if (stg.clone) stg.clone.remove(); if (stg.save) { const s = stg.save; cam.gx = cam.tx = s.x; cam.gz = cam.tz = s.z; cam.gdist = cam.dist = s.d; cam.saved = s.saved; } tilt = tiltBase; stVy = 0; stg = null; drone = null; applyCam(); return; }
+      if (!o) { if (!stg) return; if (stg.clone) stg.clone.remove(); if (stg.save) { const s = stg.save; cam.gx = cam.tx = s.x; cam.gz = cam.tz = s.z; cam.gdist = cam.dist = s.d; cam.saved = s.saved; } tilt = tiltBase; stVy = 0; stTy = stTyG = 0.8; stg = null; drone = null; applyCam(); return; }
       const pos = [L.puerta.x, L.galeria.zMax + 1.25]; drone = null;
       if (!stg) { stg = { save: o.clone ? { x: cam.gx, z: cam.gz, d: cam.gdist, saved: cam.saved } : null, clone: null }; if (o.clone) { stg.clone = makePerson(Object.assign({}, o.look)); } else if (yo) { yo.stop(); } }
-      const who = stg.clone || yo; if (who) { who.setPos(pos[0], pos[1]); who.face(rot); }
-      tilt = 0.3; stVy = o.vy || 0; cam.saved = null; cam.gx = cam.tx = pos[0]; cam.gz = cam.tz = pos[1]; cam.gdist = cam.dist = cam.fit * (o.k || 0.15); applyCam();
+      const who = stg.clone || yo, was = stg.on; stg.on = true; if (who && !(o.soft && was)) { who.setPos(pos[0], pos[1]); who.face(rot); }
+      tilt = 0.3; stVy = o.vy || 0; cam.saved = null; cam.gx = pos[0]; cam.gz = pos[1]; cam.gdist = cam.fit * (o.k || 0.15); stTyG = o.ty != null ? o.ty : 0.8;
+      if (!(o.soft && was)) { cam.tx = cam.gx; cam.tz = cam.gz; cam.dist = cam.gdist; stTy = stTyG; } applyCam();      /* soft: la cámara viaja suave hasta el nuevo encuadre (cabeza, ropa, cuerpo entero) */
     },
     staged: () => !!stg,
-    droneHome(dur) { if (!stg) return; const D = { t: 0, dur: dur || 2.6, tilt, vy: stVy, x: cam.tx, z: cam.tz, d: cam.dist }; stg = null; cam.saved = null; cam.gx = 0; cam.gz = 0.2; cam.gdist = cam.fit; drone = D; },
+    stageSpin(d) { const who = stg && (stg.clone || yo); if (who) who.group.rotation.y += d; },
+    droneHome(dur) { if (!stg) return; const D = { t: 0, dur: dur || 2.6, tilt, vy: stVy, ty: stTy, x: cam.tx, z: cam.tz, d: cam.dist }; stg = null; stTyG = 0.8; cam.saved = null; cam.gx = 0; cam.gz = 0.2; cam.gdist = cam.fit; drone = D; },
     // El Dueño: un solo personaje que vive en su oficina
     // Hora del día (0 = 10 hs, 1 = 19 hs): cambia la luz, el color de la vereda y prende los faroles al anochecer
     setDayTime(f, rain) {

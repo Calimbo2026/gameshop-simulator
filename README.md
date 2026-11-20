@@ -319,3 +319,9 @@ Tres juegos en `src/arcade.js`, que se ganan al terminar las jornadas 3, 8 y 14 
 - Menú y editor de personaje con el personaje parado en la puerta del local (`W.stage`, `stageMenu`, `#stageGap`); cada cambio del editor se ve al instante en 3D.
 - Al comenzar la jornada, vuelo de dron desde la puerta hasta la vista normal (`W.droneHome`) y el personaje entra caminando hasta el mostrador.
 - Hombros unidos al brazo (`gShoulder`). Se restauran los peinados largo, rodete, rulos y mohicano en 3D, que se habían perdido en v0.71.
+
+## v0.74.0
+- Bocas al ras de la cara (sonrisa y labios siguen la curva de la cabeza).
+- Personalizador nuevo: pestañas Cara, Pelo, Ropa y Accesorios; la cámara enfoca lo que se está cambiando y "Ver entero" vuelve al cuerpo completo. El personaje se gira arrastrando (también en el menú).
+- Color de pelo libre (tono, intensidad y luz) además de los colores rápidos.
+- Guardarropa en `GS.WARDROBE` (colores de GameShop), con prendas y accesorios que se desbloquean jugando (`need`). Chomba y campera también en el cuerpo común; gorra rediseñada.

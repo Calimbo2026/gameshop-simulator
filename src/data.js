@@ -7,7 +7,7 @@
 const GS = {};
 
 GS.CONFIG = {
-  version: '0.73.0',
+  version: '0.74.0',
   phase: 8,
   phaseNote: 'Juego completo de punta a punta. Falta tu playtest con 5 personas y encender el lanzamiento (launched: true)',                       // fase actual del proyecto (1 a 5)
   links: { tienda: 'https://www.gameshop.com.ar', instagram: '' },   // botones del inicio y del cierre (vacío = no se muestra)
@@ -419,6 +419,29 @@ GS.TIPS = {
 GS.MONTHS = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];   // 1 jornada = 1 mes
 /* El Dueño: contextura grande, pelo corto canoso peinado hacia arriba, afeitado y de remera negra */
 GS.BOSS_LOOK = { shirt: 0x17171c, hair: 0x6f6f7a, hair2: 0xa9a9b4, hairStyle: 'jopo', skin: 0xe0ac7e, build: 'robusto', wide: true, top: 'remera' };
+/* Guardarropa del personaje: siempre en los colores de GameShop (rojo, negro, blanco y gris). need = cómo se desbloquea. */
+GS.WARDROBE = {
+  tops: [
+    { id: 'buzo', name: 'Buzo rojo', c: 0xe10600 },
+    { id: 'remera', name: 'Remera negra', c: 0x17171c, top: 'remera' },
+    { id: 'remerab', name: 'Remera blanca', c: 0xf4f4f2, top: 'remera' },
+    { id: 'chomba', name: 'Chomba GameShop', c: 0x17171c, c2: 0xe10600, top: 'chomba', need: { days: 3 }, needT: 'jugá 3 jornadas' },
+    { id: 'buzon', name: 'Buzo negro', c: 0x17171c, need: { perfect: 2 }, needT: '2 jornadas perfectas' },
+    { id: 'campera', name: 'Campera', c: 0x202027, c2: 0xe10600, top: 'campera', need: { duels: 1 }, needT: 'ganá un día de competencia' }
+  ],
+  pants: [{ c: 0x23232b }, { c: 0x55555f }, { c: 0xb00500 }, { c: 0xe9e9ee }],
+  shades: { name: 'Anteojos de sol', need: { gold: 1 }, needT: 'ganá una medalla de oro' },
+  hats: [
+    { id: 'no', name: 'Nada', ic: '🚫' },
+    { id: 'gorra', name: 'Gorra GameShop', hat: 'gorra', col: 0xe10600, band: 0x17171c, c: 0xe10600, need: { days: 2 }, needT: 'jugá 2 jornadas' },
+    { id: 'gorran', name: 'Gorra negra', hat: 'gorra', col: 0x17171c, band: 0xe10600, c: 0x17171c, need: { days: 6 }, needT: 'jugá 6 jornadas' },
+    { id: 'lana', name: 'Gorro de lana', hat: 'lana', ic: '🧶', need: { days: 9 }, needT: 'jugá 9 jornadas' },
+    { id: 'boina', name: 'Boina', hat: 'boina', col: 0x17171c, band: 0x17171c, c: 0x17171c, need: { duels: 2 }, needT: 'ganá 2 días de competencia' },
+    { id: 'casco', name: 'Casco del depósito', hat: 'casco', ic: '⛑️', need: { cos: 'casco' }, needT: 'premio de Stock Tetris (Arcade)' },
+    { id: 'corona', name: 'Corona de la atención', hat: 'corona', ic: '👑', need: { cos: 'corona' }, needT: 'premio de Defensa del mostrador (Arcade)' },
+    { id: 'vincha', name: 'Vincha de velocista', hat: 'vincha', ic: '🎽', need: { cos: 'vincha' }, needT: 'premio de Cable Runner (Arcade)' }
+  ]
+};
 GS.SANTA = { id: 'santa', name: 'Papá Noel', face: '🎅', shirt: 0xd81e2c, hair: 0xffffff, tag: 'Compras de último momento',
   look: { hairStyle: 'corto', beard: true, glasses: true, lips: false, lashes: false, hat: 'gorro', pants: 0x23232b, skin: 0xf2c9a0, santa: true, scale: 1.14 },
   bye: 'Jo, jo, jo. Me resolvieron muchos regalos, pero todavía me faltan algunos...', lost: 'Me voy, que los renos están en doble fila.' };

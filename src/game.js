@@ -241,6 +241,10 @@ GS.Game = (function () {
     else W.home();
   }
   /* menú con el personaje en la puerta del local */
+  /* girar al personaje: se arrastra sobre la parte libre de la pantalla, en el menú y en el editor */
+  let avSpin = null;
+  function spinSetup() { [$('modal'), $('start')].forEach(el => { let px = null; el.addEventListener('pointerdown', e => { if (!W.staged() || (el.id === 'modal' ? !avSpin || e.target !== el : e.target.closest('button, a, .wbtn, #campProg, .camp-head'))) return; px = e.clientX; });
+    el.addEventListener('pointermove', e => { if (px == null) return; W.stageSpin((e.clientX - px) * 0.012); px = e.clientX; }); ['pointerup', 'pointercancel', 'pointerleave'].forEach(n => el.addEventListener(n, () => { px = null; })); }); }
   function stageMenu() {
     const av = GS.Store.get('avatar'), on = !!av && state === 'menu' && !$('start').hidden; $('start').classList.toggle('staged', on); if (!on) return;
     W.setPlayerLook(av); const r = $('stageGap').getBoundingClientRect(), vy = r.height > 40 ? 0.5 - (r.top + r.height * 0.56) / window.innerHeight : 0; W.stage({ k: 0.15, vy });
@@ -1441,9 +1445,9 @@ GS.Game = (function () {
     if (a.shades) v += '<path d="M25 44 H75 L73 55 Q67 60 60 55 L54 49 H46 L40 55 Q33 60 27 55z" fill="#111114"/><path d="M29 46 l9 0" stroke="rgba(255,255,255,.35)" stroke-width="1.600" stroke-linecap="round"/>';
     if (a.patch) v += '<path d="M21 38 L79 52" stroke="#111114" stroke-width="2.400"/><ellipse cx="61" cy="50" rx="8.500" ry="8" fill="#111114"/>';
     if (a.glasses) v += '<g fill="rgba(255,255,255,.2)" stroke="' + ink + '" stroke-width="2.400"><circle cx="39" cy="50" r="9"/><circle cx="61" cy="50" r="9"/></g><path d="M48 50h4" stroke="' + ink + '" stroke-width="2.400"/>';
-    const mc = a.beard ? '#fff' : ink;
-    const mouths = { normal: a.lips ? '<path d="M43 64 Q46.500 61.500 50 63.500 Q53.500 61.500 57 64 Q50 71 43 64z" fill="' + top + '"/>' : '<path d="M43 64 Q50 70 57 64" fill="none" stroke="' + mc + '" stroke-width="2.600" stroke-linecap="round"/>',
-      talk: '<ellipse cx="50" cy="66" rx="5" ry="4.200" fill="' + (a.lips ? top : mc) + '"/>', happy: '<path d="M40 62 Q50 77 60 62z" fill="' + mc + '"/><path d="M45 68.500 Q50 72 55 68.500 Q50 66.500 45 68.500z" fill="#ff8a8a"/>',
+    const mc = a.beard ? '#fff' : ink, lipc = a.lipCol != null ? hex(a.lipCol) : top;
+    const mouths = { normal: a.lips ? '<path d="M43 64 Q46.500 61.500 50 63.500 Q53.500 61.500 57 64 Q50 71 43 64z" fill="' + lipc + '"/>' : '<path d="M43 64 Q50 70 57 64" fill="none" stroke="' + mc + '" stroke-width="2.600" stroke-linecap="round"/>',
+      talk: '<ellipse cx="50" cy="66" rx="5" ry="4.200" fill="' + (a.lips ? lipc : mc) + '"/>', happy: '<path d="M40 62 Q50 77 60 62z" fill="' + mc + '"/><path d="M45 68.500 Q50 72 55 68.500 Q50 66.500 45 68.500z" fill="#ff8a8a"/>',
       angry: '<path d="M43 68 Q50 61 57 68" fill="none" stroke="' + mc + '" stroke-width="2.800" stroke-linecap="round"/>', impatient: '<path d="M44 66 H57" fill="none" stroke="' + mc + '" stroke-width="2.800" stroke-linecap="round"/>',
       nervous: '<path d="M42 66 q3.500-3.500 7 0 t7 0" fill="none" stroke="' + mc + '" stroke-width="2.600" stroke-linecap="round"/>', sad: '<path d="M44 68 Q50 63 56 68" fill="none" stroke="' + mc + '" stroke-width="2.600" stroke-linecap="round"/>',
       surprised: '<ellipse cx="50" cy="67" rx="4.200" ry="5.400" fill="' + mc + '"/>' };
@@ -1455,22 +1459,50 @@ GS.Game = (function () {
   }
   GS.faceSvg = avatarSvg;
   function showAvatar(then) {
-    const a = Object.assign({ skin: GS.SKINS[2], hair: GS.HAIRS[0], hairStyle: 'corto', glasses: false, beard: false, lips: false }, GS.Store.get('avatar') || {}), hex = n => '#' + n.toString(16).padStart(6, '0');
-    const sw = (key, list) => '<div class="sw" data-k="' + key + '">' + list.map(c => '<button style="background:' + hex(c) + '" data-c="' + c + '" class="' + (a[key] === c ? 'on' : '') + '"></button>').join('') + '</div>';
-    const inDay = state === 'day';
-    modal('<div class="aved"><h2>' + (GS.Store.get('introSeen') ? 'Tu personaje' : 'Armá tu personaje') + '</h2>' +
-      '<div class="setting"><span>Piel</span>' + sw('skin', GS.SKINS) + '</div><div class="setting"><span>Pelo</span>' + sw('hair', GS.HAIRS) + '</div>' +
-      '<div class="setting"><span>Peinado</span><div class="seg" id="avStyle">' + GS.HAIRSTYLES.map(h => '<button data-v="' + h[0] + '" class="' + (a.hairStyle === h[0] ? 'on' : '') + '">' + h[1] + '</button>').join('') + '</div></div>' +
-      '<div class="setting"><span>Accesorios</span><div class="seg" id="avAcc">' + [['glasses', 'Anteojos'], ['beard', 'Barba'], ['lips', 'Labios pintados'], ['lashes', 'Pestañas']].map(x => '<button data-v="' + x[0] + '" class="' + (a[x[0]] ? 'on' : '') + '">' + x[1] + '</button>').join('') + '</div></div>' +
-      '<button class="btn" data-close>Listo</button></div>', () => { GS.Store.set('avatar', a); W.setPlayerLook(a); $('modal').classList.remove('low', 'clear'); $('start').classList.remove('peek'); if (inDay) W.stage(null); else stageMenu(); if (then) then(); });
-    /* el personaje se ve de cuerpo entero en la puerta del local, y cada cambio se ve al instante */
+    const WD = GS.WARDROBE, a = Object.assign({ skin: GS.SKINS[2], hair: GS.HAIRS[0], hairStyle: 'corto', glasses: false, beard: false, lips: false, lashes: false, shades: false, hat: null, topId: 'buzo', pants: WD.pants[0].c }, GS.Store.get('avatar') || {});
+    const hex = n => '#' + Number(n).toString(16).padStart(6, '0'), inDay = state === 'day', tot = statsNow(), days = GS.Store.get('days') || 0, cos = GS.Store.get('cos') || {};
+    const has = it => { const n = it.need; return !n || (n.days ? days >= n.days : n.duels ? (tot.duels || 0) >= n.duels : n.gold ? (tot.goldBest || 0) >= n.gold : n.perfect ? (tot.perfect || 0) >= n.perfect : n.cos ? !!cos[n.cos] : true); };
+    const fix = () => { const t = WD.tops.find(x => x.id === a.topId) || WD.tops[0]; a.topId = t.id; a.shirt = t.c; a.top = t.top || null; const h = WD.hats.find(x => x.id === (a.hatId || (a.hat || 'no'))) || WD.hats[0]; a.hatId = h.id; a.hat = h.hat || null; a.hatCol = h.col != null ? h.col : null; a.hatBand = h.band != null ? h.band : null; a.lipCol = 0xc8323c; if (a.shades) a.glasses = false; };
+    { const h0 = WD.hats.find(x => x.id === a.hatId); if (!h0 || (h0.hat || null) !== (a.hat || null)) a.hatId = a.hat || 'no'; }
+    fix();
+    /* color de pelo libre: tono, intensidad y luz */
+    const toHsl = n => { const r = (n >> 16 & 255) / 255, g = (n >> 8 & 255) / 255, b = (n & 255) / 255, mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2, d = mx - mn; let h = 0; const s = d ? d / (1 - Math.abs(2 * l - 1)) : 0; if (d) h = mx === r ? ((g - b) / d + 6) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4; return [h * 60, s, l]; };
+    const toRgb = (h, s, l) => { const c = (1 - Math.abs(2 * l - 1)) * s, x = c * (1 - Math.abs(h / 60 % 2 - 1)), m = l - c / 2, q = h < 60 ? [c, x, 0] : h < 120 ? [x, c, 0] : h < 180 ? [0, c, x] : h < 240 ? [0, x, c] : h < 300 ? [x, 0, c] : [c, 0, x]; return (Math.round((q[0] + m) * 255) << 16) | (Math.round((q[1] + m) * 255) << 8) | Math.round((q[2] + m) * 255); };
+    let tab = 'cara', hsl = toHsl(a.hair), msgT = 0;
+    const FOC = { cara: { k: 0.088, ty: 1.2 }, pelo: { k: 0.092, ty: 1.26 }, ropa: { k: 0.085, ty: 0.62 }, acc: { k: 0.092, ty: 1.24 }, todo: { k: 0.125, ty: 0.8 } };
+    const aim = (f, soft) => { const r = $('sheet').getBoundingClientRect(), free = Math.max(120, r.top); W.stage({ k: FOC[f].k, ty: FOC[f].ty, vy: 0.5 - (free * 0.54) / window.innerHeight, clone: inDay, look: Object.assign({ shirt: 0xe10600 }, a), soft }); };
+    const card = (kind, it, on) => { const ok = has(it); return '<button class="av-card' + (on ? ' on' : '') + (ok ? '' : ' lock') + '" data-' + kind + '="' + it.id + '"><i' + (it.c != null ? ' style="background:' + hex(it.c) + (it.c2 != null ? ';box-shadow:inset 0 -9px 0 ' + hex(it.c2) : '') + '"' : '') + '>' + (ok ? (it.ic || '') : '🔒') + '</i><b>' + it.name + '</b>' + (ok ? '' : '<small>' + it.needT + '</small>') + '</button>'; };
+    const tog = (k, name, ic) => '<button class="av-chip' + (a[k] ? ' on' : '') + '" data-t="' + k + '"><i>' + ic + '</i>' + name + '</button>';
+    const sws = (key, list) => '<div class="sw" data-k="' + key + '">' + list.map(c => '<button style="background:' + hex(c) + '" data-c="' + c + '" class="' + (a[key] === c ? 'on' : '') + '"></button>').join('') + '</div>';
+    const panel = () => tab === 'cara' ? '<h4>Piel</h4>' + sws('skin', GS.SKINS) + '<h4>Rasgos</h4><div class="av-row">' + tog('beard', 'Barba', '🧔') + tog('lips', 'Labios pintados', '💄') + tog('lashes', 'Pestañas', '👁️') + '</div>'
+      : tab === 'pelo' ? '<h4>Peinado</h4><div class="av-row">' + GS.HAIRSTYLES.map(h => '<button class="av-chip' + (a.hairStyle === h[0] ? ' on' : '') + '" data-hs="' + h[0] + '">' + h[1] + '</button>').join('') + '</div><h4>Color <em id="avHex" style="background:' + hex(a.hair) + '"></em></h4>' + sws('hair', GS.HAIRS) +
+        '<label class="av-sl hue"><span>Tono</span><input type="range" id="avHu" min="0" max="359" value="' + Math.round(hsl[0]) + '"></label><label class="av-sl sat"><span>Intensidad</span><input type="range" id="avS" min="0" max="100" value="' + Math.round(hsl[1] * 100) + '"></label><label class="av-sl lum"><span>Luz</span><input type="range" id="avL" min="6" max="90" value="' + Math.round(hsl[2] * 100) + '"></label>'
+      : tab === 'ropa' ? '<h4>Arriba</h4><div class="av-grid">' + WD.tops.map(t => card('top', t, a.topId === t.id)).join('') + '</div><h4>Pantalón</h4>' + sws('pants', WD.pants.map(p => p.c))
+      : '<h4>Anteojos</h4><div class="av-row"><button class="av-chip' + (!a.glasses && !a.shades ? ' on' : '') + '" data-gl="no">Sin anteojos</button><button class="av-chip' + (a.glasses ? ' on' : '') + '" data-gl="glasses"><i>👓</i>Comunes</button>' + (has(WD.shades) ? '<button class="av-chip' + (a.shades ? ' on' : '') + '" data-gl="shades"><i>🕶️</i>De sol</button>' : '<button class="av-chip lock" data-gl="lock"><i>🔒</i>De sol · ' + WD.shades.needT + '</button>') + '</div><h4>En la cabeza</h4><div class="av-grid">' + WD.hats.map(h => card('hat', h, a.hatId === h.id)).join('') + '</div>';
+    const TABS = [['cara', '🙂', 'Cara'], ['pelo', '💇', 'Pelo'], ['ropa', '👕', 'Ropa'], ['acc', '🧢', 'Accesorios']];
+    modal('<div class="aved"><div class="av-top"><h2>' + (GS.Store.get('introSeen') ? 'Tu personaje' : 'Armá tu personaje') + '</h2><button class="av-full" id="avFull">👤 Ver entero</button></div><div class="av-tabs" id="avTabs">' + TABS.map(t => '<button data-tab="' + t[0] + '"><i>' + t[1] + '</i>' + t[2] + '</button>').join('') + '</div><div class="av-panel" id="avPanel"></div><p class="av-msg" id="avMsg">↔ Arrastrá al personaje para girarlo</p><button class="btn" data-close>Listo</button></div>',
+      () => { avSpin = null; GS.Store.set('avatar', a); W.setPlayerLook(a); $('modal').classList.remove('low', 'clear'); $('start').classList.remove('peek'); if (inDay) W.stage(null); else stageMenu(); if (then) then(); });
     $('modal').classList.add('low', 'clear'); $('start').classList.add('peek');
-    { const r = $('sheet').getBoundingClientRect(), free = Math.max(120, r.top); W.stage({ k: 0.115, vy: 0.5 - (free * 0.56) / window.innerHeight, clone: inDay, look: Object.assign({ shirt: 0xe10600 }, a) }); }
-    const paint = () => { W.setPlayerLook(a); };
-    $('sheet').querySelectorAll('.sw').forEach(s => s.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; a[s.dataset.k] = Number(b.dataset.c); s.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); paint(); }));
-    $('avStyle').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; a.hairStyle = b.dataset.v; $('avStyle').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); paint(); });
-    $('avAcc').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; a[b.dataset.v] = !a[b.dataset.v]; b.classList.toggle('on', a[b.dataset.v]); paint(); });
-    paint();
+    const say = t => { $('avMsg').textContent = t; $('avMsg').classList.add('hot'); clearTimeout(msgT); msgT = setTimeout(() => { if ($('avMsg')) { $('avMsg').textContent = '↔ Arrastrá al personaje para girarlo'; $('avMsg').classList.remove('hot'); } }, 2600); };
+    const paint = () => { fix(); W.setPlayerLook(a); }, draw = () => { $('avPanel').innerHTML = panel(); $('avTabs').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.tab === tab)); };
+    const setHair = () => { a.hair = toRgb(hsl[0], hsl[1], hsl[2]); const e = $('avHex'); if (e) e.style.background = hex(a.hair); $('avPanel').querySelectorAll('.sw[data-k=hair] button').forEach(x => x.classList.remove('on')); paint(); };
+    $('avTabs').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; A.play('click'); tab = b.dataset.tab; draw(); aim(tab, true); });
+    $('avFull').addEventListener('click', () => { A.play('click'); aim('todo', true); });
+    $('avPanel').addEventListener('input', e => { if (!e.target.matches('input[type=range]')) return; if (e.target.id === 'avHu') { if (Number($('avS').value) < 25) $('avS').value = 75; const l = Number($('avL').value); if (l < 22 || l > 82) $('avL').value = 48; }      /* si venías de un negro o un gris, al elegir tono el color aparece */
+      hsl = [Number($('avHu').value), Number($('avS').value) / 100, Number($('avL').value) / 100]; setHair(); });
+    $('avPanel').addEventListener('click', e => {
+      const b = e.target.closest('button'); if (!b) return; const d = b.dataset;
+      if (b.classList.contains('lock')) { A.play('error'); const it = d.top ? WD.tops.find(x => x.id === d.top) : d.hat ? WD.hats.find(x => x.id === d.hat) : WD.shades; return say('🔒 ' + it.name + ': ' + it.needT); }
+      A.play('pick');
+      if (d.c != null) { const k = b.parentNode.dataset.k; a[k] = Number(d.c); if (k === 'hair') hsl = toHsl(a.hair); }
+      else if (d.t) a[d.t] = !a[d.t];
+      else if (d.hs) a.hairStyle = d.hs;
+      else if (d.top) a.topId = d.top;
+      else if (d.hat) a.hatId = d.hat;
+      else if (d.gl) { a.glasses = d.gl === 'glasses'; a.shades = d.gl === 'shades'; }
+      paint(); draw(); aim(d.c != null && b.parentNode.dataset.k === 'pants' ? 'ropa' : tab, true);
+    });
+    avSpin = true; draw(); aim('todo', false); paint(); setTimeout(() => { if (avSpin) aim(tab, true); }, 900);
   }
   // Menú de inicio (Campaña, Arcade, Logros, Cómo se juega, Opciones) y ventana de la campaña (jornada, sucursales, mejoras y avance de la sucursal donde estás)
   const ACC = { pampeana: '#e10600', cuyo: '#b9783f', noa: '#d9683c', nea: '#2f9a48', patagonia: '#3f86c9', malvinas: '#4f9a78' }; let menuView = 'main';
@@ -1720,7 +1752,7 @@ GS.Game = (function () {
   }
 
   function boot() {
-    $('logoImg').src = GS.LOGO; refreshStart(); setTimeout(stageMenu, 60); window.addEventListener('resize', () => { if (W.staged() && state === 'menu' && $('modal').hidden) stageMenu(); });
+    $('logoImg').src = GS.LOGO; refreshStart(); spinSetup(); setTimeout(stageMenu, 60); window.addEventListener('resize', () => { if (W.staged() && state === 'menu' && $('modal').hidden) stageMenu(); });
     $('phasesStart').innerHTML = phasesCompact();
     $('chipPhase').hidden = true; $('phasesStart').hidden = true;
     const q = GS.Store.get('quality') || 'auto';
