@@ -29,6 +29,7 @@ GS.World = (function () {
     cam.gz = U.clamp(cam.gz, L.salon.zMin, L.galeria.zMax + 1);
     cam.gdist = U.clamp(cam.gdist, cam.fit * 0.3, cam.fit * 1.75);
   }
+  function stageSolo(who) { people.forEach(p => { if (who) { if (p !== who && p.group.visible) { p.group.visible = false; p.stHid = true; } } else if (p.stHid) { p.group.visible = true; p.stHid = false; } }); }      /* mientras el personaje está en la puerta, nadie más aparece en el cuadro */
   let stg = null, stVy = 0, stOff = false, drone = null, stTy = 0.8, stTyG = 0.8; const tiltBase = GS.CONFIG.camera.tilt * DEG;
   function applyCam() {
     const ch = Math.cos(tilt), sh = Math.sin(tilt);
@@ -1308,19 +1309,19 @@ GS.World = (function () {
     setReduceMotion(v) { reduceMotion = v; },
     makePerson,
     setUpgrades: applyUpgrades,
-    setPlayerLook(a) { if (yo && a) yo.look(a); if (stg && stg.clone && a) stg.clone.look(a); },
+    setPlayerLook(a) { if (yo && a) { yo.baseHat = a.hat || null; yo.look(a); } if (stg && stg.clone && a) stg.clone.look(a); },
     /* escenario: el personaje parado en la puerta del local, con la cámara baja y cerca (menú y editor de personaje) */
     stage(o) {
-      if (!o) { if (!stg) return; if (stg.clone) stg.clone.remove(); if (stg.save) { const s = stg.save; cam.gx = cam.tx = s.x; cam.gz = cam.tz = s.z; cam.gdist = cam.dist = s.d; cam.saved = s.saved; } tilt = tiltBase; stVy = 0; stTy = stTyG = 0.8; stg = null; drone = null; applyCam(); return; }
+      if (!o) { if (!stg) return; if (stg.clone) stg.clone.remove(); if (stg.save) { const s = stg.save; cam.gx = cam.tx = s.x; cam.gz = cam.tz = s.z; cam.gdist = cam.dist = s.d; cam.saved = s.saved; } tilt = tiltBase; stVy = 0; stTy = stTyG = 0.8; stg = null; drone = null; stageSolo(null); applyCam(); return; }
       const pos = [L.puerta.x, L.galeria.zMax + 1.25]; drone = null;
       if (!stg) { stg = { save: o.clone ? { x: cam.gx, z: cam.gz, d: cam.gdist, saved: cam.saved } : null, clone: null }; if (o.clone) { stg.clone = makePerson(Object.assign({}, o.look)); } else if (yo) { yo.stop(); } }
-      const who = stg.clone || yo, was = stg.on; stg.on = true; if (who && !(o.soft && was)) { who.setPos(pos[0], pos[1]); who.face(rot); }
+      const who = stg.clone || yo, was = stg.on; stg.on = true; stageSolo(who); if (who && !(o.soft && was)) { who.setPos(pos[0], pos[1]); who.face(rot); }
       tilt = 0.3; stVy = o.vy || 0; cam.saved = null; cam.gx = pos[0]; cam.gz = pos[1]; cam.gdist = cam.fit * (o.k || 0.15); stTyG = o.ty != null ? o.ty : 0.8;
       if (!(o.soft && was)) { cam.tx = cam.gx; cam.tz = cam.gz; cam.dist = cam.gdist; stTy = stTyG; } applyCam();      /* soft: la cámara viaja suave hasta el nuevo encuadre (cabeza, ropa, cuerpo entero) */
     },
     staged: () => !!stg,
     stageSpin(d) { const who = stg && (stg.clone || yo); if (who) who.group.rotation.y += d; },
-    droneHome(dur) { if (!stg) return; const D = { t: 0, dur: dur || 2.6, tilt, vy: stVy, ty: stTy, x: cam.tx, z: cam.tz, d: cam.dist }; stg = null; stTyG = 0.8; cam.saved = null; cam.gx = 0; cam.gz = 0.2; cam.gdist = cam.fit; drone = D; },
+    droneHome(dur) { if (!stg) return; const D = { t: 0, dur: dur || 2.6, tilt, vy: stVy, ty: stTy, x: cam.tx, z: cam.tz, d: cam.dist }; stg = null; stTyG = 0.8; stageSolo(null); cam.saved = null; cam.gx = 0; cam.gz = 0.2; cam.gdist = cam.fit; drone = D; },
     // El Dueño: un solo personaje que vive en su oficina
     // Hora del día (0 = 10 hs, 1 = 19 hs): cambia la luz, el color de la vereda y prende los faroles al anochecer
     setDayTime(f, rain) {
@@ -1334,7 +1335,7 @@ GS.World = (function () {
       sky.spill.opacity = n * 0.34 + (rain ? 0.08 : 0); sky.halo.opacity = n * 0.6; if (sky.cone) sky.cone.opacity = n * 0.1; sky.bulb.color.set(0x55555c).lerp(new T.Color(0xfff2c0), n);
     },
     setXmas,
-    setHats(on) { [yo, lucho, brian, boss].forEach(p => { if (p) p.look({ hat: on ? 'gorro' : null }); }); },
+    setHats(on) { [yo, lucho, brian, boss].forEach(p => { if (p) p.look({ hat: on ? 'gorro' : (p.baseHat || null) }); }); },      /* al sacar el gorrito navideño, cada uno vuelve a su propio sombrero */
     setNext() {},
     addDirt, clearDirt, removeDirt, setRegion,
     bossVisible(v) { if (boss) boss.group.visible = v; },
