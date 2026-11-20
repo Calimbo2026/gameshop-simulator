@@ -7,7 +7,7 @@
 const GS = {};
 
 GS.CONFIG = {
-  version: '0.80.2',
+  version: '0.80.3',
   phase: 8,
   phaseNote: 'Juego completo de punta a punta. Falta tu playtest con 5 personas y encender el lanzamiento (launched: true)',                       // fase actual del proyecto (1 a 5)
   links: { tienda: 'https://www.gameshop.com.ar', instagram: '' },   // botones del inicio y del cierre (vacío = no se muestra)
@@ -296,7 +296,10 @@ GS.INDUC = {
   open: '¡Arriba! Hoy no abrimos: hoy entrenamos. Ese de paja es tu primer cliente. No muerde. Tocá el pedido de abajo.',
   say: { caja: '¡Ahora cobrale! Contá bien el vuelto, que el de paja no perdona.', whatsapp: '¡Los mensajes no se contestan solos! ¡Rápido y amable!', ml: '¡Compra por la página! Embalá como si adentro viajara tu abuela.', stock: '¡A contar! El sistema dice una cosa. Vos decime la verdad.', repo: '¡Depósito! Cada caja en su lugar. ¡Otra vez! ¡Con ganas!', proveedor: '¡Llegó el camión! Lo que no está en el remito, no entra.', vidriera: '¡La vidriera es la cara del local! ¡Que brille!', pc: '¡A armar una PC! Cada pieza en su lugar, sin forzar nada.', service: '¡Al taller! Escuchá al equipo: siempre te dice qué le duele.', devol: '¡Una devolución! Mirá bien el producto antes de decir que sí.', cierre: '¡Última estación! Contá la caja. Si cierra, ya sos de los nuestros.' },
   cheer: ['¡Eso!', '¡Así se hace!', '¡Otra! ¡Vamos!', '¡Mirá vos!', '¡Con esa actitud!', '¡Sin aflojar!', '¡Ya casi, ya casi!'],
-  end: [{ art: 'jefe2', k: 'Día de inducción', t: '¡Estás listo!', d: 'Atendiste, cobraste, embalaste, contaste y arreglaste. El de paja quedó conforme, y eso que es exigente.' }, { art: 'equipo0', k: 'Mañana abrimos', t: 'Ahora, con gente de verdad', d: 'Desde la jornada 1 hacés de todo. Llevá el local a 5 estrellas, completá la flota y vas a conocer a la competencia. Yo te voy a estar mirando. Desde la oficina. Con mate.' }]
+  end: [{ art: 'jefe2', k: 'Día de inducción', t: '¡Estás listo!', d: 'Atendiste, cobraste, embalaste, contaste y arreglaste. El de paja quedó conforme, y eso que es exigente.' },
+    { art: 'equipo0', k: 'Desde hoy', t: 'Sos del equipo', d: 'Lucho, Brian y vos. Yo estoy en la oficina, mirando todo. Mañana abrimos con gente de verdad, y desde la primera jornada hacés de todo.' },
+    { art: 'rival', k: 'Lo que tenés que saber', t: 'Enfrente abrió Turbo Gamer', d: 'El dueño es Tito Turbo. Promete todo "en cinco minutos" y nos está sacando clientes. No le vamos a ganar corriendo: le vamos a ganar atendiendo mejor.' },
+    { art: 'vs', k: 'El plan', t: 'Primero el barrio, después el país', d: 'Llevá el local a 5 estrellas y completá la flota de reparto. Cuando lo logres, llega el día de competencia contra Tito. Si le ganamos, Buenos Aires es nuestra y vamos por la próxima región.' }]
 };
 GS.EXPLAIN = {
   adornos: 'Mañana empieza la semana de Navidad. Elegí el árbol, las guirnaldas y las luces: como lo armes hoy, así amanece el local.',
