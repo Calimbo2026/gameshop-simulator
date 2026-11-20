@@ -1442,7 +1442,7 @@ GS.Game = (function () {
     v += '<path d="' + (brows[m] || brows.normal) + '" fill="none" stroke="' + brow + '" stroke-width="4" stroke-linecap="round"/>';
     v += '<ellipse cx="50" cy="57.500" rx="4.400" ry="3.300" fill="' + sh(ns, -0.13) + '"/><ellipse cx="49" cy="56.400" rx="1.800" ry="1.100" fill="' + sh(ns, 0.3) + '" opacity=".8"/>';                                                    // nariz
     if (a.lashes) v += '<g stroke="' + h + '" stroke-width="1.800" stroke-linecap="round"><path d="M34 45.500l-3-2.500M66 45.500l3-2.500M36 43.500l-1.500-3M64 43.500l1.500-3"/></g>';
-    if (a.shades) v += '<path d="M25 44 H75 L73 55 Q67 60 60 55 L54 49 H46 L40 55 Q33 60 27 55z" fill="#111114"/><path d="M29 46 l9 0" stroke="rgba(255,255,255,.35)" stroke-width="1.600" stroke-linecap="round"/>';
+    if (a.shades) v += '<g fill="#111114" stroke="#111114" stroke-width="2.400"><circle cx="39" cy="50" r="9"/><circle cx="61" cy="50" r="9"/></g><path d="M48 50h4M30 50H23M70 50H77" stroke="#111114" stroke-width="2.400"/><path d="M34 46 q3-3 7-2M56 46 q3-3 7-2" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="1.600" stroke-linecap="round"/>';
     if (a.patch) v += '<path d="M21 38 L79 52" stroke="#111114" stroke-width="2.400"/><ellipse cx="61" cy="50" rx="8.500" ry="8" fill="#111114"/>';
     if (a.glasses) v += '<g fill="rgba(255,255,255,.2)" stroke="' + ink + '" stroke-width="2.400"><circle cx="39" cy="50" r="9"/><circle cx="61" cy="50" r="9"/></g><path d="M48 50h4" stroke="' + ink + '" stroke-width="2.400"/>';
     const mc = a.beard ? '#fff' : ink, lipc = a.lipCol != null ? hex(a.lipCol) : top;
