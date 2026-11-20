@@ -1416,7 +1416,8 @@ GS.Game = (function () {
       if (st === 'rulos') { v += cap; for (let i = 0; i < 9; i++) { const an = Math.PI * (1.02 + i * 0.12); v += '<circle cx="' + (50 + Math.cos(an) * 29).toFixed(1) + '" cy="' + (48 + Math.sin(an) * 29).toFixed(1) + '" r="10" fill="' + h + '"/>'; } v += '<circle cx="39" cy="26" r="8.500" fill="' + h + '"/><circle cx="61" cy="26" r="8.500" fill="' + h + '"/><circle cx="50" cy="22" r="8.500" fill="' + h + '"/>'; }
       if (st === 'mohicano') v += '<path d="M42 32 L44 5 L50 14 L56 3 L58 32 Q50 27 42 32z" fill="' + h + '"/>';
     }
-    if (a.beard) v += '<path d="M21.500 52 A28.500 28.500 0 0 0 78.500 52 Q73 62 61 59 Q50 54 39 59 Q27 62 21.500 52z" fill="' + h + '"/>';
+    if (a.beard === 'larga') v += '<path d="M19 50 Q17 80 34 92 Q50 104 66 92 Q83 80 81 50 Q74 62 61 59 Q50 54 39 59 Q26 62 19 50z" fill="' + h + '"/><path d="M30 72 Q38 80 34 90M70 72 Q62 80 66 90M50 78 V96" fill="none" stroke="' + sh(nh, nh > 0x909090 ? -0.18 : 0.3) + '" stroke-width="1.800" stroke-linecap="round" opacity=".7"/>';
+    else if (a.beard && !a.santa) v += '<path d="M21.500 52 A28.500 28.500 0 0 0 78.500 52 Q73 62 61 59 Q50 54 39 59 Q27 62 21.500 52z" fill="' + sh(nh, -0.2) + '" opacity=".34"/>';
     if (a.stubble) v += '<path d="M21.500 52 A28.500 28.500 0 0 0 78.500 52 Q73 62 61 59 Q50 54 39 59 Q27 62 21.500 52z" fill="#3c3c44" opacity="' + (a.stubble === 2 ? 0.4 : 0.22) + '"/>';
     if (a.santa) v += '<path d="M19 50 Q17 80 34 92 Q50 104 66 92 Q83 80 81 50 Q74 62 61 59 Q50 54 39 59 Q26 62 19 50z" fill="#fff"/><path d="M30 72 Q38 80 34 90M70 72 Q62 80 66 90M50 78 V96" fill="none" stroke="#dfe3ea" stroke-width="1.800" stroke-linecap="round"/>';
     // sombreros de los disfraces
@@ -1445,13 +1446,14 @@ GS.Game = (function () {
     if (a.shades) v += '<g fill="#111114" stroke="#111114" stroke-width="2.400"><circle cx="39" cy="50" r="9"/><circle cx="61" cy="50" r="9"/></g><path d="M48 50h4M30 50H23M70 50H77" stroke="#111114" stroke-width="2.400"/><path d="M34 46 q3-3 7-2M56 46 q3-3 7-2" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="1.600" stroke-linecap="round"/>';
     if (a.patch) v += '<path d="M21 38 L79 52" stroke="#111114" stroke-width="2.400"/><ellipse cx="61" cy="50" rx="8.500" ry="8" fill="#111114"/>';
     if (a.glasses) v += '<g fill="rgba(255,255,255,.2)" stroke="' + ink + '" stroke-width="2.400"><circle cx="39" cy="50" r="9"/><circle cx="61" cy="50" r="9"/></g><path d="M48 50h4" stroke="' + ink + '" stroke-width="2.400"/>';
-    const mc = a.beard ? '#fff' : ink, lipc = a.lipCol != null ? hex(a.lipCol) : top;
+    const mc = a.beard === 'larga' || (a.santa && a.beard) ? '#fff' : ink, lipc = a.lipCol != null ? hex(a.lipCol) : top;
     const mouths = { normal: a.lips ? '<path d="M43 64 Q46.500 61.500 50 63.500 Q53.500 61.500 57 64 Q50 71 43 64z" fill="' + lipc + '"/>' : '<path d="M43 64 Q50 70 57 64" fill="none" stroke="' + mc + '" stroke-width="2.600" stroke-linecap="round"/>',
       talk: '<ellipse cx="50" cy="66" rx="5" ry="4.200" fill="' + (a.lips ? lipc : mc) + '"/>', happy: '<path d="M40 62 Q50 77 60 62z" fill="' + mc + '"/><path d="M45 68.500 Q50 72 55 68.500 Q50 66.500 45 68.500z" fill="#ff8a8a"/>',
       angry: '<path d="M43 68 Q50 61 57 68" fill="none" stroke="' + mc + '" stroke-width="2.800" stroke-linecap="round"/>', impatient: '<path d="M44 66 H57" fill="none" stroke="' + mc + '" stroke-width="2.800" stroke-linecap="round"/>',
       nervous: '<path d="M42 66 q3.500-3.500 7 0 t7 0" fill="none" stroke="' + mc + '" stroke-width="2.600" stroke-linecap="round"/>', sad: '<path d="M44 68 Q50 63 56 68" fill="none" stroke="' + mc + '" stroke-width="2.600" stroke-linecap="round"/>',
       surprised: '<ellipse cx="50" cy="67" rx="4.200" ry="5.400" fill="' + mc + '"/>' };
     v += mouths[m] || mouths.normal;
+    if (a.beard === 'larga') v += '<path d="M50 60 Q42 56 32 62 Q40 68 50 63 Q60 68 68 62 Q58 56 50 60z" fill="' + h + '"/>';
     if (a.santa) v += '<path d="M50 60 Q42 56 32 62 Q40 68 50 63 Q60 68 68 62 Q58 56 50 60z" fill="#fff" stroke="#dfe3ea" stroke-width=".800"/>';
     if (m === 'nervous') v += '<path d="M80 30 q4 6 0 9 q-4-3 0-9z" fill="#57b8ff"/>';
     if (m === 'angry') v += '<g stroke="#e10600" stroke-width="2.200" stroke-linecap="round"><path d="M80 24l5-4M82 30h6M80 18l2-5"/></g>';
@@ -1463,6 +1465,7 @@ GS.Game = (function () {
     const hex = n => '#' + Number(n).toString(16).padStart(6, '0'), inDay = state === 'day', tot = statsNow(), days = GS.Store.get('days') || 0, cos = GS.Store.get('cos') || {};
     const has = it => { const n = it.need; return !n || (n.days ? days >= n.days : n.duels ? (tot.duels || 0) >= n.duels : n.gold ? (tot.goldBest || 0) >= n.gold : n.perfect ? (tot.perfect || 0) >= n.perfect : n.cos ? !!cos[n.cos] : true); };
     const fix = () => { const t = WD.tops.find(x => x.id === a.topId) || WD.tops[0]; a.topId = t.id; a.top = t.top || null; if (WD.topCols.indexOf(a.shirt) < 0) a.shirt = WD.topCols[0]; a.pantsLong = a.botId !== 'short'; const h = WD.hats.find(x => x.id === (a.hatId || (a.hat || 'no'))) || WD.hats[0]; a.hatId = h.id; a.hat = h.hat || null; a.hatCol = h.col != null ? h.col : null; a.hatBand = h.band != null ? h.band : null; a.lipCol = 0xc8323c; if (a.shades) a.glasses = false; };
+    if (a.beard === true) a.beard = 'corta';
     if (!WD.tops.find(x => x.id === a.topId)) a.topId = a.top === 'remera' || a.topId === 'remerab' ? 'remera' : a.top === 'chomba' ? 'chomba' : 'buzo'; if (!a.botId) a.botId = 'short';      /* personajes guardados con el guardarropa anterior */
     { const h0 = WD.hats.find(x => x.id === a.hatId); if (!h0 || (h0.hat || null) !== (a.hat || null)) a.hatId = a.hat || 'no'; }
     fix();
@@ -1475,7 +1478,7 @@ GS.Game = (function () {
     const card = (kind, it, on) => { const ok = has(it); return '<button class="av-card' + (on ? ' on' : '') + (ok ? '' : ' lock') + '" data-' + kind + '="' + it.id + '"><i' + (it.c != null ? ' style="background:' + hex(it.c) + (it.c2 != null ? ';box-shadow:inset 0 -9px 0 ' + hex(it.c2) : '') + '"' : '') + '>' + (ok ? (it.ic || '') : '🔒') + '</i><b>' + it.name + '</b>' + (ok ? '' : '<small>' + it.needT + '</small>') + '</button>'; };
     const tog = (k, name, ic) => '<button class="av-chip' + (a[k] ? ' on' : '') + '" data-t="' + k + '"><i>' + ic + '</i>' + name + '</button>';
     const sws = (key, list) => '<div class="sw" data-k="' + key + '">' + list.map(c => '<button style="background:' + hex(c) + '" data-c="' + c + '" class="' + (a[key] === c ? 'on' : '') + '"></button>').join('') + '</div>';
-    const panel = () => tab === 'cara' ? '<h4>Piel</h4>' + sws('skin', GS.SKINS) + '<h4>Rasgos</h4><div class="av-row">' + tog('beard', 'Barba', '🧔') + tog('lips', 'Labios pintados', '💄') + tog('lashes', 'Pestañas', '👁️') + '</div>'
+    const panel = () => tab === 'cara' ? '<h4>Piel</h4>' + sws('skin', GS.SKINS) + '<h4>Barba</h4><div class="av-row">' + [['no', 'Sin barba'], ['corta', 'Corta'], ['larga', 'Larga']].map(x => '<button class="av-chip' + ((a.beard || 'no') === x[0] ? ' on' : '') + '" data-bd="' + x[0] + '">' + x[1] + '</button>').join('') + '</div><h4>Rasgos</h4><div class="av-row">' + tog('lips', 'Labios pintados', '💄') + tog('lashes', 'Pestañas', '👁️') + '</div>'
       : tab === 'pelo' ? '<h4>Peinado</h4><div class="av-row">' + GS.HAIRSTYLES.map(h => '<button class="av-chip' + (a.hairStyle === h[0] ? ' on' : '') + '" data-hs="' + h[0] + '">' + h[1] + '</button>').join('') + '</div><h4>Color <em id="avHex" style="background:' + hex(a.hair) + '"></em></h4>' + sws('hair', GS.HAIRS) +
         '<label class="av-sl hue"><span>Tono</span><input type="range" id="avHu" min="0" max="359" value="' + Math.round(hsl[0]) + '"></label><label class="av-sl sat"><span>Intensidad</span><input type="range" id="avS" min="0" max="100" value="' + Math.round(hsl[1] * 100) + '"></label><label class="av-sl lum"><span>Luz</span><input type="range" id="avL" min="6" max="90" value="' + Math.round(hsl[2] * 100) + '"></label>'
       : tab === 'ropa' ? '<h4>Arriba</h4><div class="av-row">' + WD.tops.map(t => has(t) ? '<button class="av-chip' + (a.topId === t.id ? ' on' : '') + '" data-top="' + t.id + '"><i>' + t.ic + '</i>' + t.name + '</button>' : '<button class="av-chip lock" data-top="' + t.id + '"><i>🔒</i>' + t.name + ' · ' + t.needT + '</button>').join('') + '</div>' + sws('shirt', WD.topCols) + '<h4>Abajo</h4><div class="av-row">' + WD.bottoms.map(t => '<button class="av-chip' + (a.botId === t.id ? ' on' : '') + '" data-bot="' + t.id + '"><i>' + t.ic + '</i>' + t.name + '</button>').join('') + '</div>' + sws('pants', WD.pants.map(p => p.c))
@@ -1498,6 +1501,7 @@ GS.Game = (function () {
       if (d.c != null) { const k = b.parentNode.dataset.k; a[k] = Number(d.c); if (k === 'hair') hsl = toHsl(a.hair); }
       else if (d.t) a[d.t] = !a[d.t];
       else if (d.hs) a.hairStyle = d.hs;
+      else if (d.bd) a.beard = d.bd === 'no' ? false : d.bd;
       else if (d.top) a.topId = d.top;
       else if (d.bot) a.botId = d.bot;
       else if (d.hat) a.hatId = d.hat;
