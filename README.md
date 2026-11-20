@@ -329,3 +329,9 @@ Tres juegos en `src/arcade.js`, que se ganan al terminar las jornadas 3, 8 y 14 
 ## v0.75.0
 - Personajes 3D más cuidados para verlos de cerca: geometrías suaves, ojos con brillo, cejas redondeadas, nariz, mejillas, anteojos finos con patillas, pestañas, y detalles de ropa (capucha, bolsillo y cordones del buzo; cuello de la remera).
 - Los trazos de la cara usan tinta oscura cuando el pantalón es claro (`inkC`).
+
+## v0.76.0
+- Ropa: arriba se elige buzo, remera o chomba, y abajo pantalón largo o short; a las dos se les elige el color (`GS.WARDROBE.tops`, `topCols`, `bottoms`, `pants`).
+- Buzo canguro de manga larga con puños, cintura, bolsillo con forma, cordones y capucha apoyada en la espalda. Chomba con cuello y solapas, cartera con botones, vivos en las mangas y escudo, en el color de contraste.
+- Los clientes varían entre buzo, remera y chomba, y entre pantalón y short.
+- La boca, los ojos y las cejas ya no toman el color del pantalón cuando es de color o claro.

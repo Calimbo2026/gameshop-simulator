@@ -919,16 +919,16 @@ GS.World = (function () {
   function makePerson(o) {
     o = o || {};
     const g = new T.Group(), base = o.scale || 1; g.scale.setScalar(base); g.userData.base = base;
-    const HY = 1.14, parts = { skin: [], top: [], bot: [], ink: [] };
+    const HY = 1.14, parts = { skin: [], top: [], bot: [], ink: [] }, armSk = [], legSk = [];
     const add = (parent, geo, kind, x, y, z) => { const m = new T.Mesh(geo, mat(0xffffff)); m.position.set(x, y, z); parent.add(m); parts[kind].push(m); return m; };
     // piernas (giran desde la cadera al caminar): pernera del pantalón, pierna y zapatilla
     const legs = [-1, 1].map(sd => { const L2 = new T.Group(); L2.position.set(sd * 0.1, 0.42, 0); g.add(L2);
-      add(L2, gLegP, 'bot', 0, -0.07, 0); add(L2, gLeg, 'skin', 0, -0.23, 0);
+      add(L2, gLegP, 'bot', 0, -0.07, 0); legSk.push(add(L2, gLeg, 'skin', 0, -0.23, 0));
       const sole = box(L2, 0.135, 0.035, 0.27, 0xffffff, 0, -0.447, 0.05); parts.bot.push(sole); const up = add(L2, gShoe, 'bot', 0, -0.4, 0.045); up.scale.set(1, 0.78, 1.72); const toe = add(L2, gShoe, 'bot', 0, -0.405, 0.125); toe.scale.set(0.98, 0.62, 0.9); const cuff = add(L2, gLegP, 'bot', 0, -0.345, -0.005); cuff.scale.set(0.82, 0.4, 0.82); return L2; });      /* zapatilla: suela, empeine redondeado, puntera y caña */
     add(g, gHip, 'bot', 0, 0.46, 0); add(g, gTorso, 'top', 0, 0.7, 0);
     // brazos (giran desde el hombro): manga, brazo y mano
     const arms = [-1, 1].map(sd => { const A2 = new T.Group(); A2.position.set(sd * 0.2, 0.82, 0); A2.rotation.z = sd * 0.16; g.add(A2);
-      add(A2, gSleeve, 'top', 0, -0.06, 0); add(A2, gShoulder, 'top', 0, 0.005, 0); add(A2, gArm, 'skin', 0, -0.24, 0); add(A2, gHand, 'skin', 0, -0.39, 0); return A2; });
+      add(A2, gSleeve, 'top', 0, -0.06, 0); add(A2, gShoulder, 'top', 0, 0.005, 0); armSk.push(add(A2, gArm, 'skin', 0, -0.24, 0)); add(A2, gHand, 'skin', 0, -0.39, 0); return A2; });
     const bag = new T.Group(); bag.visible = false;      /* bolsa de compras negra con el logo de GameShop: cuelga de la mano por las manijas */
     { arms[1].add(bag); bag.position.set(0.02, -0.6, 0.03); bag.rotation.z = -0.16; box(bag, 0.36, 0.27, 0.07, 0x0a0a0a, 0, -0.135, 0); const lm = bagLogoMat(); plane(bag, 0.35, 0.175, lm, 0, 0, 0.037); plane(bag, 0.35, 0.175, lm, 0, 0, -0.037, Math.PI);
       [-1, 1].forEach(sd => { const h = new T.Mesh(new T.TorusGeometry(0.095, 0.02, 6, 16, Math.PI), mat(0xf4f4f2)); h.position.set(0, 0.13, sd * 0.03); bag.add(h); }); }
@@ -953,23 +953,38 @@ GS.World = (function () {
     function style(a) {
       cur = Object.assign({}, cur, a);
       const skinC = cur.skin || SKINS[1], hairC = cur.hair == null ? 0x3a2a1a : cur.hair, topC = cur.shirt || 0x4a6fb5, botC = cur.pants || PANTS[(topC >> 3) % PANTS.length];
-      parts.skin.forEach(m => { m.material = mat(skinC); }); parts.top.forEach(m => { m.material = mat(topC); }); parts.bot.forEach(m => { m.material = mat(botC); }); const inkC = lumC(botC) < 95 ? botC : 0x1c1c22; parts.ink.forEach(m => { m.material = mat(inkC); }); eyes.forEach(e => { e.material = mat(inkC); });      /* trazos de la cara: el color del pantalón si es oscuro, si no tinta */
+      parts.skin.forEach(m => { m.material = mat(skinC); }); parts.top.forEach(m => { m.material = mat(topC); }); parts.bot.forEach(m => { m.material = mat(botC); }); const inkC = lumC(botC) < 62 && Math.max(botC >> 16 & 255, botC >> 8 & 255, botC & 255) - Math.min(botC >> 16 & 255, botC >> 8 & 255, botC & 255) < 70 ? botC : 0x1c1c22;      /* solo si el pantalón es oscuro y neutro; si es de color o claro, tinta */ parts.ink.forEach(m => { m.material = mat(inkC); }); eyes.forEach(e => { e.material = mat(inkC); });
+      { const longS = !cur.top || cur.santa || cur.uniform, longP = cur.pantsLong || cur.santa || cur.uniform; armSk.forEach(m => { m.material = mat(longS ? topC : skinC); m.scale.set(longS ? 1.16 : 1, 1, longS ? 1.16 : 1); }); legSk.forEach(m => { m.material = mat(longP ? botC : skinC); m.scale.set(longP ? 1.28 : 1, 1, longP ? 1.28 : 1); }); }      /* buzo = manga larga; pantalón largo o short */      /* trazos de la cara: el color del pantalón si es oscuro, si no tinta */
       if (acc) hd.remove(acc); acc = new T.Group(); acc.position.y = HY - NK; hd.add(acc);
       if (bacc) g.remove(bacc); bacc = new T.Group(); g.add(bacc); armX.forEach(m => m.parent.remove(m)); armX = [];
       { const tmB = mat(topC), gold = mat(0xf5c518), sph = (r, m, x, y, z, sx, sy, sz) => { const q = new T.Mesh(new T.SphereGeometry(r, 14, 10), m); q.position.set(x, y, z); q.scale.set(sx || 1, sy || 1, sz || 1); bacc.add(q); return q; }, cy = (r1, r2, hh, m, x, y, z) => { const q = new T.Mesh(new T.CylinderGeometry(r1, r2, hh, 18), m); q.position.set(x, y, z); bacc.add(q); return q; };
         const fat = cur.build === 'robusto' ? 1.34 : cur.santa ? 1.25 : 1; arms.forEach((a, i) => { a.scale.set(fat, 1, fat); a.position.x = (i ? 1 : -1) * (0.2 + (fat - 1) * 0.13); a.position.y = fat > 1 ? 0.8 : 0.82; }); legs.forEach(l => l.scale.set(fat > 1 ? 1.2 : 1, 1, fat > 1 ? 1.2 : 1));
         if (cur.build === 'robusto') {                 /* contextura grande: pecho ancho, hombros y algo de panza */
           cy(0.215, 0.25, 0.4, tmB, 0, 0.7, 0.005); sph(0.235, tmB, 0, 0.6, 0.04, 1.05, 0.85, 1); cy(0.125, 0.135, 0.1, mat(skinC), 0, 0.91, 0); cy(0.235, 0.225, 0.12, mat(botC), 0, 0.46, 0);
-          if (cur.top === 'chomba') { const c1 = new T.Mesh(new T.TorusGeometry(0.135, 0.035, 8, 18), mat(0xe10600)); c1.rotation.x = Math.PI / 2; c1.position.y = 0.9; bacc.add(c1); box(bacc, 0.05, 0.16, 0.02, 0xe10600, 0, 0.8, 0.222); box(bacc, 0.07, 0.05, 0.02, 0xe10600, 0.11, 0.78, 0.215); }
           if (cur.top === 'campera') { box(bacc, 0.15, 0.36, 0.02, 0xe10600, 0, 0.7, 0.235); const c1 = new T.Mesh(new T.TorusGeometry(0.15, 0.04, 8, 18), tmB); c1.rotation.x = Math.PI / 2; c1.position.y = 0.9; bacc.add(c1); [-1, 1].forEach(sd => box(bacc, 0.025, 0.36, 0.03, 0x3a3a42, sd * 0.085, 0.7, 0.24)); }
         }
-        if (!cur.santa && !cur.uniform) { const rb = cur.build === 'robusto', R = rb ? 1.32 : 1, dk = mat(mixC(topC, 0x000000, 0.2)), ny = rb ? 0.905 : 0.885;      /* detalles de la ropa: capucha, bolsillo y cordones del buzo; cuello de la remera */
-          if (!cur.top) { const hd = new T.Mesh(new T.TorusGeometry(0.125 * R, 0.055, 10, 22, Math.PI), tmB); hd.rotation.set(Math.PI / 2 + 0.25, 0, Math.PI); hd.position.set(0, ny - 0.005, -0.03); bacc.add(hd); const pk = new T.Mesh(gEar, dk); pk.scale.set(1.5 * R, 0.62, 0.3); pk.position.set(0, 0.6, (rb ? 0.262 : 0.182)); pk.rotation.x = -0.14; bacc.add(pk);
-            [-1, 1].forEach(sd => { const cd = new T.Mesh(new T.CylinderGeometry(0.008, 0.008, 0.11, 6), glintMat); cd.position.set(sd * 0.035, 0.79, (rb ? 0.232 : 0.158)); cd.rotation.x = -0.14; bacc.add(cd); }); }
-          if (cur.top === 'remera') { const c1 = new T.Mesh(new T.TorusGeometry(0.1 * (rb ? 1.25 : 1), 0.02, 8, 22), dk); c1.rotation.x = Math.PI / 2; c1.position.y = ny; bacc.add(c1); }
+        if (!cur.santa && !cur.uniform) {      /* ropa: buzo canguro (manga larga, capucha, bolsillo y cordones), remera (cuello) y chomba (cuello con solapas, cartera con botones, vivos y escudo) */
+          const rb = cur.build === 'robusto', dk = mat(mixC(topC, 0x000000, 0.24)), ny = rb ? 0.905 : 0.885, nr = rb ? 0.128 : 0.1, accC = (topC >> 16) > 0xb0 && (topC & 255) < 0x60 ? 0x17171c : 0xe10600, am = mat(accC);
+          const fz = y => rb ? Math.max(0.25 - (y - 0.5) * 0.0875, y < 0.74 ? 0.04 + Math.sqrt(Math.max(0, 0.0552 - Math.pow((y - 0.6) / 0.85, 2))) : 0) : 0.2 - (y - 0.52) * 0.139, tl = rb ? -0.04 : -0.138;
+          const put = (m, x, y, off) => { m.position.set(x, y, fz(y) + (off || 0)); m.rotation.x = tl; bacc.add(m); return m; };
+          if (!cur.top) {
+            const hd = new T.Mesh(gHead, tmB); hd.scale.set(rb ? 0.56 : 0.46, 0.19, 0.3); hd.position.set(0, ny - 0.04, rb ? -0.2 : -0.155); hd.rotation.x = 0.35; bacc.add(hd); const hi = new T.Mesh(gHead, dk); hi.scale.set(rb ? 0.4 : 0.32, 0.06, 0.17); hi.position.set(0, ny + 0.012, rb ? -0.17 : -0.125); hi.rotation.x = 0.35; bacc.add(hi);
+            const ps = new T.Shape(); ps.moveTo(-0.115, -0.05); ps.lineTo(0.115, -0.05); ps.quadraticCurveTo(0.125, -0.05, 0.125, -0.035); ps.quadraticCurveTo(0.085, 0.0, 0.07, 0.05); ps.quadraticCurveTo(0.065, 0.06, 0.05, 0.06); ps.lineTo(-0.05, 0.06); ps.quadraticCurveTo(-0.065, 0.06, -0.07, 0.05); ps.quadraticCurveTo(-0.085, 0.0, -0.125, -0.035); ps.quadraticCurveTo(-0.125, -0.05, -0.115, -0.05);
+            const pk = new T.Mesh(new T.ExtrudeGeometry(ps, { depth: rb ? 0.04 : 0.024, bevelEnabled: true, bevelSize: 0.006, bevelThickness: 0.006, bevelSegments: 2, curveSegments: 8 }), dk); pk.scale.x = rb ? 1.12 : 1; put(pk, 0, rb ? 0.6 : 0.59, rb ? -0.022 : -0.016);
+            [-1, 1].forEach(sd => { const cd = new T.Mesh(new T.CylinderGeometry(0.008, 0.008, 0.11, 6), glintMat); put(cd, sd * 0.035, 0.79, 0.006); const tp = new T.Mesh(gEye, glintMat); tp.scale.setScalar(0.26); put(tp, sd * 0.035, 0.732, 0.008); });
+            arms.forEach(a => { const cf = new T.Mesh(new T.CylinderGeometry(0.058, 0.058, 0.045, 14), dk); cf.position.y = -0.345; a.add(cf); armX.push(cf); });
+            const wb = new T.Mesh(new T.CylinderGeometry(rb ? 0.255 : 0.203, rb ? 0.255 : 0.203, 0.035, 24), dk); wb.position.y = 0.535; bacc.add(wb);
+          }
+          if (cur.top === 'remera') { const c1 = new T.Mesh(new T.TorusGeometry(nr, 0.02, 8, 22), dk); c1.rotation.x = Math.PI / 2; c1.position.y = ny; bacc.add(c1); }
+          if (cur.top === 'chomba') {
+            const c1 = new T.Mesh(new T.TorusGeometry(nr + 0.006, 0.027, 8, 24), am); c1.rotation.x = Math.PI / 2; c1.position.y = ny + 0.004; bacc.add(c1);
+            [-1, 1].forEach(sd => { const fl = new T.Mesh(gEar, am); fl.scale.set(0.62, 0.36, 0.16); put(fl, sd * 0.052, ny - 0.045, 0.004); fl.rotation.z = sd * -0.62; });
+            const pl = new T.Mesh(unitBox, am); pl.scale.set(0.036, 0.13, 0.012); put(pl, 0, ny - 0.13, 0.004); [ny - 0.1, ny - 0.155].forEach(y => { const bt = new T.Mesh(gEye, glintMat); bt.scale.setScalar(0.22); put(bt, 0, y, 0.012); });
+            const lg = new T.Mesh(gEar, am); lg.scale.set(0.42, 0.3, 0.1); put(lg, rb ? 0.12 : 0.085, ny - 0.13, 0.002);
+            arms.forEach(a => { const bd = new T.Mesh(new T.CylinderGeometry(0.073, 0.073, 0.028, 14), am); bd.position.y = -0.115; a.add(bd); armX.push(bd); });
+          }
         }
         if (cur.build !== 'robusto' && !cur.santa && !cur.uniform) {      /* chomba y campera en el cuerpo común */
-          if (cur.top === 'chomba') { const c1 = new T.Mesh(new T.TorusGeometry(0.105, 0.032, 8, 18), mat(0xe10600)); c1.rotation.x = Math.PI / 2; c1.position.y = 0.885; bacc.add(c1); box(bacc, 0.045, 0.15, 0.02, 0xe10600, 0, 0.72, 0.158).rotation.x = -0.13; box(bacc, 0.06, 0.045, 0.02, 0xe10600, 0.085, 0.74, 0.15).rotation.x = -0.13; }
           if (cur.top === 'campera') { box(bacc, 0.12, 0.33, 0.02, 0xe10600, 0, 0.54, 0.172).rotation.x = -0.135; const c1 = new T.Mesh(new T.TorusGeometry(0.115, 0.036, 8, 18), tmB); c1.rotation.x = Math.PI / 2; c1.position.y = 0.885; bacc.add(c1); [-1, 1].forEach(sd => { box(bacc, 0.022, 0.33, 0.03, 0x3a3a42, sd * 0.07, 0.54, 0.176).rotation.x = -0.135; }); }
         }
         if (cur.santa) {                              /* Papá Noel: panza, cinturón con hebilla, borde blanco y la bolsa de regalos al hombro */

@@ -7,7 +7,7 @@
 const GS = {};
 
 GS.CONFIG = {
-  version: '0.75.5',
+  version: '0.76.0',
   phase: 8,
   phaseNote: 'Juego completo de punta a punta. Falta tu playtest con 5 personas y encender el lanzamiento (launched: true)',                       // fase actual del proyecto (1 a 5)
   links: { tienda: 'https://www.gameshop.com.ar', instagram: '' },   // botones del inicio y del cierre (vacío = no se muestra)
@@ -422,13 +422,12 @@ GS.BOSS_LOOK = { shirt: 0x17171c, hair: 0x6f6f7a, hair2: 0xa9a9b4, hairStyle: 'j
 /* Guardarropa del personaje: siempre en los colores de GameShop (rojo, negro, blanco y gris). need = cómo se desbloquea. */
 GS.WARDROBE = {
   tops: [
-    { id: 'buzo', name: 'Buzo rojo', c: 0xe10600 },
-    { id: 'remera', name: 'Remera negra', c: 0x17171c, top: 'remera' },
-    { id: 'remerab', name: 'Remera blanca', c: 0xf4f4f2, top: 'remera' },
-    { id: 'chomba', name: 'Chomba GameShop', c: 0x17171c, c2: 0xe10600, top: 'chomba', need: { days: 3 }, needT: 'jugá 3 jornadas' },
-    { id: 'buzon', name: 'Buzo negro', c: 0x17171c, need: { perfect: 2 }, needT: '2 jornadas perfectas' },
-    { id: 'campera', name: 'Campera', c: 0x202027, c2: 0xe10600, top: 'campera', need: { duels: 1 }, needT: 'ganá un día de competencia' }
+    { id: 'buzo', name: 'Buzo', ic: '🧥', top: null },
+    { id: 'remera', name: 'Remera', ic: '👕', top: 'remera' },
+    { id: 'chomba', name: 'Chomba', ic: '👔', top: 'chomba', need: { days: 3 }, needT: 'jugá 3 jornadas' }
   ],
+  topCols: [0xe10600, 0x17171c, 0xf4f4f2, 0x55555f],
+  bottoms: [{ id: 'largo', name: 'Pantalón', ic: '👖' }, { id: 'short', name: 'Short', ic: '🩳' }],
   pants: [{ c: 0x23232b }, { c: 0x55555f }, { c: 0xb00500 }, { c: 0xe9e9ee }],
   shades: { name: 'Anteojos de sol', need: { gold: 1 }, needT: 'ganá una medalla de oro' },
   hats: [
