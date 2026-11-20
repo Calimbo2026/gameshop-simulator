@@ -914,6 +914,9 @@ GS.World = (function () {
   const glintMat = new T.MeshBasicMaterial({ color: 0xffffff }), mixC = (a, b, k) => ((Math.round((a >> 16 & 255) * (1 - k) + (b >> 16 & 255) * k) << 16) | (Math.round((a >> 8 & 255) * (1 - k) + (b >> 8 & 255) * k) << 8) | Math.round((a & 255) * (1 - k) + (b & 255) * k)), lumC = c => (c >> 16 & 255) * 0.3 + (c >> 8 & 255) * 0.59 + (c & 255) * 0.11;
   let bagLM = null;
   function bagLogoMat() { if (bagLM) return bagLM; bagLM = new T.MeshBasicMaterial({ map: logoTex(512, 256, (g, w, h, img) => { g.fillStyle = '#0a0a0a'; g.fillRect(0, 0, w, h); const iw = w * 0.97, ih = iw * img.height / img.width; g.drawImage(img, (w - iw) / 2, (h - ih) / 2, iw, ih); }) }); return bagLM; }
+  let phT = null;
+  function phoneTex() { if (phT) return phT; const c = document.createElement('canvas'); c.width = 128; c.height = 240; const x = c.getContext('2d'), gr = x.createLinearGradient(0, 0, 0, 240); gr.addColorStop(0, '#eaf6ff'); gr.addColorStop(1, '#9fd2ff'); x.fillStyle = gr; x.fillRect(0, 0, 128, 240); x.fillStyle = '#e10600'; x.fillRect(0, 0, 128, 34); x.fillStyle = '#fff'; x.fillRect(12, 12, 60, 10);
+    [[52, '#ffffff'], [104, '#ffffff'], [156, '#ffffff']].forEach(q => { x.fillStyle = q[1]; x.fillRect(10, q[0], 108, 42); x.fillStyle = '#2d6cdf'; x.fillRect(16, q[0] + 6, 30, 30); x.fillStyle = '#7d8794'; x.fillRect(54, q[0] + 9, 56, 8); x.fillRect(54, q[0] + 24, 36, 7); }); x.fillStyle = '#17171c'; x.fillRect(44, 214, 40, 6); phT = new T.CanvasTexture(c); return phT; }
   let sparkT = null;
   function sparkTex() { if (sparkT) return sparkT; const c = document.createElement('canvas'); c.width = c.height = 64; const x = c.getContext('2d'), gr = x.createRadialGradient(32, 32, 0, 32, 32, 30); gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(0.25, 'rgba(255,255,255,.75)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); x.fillStyle = gr; x.fillRect(0, 0, 64, 64); x.fillStyle = '#fff'; x.beginPath(); x.moveTo(32, 2); x.lineTo(36, 28); x.lineTo(62, 32); x.lineTo(36, 36); x.lineTo(32, 62); x.lineTo(28, 36); x.lineTo(2, 32); x.lineTo(28, 28); x.closePath(); x.fill(); sparkT = new T.CanvasTexture(c); return sparkT; }
   function makePerson(o) {
@@ -939,7 +942,9 @@ GS.World = (function () {
     const sh = new T.Mesh(gShadow, shadowMat); sh.rotation.x = -Math.PI / 2; sh.position.y = 0.02; g.add(sh);
     const carry = box(g, 0.36, 0.28, 0.3, 0xc49a6c, 0, 0.5, 0.3); carry.visible = false;
     const mopG = new T.Group(); mopG.visible = false; g.add(mopG); { const st = new T.Mesh(new T.CylinderGeometry(0.03, 0.03, 1.35, 6), mat(0xb5894f)); st.position.set(0, 0.62, 0.42); st.rotation.x = -0.5; mopG.add(st); box(mopG, 0.5, 0.1, 0.22, 0x57b7e6, 0, 0, 0.76); box(mopG, 0.5, 0.05, 0.3, 0xe9f4fb, 0, 0, 0.82); }      // mopa
-    const phone = o.phone ? box(g, 0.1, 0.18, 0.03, 0x111111, 0.16, 0.6, 0.2) : null;
+    let phone = null, phGlow = null;      /* celular: va en la mano izquierda, con la pantalla prendida; al usarlo lo levanta frente a la cara y le ilumina la cara */
+    if (o.phone) { phone = new T.Group(); phone.position.set(0, -0.5, 0.045); arms[0].add(phone); const bd = new T.Mesh(unitBox, mat(0x15151a)); bd.scale.set(0.125, 0.23, 0.022); phone.add(bd); const sc = new T.Mesh(new T.PlaneGeometry(0.108, 0.205), new T.MeshBasicMaterial({ map: phoneTex() })); sc.position.z = 0.0125; phone.add(sc);
+      const cm = new T.Mesh(gEye, mat(0x3a3a44)); cm.scale.set(0.35, 0.35, 0.2); cm.position.set(0.035, -0.08, -0.013); phone.add(cm); }
     let cargo = null;
     if (o.cart) {
       box(g, 0.62, 0.06, 0.8, 0x3a6fd1, 0, 0.16, 0.85); box(g, 0.05, 0.9, 0.05, 0x3a6fd1, -0.26, 0.16, 0.48); box(g, 0.05, 0.9, 0.05, 0x3a6fd1, 0.26, 0.16, 0.48);
@@ -1019,7 +1024,7 @@ GS.World = (function () {
           [[0, 0.39, -0.04], [0.15, 0.36, 0.06], [-0.15, 0.36, 0.06], [0, 0.35, -0.2]].forEach(q => { const c = new T.Mesh(gCurl, hm); c.scale.setScalar(1.3); c.position.set(q[0], q[1], q[2]); acc.add(c); }); }
         if (st === 'mohicano' && !capHat) [[0.3, 0.2, 0.9], [0.4, 0.08, 1.15], [0.43, -0.06, 1.3], [0.38, -0.2, 1.15], [0.27, -0.31, 0.95]].forEach(q => { const m = new T.Mesh(gTuft, hm); m.scale.set(0.62, q[2] * 1.25, 1.05); m.position.set(0, q[0], q[1]); acc.add(m); });   // cresta de mechones, más alta en el medio
       }
-      if (cur.beard === 'larga') [[0, -0.29, 0.19, 0.23, 1.2, 1.0, 0.8], [-0.19, -0.2, 0.19, 0.15, 1, 1.1, 0.9], [0.19, -0.2, 0.19, 0.15, 1, 1.1, 0.9], [0, -0.44, 0.17, 0.14, 1.1, 1, 0.8], [-0.08, -0.1, 0.33, 0.07, 1.5, 0.7, 0.8], [0.08, -0.1, 0.33, 0.07, 1.5, 0.7, 0.8]].forEach(q => { const m = new T.Mesh(gHead, hm); m.scale.set(q[3] / HR * q[4], q[3] / HR * q[5], q[3] / HR * q[6]); m.position.set(q[0], q[1], q[2]); acc.add(m); });      /* barba larga: tupida, con bigote, del color del pelo */
+      if (cur.beard === 'larga') [[0, -0.33, 0.18, 0.22, 1.2, 0.95, 0.8], [-0.19, -0.285, 0.17, 0.15, 1, 1.05, 0.9], [0.19, -0.285, 0.17, 0.15, 1, 1.05, 0.9], [0, -0.46, 0.16, 0.14, 1.1, 1, 0.8], [-0.075, -0.168, 0.315, 0.065, 1.45, 0.62, 0.8], [0.075, -0.168, 0.315, 0.065, 1.45, 0.62, 0.8]].forEach(q => { const m = new T.Mesh(gHead, hm); m.scale.set(q[3] / HR * q[4], q[3] / HR * q[5], q[3] / HR * q[6]); m.position.set(q[0], q[1], q[2]); acc.add(m); });      /* barba larga: tupida, con bigote, del color del pelo; empieza por debajo de los anteojos */
       else if (cur.beard && !cur.santa) { const sb = new T.Mesh(gBeard, mat(mixC(skinC, mixC(hairC, 0x2a2a30, 0.5), 0.42))); sb.scale.setScalar(0.978); acc.add(sb); }      /* barba corta: una sombra pegada a la piel */
       if (cur.stubble) { const sb = new T.Mesh(gBeard, mat(mixC(skinC, 0x4a4a52, 0.38))); sb.scale.setScalar(0.975); acc.add(sb); }
       if (cur.santa) { const wh = mat(0xffffff); [[0, -0.3, 0.2, 0.25, 1.25, 1.05, 0.8], [-0.2, -0.2, 0.2, 0.15, 1, 1.1, 0.9], [0.2, -0.2, 0.2, 0.15, 1, 1.1, 0.9], [0, -0.47, 0.18, 0.15, 1.1, 1, 0.8], [-0.085, -0.115, 0.335, 0.075, 1.5, 0.75, 0.8], [0.085, -0.115, 0.335, 0.075, 1.5, 0.75, 0.8]].forEach(q => { const m = new T.Mesh(gHead, wh); m.scale.set(q[3] / HR * q[4], q[3] / HR * q[5], q[3] / HR * q[6]); m.position.set(q[0], q[1], q[2]); acc.add(m); });
@@ -1073,6 +1078,7 @@ GS.World = (function () {
       walk(points, cb) { p.path = points.slice(); p.onArrive = cb || null; p.moving = true; },
       bag(v) { bag.visible = v; p.bagOn = v; },
       lookUp(v) { p.upG = v || 0; },
+      phVis: () => !!phone && phone.visible, phG(k) { if (phGlow) phGlow.material.opacity = 0.34 * k * (0.9 + Math.sin(p.t * 9) * 0.1); },
       /* halo de las visitas especiales: aro de luz en el piso, columna suave y chispas que suben */
       aura(col, plain) { if (p.au) return; const c = new T.Color(col || 0xf5c518), mk = (geo, op) => new T.Mesh(geo, new T.MeshBasicMaterial({ color: c, transparent: true, opacity: op, depthWrite: false, blending: T.AdditiveBlending, side: T.DoubleSide })), A2 = new T.Group(); g.add(A2);
         const ring = mk(new T.RingGeometry(0.46, 0.62, 36), 0.85), disc = mk(new T.CircleGeometry(0.62, 30), 0.3), col2 = mk(new T.CylinderGeometry(0.42, 0.56, 1.7, 24, 1, true), 0.13); ring.rotation.x = disc.rotation.x = -Math.PI / 2; ring.position.y = 0.035; disc.position.y = 0.03; col2.position.y = 0.87; A2.add(ring, disc); if (!plain) A2.add(col2);
@@ -1082,6 +1088,7 @@ GS.World = (function () {
       look(a) { style(a); },
       cargo(v) { if (cargo) cargo.visible = v; },
       phone(v) { if (phone) phone.visible = v; },
+      usePhone(sec) { if (!phone) return; if (!phGlow) { phGlow = new T.Mesh(new T.SphereGeometry(HR + 0.006, 24, 14, Math.PI * 0.2, Math.PI * 0.6, Math.PI * 0.2, Math.PI * 0.62), new T.MeshBasicMaterial({ color: 0xbfe2ff, transparent: true, opacity: 0, depthWrite: false, blending: T.AdditiveBlending })); phGlow.position.y = HY - NK; hd.add(phGlow); } p.ph = p.ph || { k: 0, t: 0 }; p.ph.t = sec || 4; },
       mop(v) { mopG.visible = v; p.holding = v; arms.forEach(a => { a.rotation.x = v ? -0.9 : 0; }); mopG.position.z = 0; },
       mopTick(t) { const k = Math.sin(t * 9); arms.forEach(a => { a.rotation.x = -0.9 + k * 0.3; }); mopG.position.z = k * 0.14; mopG.position.x = Math.cos(t * 4.5) * 0.06; },
       carry(v) { carry.visible = v; arms.forEach(a => { a.rotation.x = v ? -1.1 : 0; }); p.holding = v; },
@@ -1143,6 +1150,8 @@ GS.World = (function () {
       p.t += dt;
       const g = p.group;
       if (p.upG != null) { const h2 = p.hd; h2.rotation.x += (-p.upG - h2.rotation.x) * Math.min(1, dt * 6); if (!p.upG && Math.abs(h2.rotation.x) < 0.002) { h2.rotation.x = 0; p.upG = null; } }
+      if (p.ph) { const P = p.ph, free = !p.moving && !p.holding && !p.using && !p.sleeping && !p.nodding && p.phVis(); P.t -= dt; if (free && P.t < -8) P.t = 3.6; const on = free && P.t > 0; P.k += ((on ? 1 : 0) - P.k) * Math.min(1, dt * 6);      /* cada tanto mira el celular: brazo arriba, cabeza baja y luz en la cara */
+        if (free || P.k > 0.02) { if (!p.moving && !p.holding) { p.arms[0].rotation.x = -1.82 * P.k; p.arms[0].rotation.z = -0.16 + 0.56 * P.k; } p.hd.rotation.x = 0.2 * P.k; } p.phG(P.k); }
       if (p.au) { const k = 1 + Math.sin(p.t * 3.2) * 0.09; p.au.ring.scale.set(k, k, 1); p.au.ring.material.opacity = 0.65 + Math.sin(p.t * 3.2) * 0.2; p.au.col2.rotation.y = p.t * 0.6; p.au.sp.forEach(q => { const u = (p.t * 0.42 + q.userData.ph) % 1, an = q.userData.ph * 6.283 * 2 + p.t * 1.3, sz = 0.26 * Math.sin(u * Math.PI); q.position.set(Math.cos(an) * 0.5, 0.1 + u * 1.75, Math.sin(an) * 0.5); q.scale.set(sz, sz, 1); }); }
       if (p.gf) { const G = p.gf; G.t += dt; const u = Math.min(1, G.t / 1.15), e = u < 0.3 ? 0 : (u - 0.3) / 0.7; G.m.position.set(-0.5 * e, 0.78 + Math.sin(e * Math.PI) * 0.95 + e * 0.4, 0.42 - e * 0.64); G.m.rotation.set(e * 4, e * 3, 0); G.m.scale.setScalar(1 - e * 0.35); p.arms.forEach(a => { a.rotation.x = -1.5 - e * 1.2; }); if (u >= 1) { g.remove(G.m); p.gf = null; p.holding = false; p.arms.forEach(a => { a.rotation.x = 0; }); } }
       if (p.sleeping) { if (p.zs) p.zs.forEach(z => { const u = (p.t / 2.7 + z.userData.ph) % 1, sz = 0.2 + u * 0.3; z.position.set(0.3 + u * 0.5 + Math.sin(u * 7) * 0.07, 1.14 + 0.3 + u * 1.1, 0.25); z.scale.set(sz, sz, 1); z.material.opacity = Math.min(1, u * 5, (1 - u) * 2.5); }); const br = Math.sin(p.t * 2.1); g.rotation.x = -0.4 + br * 0.025; g.scale.y = (g.userData.base || 1) * (1 + br * 0.018); continue; }

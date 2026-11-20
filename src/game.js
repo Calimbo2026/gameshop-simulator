@@ -228,6 +228,7 @@ GS.Game = (function () {
       const it = d.sayQ.shift();
       if (!it.person.group.parent || (it.cls !== 'boss' && !it.pri && it.age > (it.amb ? 4.5 : 9))) { if (it.onDone) it.onDone(); continue; }   // ya se fue o quedó viejo
       if (it.cls === 'boss') A.play('speaker');
+      if (it.person.usePhone && /celu|stock|pantalla|mensaje|WhatsApp|chequ/i.test(it.text)) it.person.usePhone(it.dur + 0.6);
       if (!it.quiet) A.babble(it.text, it.cls === 'boss' ? 150 : it.person.voice || 330);
       const el = document.createElement('div'); el.className = 'say ' + it.cls; el.textContent = it.text; if (it.brand) { el.dataset.b = it.brand.mark + ' ' + it.brand.name; el.style.setProperty('--rc', it.brand.col); } $('labels').appendChild(el);
       d.says.push({ el, person: it.person, left: it.dur, onDone: it.onDone }); d.sayGap = 0.35; return;
