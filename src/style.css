@@ -765,3 +765,8 @@ a.mbtn { text-decoration: none; box-sizing: border-box; } .mbtn.gold { margin-to
 .ep-ally { flex: 0 0 100%; display: flex; gap: 8px; justify-content: center; align-items: center; margin: 8px 0 0; flex-wrap: wrap; } .ep-faces.vs.duo > b { font-size: 46px !important; line-height: 1; }
 .ep-faces.vs.duo.pals .ep-ally b { font-family: var(--display); font-size: 17px !important; letter-spacing: .04em; background: #0a0a0a; color: #fff; text-shadow: none; padding: 7px 12px; border-radius: 10px; box-shadow: 0 6px 16px rgba(0,0,0,.4); } .ep-ally i { font-style: normal; font-weight: 900; font-size: 22px; color: #fff; }
 @media (prefers-reduced-motion: reduce) { .ep-faces.vs.duo.pals > b.shake { animation: none; } }
+
+/* v0.72: el rival habla en el medio del local, con el globo de su marca */
+.story.rv { border: 2px solid var(--rc); border-radius: 18px; padding: 12px; background: #121216; box-shadow: 0 0 0 4px color-mix(in srgb, var(--rc) 28%, transparent); } .story.rv .st-brand { align-self: flex-start; font-style: normal; font-family: var(--display); letter-spacing: .06em; text-transform: uppercase; font-size: 15px; background: var(--rc); color: #fff; padding: 4px 10px; border-radius: 8px; text-shadow: 0 1px 0 rgba(0,0,0,.45); }
+.story.rv .st-face { border-color: var(--rc); background: radial-gradient(120% 90% at 50% 28%, var(--rc), #0b0b0d); } .story.rv .st-head b { color: #fff; } .story.rv .bubble { background: #fff; color: #111; border-left: 5px solid var(--rc); }
+#modal.low { align-items: flex-end; background: linear-gradient(to bottom, rgba(0,0,0,.12) 0 38%, rgba(0,0,0,.82) 64%); }

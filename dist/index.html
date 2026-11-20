@@ -792,6 +792,11 @@ a.mbtn { text-decoration: none; box-sizing: border-box; } .mbtn.gold { margin-to
 .ep-faces.vs.duo.pals .ep-ally b { font-family: var(--display); font-size: 17px !important; letter-spacing: .04em; background: #0a0a0a; color: #fff; text-shadow: none; padding: 7px 12px; border-radius: 10px; box-shadow: 0 6px 16px rgba(0,0,0,.4); } .ep-ally i { font-style: normal; font-weight: 900; font-size: 22px; color: #fff; }
 @media (prefers-reduced-motion: reduce) { .ep-faces.vs.duo.pals > b.shake { animation: none; } }
 
+/* v0.72: el rival habla en el medio del local, con el globo de su marca */
+.story.rv { border: 2px solid var(--rc); border-radius: 18px; padding: 12px; background: #121216; box-shadow: 0 0 0 4px color-mix(in srgb, var(--rc) 28%, transparent); } .story.rv .st-brand { align-self: flex-start; font-style: normal; font-family: var(--display); letter-spacing: .06em; text-transform: uppercase; font-size: 15px; background: var(--rc); color: #fff; padding: 4px 10px; border-radius: 8px; text-shadow: 0 1px 0 rgba(0,0,0,.45); }
+.story.rv .st-face { border-color: var(--rc); background: radial-gradient(120% 90% at 50% 28%, var(--rc), #0b0b0d); } .story.rv .st-head b { color: #fff; } .story.rv .bubble { background: #fff; color: #111; border-left: 5px solid var(--rc); }
+#modal.low { align-items: flex-end; background: linear-gradient(to bottom, rgba(0,0,0,.12) 0 38%, rgba(0,0,0,.82) 64%); }
+
 </style>
 </head>
 <body>
@@ -909,7 +914,7 @@ const GS = {};
 GS.LOGO = "data:image/png;base64,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";
 
 GS.CONFIG = {
-  version: '0.71.0',
+  version: '0.72.0',
   phase: 8,
   phaseNote: 'Juego completo de punta a punta. Falta tu playtest con 5 personas y encender el lanzamiento (launched: true)',                       // fase actual del proyecto (1 a 5)
   links: { tienda: 'https://www.gameshop.com.ar', instagram: '' },   // botones del inicio y del cierre (vacío = no se muestra)
@@ -1210,14 +1215,14 @@ GS.EXPLAIN = {
 /* Regiones: una sucursal por región. Cada una con su ciudad, su paleta, sus modismos (siempre con cariño), su rival y 4 candidatos (se eligen 2). */
 GS.REGIONS = [
   { id: 'pampeana', name: 'Pampeana', city: 'Buenos Aires', cost: 0, prov: ['Ciudad de Buenos Aires', 'Buenos Aires', 'Córdoba', 'Santa Fe', 'Entre Ríos', 'La Pampa'], clima: 'Templado y húmedo, con las cuatro estaciones bien marcadas. Los días malos son de lluvia.', decor: 'ciudad', why: 'El local original, en Av. de los Incas. Desde acá salen los envíos a Buenos Aires, Córdoba, Santa Fe, Entre Ríos y La Pampa.', hi: [],
-    rival: { name: 'Turbo Gamer', owner: 'Tito Turbo', col: '#ff7a00', mark: '⚡', motto: 'Todo en cinco minutos', rule: 'Promete todo "en cinco minutos". Nunca llega, pero la gente va a preguntar igual.', fx: '',
+    rival: { name: 'Turbo Gamer', owner: 'Tito Turbo', hi: '¡Rapidito, que tengo cinco minutos! Vengo a hablar.', col: '#ff7a00', mark: '⚡', motto: 'Todo en cinco minutos', rule: 'Promete todo "en cinco minutos". Nunca llega, pero la gente va a preguntar igual.', fx: '',
       taunts: ['¡Yo ya vendí tres y vos recién abrís!', '¿Todavía embalando? Yo entrego en cinco minutos. Bueno, quince.', 'Rapidito, rapidito, que el cliente no espera.'],
       pre: 'Tito Turbo cruzó la avenida con megáfono, cronómetro y un cartel que dice "YA". Hoy se define el barrio.', gloat: '¡Listo, listo, listo! Gané. Vuelvan mañana, que la revancha la hacemos rapidito.',
       win: 'Pará, pará, pará... ¿Perdí? ¿Yo? ...Bueno. Fue rápido, por lo menos.', arcT: 'Las tardes de Tito', arc: 'Tito aprendió a arreglar compus de chico, en el taller de su viejo. Todas las tardes cierra un rato y cruza a la escuela del barrio: ahí repara gratis las máquinas de la sala de computación. Por eso prometía todo "en cinco minutos": nunca le alcanzaban las horas.',
       futT: 'Turbo Service', fut: 'Turbo Gamer se dedicó a lo que mejor hace: hoy es el taller de reparaciones más rápido de Buenos Aires. GameShop le manda cada equipo que hay que arreglar, y Tito manda a GameShop a cada cliente que quiere estrenar. A la escuela siguen yendo todas las tardes. Ahora van los dos.' } },
   { id: 'cuyo', name: 'Cuyo', city: 'Mendoza', cost: 2600, prov: ['Mendoza', 'San Juan', 'San Luis'], clima: 'Seco y soleado al pie de la cordillera: veranos calurosos, inviernos fríos y viento Zonda. Acá los días malos no son de lluvia: son de nieve.', floor: 0xf3d9c4, wall: 0xf6ead8, decor: 'cuyo', why: 'Con base en Mendoza, los envíos a San Juan y San Luis salen en el día.',
     hi: ['¡Buenas! Vengo después de la siesta, como corresponde.', 'Hola, ¿todo bien? Está lindo para unas tortitas con mate.', '¡Qué calor que hace! Menos mal que acá hay sombra.', 'Buenas, vecino. Vengo antes de la Vendimia, que después no hay tiempo.', 'Hola. Dejé la bici en la acequia, no tardo.', 'Buenas. Hoy la cordillera amaneció nevadita, una postal.', 'Hola. Vengo de la finca, disculpe la tierra en las zapatillas.', '¡Buenas! ¿Vio el sol que hay? Dicen que acá sale trescientos días al año.', 'Buenas. Traje tortitas raspadas para el mate, después convido.', 'Hola. Con este Zonda no se puede ni pensar: atiéndame despacito.', 'Buenas. Vengo de regar, hoy me tocaba el turno de agua.', 'Hola. Es un ratito nomás, que dejé el auto a la sombra de un carolino.', 'Buenas. Me vine desde San Juan, mire si le tendré fe al local.', 'Buenas tardes. Ya dormí la siesta, ya puedo decidir.', 'Hola. Me dijeron que acá atienden mejor que en el centro.'],
-    rival: { name: 'Zonda Gamer', owner: 'Don Ulises', col: '#d9a514', mark: '🌪️', motto: 'Precios que vuelan',
+    rival: { name: 'Zonda Gamer', owner: 'Don Ulises', hi: 'Buenas. Vengo a hablar, antes de que se levante viento.', col: '#d9a514', mark: '🌪️', motto: 'Precios que vuelan',
       taunts: ['Hoy sopla Zonda: mis precios vuelan. Los suyos también, pero para arriba.', '¿Cinco estrellas? Acá las estrellas se ven mejor de noche, mijo.', 'Mi mamá pregunta si ya se rinden.'],
       pre: 'Trajo cronómetro, banderín y a la mamá en primera fila. Hoy se define quién se queda con Cuyo.', gloat: 'Se lo dije, mijo: acá manda el Zonda. Vuelva cuando quiera, que yo no me muevo.',
       win: '...Me ganaron en buena ley. Mi mamá dice que acá atienden mejor. Y mi mamá nunca se equivoca.', arcT: 'Los días de Zonda', arc: 'Cuando sopla el Zonda, Mendoza se encierra. Don Ulises abría igual, con los precios por el piso, porque los pibes de la cuadra no tenían dónde pasar la tarde: les dejaba las compus prendidas y su mamá les cebaba mate. La liquidación era la excusa para no bajar la persiana.',
@@ -1226,7 +1231,7 @@ GS.REGIONS = [
       { id: 'flor', name: 'Flor', d: 'Vende hielo en la cordillera.', look: { skin: 0xc68a5c, hair: 0xd9a514, hairStyle: 'rodete', glasses: false } }, { id: 'tomi', name: 'Tomi', d: 'Lento pero no se le escapa una.', look: { skin: 0xf6d7bd, hair: 0xb5651d, hairStyle: 'rulos', glasses: false } }] },
   { id: 'noa', name: 'NOA', city: 'Salta', cost: 1600, prov: ['Jujuy', 'Salta', 'Tucumán', 'Catamarca', 'La Rioja', 'Santiago del Estero'], clima: 'Seco y de altura en los valles y la puna, cálido en el llano. Mucho sol, y las lluvias llegan en verano.', floor: 0xf0cdb0, wall: 0xf7e3cf, decor: 'noa', why: 'Desde Salta se llega fácil a Jujuy, Tucumán, Catamarca, La Rioja y Santiago del Estero.',
     hi: ['Buen día, chango. ¿Cómo anda?', '¡Buenas! Vengo de comer unas empanadas, no me apure.', 'Hola, changuito. Qué lindo local, che.', 'Buenas tardes. A la noche hay peña, pero antes paso por acá.', 'Hola. Bajé del cerro nomás para esto.', 'Buen día. Vengo tranquilo, que el apuro no es de por acá.', 'Buenas. Dejé los tamales al fuego, tengo un ratito.', 'Hola, chango. Me vine desde Tucumán, mire lo lejos.', 'Buenas. Afuera el sol raja la tierra; acá se está lindo.', 'Buen día. Mi abuela dice que primero se saluda y después se pregunta.', 'Buenas tardes. Anoche hubo guitarreada, hábleme bajito por favor.', 'Hola, changuito. Le traje unas humitas, después se las dejo.', 'Buenas. Me vine en el colectivo desde Cafayate. Vale la pena, ¿no?', 'Hola. Para el Carnaval falta, pero ya ando de buen humor.', 'Buenas. Me dijo mi comadre que acá atienden lindo.', 'Buen día. Qué lindo día para no apurarse, ¿no?'],
-    rival: { name: 'Pachamama Play', owner: 'Doña Ramona', col: '#e08a3c', mark: '🥟', motto: 'Con cada compra, una empanada',
+    rival: { name: 'Pachamama Play', owner: 'Doña Ramona', hi: 'Buenas, changuito. Vengo a conversar un ratito.', col: '#e08a3c', mark: '🥟', motto: 'Con cada compra, una empanada',
       taunts: ['Con cada compra, una empanada. ¿Usted qué regala, changuito? ¿Una bolsita?', 'Las mías son de carne cortada a cuchillo. Las suyas... ah, cierto: no tienen.', 'Vaya tranquilo nomás, que su cliente ya está comiendo en mi local.'],
       pre: 'Amasó desde las cinco de la mañana. Hay olor a empanada en toda la cuadra y fila en su vereda. Hoy se define el Norte.', gloat: 'No se me ponga triste, changuito. Tome una empanada y vuelva mañana, que la revancha es gratis.',
       win: 'Está bien, changuito. Me ganó sin una sola empanada. Eso sí que es saber vender.', arcT: 'La cocina de Ramona', arc: 'Doña Ramona cocina desde las cinco de la mañana para el comedor del barrio. Las empanadas que regalaba en el local salían de ahí: dice que nadie elige bien un regalo con la panza vacía. El local lo abrió para sostener el comedor.',
@@ -1235,7 +1240,7 @@ GS.REGIONS = [
       { id: 'lucia', name: 'Lucía', d: 'Cobra más rápido que el viento.', look: { skin: 0xe0ac7e, hair: 0x5a2d0c, hairStyle: 'rodete', glasses: true } }, { id: 'beto', name: 'Beto', d: 'Conoce a todo el barrio por el nombre.', look: { skin: 0x9a643c, hair: 0x3a2a1a, hairStyle: 'rulos', glasses: false } }] },
   { id: 'nea', name: 'NEA', city: 'Posadas', cost: 1600, prov: ['Misiones', 'Corrientes', 'Chaco', 'Formosa'], clima: 'Subtropical: calor y humedad casi todo el año, lluvias fuertes y siesta obligada.', floor: 0xeab59a, wall: 0xf3ecd6, decor: 'nea', why: 'Desde Posadas se cubre Misiones, Corrientes, Chaco y Formosa.',
     hi: ['¡Hola, chamigo! ¿Todo bien?', 'Buenas. Traje el tereré, ¿querés?', '¡Qué calor, chamigo! Menos mal el aire.', 'Hola. Vengo con chipá recién hecha, convido después.', 'Buenas, che. Crucé el río nomás para venir.', '¡Buenas, chamigo! Con este calor hasta el yacaré busca sombra.', 'Buenas. Recién me levanto de la siesta, hábleme despacio.', '¡Hola! Llovió tanto que vine remando. Bueno, casi.', 'Buenas, che. Vengo de la chacra, disculpe la tierra colorada.', 'Hola, chamigo. Mi mamá manda saludos y pregunta si hay descuento.', 'Buenas. Traje mbeyú para la merienda, después le convido.', 'Hola. Esta noche hay chamamé, así que vengo contento.', '¡Buenas! El termo de tereré se queda conmigo, eso sí.', 'Hola. Me vine desde Oberá, mire si le tendré confianza.', 'Hola, chamigo. Cuarenta grados a la sombra y yo acá, fiel.'],
-    rival: { name: 'Yacaré Games', owner: 'El Tío Chelo', col: '#2f9a48', mark: '🐊', motto: 'Abierto a la siesta',
+    rival: { name: 'Yacaré Games', owner: 'El Tío Chelo', hi: 'Chamigo, vine a hablar. Despacito, que no hay apuro.', col: '#2f9a48', mark: '🐊', motto: 'Abierto a la siesta',
       taunts: ['Usted duerma la siesta tranquilo, chamigo. Yo le cuido los clientes.', 'Mi yacaré tiene más paciencia que su mostrador.', 'A las tres de la tarde, acá mando yo.'],
       pre: 'Cuarenta grados, la siesta en puerta y el Tío Chelo con el termo lleno. Hoy se define el Litoral.', gloat: 'No se haga drama, chamigo. Tómese un tereré, que mañana hay revancha.',
       win: 'Me ganó despierto y a la hora de la siesta, chamigo. Eso no lo hace cualquiera.', arcT: 'La hora de la siesta', arc: 'A la hora de la siesta salen los gurises de la escuela, y muchos no tienen compu en la casa. Por eso el Tío Chelo nunca cerraba: en Yacaré Games primero se hacía la tarea y recién después se jugaba. Él dormía con un ojo, sentado atrás del mostrador.',
@@ -1244,7 +1249,7 @@ GS.REGIONS = [
       { id: 'ani', name: 'Ani', d: 'Le sonríe hasta al proveedor.', look: { skin: 0xf2c9a0, hair: 0xb5651d, hairStyle: 'rulos', glasses: true } }, { id: 'pocho', name: 'Pocho', d: 'Nunca faltó. Ni cuando llovió tres días.', look: { skin: 0x9a643c, hair: 0x3a2a1a, hairStyle: 'pelado', glasses: false } }] },
   { id: 'patagonia', name: 'Patagonia', city: 'Bariloche', cost: 1800, prov: ['Neuquén', 'Río Negro', 'Chubut', 'Santa Cruz', 'Tierra del Fuego'], clima: 'Frío y ventoso, con inviernos largos. Los días malos son de nieve y la gente anda abrigada.', floor: 0xdfe6ee, wall: 0xeaf2f8, decor: 'patagonia', why: 'Desde Bariloche salen los envíos a Neuquén, Río Negro, Chubut, Santa Cruz y Tierra del Fuego.',
     hi: ['¡Buenas! Afuera el viento te despeina hasta las ideas.', 'Hola. Está fresquito, ¿no? Apenas dos bajo cero.', 'Buenas. Vine caminando: son veinte cuadras, acá es cerquita.', 'Hola, vecino. Después paso por un chocolate, ¿venís?', 'Buenas. Cerré la tranquera y me vine.', 'Buenas. Dejé la pala de nieve en la puerta, no se asuste.', 'Hola. Hoy no hay viento. Raro. Sospechoso.', 'Buenas. Vengo de El Bolsón, son dos horitas nomás.', 'Hola. Me saco los guantes y le cuento qué necesito. Deme un minuto.', 'Buenas tardes. El lago está planchado: día de suerte.', 'Buenas. Se me congeló el parabrisas, así que vine a pie.', '¡Hola! Acá adentro está calentito: me quedo un rato largo, le aviso.', 'Buenas. Para un invierno tan largo hace falta algo para entretenerse.', 'Hola. Vengo de la estepa: ciento cincuenta kilómetros, acá a la vuelta.', 'Buenas. Prendí la salamandra antes de salir, así que apuro no tengo.', 'Hola. Los turistas vienen por el chocolate; yo vengo por lo importante.'],
-    rival: { name: 'Ventisca Gaming', owner: 'El Ruso Iván', col: '#7f9bc4', mark: '❄️', motto: 'Con campera de regalo',
+    rival: { name: 'Ventisca Gaming', owner: 'El Ruso Iván', hi: 'Buenas. Afuera hace frío. Acá adentro, hablemos.', col: '#7f9bc4', mark: '❄️', motto: 'Con campera de regalo',
       taunts: ['Sin campera no hay venta. Es ley del sur.', '¿Flota? Yo reparto en trineo. Bueno, en un auto viejo con cadenas.', 'El frío no perdona. Yo tampoco.'],
       pre: 'Dos bajo cero, viento blanco y el Ruso Iván con una pila de camperas hasta el techo. Hoy se define el Sur.', gloat: 'Abríguese y vuelva mañana. El frío enseña paciencia.',
       win: 'Llegaron antes que mi campera. Ganaron el sur. Y me parece que algo más.', arcT: 'Las camperas de mamá', arc: 'Las camperas las teje la mamá de Iván, de a una por noche. Las regalaba con cada compra porque en el sur, dice ella, a nadie le tiene que faltar abrigo. Iván llegó de chico, con lo puesto, y su primera campera se la dio un vecino.',
@@ -1254,7 +1259,7 @@ GS.REGIONS = [
   /* Final oculto: aparece en el mapa recién cuando las 5 regiones están completas. */
   { id: 'malvinas', secret: true, name: 'Malvinas', city: 'Puerto Argentino', cost: 3000, prov: ['Islas Malvinas'], clima: 'Frío oceánico, viento casi todos los días y llovizna. Todo el mundo abrigado.', floor: 0xdfe8e2, wall: 0xeef3f1, decor: 'malvinas', why: 'La sucursal más austral y la más esperada. Los envíos llegan en barco, con viento a favor.',
     hi: ['¡Buenas! Con este viento, llegué antes de lo que pensaba.', 'Hola. Dejé las ovejas mirando la vidriera.', 'Buen día. Qué lindo ver este cartel acá.', 'Hola, vecino. Afuera hay un pingüino esperando turno.', 'Buenas. Llegó el barco de los envíos, así que hoy hay fiesta.', 'Hola. Acá el clima cambia cuatro veces por hora. Vine en la tercera.', 'Buen día. Hace años que esperábamos un local así.', 'Hola, vecino. Acá nos conocemos todos, así que usted debe ser el nuevo.', 'Buenas. Traje el abrigo, el otro abrigo y el de repuesto.', 'Hola. Los pingüinos ya preguntaron si hay joysticks para aletas.', 'Buenas. Qué lindo escuchar un buen día con tonada.', 'Hola. Con este viento, abrir un paraguas es deporte extremo.'],
-    rival: { name: 'Pirata Gaming', owner: 'El Capitán Tormenta', col: '#4b3f8f', mark: '☠️', motto: 'Lo que veo, es mío', villain: true,
+    rival: { name: 'Pirata Gaming', owner: 'El Capitán Tormenta', hi: '¡Ah del local! Vengo a tomar posesión.', col: '#4b3f8f', mark: '☠️', motto: 'Lo que veo, es mío', villain: true,
       taunts: ['Estas islas tienen dueño. Y tiene sombrero.', 'Lindo cartel. Mañana va a estar en mi local.', 'Disfruten mientras puedan, marineritos de agua dulce.'],
       pre: 'Bajó del barco con el loro, la bandera negra y una sonrisa que no le llega a los ojos. Hoy se definen las islas.', gloat: '¡Ja! Lo que es mío, es mío. Y lo de ustedes, también. Vuelvan cuando aprendan a perder.',
       win: 'Esto no termina acá. Un día voy a volver. Y ese día... ese día van a ver.', arc: 'No aprendió nada. Levó anclas jurando volver y se fue sin saludar. El loro se quedó: ahora atiende el mostrador y pide por favor.', rule: 'Dice que las islas son suyas porque llegó en barco. Te "toma prestados" los carteles, los toldos y a veces los pedidos.', fx: 'Cada jornada se "lleva prestado" algo: hay una tarea más para resolver.' },
@@ -1319,12 +1324,8 @@ GS.TIPS = {
     arcade: '🕹️ Ganaste un juego nuevo. Está en <b>Arcade</b>, en el inicio: si llegás a la meta, te llevás un premio para tu personaje.'
 };
 GS.MONTHS = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];   // 1 jornada = 1 mes
-/* Propuestas para el Dueño (a elegir): contextura grande, pelo corto canoso peinado hacia arriba */
-GS.BOSS_OPTS = [
-  { name: 'A · Remera negra', shirt: 0x17171c, hair: 0x6f6f7a, hair2: 0xa9a9b4, hairStyle: 'jopo', skin: 0xe0ac7e, build: 'robusto', wide: true, stubble: 1, top: 'remera' },
-  { name: 'B · Chomba GameShop', shirt: 0x17171c, hair: 0x9a9aa6, hair2: 0xc4c4cd, hairStyle: 'jopo', skin: 0xe0ac7e, build: 'robusto', wide: true, top: 'chomba' },
-  { name: 'C · Campera', shirt: 0x202027, hair: 0x55555f, hair2: 0x9a9aa6, hairStyle: 'jopo', skin: 0xd9a274, build: 'robusto', wide: true, stubble: 2, top: 'campera' }
-];
+/* El Dueño: contextura grande, pelo corto canoso peinado hacia arriba, afeitado y de remera negra */
+GS.BOSS_LOOK = { shirt: 0x17171c, hair: 0x6f6f7a, hair2: 0xa9a9b4, hairStyle: 'jopo', skin: 0xe0ac7e, build: 'robusto', wide: true, top: 'remera' };
 GS.SANTA = { id: 'santa', name: 'Papá Noel', face: '🎅', shirt: 0xd81e2c, hair: 0xffffff, tag: 'Compras de último momento',
   look: { hairStyle: 'corto', beard: true, glasses: true, lips: false, lashes: false, hat: 'gorro', pants: 0x23232b, skin: 0xf2c9a0, santa: true, scale: 1.14 },
   bye: 'Jo, jo, jo. Me resolvieron muchos regalos, pero todavía me faltan algunos...', lost: 'Me voy, que los renos están en doble fila.' };
@@ -3141,7 +3142,7 @@ GS.World = (function () {
         gTorso = new T.CylinderGeometry(0.15, 0.2, 0.36, 12), gHip = new T.CylinderGeometry(0.2, 0.19, 0.16, 12), gLegP = new T.CylinderGeometry(0.085, 0.08, 0.14, 8),
         gLeg = new T.CylinderGeometry(0.06, 0.055, 0.2, 8), gArm = new T.CylinderGeometry(0.052, 0.046, 0.26, 8), gSleeve = new T.CylinderGeometry(0.075, 0.07, 0.13, 8),
         gHand = new T.SphereGeometry(0.062, 8, 6), gSmile = new T.TorusGeometry(0.075, 0.016, 6, 10, Math.PI),
-        gShadow = new T.CircleGeometry(0.36, 16);
+        gShadow = new T.CircleGeometry(0.36, 16), gShoe = new T.SphereGeometry(0.07, 10, 8);
   const shadowMat = new T.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.2, depthWrite: false });
   const gBun = new T.SphereGeometry(0.16, 8, 8), gCurl = new T.SphereGeometry(0.14, 7, 6), gTuft = new T.SphereGeometry(0.13, 7, 6),
         gBeard = new T.SphereGeometry(HR + 0.018, 14, 6, Math.PI * 0.06, Math.PI * 0.88, Math.PI * 0.6, Math.PI * 0.36),
@@ -3159,18 +3160,18 @@ GS.World = (function () {
     // piernas (giran desde la cadera al caminar): pernera del pantalón, pierna y zapatilla
     const legs = [-1, 1].map(sd => { const L2 = new T.Group(); L2.position.set(sd * 0.1, 0.42, 0); g.add(L2);
       add(L2, gLegP, 'bot', 0, -0.07, 0); add(L2, gLeg, 'skin', 0, -0.23, 0);
-      const shoe = box(L2, 0.14, 0.09, 0.24, 0xffffff, 0, -0.42, 0.04); parts.bot.push(shoe); return L2; });
+      const sole = box(L2, 0.135, 0.035, 0.27, 0xffffff, 0, -0.447, 0.05); parts.bot.push(sole); const up = add(L2, gShoe, 'bot', 0, -0.4, 0.045); up.scale.set(1, 0.78, 1.72); const toe = add(L2, gShoe, 'bot', 0, -0.405, 0.125); toe.scale.set(0.98, 0.62, 0.9); const cuff = add(L2, gLegP, 'bot', 0, -0.345, -0.005); cuff.scale.set(0.82, 0.4, 0.82); return L2; });      /* zapatilla: suela, empeine redondeado, puntera y caña */
     add(g, gHip, 'bot', 0, 0.46, 0); add(g, gTorso, 'top', 0, 0.7, 0);
     // brazos (giran desde el hombro): manga, brazo y mano
     const arms = [-1, 1].map(sd => { const A2 = new T.Group(); A2.position.set(sd * 0.2, 0.82, 0); A2.rotation.z = sd * 0.16; g.add(A2);
       add(A2, gSleeve, 'top', 0, -0.06, 0); add(A2, gArm, 'skin', 0, -0.24, 0); add(A2, gHand, 'skin', 0, -0.39, 0); return A2; });
+    const bag = new T.Group(); bag.visible = false;      /* bolsa de compras negra con el logo de GameShop: cuelga de la mano por las manijas */
+    { arms[1].add(bag); bag.position.set(0.02, -0.6, 0.03); bag.rotation.z = -0.16; box(bag, 0.36, 0.27, 0.07, 0x0a0a0a, 0, -0.135, 0); const lm = bagLogoMat(); plane(bag, 0.35, 0.175, lm, 0, 0, 0.037); plane(bag, 0.35, 0.175, lm, 0, 0, -0.037, Math.PI);
+      [-1, 1].forEach(sd => { const h = new T.Mesh(new T.TorusGeometry(0.095, 0.02, 6, 16, Math.PI), mat(0xf4f4f2)); h.position.set(0, 0.13, sd * 0.03); bag.add(h); }); }
     const head = add(g, gHead, 'skin', 0, HY, 0); [-1, 1].forEach(sd => add(g, gEar, 'skin', sd * (HR - 0.01), HY - 0.03, 0));
     const eyes = [-1, 1].map(sd => { const e = add(g, gEye, 'bot', sd * 0.13, HY - 0.01, HR - 0.045); e.scale.set(1, 1.35, 0.6); return e; });
     const smile = add(g, gSmile, 'bot', 0, HY - 0.13, HR - 0.035); smile.rotation.z = Math.PI; smile.rotation.x = -0.25;
     const sh = new T.Mesh(gShadow, shadowMat); sh.rotation.x = -Math.PI / 2; sh.position.y = 0.02; g.add(sh);
-    const bag = new T.Group(); bag.position.set(0.4, 0.31, 0.14); bag.visible = false; g.add(bag);      /* bolsa de compras negra con el logo de GameShop en las dos caras */
-    { box(bag, 0.42, 0.36, 0.14, 0x0a0a0a, 0, 0, 0); const lm = bagLogoMat(); plane(bag, 0.41, 0.205, lm, 0, 0.0, 0.072); plane(bag, 0.41, 0.205, lm, 0, 0.0, -0.072, Math.PI); bag.rotation.x = -0.22;
-      [-1, 1].forEach(sd => { const h = new T.Mesh(new T.TorusGeometry(0.075, 0.012, 6, 14, Math.PI), mat(0xf4f4f2)); h.position.set(0, 0.18, sd * 0.05); bag.add(h); }); }
     const carry = box(g, 0.36, 0.28, 0.3, 0xc49a6c, 0, 0.5, 0.3); carry.visible = false;
     const mopG = new T.Group(); mopG.visible = false; g.add(mopG); { const st = new T.Mesh(new T.CylinderGeometry(0.03, 0.03, 1.35, 6), mat(0xb5894f)); st.position.set(0, 0.62, 0.42); st.rotation.x = -0.5; mopG.add(st); box(mopG, 0.5, 0.1, 0.22, 0x57b7e6, 0, 0, 0.76); box(mopG, 0.5, 0.05, 0.3, 0xe9f4fb, 0, 0, 0.82); }      // mopa
     const phone = o.phone ? box(g, 0.1, 0.18, 0.03, 0x111111, 0.16, 0.6, 0.2) : null;
@@ -3220,7 +3221,7 @@ GS.World = (function () {
         if (st === 'corto' || st === 'largo' || st === 'rodete' || st === 'cresta') cap();
         if (st === 'cresta' && !capHat) [[0.33, 0.17, 1], [0.38, 0.03, 1.1], [0.37, -0.12, 1.05], [0.3, -0.25, 0.95]].forEach(q => { const m = new T.Mesh(gTuft, hm); m.scale.set(1.5, 0.62 * q[2], 1.25); m.position.set(0, q[0], q[1]); acc.add(m); });
         if (st === 'corto' && !capHat && hat !== 'boina' && hat !== 'ala' && hat !== 'bicornio') tufts();
-        if (st === 'jopo') { cap(); const h2 = mat(cur.hair2 != null ? cur.hair2 : hairC); [-1, 1].forEach(sd => { const m = new T.Mesh(gTuft, h2); m.scale.set(0.3, 1.15, 1.45); m.position.set(sd * (HR - 0.02), 0.08, -0.04); acc.add(m); });      /* corto a los costados (más claro) y peinado hacia arriba adelante */
+        if (st === 'jopo') { cap();      /* corto a los costados (más claro) y peinado hacia arriba adelante */
           { const tp = new T.Mesh(gHead, hm); tp.scale.set(0.93, 0.6, 0.99); tp.position.set(0, 0.17, -0.02); acc.add(tp); const q1 = new T.Mesh(gHead, hm); q1.scale.set(0.72, 0.3, 0.4); q1.position.set(0.03, 0.32, 0.19); q1.rotation.x = -0.35; acc.add(q1); } }
       }
       if (cur.beard) acc.add(new T.Mesh(gBeard, hm));
@@ -3271,7 +3272,7 @@ GS.World = (function () {
       setPos(x, z) { g.position.set(x, 0, z); },
       face(ry) { g.rotation.y = ry; },
       walk(points, cb) { p.path = points.slice(); p.onArrive = cb || null; p.moving = true; },
-      bag(v) { bag.visible = v; },
+      bag(v) { bag.visible = v; p.bagOn = v; },
       /* halo de las visitas especiales: aro de luz en el piso, columna suave y chispas que suben */
       aura(col) { if (p.au) return; const c = new T.Color(col || 0xf5c518), mk = (geo, op) => new T.Mesh(geo, new T.MeshBasicMaterial({ color: c, transparent: true, opacity: op, depthWrite: false, blending: T.AdditiveBlending, side: T.DoubleSide })), A2 = new T.Group(); g.add(A2);
         const ring = mk(new T.RingGeometry(0.46, 0.62, 36), 0.85), disc = mk(new T.CircleGeometry(0.62, 30), 0.3), col2 = mk(new T.CylinderGeometry(0.42, 0.56, 1.7, 24, 1, true), 0.13); ring.rotation.x = disc.rotation.x = -Math.PI / 2; ring.position.y = 0.035; disc.position.y = 0.03; col2.position.y = 0.87; A2.add(ring, disc, col2);
@@ -3354,7 +3355,7 @@ GS.World = (function () {
           g.rotation.y = Math.atan2(dx, dz);
           if (!reduceMotion) {                                                  // pasitos: piernas y brazos alternados
             const sw = Math.sin(p.t * (7 + p.speed * 1.6)) * 0.75;
-            p.legs[0].rotation.x = sw; p.legs[1].rotation.x = -sw; if (!p.holding) { p.arms[0].rotation.x = -sw * 0.8; p.arms[1].rotation.x = sw * 0.8; }
+            p.legs[0].rotation.x = sw; p.legs[1].rotation.x = -sw; if (!p.holding) { p.arms[0].rotation.x = -sw * 0.8; p.arms[1].rotation.x = sw * (p.bagOn ? 0.16 : 0.8); }
             g.position.y = Math.abs(sw) * 0.035;
           }
         }
@@ -3443,7 +3444,7 @@ GS.World = (function () {
     // compañeros (inventados): andan por el local haciendo sus cosas. Lucho, de mohicano y anteojos, y Brian, pegado al celular.
     lucho = makePerson({ shirt: 0xe10600, hair: 0xff5fa2, hairStyle: 'mohicano', skin: GS.SKINS[3], glasses: true, speed: 2.6 }); lucho.setPos(4.0, 0.8);
     brian = makePerson({ shirt: 0xe10600, hair: 0x2d6cdf, skin: SKINS[0], phone: true, speed: 2.3 }); brian.setPos(4.5, -1.2); brian.face(-0.6);
-    boss = makePerson({ shirt: 0x111111, hair: 0xb4b4bd, hairStyle: 'cresta', skin: 0xe0ac7e, scale: 1.18, speed: 3.4 }); boss.setPos(BOSS_HOME[0], BOSS_HOME[1]);
+    boss = makePerson(Object.assign({}, GS.BOSS_LOOK, { scale: 1.18, speed: 3.4 })); boss.setPos(BOSS_HOME[0], BOSS_HOME[1]);
 
     setupInput(); resize(true); updateWalls(); ok = true; return true;
   }
@@ -3458,7 +3459,7 @@ GS.World = (function () {
     if (reset || !old) { cam.dist = cam.gdist = cam.fit; } else { cam.gdist *= cam.fit / old; cam.dist = cam.gdist; }
     clampCam(); applyCam();
   }
-  function update(dt) {
+  function update(dt, camDt) {
     if (disp) { const d = disp, k = d.k, x0 = k.userData.x0; d.t += dt;                                       /* arranca, acelera, se pierde por la calle y al rato vuelve por el otro lado */
       if (d.t < 0) { }
       else if (d.t < 0.45) { k.position.y = Math.abs(Math.sin(d.t * 40)) * 0.025; }
@@ -3471,7 +3472,7 @@ GS.World = (function () {
     if (slideDoors.length) { let near = false; const zD = L.salon.zMax, hw = L.galeria.pasillo + 0.4; for (const q of people) { const gp = q.group.position; if (q.group.visible && q.group.parent && Math.abs(gp.z - zD) < 1.6 && Math.abs(gp.x) < hw) { near = true; break; } }
       doorK += ((near ? 1 : 0) - doorK) * Math.min(1, dt * 7); slideDoors.forEach(d => { d.g.position.x = d.x0 + d.sd * doorK * (L.galeria.pasillo - 0.3); }); }
     if (!ok) return;
-    const k = reduceMotion ? 1 : 1 - Math.pow(0.002, dt);
+    const k = reduceMotion ? 1 : 1 - Math.pow(0.002, camDt != null ? camDt : dt);      /* la cámara se sigue acomodando aunque el juego esté en pausa */
     cam.tx += (cam.gx - cam.tx) * k; cam.tz += (cam.gz - cam.tz) * k; cam.dist += (cam.gdist - cam.dist) * k;
     applyCam(); updatePeople(dt);
     if (pingT > 0) { pingT -= dt; const k = 1 - pingT / 0.7; pingM.scale.setScalar(0.6 + k * 0.9); pingM.material.opacity = 1 - k; if (pingT <= 0) pingM.visible = false; }
@@ -4196,7 +4197,7 @@ GS.Minigames = (function () {
     intro(station, text, onOk) {
       close(); cur = { type: 'intro', cb: {}, keys: null, done: true, timer: null };
       root().hidden = false;
-      root().innerHTML = '<div class="mg-head"><div class="mg-face pic">' + GS.faceSvg({ shirt: 0x111111, hair: 0xb4b4bd, hairStyle: 'cresta', skin: 0xe0ac7e }, 'talk') + '</div><div class="mg-who"><b>El Dueño te explica</b><span>' + esc(station.icon + ' ' + station.name) + '</span></div><div class="mg-station">Inducción</div></div>' +
+      root().innerHTML = '<div class="mg-head"><div class="mg-face pic">' + GS.faceSvg(GS.BOSS_LOOK, 'talk') + '</div><div class="mg-who"><b>El Dueño te explica</b><span>' + esc(station.icon + ' ' + station.name) + '</span></div><div class="mg-station">Inducción</div></div>' +
         '<div class="bubble">' + esc(text) + '</div><button class="btn" id="mgOk">Entendido</button>';
       const go = () => { document.removeEventListener('keydown', key); onOk(); };
       const key = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } };
@@ -4674,14 +4675,15 @@ GS.Game = (function () {
     if (cls === 'zz') { const el = document.createElement('div'); el.className = 'say zz'; el.textContent = text; $('labels').appendChild(el); day.says.push({ el, person, left: (ms || 3000) / 1000, zz: true }); return; }
     const q = day.sayQ; if (amb && q.length >= 2) return;
     const it = { person, text, cls: cls || '', quiet, amb, onDone, brand, age: 0, dur: U.clamp(1.5 + text.length * 0.055, 2.4, 6.5) };
-    if (cls === 'boss') { let i = 0; while (i < q.length && q[i].cls === 'boss') i++; q.splice(i, 0, it); } else q.push(it);
+    if (brand && onDone) { it.pri = true; it.dur = Math.min(it.dur, 3.2); q.unshift(it); day.says.forEach(s2 => { if (!s2.zz) s2.left = Math.min(s2.left, 0.05); }); day.sayGap = 0; }      /* el rival corta lo que se esté diciendo: la atención va con él */
+    else if (cls === 'boss') { let i = 0; while (i < q.length && q[i].cls === 'boss') i++; q.splice(i, 0, it); } else q.push(it);
   }
   function pumpSays(dt) {
     const d = day; for (const q of d.sayQ) q.age += dt;
     if (d.says.some(s => !s.zz) || (d.sayGap -= dt) > 0) return;
     while (d.sayQ.length) {
       const it = d.sayQ.shift();
-      if (!it.person.group.parent || (it.cls !== 'boss' && it.age > (it.amb ? 4.5 : 9))) { if (it.onDone) it.onDone(); continue; }   // ya se fue o quedó viejo
+      if (!it.person.group.parent || (it.cls !== 'boss' && !it.pri && it.age > (it.amb ? 4.5 : 9))) { if (it.onDone) it.onDone(); continue; }   // ya se fue o quedó viejo
       if (it.cls === 'boss') A.play('speaker');
       if (!it.quiet) A.babble(it.text, it.cls === 'boss' ? 150 : it.person.voice || 330);
       const el = document.createElement('div'); el.className = 'say ' + it.cls; el.textContent = it.text; if (it.brand) { el.dataset.b = it.brand.mark + ' ' + it.brand.name; el.style.setProperty('--rc', it.brand.col); } $('labels').appendChild(el);
@@ -4764,7 +4766,7 @@ GS.Game = (function () {
   // Cada personaje mantiene siempre su look (los mismos rasgos de siempre), tanto en el muñeco 3D como en la cara del diálogo
   function lookOf(ar) {
     const k = ar.id.charCodeAt(0) + ar.id.length * 7;
-    return Object.assign({ shirt: ar.shirt, hair: ar.hair, skin: 0xe0ac7e, hairStyle: ar.hairStyle || GS.HAIRSTYLES[k % 4][0], glasses: k % 3 === 0, beard: !ar.hat && k % 4 === 1, lips: ar.lips != null ? ar.lips : k % 2 === 0, lashes: k % 5 < 2, hat: ar.hat }, ar.look || {});   // look = rasgos definidos a mano para que acompañen al nombre
+    return Object.assign({ shirt: ar.shirt, hair: ar.hair, skin: 0xe0ac7e, hairStyle: ar.hairStyle || GS.HAIRSTYLES[k % 4][0], glasses: k % 3 === 0, beard: !ar.hat && k % 4 === 1, lips: ar.lips != null ? ar.lips : k % 2 === 0, lashes: k % 5 < 2, hat: ar.hat }, k % 4 === 2 ? { build: 'robusto', wide: true } : {}, ar.look || {});      /* uno de cada cuatro es de contextura grande, como el Dueño */   // look = rasgos definidos a mano para que acompañen al nombre
   }
   function spawnCustomer() {
     const slot = freeSlot('slotM', L.colaMostrador.length); if (slot < 0) return;
@@ -4938,7 +4940,7 @@ GS.Game = (function () {
       (me ? '<button class="btn ghost" disabled>Estás acá</button>' : '<button class="btn" data-go="' + id + '">Viajar a ' + r.city + '</button>') + '</div>';
   }
   // Consejos del Dueño: una sola vez cada uno, sin frenar el juego
-  let BOSS_LOOK = { shirt: 0x111111, hair: 0xb4b4bd, hairStyle: 'cresta', skin: 0xe0ac7e }; let coachT = 0;
+  const BOSS_LOOK = GS.BOSS_LOOK; let coachT = 0;
   function coach(id) {
     const seen = GS.Store.get('seen') || {}; if (seen['t_' + id] || !GS.TIPS[id]) return; seen['t_' + id] = 1; GS.Store.set('seen', seen);
     $('coachFace').innerHTML = avatarSvg(BOSS_LOOK, 'talk'); $('coachTxt').innerHTML = GS.TIPS[id]; const big = state !== 'day'; $('coach').classList.toggle('big', big); $('coach').hidden = false; clearTimeout(coachT); if (!big) coachT = setTimeout(() => { $('coach').hidden = true; }, 16000);   /* fuera de la jornada: tarjeta grande que se cierra con el botón */
@@ -5212,25 +5214,33 @@ GS.Game = (function () {
     return U.shuffle(out).sort((a, b) => (a.once ? 1 : 0) - (b.once ? 1 : 0)).slice(0, n < 4 ? 1 : 2);
   }
   function spawnVisit(S) {
-    const slot = freeSlot('slotM', L.colaMostrador.length);
-    if (slot < 0 || day.closing) { if (!day.closing) { day.queue.push({ kind: 'v', v: S, t: 4 }); day.queue.sort((a, b) => a.t - b.t); } return; }
+    const rvV = /^rival_/.test(S.id) ? RV(brId()) : null, slot = rvV ? -1 : freeSlot('slotM', L.colaMostrador.length);
+    if ((!rvV && slot < 0) || day.closing) { if (!day.closing) { day.queue.push({ kind: 'v', v: S, t: 4 }); day.queue.sort((a, b) => a.t - b.t); } return; }
     const look = warm(Object.assign({ skin: 0xe0ac7e }, S.look)), person = W.makePerson(look), dx = L.puerta.x;
     person.voice = 240 + S.id.length * 30; person.setPos(dx, L.galeria.zMax + 2.4); person.aura(S.id.indexOf('rival_') === 0 && RV(brId()) ? RV(brId()).col : 0xf5c518);
-    const cu = { id: ++uid, arche: { id: S.id, name: S.name, tag: S.tag, face: '📖', bye: '', lost: '' }, look, story: S, st: 'entering', pat: 1, person, slotM: slot, slotC: -1, label: makeLabel('📖') };
-    day.customers.push(cu); toCounter(cu, [[dx, L.salon.zMax + 0.2]]); setTimeout(() => A.play('bell'), 900);
+    const cu = { id: ++uid, arche: { id: S.id, name: S.name, tag: S.tag, face: '📖', bye: '', lost: '' }, look, story: S, rv: rvV, st: 'entering', pat: 1, person, slotM: slot, slotC: -1, label: makeLabel(rvV ? rvV.mark : '📖') };
+    day.customers.push(cu);
+    if (rvV) { const d = day, at = [dx + 1.15, 1.8];      /* el rival no hace la cola: se planta en el medio del salón, mira a la pantalla y la cámara va con él */
+      person.walk([[dx, L.salon.zMax + 0.2], [dx, at[1]], at], () => { if (day !== d) return; cu.st = 'waitM'; person.face(GS.CONFIG.camera.rot * Math.PI / 180); A.play('speaker');
+        toast('<b>' + rvV.mark + ' ' + rvV.owner + ' entró al local</b>' + rvV.name + ' · quiere hablar con vos.', 'rival', 4200, false, rvV.col);
+        if (!MG.isOpen() && !paused) W.zoomAt(at[0], at[1], 0.4);
+        sayAt(person, rvV.hi, 0, 'riv', false, false, () => { if (day !== d || cu.st !== 'waitM' || state !== 'day') return; if (!MG.isOpen() && !paused) openStory(cu); }, rvV); }); }
+    else toCounter(cu, [[dx, L.salon.zMax + 0.2]]); setTimeout(() => A.play('bell'), 900);
   }
   function openStory(cu) {
     const S = cu.story, h = histAll(), st = h[S.id] || { step: 0, flags: {}, notes: [] }, real = S.steps[st.step], gf = GS.Store.get('gflags') || {};
     const waiting = !!(real.need && !gf[real.need] && !(real.waitMax && (st.waits || 0) >= real.waitMax)), step = waiting ? real.wait : real, alt = step.alt && st.flags[step.alt.flag] ? step.alt : null;
     const text = alt ? alt.t : step.t, mood = alt ? alt.m : step.m; let chosen = false;
-    A.unlock(); A.play('click'); cu.st = 'inM'; paused = true; yoGo('most'); focusFor('mostrador'); A.babble(text, cu.person.voice);
+    A.unlock(); A.play('click'); cu.st = 'inM'; paused = true; if (cu.rv) W.zoomAt(cu.person.group.position.x + 2.0, cu.person.group.position.z + 2.6, 0.36); else { yoGo('most'); focusFor('mostrador'); } A.babble(text, cu.person.voice);
     const faceBox = m => '<div class="st-face">' + avatarSvg(cu.look, m) + '</div>';
-    modal('<div class="story"><div class="st-head">' + faceBox(mood) + '<div><b>' + S.name + '</b><span>' + S.tag + (st.step ? ' · vez ' + (st.step + 1) : '') + '</span></div></div>' +
+    const stCls = cu.rv ? '<div class="story rv" style="--rc:' + cu.rv.col + '"><em class="st-brand">' + cu.rv.mark + ' ' + cu.rv.name + '</em>' : '<div class="story">';
+    modal(stCls + '<div class="st-head">' + faceBox(mood) + '<div><b>' + S.name + '</b><span>' + S.tag + (st.step ? ' · vez ' + (st.step + 1) : '') + '</span></div></div>' +
       '<div class="bubble">' + text + '</div>' + step.opts.map((o, i) => '<button class="btn ghost st-opt" data-o="' + i + '">' + o.b + '</button>').join('') + '</div>', () => {
-      paused = false; W.focus(null);
+      paused = false; W.focus(null); $('modal').classList.remove('low');
       if (!chosen) { cu.st = 'waitM'; return; }
       cu.slotM = -1; leave(cu, false);
     });
+    $('modal').classList.toggle('low', !!cu.rv);
     $('sheet').querySelectorAll('[data-o]').forEach(b => b.addEventListener('click', () => {
       const o = step.opts[Number(b.dataset.o)], fx = o.fx || {}, chips = []; chosen = true;
       if (fx.rep) { addRep(fx.rep); chips.push((fx.rep > 0 ? '▲' : '▼') + ' Reputación'); }
@@ -5244,7 +5254,7 @@ GS.Game = (function () {
       if (waiting) st.waits = (st.waits || 0) + 1;                 // todavía falta algo que depende de otra historia: vuelve más adelante
       else if (!o.stay) { st.step++; st.notes.push(o.note || step.note); if (step.end || st.step >= S.steps.length) st.done = true; }
       h[S.id] = st; GS.Store.set('hist', h); GS.track('visita', { quien: S.id, paso: st.step }); A.play(fx.rep < 0 || fx.fondo < 0 ? 'error' : 'ok'); A.babble(o.r, cu.person.voice);
-      $('sheet').innerHTML = '<div class="story"><div class="st-head">' + faceBox(o.rm || 'normal') + '<div><b>' + S.name + '</b><span>' + (st.done ? 'Historia cerrada · quedó en tu libreta' : 'Dijo que vuelve · quedó en tu libreta') + '</span></div></div>' +
+      $('sheet').innerHTML = stCls + '<div class="st-head">' + faceBox(o.rm || 'normal') + '<div><b>' + S.name + '</b><span>' + (st.done ? 'Historia cerrada · quedó en tu libreta' : 'Dijo que vuelve · quedó en tu libreta') + '</span></div></div>' +
         '<div class="bubble">' + o.r + '</div><div class="st-chips">' + chips.map(c => '<span>' + c + '</span>').join('') + '</div><button class="btn" data-close>Seguir</button></div>';
       $('sheet').querySelector('[data-close]').addEventListener('click', closeModal);
     }));
@@ -5302,7 +5312,7 @@ GS.Game = (function () {
     if (!cu.story && cu.st !== 'entering') dropDirt();
     cu.st = 'leaving'; cu.slotM = -1; cu.slotC = -1; cu.label.hidden = true; cu.person.bag(!!withBag);
     const dx = L.puerta.x, d = day;
-    cu.person.walk([[dx, -1.2], [dx, L.salon.zMax + 0.2], [dx + U.rnd(-2, 2), L.galeria.zMax + 3]], () => {
+    cu.person.walk((cu.rv ? [[dx, 1.8]] : [[dx, -1.2]]).concat([[dx, L.salon.zMax + 0.2], [dx + U.rnd(-2, 2), L.galeria.zMax + 3]]), () => {
       cu.person.remove(); cu.label.remove(); const i = d.customers.indexOf(cu); if (i >= 0) d.customers.splice(i, 1);
     });
   }
@@ -5326,7 +5336,7 @@ GS.Game = (function () {
   function pendingJobs() {
     const jobs = [];
     for (const c of day.customers) {
-      if (c.st === 'waitM' && c.story) jobs.push({ key: 'c' + c.id, type: 'historia', ref: c, pat: 1, icon: '💬', title: 'Mostrador · ' + c.arche.name, sub: c.arche.tag });
+      if (c.st === 'waitM' && c.story) jobs.push({ key: 'c' + c.id, type: 'historia', ref: c, pat: 1, icon: c.rv ? c.rv.mark : '💬', title: c.rv ? c.arche.name : 'Mostrador · ' + c.arche.name, sub: c.rv ? 'Quiere hablar con vos' : c.arche.tag });
       else if (c.st === 'waitM') jobs.push({ key: 'c' + c.id, type: 'mostrador', ref: c, pat: c.pat, icon: '🛎', title: 'Mostrador', sub: 'Atender a ' + c.arche.name });
       else if (c.st === 'waitC') jobs.push({ key: 'c' + c.id + 'k', type: 'caja', ref: c, pat: c.pat, icon: '💵', title: 'Caja', sub: 'Cobrar a ' + c.arche.name });
     }
@@ -5845,7 +5855,7 @@ GS.Game = (function () {
     if (hat !== 'casco') {
       if (st === 'corto' || st === 'rodete' || st === 'largo') v += cap;
       if (st === 'corto') v += '<path d="M24 38 Q22 14 46 13 Q42 6 56 7 Q78 9 77 38 Q72 24 60 27 Q52 20 44 27 Q32 24 24 38z" fill="' + h + '"/><g fill="none" stroke="' + sh(nh, 0.3) + '" stroke-width="1.600" stroke-linecap="round" opacity=".7"><path d="M36 19 Q44 13 52 16"/><path d="M52 14 Q62 12 68 20"/></g>';
-      if (st === 'jopo') { const h2 = hex(a.hair2 != null ? a.hair2 : nh); v += '<path d="M21.500 45 A28.500 30 0 0 1 78.500 45 L76 45 Q74 33 50 32 Q26 33 24 45z" fill="' + h2 + '"/><path d="M24.500 36 Q23 16 45 12 Q61 7 73 17 Q79 26 75.500 36 Q72 28 62 28 Q52 24 40 28 Q30 29 24.500 36z" fill="' + h + '"/><g fill="none" stroke="' + sh(nh, 0.38) + '" stroke-width="1.700" stroke-linecap="round" opacity=".8"><path d="M34 22 Q42 13 52 14"/><path d="M48 19 Q58 12 68 19"/><path d="M40 26 Q48 19 58 22"/></g>'; }
+      if (st === 'jopo') { const h2 = hex(a.hair2 != null ? a.hair2 : nh); v += '<path d="M17.500 48 Q15 8 50 7 Q85 8 82.500 48 L77.500 48 Q76 31 62 29 Q50 25 38 29 Q24 31 22.500 48z" fill="' + h + '"/><path d="M17.500 48 Q17 40 19 33 L24.500 35 Q22.800 41 22.500 48z" fill="' + h2 + '"/><path d="M82.500 48 Q83 40 81 33 L75.500 35 Q77.200 41 77.500 48z" fill="' + h2 + '"/><g fill="none" stroke="' + sh(nh, 0.38) + '" stroke-width="1.700" stroke-linecap="round" opacity=".8"><path d="M32 22 Q42 12 53 13"/><path d="M48 19 Q59 11 70 19"/><path d="M38 27 Q48 19 60 22"/></g>'; }      /* una sola pieza que cubre toda la cabeza; costados cortos y más claros */
       if (st === 'cresta') v += cap + '<path d="M36 31 Q50 12 64 31 Q50 25 36 31z" fill="' + h + '"/>';
       if (st === 'rodete') v += '<circle cx="50" cy="15" r="10.500" fill="' + h + '"/>';
       if (st === 'rulos') { v += cap; for (let i = 0; i < 9; i++) { const an = Math.PI * (1.02 + i * 0.12); v += '<circle cx="' + (50 + Math.cos(an) * 29).toFixed(1) + '" cy="' + (48 + Math.sin(an) * 29).toFixed(1) + '" r="10" fill="' + h + '"/>'; } v += '<circle cx="39" cy="26" r="8.500" fill="' + h + '"/><circle cx="61" cy="26" r="8.500" fill="' + h + '"/><circle cx="50" cy="22" r="8.500" fill="' + h + '"/>'; }
@@ -6151,7 +6161,7 @@ GS.Game = (function () {
       const w = W.makePerson(warm({ shirt: U.pick([0x6b7a8f, 0x3d7a4a, 0xd9a514, 0x4a6fb5, 0xb86fa8, 0x21a0a0, 0x555560]), hair: U.pick(GS.HAIRS), hairStyle: hs, glasses: Math.random() < 0.3, beard: Math.random() < 0.2, speed: U.rnd(1.3, 2) }));
       w.setPos(-7.5 * dir, z); w.walk([[7.5 * dir, z]], () => { w.remove(); walkers--; });
     }
-    W.update(paused ? 0 : dt); W.render();
+    W.update(paused ? 0 : dt, dt); W.render();
   }
 
   function boot() {
@@ -6216,7 +6226,7 @@ GS.Game = (function () {
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 
-  return { debugScene: (kind, id) => { epicCtx = { id }; showEpic([{ art: kind, k: 'Sucursal ' + RG(id).name, t: '¡Inauguración en ' + RG(id).city + '!', d: '' }], null, '', () => {}, true); }, groundTap, goHome, startDay, startArcade, startFinal, showCard, drawCard, debugIntr: () => spawnIntr(), openStation, openJob, pendingJobs, endDay, debugTask: id => spawnTask(ST(id)), state: () => state, day: () => day };
+  return { debugVisit: id => spawnVisit(GS.STORIES.find(x => x.id === id)), debugScene: (kind, id) => { epicCtx = { id }; showEpic([{ art: kind, k: 'Sucursal ' + RG(id).name, t: '¡Inauguración en ' + RG(id).city + '!', d: '' }], null, '', () => {}, true); }, groundTap, goHome, startDay, startArcade, startFinal, showCard, drawCard, debugIntr: () => spawnIntr(), openStation, openJob, pendingJobs, endDay, debugTask: id => spawnTask(ST(id)), state: () => state, day: () => day };
 })();
 
 </script>

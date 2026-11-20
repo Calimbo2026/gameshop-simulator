@@ -903,7 +903,7 @@ GS.World = (function () {
         gTorso = new T.CylinderGeometry(0.15, 0.2, 0.36, 12), gHip = new T.CylinderGeometry(0.2, 0.19, 0.16, 12), gLegP = new T.CylinderGeometry(0.085, 0.08, 0.14, 8),
         gLeg = new T.CylinderGeometry(0.06, 0.055, 0.2, 8), gArm = new T.CylinderGeometry(0.052, 0.046, 0.26, 8), gSleeve = new T.CylinderGeometry(0.075, 0.07, 0.13, 8),
         gHand = new T.SphereGeometry(0.062, 8, 6), gSmile = new T.TorusGeometry(0.075, 0.016, 6, 10, Math.PI),
-        gShadow = new T.CircleGeometry(0.36, 16);
+        gShadow = new T.CircleGeometry(0.36, 16), gShoe = new T.SphereGeometry(0.07, 10, 8);
   const shadowMat = new T.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.2, depthWrite: false });
   const gBun = new T.SphereGeometry(0.16, 8, 8), gCurl = new T.SphereGeometry(0.14, 7, 6), gTuft = new T.SphereGeometry(0.13, 7, 6),
         gBeard = new T.SphereGeometry(HR + 0.018, 14, 6, Math.PI * 0.06, Math.PI * 0.88, Math.PI * 0.6, Math.PI * 0.36),
@@ -921,18 +921,18 @@ GS.World = (function () {
     // piernas (giran desde la cadera al caminar): pernera del pantalón, pierna y zapatilla
     const legs = [-1, 1].map(sd => { const L2 = new T.Group(); L2.position.set(sd * 0.1, 0.42, 0); g.add(L2);
       add(L2, gLegP, 'bot', 0, -0.07, 0); add(L2, gLeg, 'skin', 0, -0.23, 0);
-      const shoe = box(L2, 0.14, 0.09, 0.24, 0xffffff, 0, -0.42, 0.04); parts.bot.push(shoe); return L2; });
+      const sole = box(L2, 0.135, 0.035, 0.27, 0xffffff, 0, -0.447, 0.05); parts.bot.push(sole); const up = add(L2, gShoe, 'bot', 0, -0.4, 0.045); up.scale.set(1, 0.78, 1.72); const toe = add(L2, gShoe, 'bot', 0, -0.405, 0.125); toe.scale.set(0.98, 0.62, 0.9); const cuff = add(L2, gLegP, 'bot', 0, -0.345, -0.005); cuff.scale.set(0.82, 0.4, 0.82); return L2; });      /* zapatilla: suela, empeine redondeado, puntera y caña */
     add(g, gHip, 'bot', 0, 0.46, 0); add(g, gTorso, 'top', 0, 0.7, 0);
     // brazos (giran desde el hombro): manga, brazo y mano
     const arms = [-1, 1].map(sd => { const A2 = new T.Group(); A2.position.set(sd * 0.2, 0.82, 0); A2.rotation.z = sd * 0.16; g.add(A2);
       add(A2, gSleeve, 'top', 0, -0.06, 0); add(A2, gArm, 'skin', 0, -0.24, 0); add(A2, gHand, 'skin', 0, -0.39, 0); return A2; });
+    const bag = new T.Group(); bag.visible = false;      /* bolsa de compras negra con el logo de GameShop: cuelga de la mano por las manijas */
+    { arms[1].add(bag); bag.position.set(0.02, -0.6, 0.03); bag.rotation.z = -0.16; box(bag, 0.36, 0.27, 0.07, 0x0a0a0a, 0, -0.135, 0); const lm = bagLogoMat(); plane(bag, 0.35, 0.175, lm, 0, 0, 0.037); plane(bag, 0.35, 0.175, lm, 0, 0, -0.037, Math.PI);
+      [-1, 1].forEach(sd => { const h = new T.Mesh(new T.TorusGeometry(0.095, 0.02, 6, 16, Math.PI), mat(0xf4f4f2)); h.position.set(0, 0.13, sd * 0.03); bag.add(h); }); }
     const head = add(g, gHead, 'skin', 0, HY, 0); [-1, 1].forEach(sd => add(g, gEar, 'skin', sd * (HR - 0.01), HY - 0.03, 0));
     const eyes = [-1, 1].map(sd => { const e = add(g, gEye, 'bot', sd * 0.13, HY - 0.01, HR - 0.045); e.scale.set(1, 1.35, 0.6); return e; });
     const smile = add(g, gSmile, 'bot', 0, HY - 0.13, HR - 0.035); smile.rotation.z = Math.PI; smile.rotation.x = -0.25;
     const sh = new T.Mesh(gShadow, shadowMat); sh.rotation.x = -Math.PI / 2; sh.position.y = 0.02; g.add(sh);
-    const bag = new T.Group(); bag.position.set(0.4, 0.31, 0.14); bag.visible = false; g.add(bag);      /* bolsa de compras negra con el logo de GameShop en las dos caras */
-    { box(bag, 0.42, 0.36, 0.14, 0x0a0a0a, 0, 0, 0); const lm = bagLogoMat(); plane(bag, 0.41, 0.205, lm, 0, 0.0, 0.072); plane(bag, 0.41, 0.205, lm, 0, 0.0, -0.072, Math.PI); bag.rotation.x = -0.22;
-      [-1, 1].forEach(sd => { const h = new T.Mesh(new T.TorusGeometry(0.075, 0.012, 6, 14, Math.PI), mat(0xf4f4f2)); h.position.set(0, 0.18, sd * 0.05); bag.add(h); }); }
     const carry = box(g, 0.36, 0.28, 0.3, 0xc49a6c, 0, 0.5, 0.3); carry.visible = false;
     const mopG = new T.Group(); mopG.visible = false; g.add(mopG); { const st = new T.Mesh(new T.CylinderGeometry(0.03, 0.03, 1.35, 6), mat(0xb5894f)); st.position.set(0, 0.62, 0.42); st.rotation.x = -0.5; mopG.add(st); box(mopG, 0.5, 0.1, 0.22, 0x57b7e6, 0, 0, 0.76); box(mopG, 0.5, 0.05, 0.3, 0xe9f4fb, 0, 0, 0.82); }      // mopa
     const phone = o.phone ? box(g, 0.1, 0.18, 0.03, 0x111111, 0.16, 0.6, 0.2) : null;
@@ -982,7 +982,7 @@ GS.World = (function () {
         if (st === 'corto' || st === 'largo' || st === 'rodete' || st === 'cresta') cap();
         if (st === 'cresta' && !capHat) [[0.33, 0.17, 1], [0.38, 0.03, 1.1], [0.37, -0.12, 1.05], [0.3, -0.25, 0.95]].forEach(q => { const m = new T.Mesh(gTuft, hm); m.scale.set(1.5, 0.62 * q[2], 1.25); m.position.set(0, q[0], q[1]); acc.add(m); });
         if (st === 'corto' && !capHat && hat !== 'boina' && hat !== 'ala' && hat !== 'bicornio') tufts();
-        if (st === 'jopo') { cap(); const h2 = mat(cur.hair2 != null ? cur.hair2 : hairC); [-1, 1].forEach(sd => { const m = new T.Mesh(gTuft, h2); m.scale.set(0.3, 1.15, 1.45); m.position.set(sd * (HR - 0.02), 0.08, -0.04); acc.add(m); });      /* corto a los costados (más claro) y peinado hacia arriba adelante */
+        if (st === 'jopo') { cap();      /* corto a los costados (más claro) y peinado hacia arriba adelante */
           { const tp = new T.Mesh(gHead, hm); tp.scale.set(0.93, 0.6, 0.99); tp.position.set(0, 0.17, -0.02); acc.add(tp); const q1 = new T.Mesh(gHead, hm); q1.scale.set(0.72, 0.3, 0.4); q1.position.set(0.03, 0.32, 0.19); q1.rotation.x = -0.35; acc.add(q1); } }
       }
       if (cur.beard) acc.add(new T.Mesh(gBeard, hm));
@@ -1033,7 +1033,7 @@ GS.World = (function () {
       setPos(x, z) { g.position.set(x, 0, z); },
       face(ry) { g.rotation.y = ry; },
       walk(points, cb) { p.path = points.slice(); p.onArrive = cb || null; p.moving = true; },
-      bag(v) { bag.visible = v; },
+      bag(v) { bag.visible = v; p.bagOn = v; },
       /* halo de las visitas especiales: aro de luz en el piso, columna suave y chispas que suben */
       aura(col) { if (p.au) return; const c = new T.Color(col || 0xf5c518), mk = (geo, op) => new T.Mesh(geo, new T.MeshBasicMaterial({ color: c, transparent: true, opacity: op, depthWrite: false, blending: T.AdditiveBlending, side: T.DoubleSide })), A2 = new T.Group(); g.add(A2);
         const ring = mk(new T.RingGeometry(0.46, 0.62, 36), 0.85), disc = mk(new T.CircleGeometry(0.62, 30), 0.3), col2 = mk(new T.CylinderGeometry(0.42, 0.56, 1.7, 24, 1, true), 0.13); ring.rotation.x = disc.rotation.x = -Math.PI / 2; ring.position.y = 0.035; disc.position.y = 0.03; col2.position.y = 0.87; A2.add(ring, disc, col2);
@@ -1116,7 +1116,7 @@ GS.World = (function () {
           g.rotation.y = Math.atan2(dx, dz);
           if (!reduceMotion) {                                                  // pasitos: piernas y brazos alternados
             const sw = Math.sin(p.t * (7 + p.speed * 1.6)) * 0.75;
-            p.legs[0].rotation.x = sw; p.legs[1].rotation.x = -sw; if (!p.holding) { p.arms[0].rotation.x = -sw * 0.8; p.arms[1].rotation.x = sw * 0.8; }
+            p.legs[0].rotation.x = sw; p.legs[1].rotation.x = -sw; if (!p.holding) { p.arms[0].rotation.x = -sw * 0.8; p.arms[1].rotation.x = sw * (p.bagOn ? 0.16 : 0.8); }
             g.position.y = Math.abs(sw) * 0.035;
           }
         }
@@ -1205,7 +1205,7 @@ GS.World = (function () {
     // compañeros (inventados): andan por el local haciendo sus cosas. Lucho, de mohicano y anteojos, y Brian, pegado al celular.
     lucho = makePerson({ shirt: 0xe10600, hair: 0xff5fa2, hairStyle: 'mohicano', skin: GS.SKINS[3], glasses: true, speed: 2.6 }); lucho.setPos(4.0, 0.8);
     brian = makePerson({ shirt: 0xe10600, hair: 0x2d6cdf, skin: SKINS[0], phone: true, speed: 2.3 }); brian.setPos(4.5, -1.2); brian.face(-0.6);
-    boss = makePerson({ shirt: 0x111111, hair: 0xb4b4bd, hairStyle: 'cresta', skin: 0xe0ac7e, scale: 1.18, speed: 3.4 }); boss.setPos(BOSS_HOME[0], BOSS_HOME[1]);
+    boss = makePerson(Object.assign({}, GS.BOSS_LOOK, { scale: 1.18, speed: 3.4 })); boss.setPos(BOSS_HOME[0], BOSS_HOME[1]);
 
     setupInput(); resize(true); updateWalls(); ok = true; return true;
   }
@@ -1220,7 +1220,7 @@ GS.World = (function () {
     if (reset || !old) { cam.dist = cam.gdist = cam.fit; } else { cam.gdist *= cam.fit / old; cam.dist = cam.gdist; }
     clampCam(); applyCam();
   }
-  function update(dt) {
+  function update(dt, camDt) {
     if (disp) { const d = disp, k = d.k, x0 = k.userData.x0; d.t += dt;                                       /* arranca, acelera, se pierde por la calle y al rato vuelve por el otro lado */
       if (d.t < 0) { }
       else if (d.t < 0.45) { k.position.y = Math.abs(Math.sin(d.t * 40)) * 0.025; }
@@ -1233,7 +1233,7 @@ GS.World = (function () {
     if (slideDoors.length) { let near = false; const zD = L.salon.zMax, hw = L.galeria.pasillo + 0.4; for (const q of people) { const gp = q.group.position; if (q.group.visible && q.group.parent && Math.abs(gp.z - zD) < 1.6 && Math.abs(gp.x) < hw) { near = true; break; } }
       doorK += ((near ? 1 : 0) - doorK) * Math.min(1, dt * 7); slideDoors.forEach(d => { d.g.position.x = d.x0 + d.sd * doorK * (L.galeria.pasillo - 0.3); }); }
     if (!ok) return;
-    const k = reduceMotion ? 1 : 1 - Math.pow(0.002, dt);
+    const k = reduceMotion ? 1 : 1 - Math.pow(0.002, camDt != null ? camDt : dt);      /* la cámara se sigue acomodando aunque el juego esté en pausa */
     cam.tx += (cam.gx - cam.tx) * k; cam.tz += (cam.gz - cam.tz) * k; cam.dist += (cam.gdist - cam.dist) * k;
     applyCam(); updatePeople(dt);
     if (pingT > 0) { pingT -= dt; const k = 1 - pingT / 0.7; pingM.scale.setScalar(0.6 + k * 0.9); pingM.material.opacity = 1 - k; if (pingT <= 0) pingM.visible = false; }

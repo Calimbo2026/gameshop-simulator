@@ -306,3 +306,10 @@ Tres juegos en `src/arcade.js`, que se ganan al terminar las jornadas 3, 8 y 14 
 - La compra sale en una bolsa negra con el logo de GameShop.
 - Boina sin pelo que la atraviese; Capitán Tormenta 3D nuevo (bicornio curvo, casaca, charreteras, banda, garfio y loro).
 - Propuestas para el Dueño en `GS.BOSS_OPTS` (todavía no reemplazan al actual). Opciones de look nuevas: `build: 'robusto'`, `hairStyle: 'jopo'`, `hair2`, `stubble`, `wide`, `top: 'remera' | 'chomba' | 'campera'`.
+
+## v0.72.0
+- El Dueño pasa al diseño elegido (`GS.BOSS_LOOK`): contextura grande, pelo corto canoso, afeitado, remera negra.
+- Uno de cada cuatro clientes tiene contextura grande (`build: 'robusto'` en `lookOf`).
+- Zapatillas redondeadas para todos; la bolsa cuelga de la mano por las manijas, con el logo centrado.
+- Los rivales no hacen la cola: se plantan en el medio del salón, la cámara va con ellos, cortan lo que se esté diciendo y hablan con el globo de su marca (`cu.rv`, `#modal.low`). `GS.Game.debugVisit(id)` para probar.
+- La cámara se sigue acomodando con el juego en pausa.

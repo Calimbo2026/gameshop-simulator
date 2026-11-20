@@ -218,14 +218,15 @@ GS.Game = (function () {
     if (cls === 'zz') { const el = document.createElement('div'); el.className = 'say zz'; el.textContent = text; $('labels').appendChild(el); day.says.push({ el, person, left: (ms || 3000) / 1000, zz: true }); return; }
     const q = day.sayQ; if (amb && q.length >= 2) return;
     const it = { person, text, cls: cls || '', quiet, amb, onDone, brand, age: 0, dur: U.clamp(1.5 + text.length * 0.055, 2.4, 6.5) };
-    if (cls === 'boss') { let i = 0; while (i < q.length && q[i].cls === 'boss') i++; q.splice(i, 0, it); } else q.push(it);
+    if (brand && onDone) { it.pri = true; it.dur = Math.min(it.dur, 3.2); q.unshift(it); day.says.forEach(s2 => { if (!s2.zz) s2.left = Math.min(s2.left, 0.05); }); day.sayGap = 0; }      /* el rival corta lo que se esté diciendo: la atención va con él */
+    else if (cls === 'boss') { let i = 0; while (i < q.length && q[i].cls === 'boss') i++; q.splice(i, 0, it); } else q.push(it);
   }
   function pumpSays(dt) {
     const d = day; for (const q of d.sayQ) q.age += dt;
     if (d.says.some(s => !s.zz) || (d.sayGap -= dt) > 0) return;
     while (d.sayQ.length) {
       const it = d.sayQ.shift();
-      if (!it.person.group.parent || (it.cls !== 'boss' && it.age > (it.amb ? 4.5 : 9))) { if (it.onDone) it.onDone(); continue; }   // ya se fue o quedó viejo
+      if (!it.person.group.parent || (it.cls !== 'boss' && !it.pri && it.age > (it.amb ? 4.5 : 9))) { if (it.onDone) it.onDone(); continue; }   // ya se fue o quedó viejo
       if (it.cls === 'boss') A.play('speaker');
       if (!it.quiet) A.babble(it.text, it.cls === 'boss' ? 150 : it.person.voice || 330);
       const el = document.createElement('div'); el.className = 'say ' + it.cls; el.textContent = it.text; if (it.brand) { el.dataset.b = it.brand.mark + ' ' + it.brand.name; el.style.setProperty('--rc', it.brand.col); } $('labels').appendChild(el);
@@ -308,7 +309,7 @@ GS.Game = (function () {
   // Cada personaje mantiene siempre su look (los mismos rasgos de siempre), tanto en el muñeco 3D como en la cara del diálogo
   function lookOf(ar) {
     const k = ar.id.charCodeAt(0) + ar.id.length * 7;
-    return Object.assign({ shirt: ar.shirt, hair: ar.hair, skin: 0xe0ac7e, hairStyle: ar.hairStyle || GS.HAIRSTYLES[k % 4][0], glasses: k % 3 === 0, beard: !ar.hat && k % 4 === 1, lips: ar.lips != null ? ar.lips : k % 2 === 0, lashes: k % 5 < 2, hat: ar.hat }, ar.look || {});   // look = rasgos definidos a mano para que acompañen al nombre
+    return Object.assign({ shirt: ar.shirt, hair: ar.hair, skin: 0xe0ac7e, hairStyle: ar.hairStyle || GS.HAIRSTYLES[k % 4][0], glasses: k % 3 === 0, beard: !ar.hat && k % 4 === 1, lips: ar.lips != null ? ar.lips : k % 2 === 0, lashes: k % 5 < 2, hat: ar.hat }, k % 4 === 2 ? { build: 'robusto', wide: true } : {}, ar.look || {});      /* uno de cada cuatro es de contextura grande, como el Dueño */   // look = rasgos definidos a mano para que acompañen al nombre
   }
   function spawnCustomer() {
     const slot = freeSlot('slotM', L.colaMostrador.length); if (slot < 0) return;
@@ -482,7 +483,7 @@ GS.Game = (function () {
       (me ? '<button class="btn ghost" disabled>Estás acá</button>' : '<button class="btn" data-go="' + id + '">Viajar a ' + r.city + '</button>') + '</div>';
   }
   // Consejos del Dueño: una sola vez cada uno, sin frenar el juego
-  let BOSS_LOOK = { shirt: 0x111111, hair: 0xb4b4bd, hairStyle: 'cresta', skin: 0xe0ac7e }; let coachT = 0;
+  const BOSS_LOOK = GS.BOSS_LOOK; let coachT = 0;
   function coach(id) {
     const seen = GS.Store.get('seen') || {}; if (seen['t_' + id] || !GS.TIPS[id]) return; seen['t_' + id] = 1; GS.Store.set('seen', seen);
     $('coachFace').innerHTML = avatarSvg(BOSS_LOOK, 'talk'); $('coachTxt').innerHTML = GS.TIPS[id]; const big = state !== 'day'; $('coach').classList.toggle('big', big); $('coach').hidden = false; clearTimeout(coachT); if (!big) coachT = setTimeout(() => { $('coach').hidden = true; }, 16000);   /* fuera de la jornada: tarjeta grande que se cierra con el botón */
@@ -756,25 +757,33 @@ GS.Game = (function () {
     return U.shuffle(out).sort((a, b) => (a.once ? 1 : 0) - (b.once ? 1 : 0)).slice(0, n < 4 ? 1 : 2);
   }
   function spawnVisit(S) {
-    const slot = freeSlot('slotM', L.colaMostrador.length);
-    if (slot < 0 || day.closing) { if (!day.closing) { day.queue.push({ kind: 'v', v: S, t: 4 }); day.queue.sort((a, b) => a.t - b.t); } return; }
+    const rvV = /^rival_/.test(S.id) ? RV(brId()) : null, slot = rvV ? -1 : freeSlot('slotM', L.colaMostrador.length);
+    if ((!rvV && slot < 0) || day.closing) { if (!day.closing) { day.queue.push({ kind: 'v', v: S, t: 4 }); day.queue.sort((a, b) => a.t - b.t); } return; }
     const look = warm(Object.assign({ skin: 0xe0ac7e }, S.look)), person = W.makePerson(look), dx = L.puerta.x;
     person.voice = 240 + S.id.length * 30; person.setPos(dx, L.galeria.zMax + 2.4); person.aura(S.id.indexOf('rival_') === 0 && RV(brId()) ? RV(brId()).col : 0xf5c518);
-    const cu = { id: ++uid, arche: { id: S.id, name: S.name, tag: S.tag, face: '📖', bye: '', lost: '' }, look, story: S, st: 'entering', pat: 1, person, slotM: slot, slotC: -1, label: makeLabel('📖') };
-    day.customers.push(cu); toCounter(cu, [[dx, L.salon.zMax + 0.2]]); setTimeout(() => A.play('bell'), 900);
+    const cu = { id: ++uid, arche: { id: S.id, name: S.name, tag: S.tag, face: '📖', bye: '', lost: '' }, look, story: S, rv: rvV, st: 'entering', pat: 1, person, slotM: slot, slotC: -1, label: makeLabel(rvV ? rvV.mark : '📖') };
+    day.customers.push(cu);
+    if (rvV) { const d = day, at = [dx + 1.15, 1.8];      /* el rival no hace la cola: se planta en el medio del salón, mira a la pantalla y la cámara va con él */
+      person.walk([[dx, L.salon.zMax + 0.2], [dx, at[1]], at], () => { if (day !== d) return; cu.st = 'waitM'; person.face(GS.CONFIG.camera.rot * Math.PI / 180); A.play('speaker');
+        toast('<b>' + rvV.mark + ' ' + rvV.owner + ' entró al local</b>' + rvV.name + ' · quiere hablar con vos.', 'rival', 4200, false, rvV.col);
+        if (!MG.isOpen() && !paused) W.zoomAt(at[0], at[1], 0.4);
+        sayAt(person, rvV.hi, 0, 'riv', false, false, () => { if (day !== d || cu.st !== 'waitM' || state !== 'day') return; if (!MG.isOpen() && !paused) openStory(cu); }, rvV); }); }
+    else toCounter(cu, [[dx, L.salon.zMax + 0.2]]); setTimeout(() => A.play('bell'), 900);
   }
   function openStory(cu) {
     const S = cu.story, h = histAll(), st = h[S.id] || { step: 0, flags: {}, notes: [] }, real = S.steps[st.step], gf = GS.Store.get('gflags') || {};
     const waiting = !!(real.need && !gf[real.need] && !(real.waitMax && (st.waits || 0) >= real.waitMax)), step = waiting ? real.wait : real, alt = step.alt && st.flags[step.alt.flag] ? step.alt : null;
     const text = alt ? alt.t : step.t, mood = alt ? alt.m : step.m; let chosen = false;
-    A.unlock(); A.play('click'); cu.st = 'inM'; paused = true; yoGo('most'); focusFor('mostrador'); A.babble(text, cu.person.voice);
+    A.unlock(); A.play('click'); cu.st = 'inM'; paused = true; if (cu.rv) W.zoomAt(cu.person.group.position.x + 2.0, cu.person.group.position.z + 2.6, 0.36); else { yoGo('most'); focusFor('mostrador'); } A.babble(text, cu.person.voice);
     const faceBox = m => '<div class="st-face">' + avatarSvg(cu.look, m) + '</div>';
-    modal('<div class="story"><div class="st-head">' + faceBox(mood) + '<div><b>' + S.name + '</b><span>' + S.tag + (st.step ? ' · vez ' + (st.step + 1) : '') + '</span></div></div>' +
+    const stCls = cu.rv ? '<div class="story rv" style="--rc:' + cu.rv.col + '"><em class="st-brand">' + cu.rv.mark + ' ' + cu.rv.name + '</em>' : '<div class="story">';
+    modal(stCls + '<div class="st-head">' + faceBox(mood) + '<div><b>' + S.name + '</b><span>' + S.tag + (st.step ? ' · vez ' + (st.step + 1) : '') + '</span></div></div>' +
       '<div class="bubble">' + text + '</div>' + step.opts.map((o, i) => '<button class="btn ghost st-opt" data-o="' + i + '">' + o.b + '</button>').join('') + '</div>', () => {
-      paused = false; W.focus(null);
+      paused = false; W.focus(null); $('modal').classList.remove('low');
       if (!chosen) { cu.st = 'waitM'; return; }
       cu.slotM = -1; leave(cu, false);
     });
+    $('modal').classList.toggle('low', !!cu.rv);
     $('sheet').querySelectorAll('[data-o]').forEach(b => b.addEventListener('click', () => {
       const o = step.opts[Number(b.dataset.o)], fx = o.fx || {}, chips = []; chosen = true;
       if (fx.rep) { addRep(fx.rep); chips.push((fx.rep > 0 ? '▲' : '▼') + ' Reputación'); }
@@ -788,7 +797,7 @@ GS.Game = (function () {
       if (waiting) st.waits = (st.waits || 0) + 1;                 // todavía falta algo que depende de otra historia: vuelve más adelante
       else if (!o.stay) { st.step++; st.notes.push(o.note || step.note); if (step.end || st.step >= S.steps.length) st.done = true; }
       h[S.id] = st; GS.Store.set('hist', h); GS.track('visita', { quien: S.id, paso: st.step }); A.play(fx.rep < 0 || fx.fondo < 0 ? 'error' : 'ok'); A.babble(o.r, cu.person.voice);
-      $('sheet').innerHTML = '<div class="story"><div class="st-head">' + faceBox(o.rm || 'normal') + '<div><b>' + S.name + '</b><span>' + (st.done ? 'Historia cerrada · quedó en tu libreta' : 'Dijo que vuelve · quedó en tu libreta') + '</span></div></div>' +
+      $('sheet').innerHTML = stCls + '<div class="st-head">' + faceBox(o.rm || 'normal') + '<div><b>' + S.name + '</b><span>' + (st.done ? 'Historia cerrada · quedó en tu libreta' : 'Dijo que vuelve · quedó en tu libreta') + '</span></div></div>' +
         '<div class="bubble">' + o.r + '</div><div class="st-chips">' + chips.map(c => '<span>' + c + '</span>').join('') + '</div><button class="btn" data-close>Seguir</button></div>';
       $('sheet').querySelector('[data-close]').addEventListener('click', closeModal);
     }));
@@ -846,7 +855,7 @@ GS.Game = (function () {
     if (!cu.story && cu.st !== 'entering') dropDirt();
     cu.st = 'leaving'; cu.slotM = -1; cu.slotC = -1; cu.label.hidden = true; cu.person.bag(!!withBag);
     const dx = L.puerta.x, d = day;
-    cu.person.walk([[dx, -1.2], [dx, L.salon.zMax + 0.2], [dx + U.rnd(-2, 2), L.galeria.zMax + 3]], () => {
+    cu.person.walk((cu.rv ? [[dx, 1.8]] : [[dx, -1.2]]).concat([[dx, L.salon.zMax + 0.2], [dx + U.rnd(-2, 2), L.galeria.zMax + 3]]), () => {
       cu.person.remove(); cu.label.remove(); const i = d.customers.indexOf(cu); if (i >= 0) d.customers.splice(i, 1);
     });
   }
@@ -870,7 +879,7 @@ GS.Game = (function () {
   function pendingJobs() {
     const jobs = [];
     for (const c of day.customers) {
-      if (c.st === 'waitM' && c.story) jobs.push({ key: 'c' + c.id, type: 'historia', ref: c, pat: 1, icon: '💬', title: 'Mostrador · ' + c.arche.name, sub: c.arche.tag });
+      if (c.st === 'waitM' && c.story) jobs.push({ key: 'c' + c.id, type: 'historia', ref: c, pat: 1, icon: c.rv ? c.rv.mark : '💬', title: c.rv ? c.arche.name : 'Mostrador · ' + c.arche.name, sub: c.rv ? 'Quiere hablar con vos' : c.arche.tag });
       else if (c.st === 'waitM') jobs.push({ key: 'c' + c.id, type: 'mostrador', ref: c, pat: c.pat, icon: '🛎', title: 'Mostrador', sub: 'Atender a ' + c.arche.name });
       else if (c.st === 'waitC') jobs.push({ key: 'c' + c.id + 'k', type: 'caja', ref: c, pat: c.pat, icon: '💵', title: 'Caja', sub: 'Cobrar a ' + c.arche.name });
     }
@@ -1389,7 +1398,7 @@ GS.Game = (function () {
     if (hat !== 'casco') {
       if (st === 'corto' || st === 'rodete' || st === 'largo') v += cap;
       if (st === 'corto') v += '<path d="M24 38 Q22 14 46 13 Q42 6 56 7 Q78 9 77 38 Q72 24 60 27 Q52 20 44 27 Q32 24 24 38z" fill="' + h + '"/><g fill="none" stroke="' + sh(nh, 0.3) + '" stroke-width="1.600" stroke-linecap="round" opacity=".7"><path d="M36 19 Q44 13 52 16"/><path d="M52 14 Q62 12 68 20"/></g>';
-      if (st === 'jopo') { const h2 = hex(a.hair2 != null ? a.hair2 : nh); v += '<path d="M21.500 45 A28.500 30 0 0 1 78.500 45 L76 45 Q74 33 50 32 Q26 33 24 45z" fill="' + h2 + '"/><path d="M24.500 36 Q23 16 45 12 Q61 7 73 17 Q79 26 75.500 36 Q72 28 62 28 Q52 24 40 28 Q30 29 24.500 36z" fill="' + h + '"/><g fill="none" stroke="' + sh(nh, 0.38) + '" stroke-width="1.700" stroke-linecap="round" opacity=".8"><path d="M34 22 Q42 13 52 14"/><path d="M48 19 Q58 12 68 19"/><path d="M40 26 Q48 19 58 22"/></g>'; }
+      if (st === 'jopo') { const h2 = hex(a.hair2 != null ? a.hair2 : nh); v += '<path d="M17.500 48 Q15 8 50 7 Q85 8 82.500 48 L77.500 48 Q76 31 62 29 Q50 25 38 29 Q24 31 22.500 48z" fill="' + h + '"/><path d="M17.500 48 Q17 40 19 33 L24.500 35 Q22.800 41 22.500 48z" fill="' + h2 + '"/><path d="M82.500 48 Q83 40 81 33 L75.500 35 Q77.200 41 77.500 48z" fill="' + h2 + '"/><g fill="none" stroke="' + sh(nh, 0.38) + '" stroke-width="1.700" stroke-linecap="round" opacity=".8"><path d="M32 22 Q42 12 53 13"/><path d="M48 19 Q59 11 70 19"/><path d="M38 27 Q48 19 60 22"/></g>'; }      /* una sola pieza que cubre toda la cabeza; costados cortos y más claros */
       if (st === 'cresta') v += cap + '<path d="M36 31 Q50 12 64 31 Q50 25 36 31z" fill="' + h + '"/>';
       if (st === 'rodete') v += '<circle cx="50" cy="15" r="10.500" fill="' + h + '"/>';
       if (st === 'rulos') { v += cap; for (let i = 0; i < 9; i++) { const an = Math.PI * (1.02 + i * 0.12); v += '<circle cx="' + (50 + Math.cos(an) * 29).toFixed(1) + '" cy="' + (48 + Math.sin(an) * 29).toFixed(1) + '" r="10" fill="' + h + '"/>'; } v += '<circle cx="39" cy="26" r="8.500" fill="' + h + '"/><circle cx="61" cy="26" r="8.500" fill="' + h + '"/><circle cx="50" cy="22" r="8.500" fill="' + h + '"/>'; }
@@ -1695,7 +1704,7 @@ GS.Game = (function () {
       const w = W.makePerson(warm({ shirt: U.pick([0x6b7a8f, 0x3d7a4a, 0xd9a514, 0x4a6fb5, 0xb86fa8, 0x21a0a0, 0x555560]), hair: U.pick(GS.HAIRS), hairStyle: hs, glasses: Math.random() < 0.3, beard: Math.random() < 0.2, speed: U.rnd(1.3, 2) }));
       w.setPos(-7.5 * dir, z); w.walk([[7.5 * dir, z]], () => { w.remove(); walkers--; });
     }
-    W.update(paused ? 0 : dt); W.render();
+    W.update(paused ? 0 : dt, dt); W.render();
   }
 
   function boot() {
@@ -1760,5 +1769,5 @@ GS.Game = (function () {
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 
-  return { debugScene: (kind, id) => { epicCtx = { id }; showEpic([{ art: kind, k: 'Sucursal ' + RG(id).name, t: '¡Inauguración en ' + RG(id).city + '!', d: '' }], null, '', () => {}, true); }, groundTap, goHome, startDay, startArcade, startFinal, showCard, drawCard, debugIntr: () => spawnIntr(), openStation, openJob, pendingJobs, endDay, debugTask: id => spawnTask(ST(id)), state: () => state, day: () => day };
+  return { debugVisit: id => spawnVisit(GS.STORIES.find(x => x.id === id)), debugScene: (kind, id) => { epicCtx = { id }; showEpic([{ art: kind, k: 'Sucursal ' + RG(id).name, t: '¡Inauguración en ' + RG(id).city + '!', d: '' }], null, '', () => {}, true); }, groundTap, goHome, startDay, startArcade, startFinal, showCard, drawCard, debugIntr: () => spawnIntr(), openStation, openJob, pendingJobs, endDay, debugTask: id => spawnTask(ST(id)), state: () => state, day: () => day };
 })();
