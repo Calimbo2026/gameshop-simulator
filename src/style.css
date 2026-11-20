@@ -757,3 +757,11 @@ a.mbtn { text-decoration: none; box-sizing: border-box; } .mbtn.gold { margin-to
 .ep-brand i { font-style: normal; margin-right: 6px; } .ep-brand small { display: block; font: 600 10.5px/1.2 var(--body); letter-spacing: .8px; color: var(--rc, #e10600); filter: brightness(1.5); margin-top: 3px; }
 .suc small.rv { border-left: 3px solid var(--rc, #e10600); padding-left: 7px; }
 @media (max-width: 440px) { .du-s { min-width: 54px; } .du-s b { font-size: 18px; } .duel { gap: 6px; padding: 5px 7px; } }
+
+/* v0.71: apretón de manos y futuro compartido con el rival */
+.ep-faces.vs.duo.pals > b.shake { font-family: inherit; font-size: clamp(40px, 12vw, 58px) !important; line-height: 1; margin: 0 -20px; z-index: 2; background: #fff; border-radius: 50%; width: 1.6em; height: 1.6em; display: grid; place-items: center; box-shadow: 0 10px 26px rgba(0,0,0,.45); border: 4px solid #f5c518; flex: none; animation: shakeH 1.5s ease-in-out infinite; }
+@keyframes shakeH { 0%, 100% { transform: translateY(0) rotate(0); } 25% { transform: translateY(-5px) rotate(-6deg); } 75% { transform: translateY(4px) rotate(6deg); } }
+.ep-faces.vs.duo.pals.fut { flex-wrap: wrap; align-content: center; gap: 12px 14px; } .ep-faces.vs.duo.pals.fut figure { width: min(34%, 150px); }
+.ep-ally { flex: 0 0 100%; display: flex; gap: 8px; justify-content: center; align-items: center; margin: 8px 0 0; flex-wrap: wrap; } .ep-faces.vs.duo > b { font-size: 46px !important; line-height: 1; }
+.ep-faces.vs.duo.pals .ep-ally b { font-family: var(--display); font-size: 17px !important; letter-spacing: .04em; background: #0a0a0a; color: #fff; text-shadow: none; padding: 7px 12px; border-radius: 10px; box-shadow: 0 6px 16px rgba(0,0,0,.4); } .ep-ally i { font-style: normal; font-weight: 900; font-size: 22px; color: #fff; }
+@media (prefers-reduced-motion: reduce) { .ep-faces.vs.duo.pals > b.shake { animation: none; } }

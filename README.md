@@ -298,3 +298,11 @@ Tres juegos en `src/arcade.js`, que se ganan al terminar las jornadas 3, 8 y 14 
 - **Medallas** desde la jornada 4 (`day.goal`): plata al 85% del promedio propio, oro al 106%. Oro: +20% de monedas, racha, y 2% de ventaja en el duelo por cada una (hasta 5).
 - **Rivales** (`GS.REGIONS[].rival` + historia `rival_<region>`): marca, color, lema, burlas, arco. Buenos Aires tiene rival propio (Turbo Gamer). Cada uno con su sombrero (`hat: boina | ala | ushanka | gorra`, `shades`, `patch`) en 3D y en retrato. Llaman, pasan por la vereda con globo de su marca y tienen escenas propias.
 - **Aprendizaje**: todas las tareas se conocen en las jornadas 1 a 3 (`GS.UNLOCKS`), con menos clientes y más paciencia.
+
+## v0.71.0
+- Arco de los rivales en tres escenas: derrota, apretón de manos con su historia, y "un tiempo después" con el negocio de cada uno trabajando junto a GameShop (`arcT`, `arc`, `futT`, `fut` en `GS.REGIONS[].rival`).
+- Halo de luz para las visitas especiales (clientes con historia, rivales, Papá Noel): `person.aura(color)`.
+- Papá Noel con barba, panza y bolsa de regalos; al comprar guarda el regalo en la bolsa (`person.gift()`).
+- La compra sale en una bolsa negra con el logo de GameShop.
+- Boina sin pelo que la atraviese; Capitán Tormenta 3D nuevo (bicornio curvo, casaca, charreteras, banda, garfio y loro).
+- Propuestas para el Dueño en `GS.BOSS_OPTS` (todavía no reemplazan al actual). Opciones de look nuevas: `build: 'robusto'`, `hairStyle: 'jopo'`, `hair2`, `stubble`, `wide`, `top: 'remera' | 'chomba' | 'campera'`.

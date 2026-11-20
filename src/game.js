@@ -194,7 +194,7 @@ GS.Game = (function () {
   }
   /* el rival pasa por la vereda, se para frente a la puerta, tira su frase (con globo de su marca) y sigue de largo */
   function rivalPass() {
-    const rv = RV(brId()), d = day; if (!rv || !d) return; const z = L.galeria.zMax + 1.7, p = W.makePerson(Object.assign({}, warm(rv.look), { scale: 1.12, speed: 2.6 })); p.setPos(-9.5, z); d.extras.push(p);
+    const rv = RV(brId()), d = day; if (!rv || !d) return; const z = L.galeria.zMax + 1.7, p = W.makePerson(Object.assign({}, warm(rv.look), { scale: 1.12, speed: 2.6 })); p.setPos(-9.5, z); p.aura(rv.col); d.extras.push(p);
     p.walk([[L.puerta.x + 1.7, z]], () => { if (day !== d) return; p.face(Math.PI); sayAt(p, U.pick(rv.taunts), 0, 'riv', false, false, () => { if (day === d) p.walk([[10.5, z]], () => {}); }, rv); });
   }
   /* día de competencia: cada cliente que se va y cada tarea vencida es una queja; a la tercera, el día se pierde */
@@ -318,7 +318,7 @@ GS.Game = (function () {
     const k = arche.id.charCodeAt(0) + arche.id.length * 7;   // cada personaje mantiene su look
     const look = warm(lookOf(arche)), person = W.makePerson(look);
     const dx = L.puerta.x; person.setPos(dx + U.rnd(-0.5, 0.5), day.spawned === 0 ? (day.n === 1 ? -0.6 : L.salon.zMax + 1) : L.galeria.zMax + 2.4);
-    person.voice = 230 + (k % 7) * 45;
+    person.voice = 230 + (k % 7) * 45; if (arche.id === 'santa') person.aura(0xffe9a8);
     const cu = { id: ++uid, arche, look, request: regHi() + req.t, product, st: 'entering', pat: 1, person, slotM: slot, slotC: -1, label: makeLabel('❓') };
     day.customers.push(cu); day.spawned++;
     const sp = day.spawned > 1 && Math.random() < 0.45 ? freeSpot() : null;
@@ -482,7 +482,7 @@ GS.Game = (function () {
       (me ? '<button class="btn ghost" disabled>Estás acá</button>' : '<button class="btn" data-go="' + id + '">Viajar a ' + r.city + '</button>') + '</div>';
   }
   // Consejos del Dueño: una sola vez cada uno, sin frenar el juego
-  const BOSS_LOOK = { shirt: 0x111111, hair: 0xb4b4bd, hairStyle: 'cresta', skin: 0xe0ac7e }; let coachT = 0;
+  let BOSS_LOOK = { shirt: 0x111111, hair: 0xb4b4bd, hairStyle: 'cresta', skin: 0xe0ac7e }; let coachT = 0;
   function coach(id) {
     const seen = GS.Store.get('seen') || {}; if (seen['t_' + id] || !GS.TIPS[id]) return; seen['t_' + id] = 1; GS.Store.set('seen', seen);
     $('coachFace').innerHTML = avatarSvg(BOSS_LOOK, 'talk'); $('coachTxt').innerHTML = GS.TIPS[id]; const big = state !== 'day'; $('coach').classList.toggle('big', big); $('coach').hidden = false; clearTimeout(coachT); if (!big) coachT = setTimeout(() => { $('coach').hidden = true; }, 16000);   /* fuera de la jornada: tarjeta grande que se cierra con el botón */
@@ -592,12 +592,13 @@ GS.Game = (function () {
     const conf = () => '<div class="conf">' + Array.from({ length: 34 }, (_, i) => '<i style="left:' + (i * 3 + Math.random() * 3) + '%;background:' + ['#f5c518', '#fff', '#74acdf', '#e10600', '#3bb54a'][i % 5] + ';animation-duration:' + (2.4 + Math.random() * 2.6) + 's;animation-delay:-' + (Math.random() * 4) + 's"></i>').join('') + '</div>';
     GS.Map3D.close();
     if (kind === 'mapa' || kind === 'sur' || kind === 'islas' || kind === 'pais') { el.innerHTML = '<canvas id="epicCv"></canvas>' + (kind === 'sur' ? '' : conf()); const st = mapState(true), mv = kind === 'sur' ? { open: false, can: true } : (kind === 'islas' || kind === 'pais') ? { open: true, stage: 3, flag: true } : { hidden: true }; st.malvinas = mv; GS.Map3D.open($('epicCv'), st, null, kind === 'sur' || kind === 'islas' ? 'malvinas' : null, kind === 'islas'); return; }
-    if (kind === 'vs' || kind === 'rival' || kind === 'rivalsad' || kind === 'rivalarc' || kind === 'duelrules') {      /* escenas con el rival de la región: su cara, su marca y su color */
+    if (kind === 'vs' || kind === 'rival' || kind === 'rivalsad' || kind === 'rivalarc' || kind === 'rivalfut' || kind === 'duelrules') {      /* escenas con el rival de la región: su cara, su marca y su color */
       const rv = RV(epicCtx.id) || RV('pampeana'), lk = warm(rv.look), brand = '<b class="ep-brand" style="--rc:' + rv.col + '"><i>' + rv.mark + '</i>' + rv.name + '<small>' + rv.motto + '</small></b>', bg = 'background:radial-gradient(120% 90% at 50% 28%, ' + rv.col + ', #0b0b0d)';
       if (kind === 'vs') return void (el.innerHTML = '<div class="ep-faces vs duo" style="--rc:' + rv.col + '">' + fig(me, 'angry', 'GameShop') + '<b>VS</b>' + fig(lk, 'angry', rv.owner) + '</div>' + brand);
       if (kind === 'rival') return void (el.innerHTML = '<div class="ep-faces big rvl" style="' + bg + '">' + fig(lk, 'happy') + '</div>' + brand);
       if (kind === 'rivalsad') return void (el.innerHTML = '<div class="ep-faces big rvl" style="' + bg + '">' + fig(lk, rv.villain ? 'angry' : 'sad') + '</div>' + brand + conf());
-      if (kind === 'rivalarc') return void (el.innerHTML = (rv.villain ? '<div class="ep-faces big rvl" style="background:linear-gradient(160deg,#26262c,#0b0b0d)">' + fig(lk, 'angry') + '<i class="ep-emo">⛵</i></div>' : '<div class="ep-faces vs duo pals" style="--rc:' + rv.col + '">' + fig(me, 'happy', 'Vos') + '<b>🤝</b>' + fig(lk, 'happy', rv.owner) + '</div>') + conf());
+      if (kind === 'rivalarc') return void (el.innerHTML = (rv.villain ? '<div class="ep-faces big rvl" style="background:linear-gradient(160deg,#26262c,#0b0b0d)">' + fig(lk, 'angry') + '<i class="ep-emo">⛵</i></div>' : '<div class="ep-faces vs duo pals" style="--rc:' + rv.col + '">' + fig(me, 'happy', 'Vos') + '<b class="shake">🤝</b>' + fig(lk, 'happy', rv.owner) + '</div>'));
+      if (kind === 'rivalfut') return void (el.innerHTML = '<div class="ep-faces vs duo pals fut" style="--rc:' + rv.col + '">' + fig(me, 'happy') + fig(lk, 'happy') + '<p class="ep-ally"><b>GameShop</b><i>+</i><b style="background:' + rv.col + '">' + rv.mark + ' ' + rv.name + '</b></p></div>' + conf());
       return void (el.innerHTML = '<div class="ep-res">' + [['🏁', 'Más puntos que el rival', 'El marcador de arriba compara tu puntaje con el suyo.'], ['⏱️', 'Más clientes, menos paciencia', 'Atendé rápido y sin errores: las rachas valen mucho.'], ['😠', 'Tres quejas y se pierde', 'Cada cliente que se va y cada tarea vencida es una queja.'], ['🔁', 'Si perdés, hay revancha', 'Es gratis, y cada vez un poco más fácil.']].map(q => '<div><i>' + q[0] + '</i><span><b>' + q[1] + '</b>' + q[2] + '</span></div>').join('') + '</div>');
     }
     if (kind === 'yo') return void (el.innerHTML = '<div class="ep-faces big">' + fig(me, 'happy') + '</div>');
@@ -694,7 +695,7 @@ GS.Game = (function () {
   }
   function showDuelEnd(res, after) {
     const id = brId(), rv = res.rv; epicCtx = { id };
-    if (res.win) return showEpic([{ art: 'rivalsad', k: 'Día de competencia · ' + rv.name, t: '¡Le ganaste a ' + rv.owner + '!', d: '"' + rv.win + '"' }, { art: 'rivalarc', k: rv.villain ? 'Y el Capitán...' : 'Lo que nadie sabía', t: rv.villain ? 'Se fue como vino' : rv.owner + ' no era el malo', d: rv.arc }], null,
+    if (res.win) return showEpic([{ art: 'rivalsad', k: 'Día de competencia · ' + rv.name, t: '¡Le ganaste a ' + rv.owner + '!', d: '"' + rv.win + '"' }, { art: 'rivalarc', k: rv.villain ? 'Y el Capitán...' : rv.owner + ' · ' + rv.name, t: rv.villain ? 'Se fue como vino' : rv.arcT, d: rv.arc }].concat(rv.villain ? [] : [{ art: 'rivalfut', k: 'Un tiempo después', t: rv.futT, d: rv.fut }]), null,
       '<button class="btn" id="duOk">Seguir</button>', () => $('duOk').addEventListener('click', () => { A.play('click'); closeEpic(); after(); }));
     showEpic([{ art: 'rival', k: 'Día de competencia · ' + rv.name, t: res.why === 'quejas' ? 'Tres quejas, y se fueron enfrente' : 'Hoy ganó ' + rv.owner, d: '"' + rv.gloat + '" ' + (res.why === 'quejas' ? '' : 'Fueron ' + Math.round(res.him - res.me).toLocaleString('es-AR') + ' puntos de diferencia. ') + 'La revancha es gratis.' }], null,
       '<button class="btn" id="duRe">🔁 Jugar la revancha</button><button class="btn ghost" id="duLater">Más tarde</button>', () => { $('duRe').addEventListener('click', () => { closeEpic(); startDay(false, true); }); $('duLater').addEventListener('click', () => { A.play('click'); closeEpic(); after(); }); }, true);
@@ -758,7 +759,7 @@ GS.Game = (function () {
     const slot = freeSlot('slotM', L.colaMostrador.length);
     if (slot < 0 || day.closing) { if (!day.closing) { day.queue.push({ kind: 'v', v: S, t: 4 }); day.queue.sort((a, b) => a.t - b.t); } return; }
     const look = warm(Object.assign({ skin: 0xe0ac7e }, S.look)), person = W.makePerson(look), dx = L.puerta.x;
-    person.voice = 240 + S.id.length * 30; person.setPos(dx, L.galeria.zMax + 2.4);
+    person.voice = 240 + S.id.length * 30; person.setPos(dx, L.galeria.zMax + 2.4); person.aura(S.id.indexOf('rival_') === 0 && RV(brId()) ? RV(brId()).col : 0xf5c518);
     const cu = { id: ++uid, arche: { id: S.id, name: S.name, tag: S.tag, face: '📖', bye: '', lost: '' }, look, story: S, st: 'entering', pat: 1, person, slotM: slot, slotC: -1, label: makeLabel('📖') };
     day.customers.push(cu); toCounter(cu, [[dx, L.salon.zMax + 0.2]]); setTimeout(() => A.play('bell'), 900);
   }
@@ -961,7 +962,7 @@ GS.Game = (function () {
           day.served++; day.wv.served = (day.wv.served || 0) + 1;
           if (info.total) day.sales += info.total;
           if (info.cajaError) { day.score = Math.max(0, day.score - 100); addRep(-0.25); day.vueltoMal = 1; day.coinLoss = (day.coinLoss || 0) + 40; fx('−🪙 vuelto de más', 'bad'); }
-          if (ref.arche.id === 'santa') day.santaSold = 1;
+          if (ref.arche.id === 'santa') { day.santaSold = 1; ref.person.gift(); }
           if (ok) { addScore(150, ref.pat); addRep(info.caught ? 0.05 : 0.04); }
           if (info.caught) {                 // comprobante trucho bien rechazado: se va renegando y sin el producto
             day.caught = (day.caught || 0) + 1; day.wv.caught = 1; sayAt(ref.person, U.pick(LN.caught), 3600); day.beat = 1.5;
@@ -971,7 +972,7 @@ GS.Game = (function () {
           // remate en el salón: la cámara se queda un momento y el cliente dice su frase al irse
           sayAt(ref.person, ref.arche.bye, 3600); day.beat = 1.5;
           const d = day; setTimeout(() => { if (day === d && !MG.isOpen()) W.focus(null); }, 2300);
-          leave(ref, !!info.total);
+          { const sn = ref.arche.id === 'santa', d1 = day; if (sn) setTimeout(() => { if (day === d1) leave(ref, false); }, 1300); else leave(ref, !!info.total); }
         } else { day.tasksDone++; day.wv.done[job.type] = 1; day.okBy = day.okBy || {}; day.okBy[job.type] = (day.okBy[job.type] || 0) + 1; addScore(job.type === 'ml' ? 130 * (1 + 0.2 * (upNow().flota || 0)) : 130, ref.pat); if (job.type === 'ml' && upNow().flota) addRep(0.015 * upNow().flota); if (job.type === 'ml' && upNow().flota && W.dispatch() && (A.play(['', 'moto', 'van', 'truck'][Math.min(3, upNow().flota)]), 1)) toast('<b>' + ['', '🛵 Sale la moto', '🚐 Sale la camioneta', '🚚 Sale el camión'][Math.min(3, upNow().flota)] + '</b>El pedido ya va en camino.', '', 2600); addRep(job.type === 'whatsapp' ? 0.05 : 0.03); if (job.type === 'vidriera') { GS.Store.set('vid', info.quality || 0); addRep((info.quality - 0.5) * 0.12); } removeTask(ref); }
       }
     };
@@ -1371,24 +1372,32 @@ GS.Game = (function () {
       '<linearGradient id="h' + id + '" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="' + sh(nh, 0.22) + '"/><stop offset=".5" stop-color="' + hex(nh) + '"/><stop offset="1" stop-color="' + sh(nh, -0.3) + '"/></linearGradient>' +
       '<linearGradient id="t' + id + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + sh(nt, 0.16) + '"/><stop offset="1" stop-color="' + sh(nt, -0.22) + '"/></linearGradient></defs>';
     if (st === 'largo' && hat !== 'casco') v += FT + '<path d="M17.500 48 A32.500 32.500 0 0 1 82.500 48 V88 Q82.500 98 73 98 H27 Q17.500 98 17.500 88z" fill="' + h + '"/></g>';
-    v += '<rect x="42" y="56" width="16" height="30" rx="8" fill="' + sh(ns, -0.14) + '"/><g transform="translate(0 -8)"><path d="M6 134 Q6 94 32 87 L42 83 H58 L68 87 Q94 94 94 134z" fill="url(#t' + id + ')"/><path d="M29 89 Q50 75 71 89 Q64 101 50 101 Q36 101 29 89z" fill="' + sh(nt, -0.3) + '"/>';                                 // buzo y capucha
-    v += '<rect x="42" y="68" width="16" height="25" rx="8" fill="' + sh(ns, -0.14) + '"/><path d="M38 92 Q50 101 62 92 Q56 104 50 104 Q44 104 38 92z" fill="' + sh(nt, 0.1) + '"/>';
-    v += '<g stroke="' + sh(nt, 0.55) + '" stroke-width="1.700" stroke-linecap="round"><path d="M45.500 100 Q44 108 44.500 115"/><path d="M54.500 100 Q56 108 55.500 115"/></g></g>';                                                              // cordones
+    const W2 = a.wide ? 3 : 0, body = '<path d="M6 134 Q6 94 32 87 L42 83 H58 L68 87 Q94 94 94 134z" fill="url(#t' + id + ')"/>', neck = '<rect x="' + (42 - W2) + '" y="68" width="' + (16 + W2 * 2) + '" height="25" rx="8" fill="' + sh(ns, -0.14) + '"/>';
+    v += '<rect x="' + (42 - W2) + '" y="56" width="' + (16 + W2 * 2) + '" height="30" rx="8" fill="' + sh(ns, -0.14) + '"/><g transform="translate(0 -8)">';
+    if (a.top === 'remera') v += body + neck + '<path d="M36 88 Q50 100 64 88 L61 85 Q50 95 39 85z" fill="' + sh(nt, 0.2) + '"/><path d="M10 112 Q20 108 26 114M90 112 Q80 108 74 114" fill="none" stroke="' + sh(nt, 0.28) + '" stroke-width="1.600" stroke-linecap="round"/>';
+    else if (a.top === 'chomba') v += body + neck + '<path d="M44 92 H56 V112 H44z" fill="' + sh(nt, 0.14) + '"/><path d="M34 86 L50 98 L44 106 L30 92z" fill="#e10600"/><path d="M66 86 L50 98 L56 106 L70 92z" fill="#e10600"/><circle cx="50" cy="103" r="1.500" fill="#fff"/><circle cx="50" cy="109" r="1.500" fill="#fff"/><rect x="62" y="104" width="13" height="5" rx="1.500" fill="#e10600"/>';
+    else if (a.top === 'campera') v += body + '<path d="M38 86 H62 L60 134 H40z" fill="#e10600"/>' + neck + '<path d="M38 88 Q50 99 62 88 L60 86 Q50 95 40 86z" fill="#b00500"/><path d="M30 86 L41 84 L44 134 H34z" fill="' + sh(nt, 0.2) + '"/><path d="M70 86 L59 84 L56 134 H66z" fill="' + sh(nt, 0.2) + '"/><path d="M43.500 90 V134M56.500 90 V134" stroke="#8a8a94" stroke-width="1.300"/>';
+    else v += body + '<path d="M29 89 Q50 75 71 89 Q64 101 50 101 Q36 101 29 89z" fill="' + sh(nt, -0.3) + '"/>' + neck + '<path d="M38 92 Q50 101 62 92 Q56 104 50 104 Q44 104 38 92z" fill="' + sh(nt, 0.1) + '"/><g stroke="' + sh(nt, 0.55) + '" stroke-width="1.700" stroke-linecap="round"><path d="M45.500 100 Q44 108 44.500 115"/><path d="M54.500 100 Q56 108 55.500 115"/></g>';
+    if (a.santa) v += '<path d="M42 96 H58 V134 H42z" fill="#fff"/>';
+    v += '</g>';
     if (a.uniform) v += '<path d="M39 76 H61 V88 Q50 93 39 88z" fill="' + sh(nt, -0.35) + '"/><path d="M39 78 H61" stroke="#f5c518" stroke-width="1.800"/><g fill="#f5c518"><ellipse cx="15" cy="84" rx="11" ry="4.600"/><ellipse cx="85" cy="84" rx="11" ry="4.600"/><circle cx="50" cy="96" r="2"/><circle cx="50" cy="104" r="2"/><circle cx="50" cy="112" r="2"/><circle cx="50" cy="120" r="2"/></g>' +
       '<g stroke="#c9a013" stroke-width="1.300"><path d="M7 86v5M11 87v5M15 88v5M19 87v5M23 86v5M77 86v5M81 87v5M85 88v5M89 87v5M93 86v5"/></g><path d="M22 92 L70 124 H58 L16 96z" fill="#d81e2c"/>' +
       '<g><rect x="27" y="97" width="4" height="6" fill="#2d6cdf"/><circle cx="29" cy="105.500" r="2.800" fill="#f5c518"/><rect x="34" y="97" width="4" height="6" fill="#3bb54a"/><circle cx="36" cy="105.500" r="2.800" fill="#d7d7de"/></g>';      // uniforme de gala: cuello alto, charreteras, banda, botones y medallas
     v += '<ellipse cx="22.500" cy="47" rx="5.800" ry="7.400" fill="' + sk + '"/><ellipse cx="77.500" cy="47" rx="5.800" ry="7.400" fill="' + sk + '"/><ellipse cx="23" cy="47.500" rx="2.600" ry="4" fill="' + sh(ns, -0.16) + '"/><ellipse cx="77" cy="47.500" rx="2.600" ry="4" fill="' + sh(ns, -0.16) + '"/>';
-    v += '<ellipse cx="50" cy="44" rx="26" ry="27" fill="url(#s' + id + ')"/>' + FT;
+    v += (a.wide ? '<path d="M22 40 Q22 17 50 17 Q78 17 78 40 Q79 60 68 68 Q59 73 50 73 Q41 73 32 68 Q21 60 22 40z" fill="url(#s' + id + ')"/>' : '<ellipse cx="50" cy="44" rx="26" ry="27" fill="url(#s' + id + ')"/>') + FT;
     v += '<circle cx="31" cy="59" r="5.500" fill="#ff6b6b" opacity=".2"/><circle cx="69" cy="59" r="5.500" fill="#ff6b6b" opacity=".2"/>';
     if (hat !== 'casco') {
       if (st === 'corto' || st === 'rodete' || st === 'largo') v += cap;
       if (st === 'corto') v += '<path d="M24 38 Q22 14 46 13 Q42 6 56 7 Q78 9 77 38 Q72 24 60 27 Q52 20 44 27 Q32 24 24 38z" fill="' + h + '"/><g fill="none" stroke="' + sh(nh, 0.3) + '" stroke-width="1.600" stroke-linecap="round" opacity=".7"><path d="M36 19 Q44 13 52 16"/><path d="M52 14 Q62 12 68 20"/></g>';
+      if (st === 'jopo') { const h2 = hex(a.hair2 != null ? a.hair2 : nh); v += '<path d="M21.500 45 A28.500 30 0 0 1 78.500 45 L76 45 Q74 33 50 32 Q26 33 24 45z" fill="' + h2 + '"/><path d="M24.500 36 Q23 16 45 12 Q61 7 73 17 Q79 26 75.500 36 Q72 28 62 28 Q52 24 40 28 Q30 29 24.500 36z" fill="' + h + '"/><g fill="none" stroke="' + sh(nh, 0.38) + '" stroke-width="1.700" stroke-linecap="round" opacity=".8"><path d="M34 22 Q42 13 52 14"/><path d="M48 19 Q58 12 68 19"/><path d="M40 26 Q48 19 58 22"/></g>'; }
       if (st === 'cresta') v += cap + '<path d="M36 31 Q50 12 64 31 Q50 25 36 31z" fill="' + h + '"/>';
       if (st === 'rodete') v += '<circle cx="50" cy="15" r="10.500" fill="' + h + '"/>';
       if (st === 'rulos') { v += cap; for (let i = 0; i < 9; i++) { const an = Math.PI * (1.02 + i * 0.12); v += '<circle cx="' + (50 + Math.cos(an) * 29).toFixed(1) + '" cy="' + (48 + Math.sin(an) * 29).toFixed(1) + '" r="10" fill="' + h + '"/>'; } v += '<circle cx="39" cy="26" r="8.500" fill="' + h + '"/><circle cx="61" cy="26" r="8.500" fill="' + h + '"/><circle cx="50" cy="22" r="8.500" fill="' + h + '"/>'; }
       if (st === 'mohicano') v += '<path d="M42 32 L44 5 L50 14 L56 3 L58 32 Q50 27 42 32z" fill="' + h + '"/>';
     }
     if (a.beard) v += '<path d="M21.500 52 A28.500 28.500 0 0 0 78.500 52 Q73 62 61 59 Q50 54 39 59 Q27 62 21.500 52z" fill="' + h + '"/>';
+    if (a.stubble) v += '<path d="M21.500 52 A28.500 28.500 0 0 0 78.500 52 Q73 62 61 59 Q50 54 39 59 Q27 62 21.500 52z" fill="#3c3c44" opacity="' + (a.stubble === 2 ? 0.4 : 0.22) + '"/>';
+    if (a.santa) v += '<path d="M19 50 Q17 80 34 92 Q50 104 66 92 Q83 80 81 50 Q74 62 61 59 Q50 54 39 59 Q26 62 19 50z" fill="#fff"/><path d="M30 72 Q38 80 34 90M70 72 Q62 80 66 90M50 78 V96" fill="none" stroke="#dfe3ea" stroke-width="1.800" stroke-linecap="round"/>';
     // sombreros de los disfraces
     if (hat === 'bicornio') v += '<path d="M5 39 Q18 5 50 3 Q82 5 95 39 Q72 30 50 30 Q28 30 5 39z" fill="#1b2340"/><path d="M8 36 Q20 8 50 6 Q80 8 92 36" fill="none" stroke="#f5c518" stroke-width="2.400"/><circle cx="50" cy="18" r="5" fill="#f5c518"/><circle cx="50" cy="18" r="2.200" fill="#d81e2c"/>';
     if (hat === 'lana') v += '<path d="M21 46 Q22 15 50 14 Q78 15 79 46z" fill="' + top + '"/><path d="M19 44 Q50 32 81 44 L80 53 Q50 41 20 53z" fill="' + ink + '"/><circle cx="50" cy="12" r="6" fill="' + ink + '"/>';
@@ -1422,6 +1431,7 @@ GS.Game = (function () {
       nervous: '<path d="M42 66 q3.500-3.500 7 0 t7 0" fill="none" stroke="' + mc + '" stroke-width="2.600" stroke-linecap="round"/>', sad: '<path d="M44 68 Q50 63 56 68" fill="none" stroke="' + mc + '" stroke-width="2.600" stroke-linecap="round"/>',
       surprised: '<ellipse cx="50" cy="67" rx="4.200" ry="5.400" fill="' + mc + '"/>' };
     v += mouths[m] || mouths.normal;
+    if (a.santa) v += '<path d="M50 60 Q42 56 32 62 Q40 68 50 63 Q60 68 68 62 Q58 56 50 60z" fill="#fff" stroke="#dfe3ea" stroke-width=".800"/>';
     if (m === 'nervous') v += '<path d="M80 30 q4 6 0 9 q-4-3 0-9z" fill="#57b8ff"/>';
     if (m === 'angry') v += '<g stroke="#e10600" stroke-width="2.200" stroke-linecap="round"><path d="M80 24l5-4M82 30h6M80 18l2-5"/></g>';
     return v + '</g></svg>';
