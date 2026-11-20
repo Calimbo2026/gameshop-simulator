@@ -7,7 +7,7 @@
 const GS = {};
 
 GS.CONFIG = {
-  version: '0.80.0',
+  version: '0.80.1',
   phase: 8,
   phaseNote: 'Juego completo de punta a punta. Falta tu playtest con 5 personas y encender el lanzamiento (launched: true)',                       // fase actual del proyecto (1 a 5)
   links: { tienda: 'https://www.gameshop.com.ar', instagram: '' },   // botones del inicio y del cierre (vacío = no se muestra)
@@ -964,7 +964,7 @@ GS.STORIES = [
 GS.INTRO = [
   { art: 'local', k: 'Casa central', t: 'Tu primer día', d: 'Entrás a trabajar en GameShop: consolas, juegos, notebooks y accesorios. Abrimos de 10 a 19.' },
   { art: 'equipo0', k: 'El equipo', t: 'Lucho y Brian', d: 'Tus compañeros. Lucho repone y cambia el color del mohicano cada día. Brian vive pegado al celular. Los dos duermen la siesta en el depósito.' },
-  { art: 'jefe', k: 'El Dueño', t: 'Opina de todo', d: 'Vive en su oficina y sale cuando menos lo esperás. Tiene una frase para cada cosa. Si la reputación baja, se va a notar.' },
+  { art: 'jefe', k: 'El Dueño', t: 'Está en todo', d: 'Desde su oficina sigue cada cosa que pasa en el local. No se le escapa nada, y siempre va a tener un comentario sobre lo que hacés: cuando sale bien y cuando no.' },
   { art: 'reglas', k: 'Antes de empezar', t: 'Cómo se juega', d: 'Tres reglas alcanzan para la primera jornada. El resto te lo voy contando cuando aparezca.' }
 ];
 GS.FINAL = {
