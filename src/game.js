@@ -194,7 +194,7 @@ GS.Game = (function () {
   }
   /* el rival pasa por la vereda, se para frente a la puerta, tira su frase (con globo de su marca) y sigue de largo */
   function rivalPass() {
-    const rv = RV(brId()), d = day; if (!rv || !d) return; const z = L.galeria.zMax + 1.7, p = W.makePerson(Object.assign({}, warm(rv.look), { scale: 1.12, speed: 2.6 })); p.setPos(-9.5, z); p.aura(rv.col); d.extras.push(p);
+    const rv = RV(brId()), d = day; if (!rv || !d) return; const z = L.galeria.zMax + 1.7, p = W.makePerson(Object.assign({}, warm(rv.look), { scale: 1.12, speed: 2.6 })); p.setPos(-9.5, z); p.aura(rv.col, true); d.extras.push(p);
     p.walk([[L.puerta.x + 1.7, z]], () => { if (day !== d) return; p.face(Math.PI); sayAt(p, U.pick(rv.taunts), 0, 'riv', false, false, () => { if (day === d) p.walk([[10.5, z]], () => {}); }, rv); });
   }
   /* día de competencia: cada cliente que se va y cada tarea vencida es una queja; a la tercera, el día se pierde */
@@ -772,7 +772,7 @@ GS.Game = (function () {
     const rvV = /^rival_/.test(S.id) ? RV(brId()) : null, slot = rvV ? -1 : freeSlot('slotM', L.colaMostrador.length);
     if ((!rvV && slot < 0) || day.closing) { if (!day.closing) { day.queue.push({ kind: 'v', v: S, t: 4 }); day.queue.sort((a, b) => a.t - b.t); } return; }
     const look = warm(Object.assign({ skin: 0xe0ac7e }, S.look)), person = W.makePerson(look), dx = L.puerta.x;
-    person.voice = 240 + S.id.length * 30; person.setPos(dx, L.galeria.zMax + 2.4); person.aura(S.id.indexOf('rival_') === 0 && RV(brId()) ? RV(brId()).col : 0xf5c518);
+    person.voice = 240 + S.id.length * 30; person.setPos(dx, L.galeria.zMax + 2.4); { const isRv = S.id.indexOf('rival_') === 0 && RV(brId()); person.aura(isRv ? isRv.col : 0xf5c518, !!isRv); }
     const cu = { id: ++uid, arche: { id: S.id, name: S.name, tag: S.tag, face: '📖', bye: '', lost: '' }, look, story: S, rv: rvV, st: 'entering', pat: 1, person, slotM: slot, slotC: -1, label: makeLabel(rvV ? rvV.mark : '📖') };
     day.customers.push(cu);
     if (rvV) { const d = day, at = [dx + 1.15, 1.8];      /* el rival no hace la cola: se planta en el medio del salón, mira a la pantalla y la cámara va con él */
