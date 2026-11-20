@@ -256,8 +256,8 @@ GS.Game = (function () {
   const needInduc = () => !GS.Store.get('induc') && (GS.Store.get('days') || 0) === 0 && brId() === 'pampeana' && !GS.Store.get('testDay');
   function inducDone(skip) { GS.Store.set('induc', 1); if (skip) { const s = GS.Store.get('seen') || {}; Object.keys(GS.EXPLAIN).forEach(k => { s[k] = 1; }); GS.Store.set('seen', s); } GS.track('induccion', { modo: skip ? 'salteada' : 'completa' }); }
   function inducAsk() {
-    modal('<div class="induc-ask"><small>ANTES DE ABRIR</small><h2>Día de inducción</h2><p>El Dueño te entrena en todas las tareas del local, una por una y sin apuro. Son unos minutos. Después, las jornadas son de verdad.</p><button class="btn" id="inGo">🥊 Empezar el entrenamiento</button><button class="btn ghost" id="inSkip">Ya sé jugar</button></div>');
-    $('inGo').addEventListener('click', () => { $('modal').hidden = true; startDay(true, true, true); }); $('inSkip').addEventListener('click', () => { $('modal').hidden = true; inducDone(true); startDay(false); });
+    modal('<div class="induc-ask"><small>ANTES DE ABRIR</small><h2>Día de inducción</h2><p>El Dueño te entrena en todas las tareas del local, una por una y sin apuro. Son unos minutos. Después, las jornadas son de verdad.</p><button class="btn" id="inducGo">🥊 Empezar el entrenamiento</button><button class="btn ghost" id="inducSkip">Ya sé jugar</button></div>');
+    $('inducGo').addEventListener('click', () => { $('modal').hidden = true; startDay(true, true, true); }); $('inducSkip').addEventListener('click', () => { $('modal').hidden = true; inducDone(true); startDay(false); });
   }
   function cineCard(k, t) { const el = $('cineCard'); el.innerHTML = '<small>' + k + '</small><b>' + t + '</b>'; el.hidden = false; el.classList.remove('go'); void el.offsetWidth; el.classList.add('go'); A.play('stamp'); }
   function inducWave() {
@@ -267,7 +267,7 @@ GS.Game = (function () {
   }
   function inducEnd() {
     const I = GS.INDUC; inducDone(false); document.body.classList.remove('cine'); $('cineCard').hidden = true; W.bossTrain(false); clearDay(); $('hud').hidden = true; $('jobs').hidden = true; day = null; state = 'menu'; A.play('fanfare');
-    epicCtx = { id: 'pampeana' }; showEpic(I.end, null, '<button class="btn" id="inOk">Empezar la jornada 1</button>', () => $('inOk').addEventListener('click', () => { closeEpic(); startDay(false); }));
+    epicCtx = { id: 'pampeana' }; showEpic(I.end, null, '<button class="btn" id="inducOk">Empezar la jornada 1</button>', () => $('inducOk').addEventListener('click', () => { closeEpic(); startDay(false); }));
   }
   function startDay(relaxed, skipDuel, induc) {
     A.unlock();

@@ -800,3 +800,5 @@ body.cine #hud { top: 5.5vh; } body.cine #jobs { bottom: calc(5.5vh + 4px); } bo
 #cineCard.go { animation: cineSlam 2.3s cubic-bezier(.2,.9,.2,1) both; } @keyframes cineSlam { 0% { opacity: 0; transform: scale(2.4); } 10% { opacity: 1; transform: scale(.96); } 16% { transform: scale(1); } 80% { opacity: 1; transform: scale(1.03); } 100% { opacity: 0; transform: scale(1.1) translateY(-8px); } }
 .induc-ask { display: flex; flex-direction: column; gap: 10px; text-align: center; } .induc-ask small { letter-spacing: .3em; color: #f5c518; font-weight: 800; font-size: 12px; } .induc-ask h2 { margin: 0; font-size: 30px; } .induc-ask p { margin: 0 0 4px; }
 @media (prefers-reduced-motion: reduce) { #cineCard.go { animation: none; opacity: 1; } }
+/* la barra de abajo se retira cuando hay un minijuego o una ventana abierta, para no tapar las opciones */
+body.cine:has(#mg:not([hidden])) .cine-bar.bot, body.cine:has(#modal:not([hidden])) .cine-bar.bot { height: 0; }
