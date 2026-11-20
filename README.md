@@ -325,3 +325,7 @@ Tres juegos en `src/arcade.js`, que se ganan al terminar las jornadas 3, 8 y 14 
 - Personalizador nuevo: pestañas Cara, Pelo, Ropa y Accesorios; la cámara enfoca lo que se está cambiando y "Ver entero" vuelve al cuerpo completo. El personaje se gira arrastrando (también en el menú).
 - Color de pelo libre (tono, intensidad y luz) además de los colores rápidos.
 - Guardarropa en `GS.WARDROBE` (colores de GameShop), con prendas y accesorios que se desbloquean jugando (`need`). Chomba y campera también en el cuerpo común; gorra rediseñada.
+
+## v0.75.0
+- Personajes 3D más cuidados para verlos de cerca: geometrías suaves, ojos con brillo, cejas redondeadas, nariz, mejillas, anteojos finos con patillas, pestañas, y detalles de ropa (capucha, bolsillo y cordones del buzo; cuello de la remera).
+- Los trazos de la cara usan tinta oscura cuando el pantalón es claro (`inkC`).
