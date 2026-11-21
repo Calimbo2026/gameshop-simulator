@@ -1434,7 +1434,7 @@ GS.Game = (function () {
     v += '<circle cx="31" cy="59" r="5.500" fill="#ff6b6b" opacity=".2"/><circle cx="69" cy="59" r="5.500" fill="#ff6b6b" opacity=".2"/>';
     if (hat !== 'casco') {
       if (st === 'corto' || st === 'rodete' || st === 'largo') v += cap;
-      if (st === 'corto') v += '<path d="M24 38 Q22 14 46 13 Q42 6 56 7 Q78 9 77 38 Q72 24 60 27 Q52 20 44 27 Q32 24 24 38z" fill="' + h + '"/><g fill="none" stroke="' + sh(nh, 0.3) + '" stroke-width="1.600" stroke-linecap="round" opacity=".7"><path d="M36 19 Q44 13 52 16"/><path d="M52 14 Q62 12 68 20"/></g>';
+      if (st === 'corto' && hat !== 'gorra') v += '<path d="M24 38 Q22 14 46 13 Q42 6 56 7 Q78 9 77 38 Q72 24 60 27 Q52 20 44 27 Q32 24 24 38z" fill="' + h + '"/><g fill="none" stroke="' + sh(nh, 0.3) + '" stroke-width="1.600" stroke-linecap="round" opacity=".7"><path d="M36 19 Q44 13 52 16"/><path d="M52 14 Q62 12 68 20"/></g>';
       if (st === 'jopo') { const h2 = hex(a.hair2 != null ? a.hair2 : nh); v += '<path d="M17.500 48 Q15 8 50 7 Q85 8 82.500 48 L77.500 48 Q76 31 62 29 Q50 25 38 29 Q24 31 22.500 48z" fill="' + h + '"/><path d="M17.500 48 Q17 40 19 33 L24.500 35 Q22.800 41 22.500 48z" fill="' + h2 + '"/><path d="M82.500 48 Q83 40 81 33 L75.500 35 Q77.200 41 77.500 48z" fill="' + h2 + '"/><g fill="none" stroke="' + sh(nh, 0.38) + '" stroke-width="1.700" stroke-linecap="round" opacity=".8"><path d="M32 22 Q42 12 53 13"/><path d="M48 19 Q59 11 70 19"/><path d="M38 27 Q48 19 60 22"/></g>'; }      /* una sola pieza que cubre toda la cabeza; costados cortos y más claros */
       if (st === 'cresta') v += cap + '<path d="M36 31 Q50 12 64 31 Q50 25 36 31z" fill="' + h + '"/>';
       if (st === 'rodete') v += '<circle cx="50" cy="15" r="10.500" fill="' + h + '"/>';
@@ -1457,7 +1457,7 @@ GS.Game = (function () {
       if (hat === 'boina') v += '<path d="M18 36 Q20 12 54 10 Q88 10 90 30 Q80 40 50 38 Q30 37 18 36z" fill="' + hc + '"/><path d="M20 35 Q50 30 80 37" fill="none" stroke="' + hd + '" stroke-width="3"/><circle cx="56" cy="9" r="3.600" fill="' + hd + '"/>';
       if (hat === 'ala') v += '<ellipse cx="50" cy="35" rx="47" ry="8.500" fill="' + hd + '"/><ellipse cx="50" cy="33" rx="47" ry="8" fill="' + hc + '"/><path d="M26 33 Q27 6 50 5 Q73 6 74 33 Q50 39 26 33z" fill="' + hc + '"/><path d="M26.300 27 Q50 33 73.700 27 L74 33 Q50 39 26 33z" fill="' + hb + '"/>';
       if (hat === 'ushanka') v += '<path d="M19 46 Q19 10 50 9 Q81 10 81 46z" fill="' + hc + '"/><path d="M22 42 Q50 28 78 42 L78 31 Q50 18 22 31z" fill="' + hb + '"/><path d="M12 44 Q12 40 20 40 L24 74 Q16 78 13 70z" fill="' + hc + '"/><path d="M88 44 Q88 40 80 40 L76 74 Q84 78 87 70z" fill="' + hc + '"/>';
-      if (hat === 'gorra') v += '<path d="M20 44 Q20 12 50 11 Q80 12 80 44 Q50 34 20 44z" fill="' + hc + '"/><path d="M22 43 Q50 33 78 43 Q92 44 97 52 Q70 44 24 49z" fill="' + hd + '"/><circle cx="50" cy="11" r="2.800" fill="' + hd + '"/>'; }
+      if (hat === 'gorra') v += '<path d="M19.500 45 Q19 11 50 10 Q81 11 80.500 45 Q50 33 19.500 45z" fill="' + hc + '"/><path d="M18 44 Q50 31 82 44 Q85 51 50 45.500 Q15 51 18 44z" fill="' + hd + '"/><circle cx="50" cy="10" r="2.600" fill="' + hd + '"/>'; }
     // ojos, cejas y boca según la mueca
     const dx = m === 'nervous' ? 2.200 : 0, ry = m === 'surprised' ? 6.800 : m === 'impatient' ? 3.200 : 5.200;
     if (m === 'happy') v += '<g fill="none" stroke="' + ink + '" stroke-width="3.200" stroke-linecap="round"><path d="M33.500 51 Q39 44 44.500 51"/><path d="M55.500 51 Q61 44 66.500 51"/></g>';
