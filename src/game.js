@@ -112,7 +112,7 @@ GS.Game = (function () {
     if (rivalOn() && rivalId() === 'malvinas' && pool.length) { const w = plan.filter(x => !x.final); w[w.length - 1].t++; }                                               // lo que se "lleva prestado" el pirata
     return plan;
   }
-  function addRep(d) { if (d < 0 && rivalOn() && rivalId() === 'noa') d *= 1.6; GS.Store.set('rep', U.clamp((GS.Store.get('rep') == null ? 3 : GS.Store.get('rep')) + d, 0, 5)); }
+  function addRep(d) { if (d > 0 && day && day.mute) return; if (d < 0 && rivalOn() && rivalId() === 'noa') d *= 1.6; GS.Store.set('rep', U.clamp((GS.Store.get('rep') == null ? 3 : GS.Store.get('rep')) + d, 0, 5)); }
   const repNow = () => (GS.Store.get('rep') == null ? 3 : GS.Store.get('rep'));
   const repTxt = v => v.toFixed(1).replace('.', ',');
   // El Dueño sale del depósito, camina hasta el salón, dice lo suyo y se vuelve
@@ -903,7 +903,7 @@ GS.Game = (function () {
     const el = document.createElement('div'); el.className = 'fx ' + (cls || ''); el.textContent = text; el.style.left = (38 + Math.random() * 24) + '%';
     $('fxs').appendChild(el); setTimeout(() => el.remove(), 1300);
   }
-  function addScore(base, pat) {
+  function addScore(base, pat) { if (day.mute) return;
     const mult = (1 + Math.min(day.combo, 8) * 0.25) * (!day.arcade && day.cord >= CD.focus ? 1.1 : 1), pts = Math.round((base + Math.max(0, pat) * 100) * mult);
     addCord(day.combo >= 2 ? 0.6 + CD.streak : 0.6);
     day.score += pts; day.combo++; day.bestCombo = Math.max(day.bestCombo, day.combo);
@@ -911,6 +911,23 @@ GS.Game = (function () {
     if (day.combo > 1) A.play('combo', day.combo);
   }
   function breakCombo() { day.combo = 0; }
+  /* Avisos del Dueño, a lo inspector: el error pasa de largo y a los dos segundos llega el papelito. Los dos primeros del día son solo aviso;
+     desde el tercero, cada uno descuenta monedas del pago de la jornada. */
+  function slipLater(sl, type) {
+    const d = day; d.slips = (d.slips || 0) + 1; const n = d.slips, caja = sl.kind === 'caja';
+    setTimeout(() => {
+      if (day !== d || state !== 'day') return;
+      d.wv.mistakes = (d.wv.mistakes || 0) + 1; breakCombo(); addRep(caja ? -0.07 : -0.03); if (caja) d.cajaErr++; else d.otherErr++;
+      const fine = n >= 3 ? 40 : 0; if (fine) d.coinLoss = (d.coinLoss || 0) + fine;
+      A.play('error'); fx(fine ? '−⭐  −🪙 ' + fine : '−⭐', 'bad'); showSlip(n, sl.text, fine, ST(type) || {});
+    }, 2000);
+  }
+  function showSlip(n, text, fine, st) {
+    const el = $('slip'); clearTimeout(el._t); el.className = ''; void el.offsetWidth;
+    el.innerHTML = '<div class="sl-h"><b>AVISO DEL DUEÑO</b><i>N.º ' + n + '</i></div><div class="sl-s">' + (st.icon || '⚠️') + ' ' + (st.short || st.name || 'Local') + '</div><p>' + text + '</p>' +
+      '<div class="sl-f' + (fine ? ' fine' : '') + '">' + (fine ? 'Aviso ' + n + ' del día: se descuentan 🪙 ' + fine : n === 2 ? 'Segundo aviso. El próximo se descuenta.' : 'Primer aviso. Sin descuento.') + '</div>';
+    el.hidden = false; el.className = 'in'; el._t = setTimeout(() => { el.className = 'out'; el._t = setTimeout(() => { el.hidden = true; }, 350); }, 5200);
+  }
 
   /* Trabajos pendientes: clientes en mostrador, clientes en caja y tareas de las otras estaciones */
   function pendingJobs() {
@@ -993,8 +1010,14 @@ GS.Game = (function () {
     yoGo(NODE_OF[job.type]);
     const mt = day.mt = day.mt || {}, m0 = day.tt || 0, me = mt[job.type] = mt[job.type] || { n: 0, s: 0, e: 0 }; me.n++;
     const cb = {
+      deferred: !day.induc,
       onMistake(kind) { me.e++; day.wv.mistakes = (day.wv.mistakes || 0) + 1; breakCombo(); addRep(kind === 'caja' ? -0.07 : -0.03); fx(kind === 'caja' ? '−⭐  −🪙' : '−⭐', 'bad'); if (kind === 'caja') { day.cajaErr++; day.coinLoss = (day.coinLoss || 0) + 15; } else day.otherErr++; if (!day.relaxed) ref.pat = Math.max(0.05, ref.pat - C.day.mistakeCost); },
       onEnd(ok, info) {
+        if (info.slip && job.type === 'caja' && !/Rechazaste/.test(info.slip.text)) info.total = (ref.product && ref.product.price) || 1;
+        if (info.slip) { me.e++; slipLater(info.slip, job.type); day.mute = 1; }      /* se equivocó sin saberlo: la tarea sigue su curso, sin premio, y el aviso llega después */
+        try { cb.end2(ok, info); } finally { day.mute = 0; }
+      },
+      end2(ok, info) {
         me.s += (day.tt || 0) - m0;
         if (job.type !== 'caja') W.focus(null);
         if (job.type === 'mostrador' && !ok) {            // producto equivocado: se va y se pierde la venta
@@ -1852,6 +1875,7 @@ GS.Game = (function () {
     $('chipPhase').addEventListener('click', () => { paused = true; showPhases(); modalOnClose = () => { paused = false; }; });
     $('finSkip').addEventListener('click', finishFinal);
     $('jobs').addEventListener('click', e => { const ib = e.target.closest('[data-intr]'); if (ib) return answerIntr(ib.dataset.intr === '1'); const b = e.target.closest('[data-k]'), j = b && jobList.filter(x => x.key === b.dataset.k)[0]; if (j) openJob(j); });
+    $('slip').addEventListener('click', () => { clearTimeout($('slip')._t); $('slip').hidden = true; });
     $('labels').addEventListener('click', e => { const b = e.target.closest('[data-k]'), j = b && jobList.filter(x => x.key === b.dataset.k)[0]; if (j) openJob(j); });
     $('btnPause').addEventListener('click', showPause); $('btnLog').addEventListener('click', showLog);
     $('btnMute').addEventListener('click', () => { A.unlock(); A.setMuted(!A.isMuted()); syncMute(); A.play('click'); });

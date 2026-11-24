@@ -27,7 +27,9 @@ GS.Minigames = (function () {
     if (joke) { b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake'); }
   }
   function face(m) { const el = document.getElementById('mgFace'); if (el && cur && cur.cust && cur.cust.look && GS.faceSvg) el.innerHTML = GS.faceSvg(cur.cust.look, m); }
-  function mistake(kind, text) { GS.Audio.play('error'); say(text, true); face('angry'); const c = cur; setTimeout(() => { if (cur === c && !c.done) face(c.cust.pat < 0.35 ? 'impatient' : 'sad'); }, 1600); cur.cb.onMistake(kind); }
+  /* Juicio equivocado en una jornada: no se avisa en el momento. La tarea termina igual y el aviso del Dueño llega un rato después (slip = lo que dice el aviso). */
+  const late = () => !!(cur && cur.cb.deferred);
+  function mistake(kind, text, slip) { if (slip && late()) { GS.Audio.play('click'); return finish(true, 'Listo', '', { slip: { kind, text: slip }, total: 0 }); } GS.Audio.play('error'); say(text, true); face('angry'); const c = cur; setTimeout(() => { if (cur === c && !c.done) face(c.cust.pat < 0.35 ? 'impatient' : 'sad'); }, 1600); cur.cb.onMistake(kind); }
   function finish(ok, title, sub, info) {
     if (!cur || cur.done) return; cur.done = true; face(info && info.caught ? 'nervous' : ok ? 'happy' : info && info.cajaError ? 'happy' : 'angry');
     const r = document.createElement('div'); r.className = 'result' + (ok ? '' : ' bad');
@@ -57,6 +59,7 @@ GS.Minigames = (function () {
     function choose(b) {
       if (!cur || cur.done || b.classList.contains('bad')) return;
       if (b.dataset.id === prod.id) { b.classList.add('good'); GS.Audio.play('ok'); finish(true, '¡Era eso!', prod.name + ' · pasa por caja', {}); }
+      else if (late()) mistake('mostrador', '', 'Pidió ' + prod.name + ' y se llevó ' + ((GS.CATALOG.filter(x => x.id === b.dataset.id)[0] || {}).name || 'otra cosa') + '. Va a volver a cambiarlo.');
       else if ((GS.Store.get('days') || 0) < 1) { b.classList.add('bad'); mistake('mostrador', U.pick(LN.wrongProduct)); }      // el primer día se puede reintentar
       else { b.classList.add('bad'); GS.Audio.play('lost'); cur.cb.onMistake('mostrador'); finish(false, 'Venta perdida', U.pick(LN.lostSale), { lostSale: true }); }   // producto equivocado: el cliente se va
     }
@@ -98,7 +101,7 @@ GS.Minigames = (function () {
     function choose(b) {
       if (!cur || cur.done || b.classList.contains('bad')) return;
       if (Number(b.dataset.v) === correct) { b.classList.add('good'); GS.Audio.play('cash'); finish(true, okTitle, 'Le cobrás ' + U.money(total), { total }); }
-      else { b.classList.add('bad'); mistake('caja', U.pick(LN.wrongCash) + ' (' + why + ')'); }
+      else { b.classList.add('bad'); mistake('caja', U.pick(LN.wrongCash) + ' (' + why + ')', 'Cobro mal hecho. ' + why); }
     }
     btns.forEach(b => b.addEventListener('click', () => choose(b)));
     cur.keys = e => { const n = parseInt(e.key, 10); if (n >= 1 && n <= btns.length) choose(btns[n - 1]); };
@@ -123,7 +126,7 @@ GS.Minigames = (function () {
     function give() {
       if (!cur || cur.done) return;
       if (given === change) { GS.Audio.play('cash'); finish(true, '¡Vuelto justo!', 'Cobraste ' + U.money(T), { total: T }); }
-      else { mistake('caja', U.pick(given < change ? LN.changeShort : LN.changeOver)); given = 0; out.textContent = '$0'; }
+      else { mistake('caja', U.pick(given < change ? LN.changeShort : LN.changeOver), 'Diste ' + U.money(given) + ' de vuelto y eran ' + U.money(change) + '. ' + (given < change ? 'El cliente volvió a reclamar.' : 'La diferencia salió de la caja.')); given = 0; out.textContent = '$0'; }
     }
     root().querySelectorAll('.bill').forEach(b => b.addEventListener('click', () => add(Number(b.dataset.b))));
     document.getElementById('mgClear').addEventListener('click', clear);
@@ -159,11 +162,12 @@ GS.Minigames = (function () {
     function tapRow(b) {
       if (!cur || cur.done || b.classList.contains('fine')) return;
       if (fake && b.dataset.k === flag) { mark(); GS.Audio.play('ok'); finish(true, '¡Bien visto!', 'El comprobante estaba mal. Se va sin el producto.', { total: 0, caught: true }); }
-      else { b.classList.add('fine'); mistake('caja', U.pick(fake ? LN.rowFine : LN.rowFineAll)); }
+      else { b.classList.add('fine'); mistake('caja', U.pick(fake ? LN.rowFine : LN.rowFineAll), fake ? 'Comprobante: marcaste un dato que estaba bien. El trucho era otro y pasó.' : 'Rechazaste un comprobante que estaba bien. El cliente se fue ofendido.'); }
     }
     function approve() {
       if (!cur || cur.done) return;
       if (!fake) { GS.Audio.play('cash'); finish(true, '¡Acreditado!', U.money(T), { total: T }); }
+      else if (late()) mistake('caja', '', 'Aprobaste un comprobante trucho: se llevó el producto sin pagar.');
       else { mark(); GS.Audio.play('error'); cur.cb.onMistake('caja'); finish(false, 'Era trucho', 'Mirá el dato marcado en rojo. ' + U.pick(LN.receiptFakeApproved), { total: 0, cajaError: true }); }
     }
     rb.forEach(b => b.addEventListener('click', () => tapRow(b)));
@@ -276,7 +280,7 @@ GS.Minigames = (function () {
     root().querySelectorAll('.dgz').forEach(b => b.addEventListener('click', () => {
       if (cur !== me || me.done || me.hold || b.classList.contains('bad')) return;
       if (b.dataset.ok === '1') { me.hold = true; learned('diag'); root().querySelectorAll('.dgz').forEach(z => z.classList.remove('hintz')); root().querySelectorAll('.dgz[data-ok="1"]').forEach(x => x.classList.add('good')); GS.Audio.play('ok'); setTimeout(() => { if (cur === me) finish(true, d.t, d.r, {}); }, 550); }
-      else { root().querySelectorAll('.dgz[data-id="' + b.dataset.id + '"]').forEach(x => x.classList.add('bad')); mistake('service', NM[b.dataset.id] + ' está bien. ' + U.pick(['Buscá algo raro.', 'Mirá con más cariño.', 'Casi. Bah, no.'])); }
+      else { root().querySelectorAll('.dgz[data-id="' + b.dataset.id + '"]').forEach(x => x.classList.add('bad')); mistake('service', NM[b.dataset.id] + ' está bien. ' + U.pick(['Buscá algo raro.', 'Mirá con más cariño.', 'Casi. Bah, no.']), 'Taller: diagnóstico errado. ' + NM[b.dataset.id] + ' estaba bien, y la falla sigue ahí.'); }
     }));
     cur.keys = () => {};
   }
@@ -371,7 +375,7 @@ GS.Minigames = (function () {
       function tryLab(b) {
         if (!live() || b.classList.contains('bad')) return;
         if (b.dataset.ok === '1') { me.hold = true; learned('ml2'); b.classList.add('good', 'gone'); C.classList.add('done'); GS.Audio.play('stamp'); GS.Audio.play('ok'); return void setTimeout(() => { if (cur === me) { me.hold = false; finish(true, '¡Despachado!', 'Sale hoy, antes de las 14.', {}); } }, 600); }
-        b.classList.add('bad'); mistake('ml', U.pick(LN.wrongLabel));
+        b.classList.add('bad'); mistake('ml', U.pick(LN.wrongLabel), 'Compra web: le pegaste la etiqueta de otro pedido. El paquete salió para cualquier lado.');
       }
       bs.forEach((b, i) => { grab(b, () => '<span class="opt tagl">' + lab(labels[i]) + '</span>', t => { if (t && t.closest && t.closest('.pk-closed')) tryLab(b); else say('Soltala arriba de la caja.', false); }, 'lab');
         b.addEventListener('click', () => { if (!dragged(b)) tryLab(b); }); });
@@ -390,7 +394,7 @@ GS.Minigames = (function () {
       if (me.hold) return; me.hold = true; GS.Audio.play('send');
       const out = document.createElement('div'); out.className = 'msg out'; out.innerHTML = esc(c.ok) + '<em>' + hh + ':' + mm + ' <u>✓✓</u></em>'; document.getElementById('waB').appendChild(out);
       setTimeout(() => { if (cur === me) finish(true, '¡Respondido!', 'Un cliente menos escribiendo "???".', {}); }, 750);
-    }, () => { if (!me.hold) mistake('whatsapp', U.pick(LN.wrongChat)); });
+    }, () => { if (!me.hold) mistake('whatsapp', U.pick(LN.wrongChat), 'WhatsApp: esa respuesta no era. El cliente quedó más confundido que antes.'); });
   }
 
   /* ---------------- 7. ORDENAR DEPÓSITO: en las estanterías hay tres productos mal ubicados; hay que llevar cada uno a la suya ----------------
@@ -423,8 +427,8 @@ GS.Minigames = (function () {
     function drop(id, k) {
       const f = find(id); if (!f || !live()) return; sel = null;
       if (f.s.k === k) { if (f.it.bad) say('Ya está en esa estantería, y ahí no va. Llevalo a otra.', true); else say('Ese ya está en su lugar.', false); GS.Audio.play('error'); return; }
-      if (!f.it.bad) return mistake('repo', 'Ese estaba bien donde estaba. Buscá el que no va.');
-      if (SH[k].cat !== f.it.cat) return mistake('repo', U.pick(LN.wrongShelf));
+      if (!f.it.bad) return mistake('repo', 'Ese estaba bien donde estaba. Buscá el que no va.', 'Depósito: moviste un producto que estaba bien guardado.');
+      if (SH[k].cat !== f.it.cat) return mistake('repo', U.pick(LN.wrongShelf), 'Depósito: guardaste un producto en la estantería equivocada.');
       f.s.items = f.s.items.filter(x => x !== f.it); f.it.bad = 0; f.it.fixed = 1; st[k].items.push(f.it); left--; GS.Audio.play('drop');
       if (hint) { hint = false; const sn = GS.Store.get('seen') || {}; sn.g_repo = 1; GS.Store.set('seen', sn); }
       if (!left) { draw(); cur.locked = 1; GS.Audio.play('ok'); return void setTimeout(() => { if (cur === me) finish(true, '¡Depósito ordenado!', 'Por cinco minutos, al menos.', {}); }, 650); }
@@ -446,7 +450,7 @@ GS.Minigames = (function () {
     function ok() {
       if (!live()) return;
       if (n === real) { learned('stock'); GS.Audio.play('ok'); finish(true, '¡Stock corregido!', sys === real ? 'El sistema tenía razón. Anotá la fecha.' : 'Eran ' + real + ', no ' + sys + '.', {}); }
-      else mistake('stock', n < real ? U.pick(['Hay más. ¿Contaste los de atrás?', 'Te quedaste corto. Contá de nuevo, sin apuro.']) : U.pick(['Hay menos. Alguno lo contaste dos veces.', 'Ese número le gustaría al sistema, pero no.']));
+      else mistake('stock', n < real ? U.pick(['Hay más. ¿Contaste los de atrás?', 'Te quedaste corto. Contá de nuevo, sin apuro.']) : U.pick(['Hay menos. Alguno lo contaste dos veces.', 'Ese número le gustaría al sistema, pero no.']), 'Stock mal contado: anotaste ' + n + ' y había ' + real + '.');
     }
     document.getElementById('skM').addEventListener('click', () => step(-1)); document.getElementById('skP').addEventListener('click', () => step(1)); document.getElementById('skOk').addEventListener('click', ok);
     cur.keys = e => { if (e.key === 'ArrowLeft' || e.key === '-' || e.key === 'ArrowDown') step(-1); else if (e.key === 'ArrowRight' || e.key === '+' || e.key === 'ArrowUp') step(1); else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); ok(); } };
@@ -464,11 +468,12 @@ GS.Minigames = (function () {
     function tapRow(b) {
       if (!cur || cur.done || b.classList.contains('fine')) return;
       if (Number(b.dataset.i) === bad) { b.classList.add('flag'); GS.Audio.play('ok'); finish(true, '¡Bien contado!', (got[bad] < items[bad].q ? 'Faltaba' : 'Sobraba') + ' mercadería. El de la carreta "justo se acordó".', {}); }
-      else { b.classList.add('fine'); mistake('proveedor', U.pick(LN.lineFine)); }
+      else { b.classList.add('fine'); mistake('proveedor', U.pick(LN.lineFine), 'Remito: marcaste una línea que estaba bien. La que no coincidía era otra.'); }
     }
     function sign() {
       if (!cur || cur.done) return;
       if (bad < 0) { GS.Audio.play('stamp'); GS.Audio.play('ok'); finish(true, '¡Firmado!', 'Llegó todo. Qué raro. Qué lindo.', {}); }
+      else if (late()) mistake('proveedor', '', 'Firmaste el remito y no coincidía con lo que llegó.');
       else { rb[bad].classList.add('flag'); GS.Audio.play('error'); cur.cb.onMistake('proveedor'); finish(false, 'Firmaste de más', 'Mirá la pila marcada: no coincidía con el remito.', {}); }
     }
     rb.forEach(b => b.addEventListener('click', () => tapRow(b))); document.getElementById('mgYes').addEventListener('click', sign);
@@ -497,6 +502,7 @@ GS.Minigames = (function () {
       if (!cur || cur.done) return;
       if (!cards.every(x => x.classList.contains('seen'))) { GS.Audio.play('error'); cards.forEach(x => { if (!x.classList.contains('seen')) { x.classList.remove('nudge'); void x.offsetWidth; x.classList.add('nudge'); } }); return say('Primero revisá el producto y el ticket.', true); }
       if (accept === ok) { GS.Audio.play('ok'); finish(true, ok ? '¡Devolución aceptada!' : '¡Bien rechazada!', ok ? 'Cumplía todo. Cliente contento.' : why + ' Se lo explicaste con una sonrisa.', {}); }
+      else if (late()) mistake('devol', '', ok ? 'Rechazaste una devolución que cumplía las tres reglas.' : 'Aceptaste una devolución que no correspondía. ' + why);
       else { GS.Audio.play('error'); cur.cb.onMistake('devol'); finish(false, ok ? 'Se podía aceptar' : 'No correspondía', ok ? 'Cumplía las tres reglas.' : why, {}); }
     }
     document.getElementById('mgYes').addEventListener('click', () => decide(true)); document.getElementById('mgNo').addEventListener('click', () => decide(false));
@@ -520,7 +526,7 @@ GS.Minigames = (function () {
       if (cur !== me || me.done || b.classList.contains('bad')) return;
       if (left) { GS.Audio.play('error'); return say('Primero contá todos los billetes del cajón.', true); }
       if (b.dataset.ok === '1') { b.classList.add('good'); GS.Audio.play('cash'); finish(true, '¡Caja cerrada!', d === 0 ? 'Cerró perfecto. Sacale una foto.' : 'Diferencia detectada. Mañana se revisa con un mate.', {}); }
-      else { b.classList.add('bad'); mistake('cierre', U.pick(LN.wrongCount)); }
+      else { b.classList.add('bad'); mistake('cierre', U.pick(LN.wrongCount), 'Cierre de caja: la cuenta no daba. Mañana hay que recontar todo.'); }
     }
     os.forEach(b => b.addEventListener('click', () => choose(b)));
     cur.keys = e => { const n = parseInt(e.key, 10); if (n >= 1 && n <= 3) choose(os[n - 1]); else if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); const b = bs.find(y => !y.classList.contains('cnt')); if (b) count(b); } };

@@ -832,3 +832,12 @@ body.cine:has(#mg:not([hidden])) .cine-bar.bot, body.cine:has(#modal:not([hidden
 @keyframes bubIn { from { transform: translate(-50%, -100%) scale(.3); opacity: 0; } } @keyframes bubHot { to { transform: scale(1.12); } }
 #jobs { grid-template-columns: 1fr; } #jobs .job { min-height: 54px; }
 #labels.busy .bub { opacity: 0; pointer-events: none; transition: opacity .15s; }
+
+/* v0.84: avisos del Dueño (errores que se descubren después) */
+#slip { position: fixed; z-index: 40; left: 50%; top: calc(104px + var(--sat, 0px)); width: min(330px, 88vw); margin-left: calc(min(330px, 88vw) / -2); background: #fffbe8; color: #17171c; border-radius: 4px 4px 0 0; padding: 10px 14px 12px; font: 600 15px/1.35 ui-monospace, Menlo, Consolas, monospace; box-shadow: 0 10px 24px rgba(0,0,0,.55); transform-origin: top center; cursor: pointer;
+  -webkit-mask: linear-gradient(#000 0 0) top / 100% calc(100% - 7px) no-repeat, radial-gradient(circle at 7px 0, #000 6.5px, transparent 7px) bottom left / 14px 7px repeat-x; mask: linear-gradient(#000 0 0) top / 100% calc(100% - 7px) no-repeat, radial-gradient(circle at 7px 0, #000 6.5px, transparent 7px) bottom left / 14px 7px repeat-x; padding-bottom: 18px; }
+#slip[hidden] { display: none; } #slip.in { animation: slipIn .45s cubic-bezier(.2,1.2,.4,1); } #slip.out { animation: slipOut .35s ease-in forwards; }
+@keyframes slipIn { from { transform: translateY(-40px) scaleY(.1); opacity: 0; } } @keyframes slipOut { to { transform: translateY(-30px); opacity: 0; } }
+.sl-h { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 2px dashed #17171c; padding-bottom: 5px; margin-bottom: 6px; } .sl-h b { color: #e10600; font-size: 16px; letter-spacing: .06em; } .sl-h i { font-style: normal; font-size: 13px; }
+.sl-s { font-size: 12.5px; text-transform: uppercase; letter-spacing: .08em; opacity: .7; } #slip p { margin: 3px 0 8px; font-size: 15.5px; }
+.sl-f { border-top: 2px dashed #17171c; padding-top: 5px; font-size: 13px; } .sl-f.fine { color: #e10600; font-weight: 800; }
