@@ -82,3 +82,46 @@ GS.Arcade = (() => {
   }
   return { open, close, bind, isOpen: () => !!G, debug: () => G };
 })();
+
+/* ============ Aprendé a dar vueltos: práctica infinita, sin reloj. La caja muestra el total, el mostrador lo que paga el cliente,
+   y se arma el vuelto tocando billetes. Solo acá los billetes son de 100, 200, 500, 1.000, 2.000, 10.000 y 20.000. ============ */
+GS.Vueltos = (() => {
+  const D = [100, 200, 500, 1000, 2000, 10000, 20000], COL = { 100: '#8e7cc3', 200: '#5fa8d3', 500: '#57b894', 1000: '#e0a23c', 2000: '#e07a5f', 10000: '#c9485b', 20000: '#3d5a80' };
+  const fmt = n => '$' + String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '.'), el = id => document.getElementById(id), rnd = n => Math.floor(Math.random() * n);
+  let root = null, S = null;
+  const best = n => { let c = 0; for (let i = D.length - 1; i >= 0; i--) { c += Math.floor(n / D[i]); n %= D[i]; } return c; };      /* menor cantidad de billetes posible */
+  const split = (n, ds) => { const o = []; ds.forEach(d => { while (n >= d) { o.push(d); n -= d; } }); return o; };
+  function round() {
+    /* cada ronda apunta a un billete distinto, para que con el tiempo se usen todos y combinados */
+    const lvl = Math.min(D.length, 3 + Math.floor(S.n / 3)); if (!S.bag.length) S.bag = D.slice(0, lvl).sort(() => Math.random() - 0.5);
+    const t = S.bag.pop(), MAXC = { 10000: 1, 2000: 4, 1000: 1, 500: 1, 200: 2, 100: 1 }; let ch = t;
+    D.filter(d => d < t).forEach(d => { if (Math.random() < (S.n < 4 ? 0.3 : 0.5)) ch += d * (1 + rnd(Math.min(2, MAXC[d]))); });
+    const P = [1000, 2000, 5000, 10000, 20000, 30000, 40000, 50000], ok = P.filter(p => p - ch >= 300), pay = ok[Math.random() < 0.75 ? 0 : Math.min(1, ok.length - 1)];
+    S.cur = { total: pay - ch, pay, ch, give: [], t0: performance.now(), done: false }; S.n++; draw();
+  }
+  const bill = (d, cls, i) => '<button class="vb ' + (cls || '') + '" data-d="' + d + '"' + (i != null ? ' data-i="' + i + '"' : '') + ' style="--c:' + COL[d] + '"><i>$</i><b>' + String(d).replace(/\B(?=(\d{3})+(?!\d))/g, '.') + '</b></button>';
+  function draw() {
+    const c = S.cur, sum = c.give.reduce((a, b) => a + b, 0);
+    root.innerHTML = '<div class="vt-top"><b>💵 Aprendé a dar vueltos</b><span>✅ ' + S.ok + ' · 🔥 ' + S.streak + (S.bestStreak ? ' · mejor racha ' + S.bestStreak : '') + '</span><button class="chip" id="vtX">✕ Salir</button></div>' +
+      '<div class="vt-reg"><small>CAJA · TOTAL A COBRAR</small><output>' + fmt(c.total) + '</output></div>' +
+      '<div class="vt-counter"><small>EL CLIENTE TE DA ' + fmt(c.pay) + '</small><div class="vt-bills">' + split(c.pay, [20000, 10000, 2000, 1000]).map(d => bill(d, 'paid')).join('') + '</div></div>' +
+      '<div class="vt-hand' + (c.done ? (c.right ? ' ok' : ' bad') : '') + '"><small>TU VUELTO' + (S.help || c.done ? ' · tiene que ser ' + fmt(c.ch) : '') + '</small><output id="vtSum">' + fmt(sum) + '</output><div class="vt-bills" id="vtGive">' + (c.give.length ? c.give.map((d, i) => bill(d, 'mine', i)).join('') : '<em>Tocá los billetes de abajo</em>') + '</div>' +
+      (c.done ? '<p class="vt-msg">' + c.msg + '</p>' : '') + '</div>' +
+      '<div class="vt-tray">' + D.map(d => bill(d, 'tray')).join('') + '</div>' +
+      '<div class="vt-act">' + (c.done ? '<button class="btn" id="vtNext">Siguiente cliente</button>' : '<button class="btn ghost" id="vtHelp">' + (S.help ? 'Ocultar la cuenta' : 'Mostrar la cuenta') + '</button><button class="btn" id="vtGo"' + (sum ? '' : ' disabled') + '>Dar el vuelto</button>') + '</div>';
+    el('vtX').onclick = close;
+    if (c.done) { el('vtNext').onclick = round; return; }
+    el('vtHelp').onclick = () => { S.help = !S.help; GS.Store.set('vtHelp', S.help); draw(); }; el('vtGo').onclick = check;
+    root.querySelectorAll('.vb.tray').forEach(b => { b.onclick = () => { c.give.push(Number(b.dataset.d)); GS.Audio.play('count'); draw(); }; });
+    root.querySelectorAll('.vb.mine').forEach(b => { b.onclick = () => { c.give.splice(Number(b.dataset.i), 1); GS.Audio.play('drop'); draw(); }; });
+  }
+  function check() {
+    const c = S.cur, sum = c.give.reduce((a, b) => a + b, 0), secs = (performance.now() - c.t0) / 1000; c.done = true; c.right = sum === c.ch;
+    if (c.right) { S.ok++; S.streak++; S.bestStreak = Math.max(S.bestStreak, S.streak); GS.Store.set('vtBest', S.bestStreak); const few = c.give.length === best(c.ch); c.msg = '✅ ¡Justo! En ' + secs.toFixed(1).replace('.', ',') + ' segundos' + (few ? ' y con la menor cantidad de billetes.' : '. Se podía con ' + best(c.ch) + ' billetes.'); GS.Audio.play('cash'); }
+    else { S.streak = 0; c.msg = '❌ ' + (sum > c.ch ? 'Te pasaste por ' + fmt(sum - c.ch) : 'Te faltaron ' + fmt(c.ch - sum)) + '. La cuenta: ' + fmt(c.pay) + ' − ' + fmt(c.total) + ' = ' + fmt(c.ch) + '.'; GS.Audio.play('error'); }
+    GS.track && S.n % 10 === 0 && GS.track('vueltos', { clientes: S.n, aciertos: S.ok }); draw();
+  }
+  function open() { if (!root) { root = document.createElement('div'); root.id = 'vuelto'; document.body.appendChild(root); } root.hidden = false; S = { n: 0, ok: 0, streak: 0, bestStreak: GS.Store.get('vtBest') || 0, bag: [], help: !!GS.Store.get('vtHelp') }; round(); }
+  function close() { if (root) root.hidden = true; S = null; }
+  return { open, close, isOpen: () => !!S, debug: () => S };
+})();
