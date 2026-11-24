@@ -52,9 +52,9 @@ GS.Minigames = (function () {
     const others = U.shuffle(GS.CATALOG.filter(p => p.id !== prod.id && p !== twin)).slice(0, 2);
     const options = U.shuffle([prod, twin].concat(others));
     root().innerHTML = head(cust, 'Mostrador') +
-      '<div class="bubble" id="mgBubble">' + esc(cust.request) + '</div>' + (GS.LOOKS[prod.id] ? '<div class="ask-how"><small>👀 Cómo es</small>' + esc(GS.LOOKS[prod.id]) + '</div>' : '') +
+      '<div class="bubble" id="mgBubble">' + esc(cust.request) + '</div>' +
       '<div class="opts">' + options.map((p, i) => '<button class="opt" data-id="' + p.id + '"><kbd>' + (i + 1) + '</kbd>' + pic(p) + '<span class="n">' + esc(p.name) + '</span></button>').join('') + '</div>' +
-      '<div class="rule">Tocá el producto que coincide con la descripción</div>';
+      '<div class="rule">Tocá el producto que te está pidiendo</div>';
     const btns = [...root().querySelectorAll('.opt')];
     function choose(b) {
       if (!cur || cur.done || b.classList.contains('bad')) return;
