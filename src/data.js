@@ -7,7 +7,7 @@
 const GS = {};
 
 GS.CONFIG = {
-  version: '0.86.0',
+  version: '0.87.0',
   phase: 8,
   phaseNote: 'Juego completo de punta a punta. Falta tu playtest con 5 personas y encender el lanzamiento (launched: true)',                       // fase actual del proyecto (1 a 5)
   links: { tienda: 'https://www.gameshop.com.ar', instagram: '' },   // botones del inicio y del cierre (vacío = no se muestra)
@@ -292,17 +292,17 @@ GS.HAIRS = [0x000000, 0x2b2b3a, 0x4a3a2a, 0x7a3b1e, 0xd9a514, 0xc9c9d6, 0x2d6cdf
 GS.UNLOCKS = [['mostrador', 'caja'], ['whatsapp'], ['cierre'], [], ['ml'], [], ['proveedor'], [], ['vidriera'], [], ['service'], [], ['pc']];
 GS.EXPLAIN = {
   adornos: 'Mañana empieza la semana de Navidad. Elegí el árbol, las guirnaldas y las luces: como lo armes hoy, así amanece el local.',
-  vidriera: 'Armá la vidriera según el tema: elegí los 4 productos que mejor van. Si queda bien, va a entrar gente diciendo que lo vio ahí.',
-  mostrador: 'El cliente pide como puede. Vos elegís el producto correcto. Ojo: siempre hay uno parecido para confundirte.',
-  caja: 'Al cobrar: 10% OFF en efectivo o transferencia, y 3 cuotas sin interés con tarjeta. Si te muestran un comprobante, compará cada dato antes de aprobar. Si hay uno incorrecto, selecciónalo.',
-  whatsapp: 'Contestá con el dato correcto y buena onda. Cada respuesta cuida nuestra reputación.',
-  cierre: 'Antes de irnos a las 19, contá los billetes del cajón tocándolos de a uno y fijate si el total coincide con lo que dice el sistema.',
+  vidriera: 'Elegí los 4 productos que van con el tema de la vidriera.',
+  mostrador: 'Mirá el dibujo de lo que pide el cliente y tocá ese producto. Ojo: siempre hay uno parecido.',
+  caja: 'Efectivo o transferencia: 10% OFF. Tarjeta: 3 cuotas sin interés. Si te muestran un comprobante, revisá cada dato.',
+  whatsapp: 'Contestá con el dato correcto y buena onda.',
+  cierre: 'Tocá los billetes del cajón para contarlos y fijate si el total coincide con el sistema.',
   repo: 'Alguien dejó cosas en cualquier lado. En cada estantería va un solo tipo de producto: buscá los tres que están mal ubicados y arrastralos a la suya.',
   stock: 'Contá lo que hay de verdad en la góndola (mirá bien, algunos quedan atrás) y corregí el número con + y −. El sistema a veces sueña.',
-  ml: 'Son las compras que entran por www.gameshop.com.ar. Arrastrá el producto a la caja donde entra justo, pasale cinta de punta a punta y pegale la etiqueta correcta. Lo que se compra antes de las 14 sale en el día.',
-  proveedor: 'Contá las cajas que bajaron de la carreta y comparalas con el remito. Si una pila no coincide, tocala. Si falta algo, no firmes.',
-  pc: 'En el taller: arrastrá cada pieza a su lugar dentro del gabinete y después tocá Encender. Si no prende, hay algo mal puesto. Si una pieza está al revés, tocala para girarla.',
-  service: 'En el taller hay de todo: a veces toca encontrar qué pieza falla mirando la PC por dentro, a veces limpiar con paciencia y a veces encajar la memoria justo en la ranura.',
+  ml: 'Compra por www.gameshop.com.ar: elegí la caja justa, pasale cinta y pegá la etiqueta correcta.',
+  proveedor: 'Llegó mercadería: compará las cajas con el remito. Si una pila no coincide, tocala.',
+  pc: 'Arrastrá cada pieza a su lugar y tocá Encender. Si una está al revés, tocala para girarla.',
+  service: 'A veces hay que encontrar la pieza que falla, a veces limpiar y a veces encajar la memoria.',
   devol: 'Para una devolución mirá las tres reglas: ticket, plazo y estado. Revisá vos mismo el producto y el ticket antes de decidir. Si cumple, se acepta con una sonrisa.'
 };
 

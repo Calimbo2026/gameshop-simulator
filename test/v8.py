@@ -14,7 +14,7 @@ SOLVE = r"""(()=>{const M=GS.Minigames; if(document.querySelector('#mgOk')){docu
  if(q('[data-ok="1"]')){q('[data-ok="1"]').click();return 'ok';}
  if(q('.opt[data-id]')){q('.opt[data-id="'+M.customer().product.id+'"]').click();return 'most';}
  if(q('.opt[data-v]')){q('.opt[data-v]:not(.bad)').click();return 'cobro';}
- if(q('.bill')){const bs=qa('.info b').map(b=>parseInt(b.textContent.replace(/\D/g,'')));let ch=bs[1]-bs[0];const v=[20000,10000,2000,1000],bt=qa('.bill');v.forEach((x,i)=>{while(ch>=x){bt[i].click();ch-=x}});q('#mgGive').click();return 'vuelto';}
+ if(q('.bill')){const bs=qa('.vx-top b').map(b=>parseInt(b.textContent.replace(/\D/g,'')));let ch=bs[1]-bs[0];const v=[20000,10000,2000,1000],bt=qa('.bill');v.forEach((x,i)=>{while(ch>=x){bt[i].click();ch-=x}});q('#mgGive').click();return 'vuelto';}
  if(q('#mgYes')){q('#mgYes').click();return 'comp';}
  return '?';})()"""
 
@@ -34,7 +34,7 @@ async def main():
         await pg.goto('file://'+ROOT+'/dist/index.html'); await pg.wait_for_timeout(1000)
         await pg.evaluate("GS.Store.set('avatar',{skin:GS.SKINS[1],hair:0,hairStyle:'corto'}); GS.Store.set('days',%s-1); GS.Store.set('quality','baja'); GS.Store.set('induc',1); GS.Store.set('mig70',1); GS.Store.set('testCond','ninguna'); GS.Store.set('up', %s<5?{}:%s<10?{sillas:1,mesa:1,isla:1}:{sillas:1,mesa:1,isla:1,gondola:1,arcade:1,cartel:1,plantas:1,cafetera:1,luces:1})" % (n,n,n))
         await pg.reload(); await pg.wait_for_timeout(1000)
-        await pg.evaluate("GS.DEBUG_SPEED=%s; GS.Store.set('introSeen',true); GS.Store.set('plotIntro',true)" % (sys.argv[2] if len(sys.argv)>2 else "1")); await pg.reload(); await pg.wait_for_timeout(900); await pg.evaluate("GS.DEBUG_SPEED=%s" % (sys.argv[2] if len(sys.argv)>2 else "1")); await pg.click('#btnCamp'); await pg.wait_for_timeout(300); await pg.click('#btnPlay'); log={}; mx=0; seen=set()
+        await pg.evaluate("GS.DEBUG_SPEED=%s; GS.Store.set('introSeen',true); GS.Store.set('plotIntro',true)" % (sys.argv[2] if len(sys.argv)>2 else "1")); await pg.reload(); await pg.wait_for_timeout(900); await pg.evaluate("GS.DEBUG_SPEED=%s" % (sys.argv[2] if len(sys.argv)>2 else "1")); await pg.click('#btnCamp'); await pg.wait_for_timeout(300); await pg.click('#btnPlay'); log={}; mx=0; seen=set(); shots={}
         for i in range(3400):
             await pg.wait_for_timeout(110)
             if i%100==99: print(i, log, await pg.evaluate("(()=>{const d=GS.Game.day(); return JSON.stringify([GS.Game.state(), d&&d.stage, d&&d.wave, d&&d.customers.map(c=>c.st), d&&d.tasks.map(t=>t.station.id+':'+t.st), GS.Minigames.isOpen(), document.getElementById('modal').hidden, document.getElementById('labels').className, document.querySelectorAll('.bub').length, !!d.intr, [...document.querySelectorAll('[data-intr]')].map(e=>e.parentElement.parentElement.id+'/'+e.parentElement.className+'/'+e.textContent)])})()"), errs[-2:], flush=True)
@@ -42,6 +42,8 @@ async def main():
             st = await pg.evaluate("GS.Game.state()")
             if st=='end': break
             r = await pg.evaluate("(()=>{const mg=document.getElementById('mg'); if(mg&&!mg.hidden&&!mg.querySelector('.result')){const h=mg.innerText; if(/Adornos de Navidad/i.test(h)){const q=mg.querySelector('.opt'); if(q){q.click();return 'adornos';}} if(mg.querySelector('#mgN')){const th=GS.THEMES.find(t=>h.includes(t.t)); if(th){const names=GS.CATALOG.filter(p=>th.ids.includes(p.id)).map(p=>p.name); const q=[...mg.querySelectorAll('.opt:not(.sel)')].find(x=>names.includes(x.querySelector('.n').textContent)); if(q){q.click();return 'vidriera';}}}} const o=document.querySelector('#modal:not([hidden]) [data-o]'); if(o){o.click();return 'historia';} const cl=document.querySelector('#modal:not([hidden]) [data-close]'); if(cl){cl.click();return 'cerrar';} const i=document.querySelector('[data-intr=\"1\"]'); if(i&&!GS.Minigames.isOpen()){i.click();return 'intr';} if(!GS.Minigames.isOpen()){const j=document.querySelector('#labels [data-k], #jobs [data-k]'); if(j){j.click();return 'job';}} return null;})()")
+            k = await pg.evaluate("(()=>{const q=s=>document.querySelector('#mg:not([hidden]) '+s); return q('.result')?'':q('.opt[data-id]')?'most':q('.bill')?'vuelto':q('.cb')?'cuento':''})()")
+            if k and not shots.get(k): shots[k]=1; await pg.evaluate("document.getElementById('coach').hidden=true"); await pg.wait_for_timeout(200); await pg.screenshot(path=ROOT+'/shots/mgs_%s.png'%k)
             r = r or await pg.evaluate(SOLVE); log[r]=log.get(r,0)+1
             nb = await pg.evaluate("document.querySelectorAll('.say:not(.zz)').length"); mx = max(mx, nb); seen.update(await pg.evaluate("[...document.querySelectorAll('.say.boss')].map(e=>e.textContent)"))
         d = await pg.evaluate("(()=>{const d=GS.Game.day();return {st:GS.Game.state(),score:d.score,served:d.served,lost:d.lost,tasks:d.tasksDone,late:d.tasksLate,cord:Math.round(d.cord),intrOk:d.intrOk,mate:d.mate}})()")

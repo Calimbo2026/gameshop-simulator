@@ -52,9 +52,9 @@ GS.Minigames = (function () {
     const others = U.shuffle(GS.CATALOG.filter(p => p.id !== prod.id && p !== twin)).slice(0, 2);
     const options = U.shuffle([prod, twin].concat(others));
     root().innerHTML = head(cust, 'Mostrador') +
-      '<div class="bubble" id="mgBubble">' + esc(cust.request) + '</div>' +
+      '<div class="askrow"><div class="bubble" id="mgBubble">' + esc(cust.request) + '</div><div class="ask-pic"><small>Quiere esto</small>' + pic(prod) + '</div></div>' +
       '<div class="opts">' + options.map((p, i) => '<button class="opt" data-id="' + p.id + '"><kbd>' + (i + 1) + '</kbd>' + pic(p) + '<span class="n">' + esc(p.name) + '</span></button>').join('') + '</div>' +
-      '<div class="rule">Tocá el producto que te está pidiendo</div>';
+      '<div class="rule">Tocá el producto igual al del dibujo</div>';
     const btns = [...root().querySelectorAll('.opt')];
     function choose(b) {
       if (!cur || cur.done || b.classList.contains('bad')) return;
@@ -116,13 +116,14 @@ GS.Minigames = (function () {
     const bills = [20000, 10000, 2000, 1000]; let given = 0;
     root().innerHTML = head(cust, 'Caja · Vuelto') +
       '<div class="bubble" id="mgBubble">Pago en efectivo. Tomá, cobrate.</div>' +
-      '<div class="info"><span>Total con 10% OFF, redondeado <b>' + U.money(T) + '</b></span><span>Paga con <b>' + U.money(G) + '</b></span></div>' +
-      '<div class="tray"><span>Vuelto que le das</span><b id="mgGiven">$0</b></div>' +
-      '<div class="bills">' + bills.map((b, i) => '<button class="bill" data-b="' + b + '" aria-label="Billete de ' + U.money(b) + '"><i>' + b / 1000 + '</i><span class="seal">GS</span><b>' + U.money(b) + '</b><small>' + ['veinte mil', 'diez mil', 'dos mil', 'mil'][i] + '</small><i>' + b / 1000 + '</i></button>').join('') + '</div>' +
+      '<div class="vx-top"><div><small>Total</small><b>' + U.money(T) + '</b></div><div><small>Paga con</small><b>' + U.money(G) + '</b></div></div>' +
+      '<div class="tray vx"><span>Vuelto que le das</span><b id="mgGiven">$0</b></div>' +
+      '<div class="bills">' + bills.map((b, i) => '<button class="bill vbx" data-b="' + b + '" aria-label="Billete de ' + U.money(b) + '">' + GS.Vueltos.billSvg(b) + '</button>').join('') + '</div>' +
       '<div class="row"><button class="btn ghost" id="mgClear">Borrar</button><button class="btn" id="mgGive" style="flex:2;font-size:19px;padding:12px">Dar el vuelto</button></div>';
     const out = document.getElementById('mgGiven');
-    const add = b => { if (!cur || cur.done) return; given += b; out.textContent = U.money(given); GS.Audio.play('bill'); };
-    const clear = () => { given = 0; out.textContent = '$0'; GS.Audio.play('click'); };
+    const paint = () => { out.textContent = U.money(given); out.parentNode.classList.toggle('ok', given === change); out.parentNode.classList.toggle('over', given > change); };
+    const add = b => { if (!cur || cur.done) return; given += b; paint(); GS.Audio.play('bill'); };
+    const clear = () => { given = 0; paint(); GS.Audio.play('click'); };
     function give() {
       if (!cur || cur.done) return;
       if (given === change) { GS.Audio.play('cash'); finish(true, '¡Vuelto justo!', 'Cobraste ' + U.money(T), { total: T }); }
@@ -514,7 +515,7 @@ GS.Minigames = (function () {
     const bills = U.shuffle([20000, 20000, 10000, 10000, 10000, 2000, 2000, 1000, 1000, 20000, 10000]).slice(0, Math.floor(U.rnd(6, 9))), sum = bills.reduce((a, b) => a + b, 0), d = U.pick([0, 0, -10000, 10000, -20000, 20000]);
     const x = Math.abs(d) || 10000, right = d === 0 ? 'ok' : d < 0 ? 'falta' : 'sobra', sys = sum - d, me = cur; let cnt = 0, left = bills.length;   /* d = lo que hay en el cajón menos lo que dice el sistema */
     root().innerHTML = head(job, 'Cierre de caja') + '<div class="tray"><span>El sistema dice que hoy se cobró</span><b>' + U.money(sys) + '</b></div>' +
-      '<div class="cj"><h4>💵 El cajón · tocá cada billete para contarlo</h4><div class="cj-b">' + bills.map(v => '<button class="cb v' + v + '" data-v="' + v + '" style="--r:' + Math.floor(U.rnd(-5, 6)) + 'deg"><b>' + U.money(v) + '</b></button>').join('') + '</div></div>' +
+      '<div class="cj"><h4>💵 El cajón · tocá cada billete para contarlo</h4><div class="cj-b">' + bills.map(v => '<button class="cb vbx v' + v + '" data-v="' + v + '" style="--r:' + Math.floor(U.rnd(-5, 6)) + 'deg" aria-label="' + U.money(v) + '">' + GS.Vueltos.billSvg(v) + '</button>').join('') + '</div></div>' +
       '<div class="tray cnt"><span>Llevás contado</span><b id="cjT">' + U.money(0) + '</b></div>' +
       '<div class="opts three low cj-o off">' + [['falta', 'Faltan ' + U.money(x)], ['ok', 'Cierra perfecto'], ['sobra', 'Sobran ' + U.money(x)]].map((o, i) => '<button class="opt" data-ok="' + (o[0] === right ? 1 : 0) + '"><kbd>' + (i + 1) + '</kbd><span class="n">' + o[1] + '</span></button>').join('') + '</div>' +
       '<div class="rule" id="mgBubble">' + (firstTime('cierre') ? '👆 Primera vez: tocá los billetes de a uno para contarlos. Después compará el total con lo que dice el sistema.' : 'Contá la plata del cajón y fijate si coincide con el sistema.') + '</div>';
