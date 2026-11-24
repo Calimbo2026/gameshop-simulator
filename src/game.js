@@ -807,20 +807,27 @@ GS.Game = (function () {
         sayAt(person, rvV.hi, 0, 'riv', false, false, () => { if (day !== d || cu.st !== 'waitM' || state !== 'day') return; if (!MG.isOpen() && !paused) openStory(cu); }, rvV); }); }
     else toCounter(cu, [[dx, L.salon.zMax + 0.2]]); setTimeout(() => A.play('bell'), 900);
   }
+  function typeIn(el, html, pic) {            /* el texto aparece palabra por palabra; un toque lo completa */
+    el.innerHTML = html; const sp = [];
+    (function walk(n) { [].slice.call(n.childNodes).forEach(c => { if (c.nodeType !== 3) return walk(c); const f = document.createDocumentFragment(); c.textContent.split(/(\s+)/).forEach(w => { if (!w) return; if (/^\s+$/.test(w)) return f.appendChild(document.createTextNode(w)); const x = document.createElement('span'); x.textContent = w; x.style.visibility = 'hidden'; sp.push(x); f.appendChild(x); }); n.replaceChild(f, c); }); })(el);
+    let i = 0; clearInterval(typeIn.t); if (pic) pic.classList.add('talk');
+    const done = () => { clearInterval(typeIn.t); sp.forEach(x => { x.style.visibility = ''; }); if (pic) pic.classList.remove('talk'); };
+    typeIn.t = setInterval(() => { if (!el.isConnected || i >= sp.length) return done(); sp[i++].style.visibility = ''; }, 45); el.onclick = done;
+  }
   function openStory(cu) {
     const S = cu.story, h = histAll(), st = h[S.id] || { step: 0, flags: {}, notes: [] }, real = S.steps[st.step], gf = GS.Store.get('gflags') || {};
     const waiting = !!(real.need && !gf[real.need] && !(real.waitMax && (st.waits || 0) >= real.waitMax)), step = waiting ? real.wait : real, alt = step.alt && st.flags[step.alt.flag] ? step.alt : null;
     const text = alt ? alt.t : step.t, mood = alt ? alt.m : step.m; let chosen = false;
     A.unlock(); A.play('click'); cu.st = 'inM'; paused = true; if (cu.rv) W.zoomAt(cu.person.group.position.x + 1.4, cu.person.group.position.z + 1.8, 0.25); else { yoGo('most'); focusFor('mostrador'); } A.babble(text, cu.person.voice);
-    const faceBox = m => '<div class="st-face">' + avatarSvg(cu.look, m) + '</div>';
-    const stCls = cu.rv ? '<div class="story rv" style="--rc:' + cu.rv.col + '"><em class="st-brand">' + cu.rv.mark + ' ' + cu.rv.name + '</em>' : '<div class="story">';
-    modal(stCls + '<div class="st-head">' + faceBox(mood) + '<div><b>' + S.name + '</b><span>' + S.tag + (st.step ? ' · vez ' + (st.step + 1) : '') + '</span></div></div>' +
-      '<div class="bubble">' + text + '</div>' + step.opts.map((o, i) => '<button class="btn ghost st-opt" data-o="' + i + '">' + o.b + '</button>').join('') + '</div>', () => {
-      paused = false; W.focus(null); $('modal').classList.remove('low');
+    /* Diálogo con retrato grande: el que habla arriba a la izquierda, su nombre en una placa y el texto que se va escribiendo abajo */
+    const dlg = (m, sub, tail) => '<div class="story dlg' + (cu.rv ? ' rv" style="--rc:' + cu.rv.col : '') + '"><div class="dl-top"><div class="dl-pic" id="dlPic">' + avatarSvg(cu.look, m) + '</div><div class="dl-id">' + (cu.rv ? '<em class="st-brand">' + cu.rv.mark + ' ' + cu.rv.name + '</em>' : '') + '<div class="dl-name"><b>' + S.name + '</b><span>' + sub + '</span></div></div></div><div class="dl-box"><div class="bubble" id="dlTxt"></div></div>' + tail + '</div>';
+    modal(dlg(mood, S.tag + (st.step ? ' · vez ' + (st.step + 1) : ''), '<div class="dl-opts">' + step.opts.map((o, i) => '<button class="btn ghost st-opt" data-o="' + i + '">' + o.b + '</button>').join('') + '</div>'), () => {
+      paused = false; W.focus(null); $('modal').classList.remove('low', 'dlgm');
       if (!chosen) { cu.st = 'waitM'; return; }
       cu.slotM = -1; leave(cu, false);
     });
-    $('modal').classList.toggle('low', !!cu.rv);
+    typeIn($('dlTxt'), text, $('dlPic')); $('modal').classList.add('dlgm');
+    $('modal').classList.add('low');
     $('sheet').querySelectorAll('[data-o]').forEach(b => b.addEventListener('click', () => {
       const o = step.opts[Number(b.dataset.o)], fx = o.fx || {}, chips = []; chosen = true;
       if (fx.rep) { addRep(fx.rep); chips.push((fx.rep > 0 ? '▲' : '▼') + ' Reputación'); }
@@ -834,8 +841,8 @@ GS.Game = (function () {
       if (waiting) st.waits = (st.waits || 0) + 1;                 // todavía falta algo que depende de otra historia: vuelve más adelante
       else if (!o.stay) { st.step++; st.notes.push(o.note || step.note); if (step.end || st.step >= S.steps.length) st.done = true; }
       h[S.id] = st; GS.Store.set('hist', h); GS.track('visita', { quien: S.id, paso: st.step }); A.play(fx.rep < 0 || fx.fondo < 0 ? 'error' : 'ok'); A.babble(o.r, cu.person.voice);
-      $('sheet').innerHTML = stCls + '<div class="st-head">' + faceBox(o.rm || 'normal') + '<div><b>' + S.name + '</b><span>' + (st.done ? 'Historia cerrada · quedó en tu libreta' : 'Dijo que vuelve · quedó en tu libreta') + '</span></div></div>' +
-        '<div class="bubble">' + o.r + '</div><div class="st-chips">' + chips.map(c => '<span>' + c + '</span>').join('') + '</div><button class="btn" data-close>Seguir</button></div>';
+      $('sheet').innerHTML = dlg(o.rm || 'normal', st.done ? 'Historia cerrada · quedó en tu libreta' : 'Dijo que vuelve · quedó en tu libreta', '<div class="st-chips">' + chips.map(c => '<span>' + c + '</span>').join('') + '</div><button class="btn" data-close>Seguir</button>');
+      typeIn($('dlTxt'), o.r, $('dlPic'));
       $('sheet').querySelector('[data-close]').addEventListener('click', closeModal);
     }));
   }

@@ -841,3 +841,18 @@ body.cine:has(#mg:not([hidden])) .cine-bar.bot, body.cine:has(#modal:not([hidden
 .sl-h { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 2px dashed #17171c; padding-bottom: 5px; margin-bottom: 6px; } .sl-h b { color: #e10600; font-size: 16px; letter-spacing: .06em; } .sl-h i { font-style: normal; font-size: 13px; }
 .sl-s { font-size: 12.5px; text-transform: uppercase; letter-spacing: .08em; opacity: .7; } #slip p { margin: 3px 0 8px; font-size: 15.5px; }
 .sl-f { border-top: 2px dashed #17171c; padding-top: 5px; font-size: 13px; } .sl-f.fine { color: #e10600; font-weight: 800; }
+
+/* v0.85: diálogos con retrato grande */
+#modal.dlgm .sheet { background: none; border: 0; padding: 0; overflow: visible; max-width: 480px; }
+.story.dlg { gap: 8px; } .story.dlg.rv { border: 0; padding: 0; background: none; box-shadow: none; }
+.dl-top { display: flex; align-items: flex-end; gap: 10px; margin-bottom: -18px; padding-left: 8px; position: relative; z-index: 1; }
+.dl-pic { flex: none; width: 138px; height: 138px; border-radius: 22px; overflow: hidden; background: linear-gradient(160deg, #6fb2f2, #3f7fd0); border: 4px solid #fff; box-shadow: 0 8px 22px rgba(0,0,0,.6); } .dl-pic svg { width: 100%; height: auto; display: block; transform-origin: 50% 100%; }
+.dl-pic.talk svg { animation: dlTalk .26s ease-in-out infinite alternate; } @keyframes dlTalk { to { transform: translateY(-3px) scale(1.015); } }
+.dl-id { display: flex; flex-direction: column; align-items: flex-start; gap: 5px; margin-bottom: 26px; min-width: 0; }
+.dl-name { background: var(--red); color: #fff; border-radius: 10px; padding: 4px 12px 5px; box-shadow: 0 3px 0 rgba(0,0,0,.5); } .dl-name b { display: block; font-family: var(--display); font-size: 22px; letter-spacing: .04em; text-transform: uppercase; line-height: 1.05; } .dl-name span { display: block; font-size: 12.5px; opacity: .92; }
+.dl-box { background: #fff; border: 4px solid #17171c; outline: 3px solid #fff; border-radius: 18px; padding: 24px 14px 12px; min-height: 96px; } .story.dlg .dl-box .bubble { background: none; border: 0; padding: 0; color: #111; font-size: 18px; line-height: 1.4; font-weight: 600; border-radius: 0; }
+.dl-opts { display: flex; flex-direction: column; gap: 7px; margin-top: 4px; } .dl-opts .st-opt { background: #17171c; border: 2px solid #fff; color: #fff; font-size: 16px; text-align: left; padding: 11px 14px; } .dl-opts .st-opt::before { content: '▶ '; color: var(--warn); }
+.story.dlg.rv .dl-pic { border-color: var(--rc); background: radial-gradient(120% 90% at 50% 28%, var(--rc), #0b0b0d); } .story.dlg.rv .dl-name { background: var(--rc); } .story.dlg.rv .dl-box { border-color: var(--rc); } .story.dlg.rv .bubble { border-left: 0; } .story.dlg .st-chips { margin-top: 2px; }
+/* el Dueño, durante la jornada, habla con el mismo formato */
+#coach:not(.big) { align-items: flex-end; background: #fff; color: #111; border: 4px solid #17171c; outline: 3px solid #fff; border-radius: 18px; } #coach:not(.big) .coach-face { width: 92px; height: 100px; margin-top: -40px; border-radius: 18px; border: 3px solid #fff; box-shadow: 0 6px 16px rgba(0,0,0,.5); } #coach:not(.big) .coach-txt { font-size: 16px; font-weight: 600; color: #111; align-self: center; } #coach:not(.big) .coach-txt > b { color: var(--red); font-family: var(--display); font-size: 17px; letter-spacing: .05em; } #coach:not(.big) .coach-txt b { color: #b00500; }
+body:has(#modal:not([hidden])) #labels .bub { opacity: 0; pointer-events: none; }
