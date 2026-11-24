@@ -834,18 +834,18 @@ body.cine:has(#mg:not([hidden])) .cine-bar.bot, body.cine:has(#modal:not([hidden
 /* armado de PC: muesca amarilla en la esquina de cada pieza y de cada lugar; si no coinciden, la pieza está al revés */
 .part .pi { position: relative; } .part .pi::before, .pcase .pslot::before, .pcase .pp::before { content: ""; position: absolute; left: 1px; top: 1px; width: 0; height: 0; border-top: 10px solid #f5c518; border-right: 10px solid transparent; filter: drop-shadow(0 1px 0 rgba(0,0,0,.6)); z-index: 3; pointer-events: none; }
 
-/* v0.82: Aprendé a dar vueltos */
-#vuelto { position: fixed; inset: 0; z-index: 60; background: #101014; display: flex; flex-direction: column; gap: 8px; padding: calc(8px + var(--sat, 0px)) 12px calc(10px + var(--sab, 0px)); max-width: 560px; margin: 0 auto; overflow-y: auto; } #vuelto[hidden] { display: none; }
-.vt-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; } .vt-top b { font-family: var(--display); font-size: 19px; letter-spacing: .03em; text-transform: uppercase; } .vt-top span { flex: 1; font-size: 13px; color: #c9c9d2; text-align: right; }
-.vt-reg { background: #06140c; border: 3px solid #2a2a33; border-radius: 14px; padding: 8px 14px 10px; text-align: right; box-shadow: inset 0 0 0 2px #0f2a1a; } .vt-reg small, .vt-counter small, .vt-hand small { display: block; font-size: 11.5px; letter-spacing: .14em; color: #f5c518; font-weight: 800; text-align: left; } .vt-reg output { font: 800 clamp(38px, 12vw, 56px)/1 ui-monospace, Menlo, Consolas, monospace; color: #5dff9b; text-shadow: 0 0 14px rgba(93,255,155,.45); }
-.vt-counter { background: linear-gradient(180deg, #b00500, #7a0000); border-radius: 14px; padding: 8px 12px 10px; border-bottom: 5px solid #17171c; } .vt-counter small { color: #fff; }
-.vt-hand { background: #1b1b21; border: 2px dashed #3a3a44; border-radius: 14px; padding: 8px 12px 10px; min-height: 118px; } .vt-hand output { display: block; font: 800 34px/1.1 ui-monospace, Menlo, Consolas, monospace; color: #fff; } .vt-hand em { color: #8d8d99; font-size: 14px; font-style: normal; } .vt-hand.ok { border: 2px solid #3bb54a; background: #10231a; } .vt-hand.bad { border: 2px solid #e10600; background: #2a1012; } .vt-msg { margin: 6px 0 0; font-size: 15px; font-weight: 700; }
-.vt-bills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
-.vb { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 3px; min-width: 76px; height: 40px; padding: 0 9px; border-radius: 7px; background: var(--c); color: #fff; border: 2px solid rgba(255,255,255,.55); box-shadow: 0 3px 0 rgba(0,0,0,.45); font-weight: 800; } .vb b { font: 800 17px/1 system-ui, sans-serif; } .vb i { font-style: normal; opacity: .75; font-size: 13px; } .vb.paid { pointer-events: none; } .vb.mine { animation: vbIn .16s ease-out; } @keyframes vbIn { from { transform: translateY(14px) scale(.9); opacity: 0; } }
-.vt-tray { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; margin-top: auto; } .vt-tray .vb { min-width: 0; height: 54px; } .vt-tray .vb b { font-size: 19px; } .vt-tray .vb:active { transform: translateY(3px); box-shadow: none; }
+/* v0.86: Aprendé a dar vueltos, como un cobro de verdad */
+#vuelto { position: fixed; inset: 0; z-index: 60; background: #0e0e12; display: flex; flex-direction: column; gap: 8px; padding: calc(8px + var(--sat, 0px)) 12px calc(10px + var(--sab, 0px)); max-width: 560px; margin: 0 auto; overflow-y: auto; } #vuelto[hidden] { display: none; }
+#vuelto small { display: block; font-size: 11.5px; letter-spacing: .14em; font-weight: 800; }
+.vt-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; } .vt-top b { flex: 1; font-family: var(--display); font-size: 17px; letter-spacing: .03em; text-transform: uppercase; } .vt-top span { flex: 0 0 100%; font-size: 13px; color: #c9c9d2; }
+.vt-reg { display: flex; align-items: stretch; gap: 10px; background: linear-gradient(180deg, #3a3a44, #24242b); border-radius: 14px 14px 6px 6px; padding: 9px; box-shadow: 0 4px 0 #111; } .vt-reg > i { flex: none; width: 54px; border-radius: 8px; background: repeating-linear-gradient(0deg, #15151a 0 9px, #2c2c35 9px 11px), #15151a; box-shadow: inset 0 0 0 2px #0b0b0e; } .vt-reg > div { flex: 1; background: #06140c; border-radius: 8px; padding: 6px 12px 8px; text-align: right; box-shadow: inset 0 0 0 2px #0f2a1a; } .vt-reg small { color: #5dff9b; opacity: .75; text-align: left; } .vt-reg output { font: 800 clamp(38px, 12vw, 54px)/1 ui-monospace, Menlo, Consolas, monospace; color: #5dff9b; text-shadow: 0 0 14px rgba(93,255,155,.45); }
+.vt-counter { flex: 1; display: flex; flex-direction: column; gap: 8px; border-radius: 6px 6px 14px 14px; padding: 10px 12px 12px; background: repeating-linear-gradient(92deg, rgba(0,0,0,.05) 0 3px, transparent 3px 26px), linear-gradient(180deg, #c9925a, #a56f3c); border-top: 7px solid #e10600; box-shadow: inset 0 3px 0 rgba(255,255,255,.25), 0 5px 0 #5d3b1c; } .vt-counter > small { color: #3a2410; }
+.vt-paid { display: flex; flex-wrap: wrap; justify-content: center; gap: 0 2px; min-height: 76px; padding: 2px 0 6px; } .vt-paid .vb { width: min(44%, 176px); transform: rotate(var(--r, 0deg)); margin: 0 -8px; pointer-events: none; }
+.vt-hand { background: rgba(20,14,8,.42); border: 2px dashed rgba(255,255,255,.5); border-radius: 12px; padding: 8px 10px 10px; min-height: 112px; margin-top: auto; } .vt-hand small { color: #fff; } .vt-hand output { display: block; font: 800 32px/1.1 ui-monospace, Menlo, Consolas, monospace; color: #fff; text-shadow: 0 2px 0 rgba(0,0,0,.4); } .vt-hand em { color: #f3e3cf; font-size: 14px; font-style: normal; } .vt-hand.ok { border: 3px solid #3bb54a; background: rgba(10,50,24,.7); } .vt-hand.bad { border: 3px solid #e10600; background: rgba(70,10,10,.7); } .vt-msg { margin: 6px 0 0; font-size: 15px; font-weight: 700; color: #fff; }
+.vt-give { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; } .vt-give .vb { width: calc(25% - 3px); animation: vbIn .16s ease-out; } @keyframes vbIn { from { transform: translateY(14px) scale(.9); opacity: 0; } }
+.vb { display: block; padding: 0; border: 0; background: none; min-height: 0; border-radius: 4px; box-shadow: 0 2px 0 rgba(0,0,0,.4), 0 3px 8px rgba(0,0,0,.35); line-height: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; } .vb svg { display: block; width: 100%; height: auto; border-radius: 4px; }
+.vt-tray { background: #1a1a20; border: 3px solid #34343e; border-radius: 12px; padding: 7px 8px 9px; } .vt-tray small { color: #f5c518; margin-bottom: 5px; } .vt-tray > div { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px 6px; } .vt-tray .vb { position: relative; box-shadow: 0 2px 0 #cfcfd6, 0 4px 0 #8d8d99, 0 6px 0 #5d5d68, 0 8px 6px rgba(0,0,0,.5); margin-bottom: 6px; } .vt-tray .vb:active { transform: translateY(4px); box-shadow: 0 2px 0 #8d8d99; }
 .vt-act { display: grid; grid-template-columns: 1fr 1.4fr; gap: 8px; } .vt-act .btn:only-child { grid-column: 1 / -1; }
-.vt-top b { flex: 1; font-size: 17px; } .vt-top span { flex: 0 0 100%; order: 3; text-align: left; }
-
 /* v0.83: los pendientes son globitos sobre el lugar donde pasan */
 .plabel { display: none !important; }
 #labels.beat .bub { opacity: .4; }
@@ -1004,7 +1004,7 @@ const GS = {};
 GS.LOGO = "data:image/png;base64,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";
 
 GS.CONFIG = {
-  version: '0.85.1',
+  version: '0.86.0',
   phase: 8,
   phaseNote: 'Juego completo de punta a punta. Falta tu playtest con 5 personas y encender el lanzamiento (launched: true)',                       // fase actual del proyecto (1 a 5)
   links: { tienda: 'https://www.gameshop.com.ar', instagram: '' },   // botones del inicio y del cierre (vacío = no se muestra)
@@ -1284,20 +1284,9 @@ GS.SKINS = [0xf6d7bd, 0xf2c9a0, 0xe0ac7e, 0xc68a5c, 0x9a643c, 0x6b4428];
 GS.HAIRS = [0x000000, 0x2b2b3a, 0x4a3a2a, 0x7a3b1e, 0xd9a514, 0xc9c9d6, 0x2d6cdf, 0xff5fa2, 0x3bb54a];
 
 /* Progresión: qué estaciones se suman en cada jornada (de menos a más) y cómo las explica el Dueño */
-GS.UNLOCKS = [];      /* ya no se aprende por jornadas: todo se aprende en el día de inducción, y desde la jornada 1 están todas las tareas */
-/* Día de inducción: el Dueño entrena al jugador, una estación por vez. El cliente es un muñeco de paja. */
-GS.INDUC = {
-  order: ['whatsapp', 'ml', 'stock', 'repo', 'proveedor', 'vidriera', 'pc', 'service', 'devol'],
-  dummy: { id: 'dummy', name: 'Cliente de paja', face: '🎯', shirt: 0xd9b77a, hair: 0xe8c33c, tag: 'No se queja nunca. Todavía.', look: { dummy: true, hairStyle: 'pelado', glasses: false, beard: false, lips: false, lashes: false, skin: 0xd9b77a, pants: 0x7a5a36, scale: 1 },
-    bye: '(El Dueño, haciendo la voz) "¡Qué atención! Vuelvo mañana con toda la familia."', lost: '' },
-  open: '¡Arriba! Hoy no abrimos: hoy entrenamos. Ese de paja es tu primer cliente. No muerde. Tocá el pedido de abajo.',
-  say: { caja: '¡Ahora cobrale! Contá bien el vuelto, que el de paja no perdona.', whatsapp: '¡Los mensajes no se contestan solos! ¡Rápido y amable!', ml: '¡Compra por la página! Embalá como si adentro viajara tu abuela.', stock: '¡A contar! El sistema dice una cosa. Vos decime la verdad.', repo: '¡Depósito! Cada caja en su lugar. ¡Otra vez! ¡Con ganas!', proveedor: '¡Llegó el camión! Lo que no está en el remito, no entra.', vidriera: '¡La vidriera es la cara del local! ¡Que brille!', pc: '¡A armar una PC! Cada pieza en su lugar, sin forzar nada.', service: '¡Al taller! Escuchá al equipo: siempre te dice qué le duele.', devol: '¡Una devolución! Mirá bien el producto antes de decir que sí.', cierre: '¡Última estación! Contá la caja. Si cierra, ya sos de los nuestros.' },
-  cheer: ['¡Eso!', '¡Así se hace!', '¡Otra! ¡Vamos!', '¡Mirá vos!', '¡Con esa actitud!', '¡Sin aflojar!', '¡Ya casi, ya casi!'],
-  end: [{ art: 'jefe2', k: 'Día de inducción', t: '¡Estás listo!', d: 'Atendiste, cobraste, embalaste, contaste y arreglaste. El de paja quedó conforme, y eso que es exigente.' },
-    { art: 'equipo0', k: 'Desde hoy', t: 'Sos del equipo', d: 'Lucho, Brian y vos. Yo estoy en la oficina, mirando todo. Mañana abrimos con gente de verdad, y desde la primera jornada hacés de todo.' },
-    { art: 'rival', k: 'Lo que tenés que saber', t: 'Enfrente abrió Turbo Gamer', d: 'El dueño es Tito Turbo. Promete todo "en cinco minutos" y nos está sacando clientes. No le vamos a ganar corriendo: le vamos a ganar atendiendo mejor.' },
-    { art: 'vs', k: 'El plan', t: 'Primero el barrio, después el país', d: 'Llevá el local a 5 estrellas y completá la flota de reparto. Cuando lo logres, llega el día de competencia contra Tito. Si le ganamos, Buenos Aires es nuestra y vamos por la próxima región.' }]
-};
+/* Una tarea nueva cada tanto, en orden lógico: primero atender y cobrar; después mensajes, cierre, compras por la página, mercadería, vidriera, taller y armado de PC.
+   Control de stock, ordenar el depósito y devoluciones quedaron fuera de la campaña (siguen en "Practicar estaciones"). */
+GS.UNLOCKS = [['mostrador', 'caja'], ['whatsapp'], ['cierre'], [], ['ml'], [], ['proveedor'], [], ['vidriera'], [], ['service'], [], ['pc']];
 GS.EXPLAIN = {
   adornos: 'Mañana empieza la semana de Navidad. Elegí el árbol, las guirnaldas y las luces: como lo armes hoy, así amanece el local.',
   vidriera: 'Armá la vidriera según el tema: elegí los 4 productos que mejor van. Si queda bien, va a entrar gente diciendo que lo vio ahí.',
@@ -1719,7 +1708,7 @@ GS.STATIONS = [
     task: { name: 'Ordenar el depósito', tag: 'Hay cosas mal ubicadas', late: 'El depósito sigue desordenado. Ya nadie encuentra nada.' } },
   { id: 'stock', n: 8, name: 'Control de stock', icon: '🔍', pos: [-5.0, -3.2],
     task: { name: 'Contar una góndola', tag: 'El sistema dice una cosa...', late: 'Nadie contó la góndola. El sistema sigue soñando.' } },
-  { id: 'proveedor', n: 9, name: 'Recepción de proveedor', short: 'Proveedor', icon: '🚚', pos: [5.0, -4.6],
+  { id: 'proveedor', n: 9, name: 'Llegó mercadería', short: 'Mercadería', icon: '🚚', pos: [5.0, -4.6],
     task: { name: 'Llegó mercadería', tag: 'Firmame acá, jefe', late: 'El del reparto se cansó de esperar la firma y se fue.' } },
   { id: 'devol', n: 10, name: 'Devoluciones', icon: '↩️', pos: [0.2, -4.0],
     task: { name: 'Quieren devolver algo', tag: '"Lo usé poquito"', late: 'El de la devolución se fue. Vuelve mañana, con refuerzos.' } },
@@ -4524,47 +4513,69 @@ GS.Arcade = (() => {
   return { open, close, bind, isOpen: () => !!G, debug: () => G };
 })();
 
-/* ============ Aprendé a dar vueltos: práctica infinita, sin reloj. La caja muestra el total, el mostrador lo que paga el cliente,
-   y se arma el vuelto tocando billetes. Solo acá los billetes son de 100, 200, 500, 1.000, 2.000, 10.000 y 20.000. ============ */
+/* ============ Aprendé a dar vueltos: práctica infinita, sin reloj, armada como un cobro de verdad.
+   Arriba la caja registradora con el total; en el mostrador, los billetes que apoya el cliente; abajo, el cajón con los billetes para armar el vuelto.
+   Solo acá los billetes son de 100, 200, 500, 1.000, 2.000, 10.000 y 20.000. Los billetes son dibujos propios con el color y la proporción de los reales. ============ */
 GS.Vueltos = (() => {
-  const D = [100, 200, 500, 1000, 2000, 10000, 20000], COL = { 100: '#8e7cc3', 200: '#5fa8d3', 500: '#57b894', 1000: '#e0a23c', 2000: '#e07a5f', 10000: '#c9485b', 20000: '#3d5a80' };
-  const fmt = n => '$' + String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '.'), el = id => document.getElementById(id), rnd = n => Math.floor(Math.random() * n);
-  let root = null, S = null;
-  const best = n => { let c = 0; for (let i = D.length - 1; i >= 0; i--) { c += Math.floor(n / D[i]); n %= D[i]; } return c; };      /* menor cantidad de billetes posible */
-  const split = (n, ds) => { const o = []; ds.forEach(d => { while (n >= d) { o.push(d); n -= d; } }); return o; };
-  function round() {
-    /* cada ronda apunta a un billete distinto, para que con el tiempo se usen todos y combinados */
-    const lvl = Math.min(D.length, 3 + Math.floor(S.n / 3)); if (!S.bag.length) S.bag = D.slice(0, lvl).sort(() => Math.random() - 0.5);
-    const t = S.bag.pop(), MAXC = { 10000: 1, 2000: 4, 1000: 1, 500: 1, 200: 2, 100: 1 }; let ch = t;
-    D.filter(d => d < t).forEach(d => { if (Math.random() < (S.n < 4 ? 0.3 : 0.5)) ch += d * (1 + rnd(Math.min(2, MAXC[d]))); });
-    const P = [1000, 2000, 5000, 10000, 20000, 30000, 40000, 50000], ok = P.filter(p => p - ch >= 300), pay = ok[Math.random() < 0.75 ? 0 : Math.min(1, ok.length - 1)];
-    S.cur = { total: pay - ch, pay, ch, give: [], t0: performance.now(), done: false }; S.n++; draw();
+  const D = [100, 200, 500, 1000, 2000, 10000, 20000];
+  const COL = { 100: ['#8a6fc0', '#5b4296', '#efe8fb'], 200: ['#4f93cf', '#2a5f9c', '#e6f1fb'], 500: ['#4fae78', '#2c7a4d', '#e6f6ec'], 1000: ['#eda04a', '#c06a18', '#fdf0de'], 2000: ['#c98aa6', '#6f6772', '#f8e9f0'], 10000: ['#3f6fc0', '#1f3f86', '#e4ecfb'], 20000: ['#2f9a9a', '#17595f', '#e2f5f4'] };
+  const dots = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '.'), fmt = n => '$' + dots(n), el = id => document.getElementById(id), rnd = n => Math.floor(Math.random() * n), pick = a => a[rnd(a.length)];
+  let root = null, S = null, uid = 0;
+  /* Billete dibujado: proporción 155 x 65 mm, fondo de guilloché, roseta, banda de seguridad, valor en las esquinas y número de serie */
+  function billSvg(d) {
+    const c = COL[d], id = 'vb' + d + '_' + (++uid), t = dots(d), fs = d >= 10000 ? 30 : 36, ser = String(10000000 + (d * 7919 + uid * 104729) % 89999999);
+    let ros = ''; for (let i = 0; i < 12; i++) ros += '<ellipse cx="112" cy="65" rx="34" ry="12" transform="rotate(' + i * 15 + ' 112 65)"/>';
+    let waves = ''; for (let i = 0; i < 9; i++) waves += '<path d="M0 ' + (10 + i * 14) + ' q 19 -12 38 0 t 38 0 t 38 0 t 38 0 t 38 0 t 38 0 t 38 0 t 38 0 t 38 0"/>';
+    return '<svg viewBox="0 0 310 130" xmlns="http://www.w3.org/2000/svg" aria-label="' + t + ' pesos"><defs><linearGradient id="' + id + '" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="' + c[2] + '"/><stop offset=".45" stop-color="' + c[0] + '" stop-opacity=".55"/><stop offset="1" stop-color="' + c[0] + '"/></linearGradient></defs>' +
+      '<rect width="310" height="130" rx="5" fill="' + c[2] + '"/><rect width="310" height="130" rx="5" fill="url(#' + id + ')"/>' +
+      '<g fill="none" stroke="' + c[1] + '" stroke-opacity=".22" stroke-width="1">' + waves + '</g>' +
+      '<rect x="5" y="5" width="300" height="120" rx="3" fill="none" stroke="' + c[1] + '" stroke-width="2"/><rect x="9" y="9" width="292" height="112" rx="2" fill="none" stroke="' + c[1] + '" stroke-opacity=".5" stroke-width=".8"/>' +
+      '<g fill="none" stroke="' + c[1] + '" stroke-opacity=".75" stroke-width="1.1">' + ros + '</g><circle cx="112" cy="65" r="15" fill="' + c[2] + '" stroke="' + c[1] + '" stroke-width="1.5"/><text x="112" y="71" text-anchor="middle" font-size="17" font-weight="800" fill="' + c[1] + '" font-family="Georgia, serif">$</text>' +
+      '<rect x="176" y="5" width="7" height="120" fill="' + c[1] + '" opacity=".35"/><ellipse cx="34" cy="78" rx="19" ry="25" fill="#fff" opacity=".5"/>' +
+      '<text x="16" y="38" font-size="' + (fs - 8) + '" font-weight="900" fill="' + c[1] + '" font-family="Georgia, serif">' + t + '</text>' +
+      '<text x="296" y="80" text-anchor="end" font-size="' + (fs + 8) + '" font-weight="900" fill="#fff" stroke="' + c[1] + '" stroke-width="1.6" paint-order="stroke" font-family="Georgia, serif">' + t + '</text>' +
+      '<text x="296" y="104" text-anchor="end" font-size="14" font-weight="800" letter-spacing="3" fill="' + c[1] + '" font-family="Georgia, serif">PESOS</text>' +
+      '<text x="296" y="24" text-anchor="end" font-size="9" letter-spacing="1" fill="' + c[1] + '" font-family="monospace">' + ser + ' A</text><text x="16" y="118" font-size="7" letter-spacing="1.5" fill="' + c[1] + '" opacity=".8" font-family="monospace">BILLETE DE PRÁCTICA · GAMESHOP</text></svg>';
   }
-  const bill = (d, cls, i) => '<button class="vb ' + (cls || '') + '" data-d="' + d + '"' + (i != null ? ' data-i="' + i + '"' : '') + ' style="--c:' + COL[d] + '"><i>$</i><b>' + String(d).replace(/\B(?=(\d{3})+(?!\d))/g, '.') + '</b></button>';
+  const best = n => { let c = 0; for (let i = D.length - 1; i >= 0; i--) { c += Math.floor(n / D[i]); n %= D[i]; } return c; };      /* menor cantidad de billetes posible */
+  /* Cómo paga la gente: casi siempre con un billete grande; a veces con dos o tres; cada tanto, se le pasa un billete de más */
+  const PAYS = [[1000], [2000], [2000], [2000, 2000], [2000, 2000, 1000], [10000], [10000], [10000], [10000], [10000], [20000], [20000], [20000], [20000], [20000], [10000, 10000], [10000, 2000], [10000, 2000, 2000], [20000, 10000], [20000, 10000], [20000, 2000], [20000, 20000]];
+  function gen() {
+    if (S.n === 8 || (S.n > 8 && Math.random() < 0.06)) { const total = 10100 + rnd(98) * 100; return { bills: [20000, 20000], pay: 40000, total, ch: 40000 - total, extra: true, key: 'x' }; }      /* le sobra un billete: se devuelve entero */
+    const bills = S.n < 2 ? pick([[1000], [2000]]) : pick(PAYS), pay = bills.reduce((a, b) => a + b, 0), min = Math.min.apply(null, bills), ch = (1 + rnd(min / 100 - 1)) * 100;
+    return { bills, pay, total: pay - ch, ch, key: bills.join('+') };
+  }
+  function round() {
+    let c, k = 0;
+    do { c = gen(); } while (++k < 60 && (c.total < 300 || S.hist.indexOf(c.total) >= 0 || S.histCh.indexOf(c.ch) >= 0 || (c.key === S.lastKey && c.key !== '10000' && c.key !== '20000') || (S.n >= 2 && c.ch % 1000 === 0 && Math.random() < 0.7)));
+    S.hist.push(c.total); S.histCh.push(c.ch); if (S.hist.length > 30) { S.hist.shift(); S.histCh.shift(); } S.lastKey = c.key;
+    c.give = []; c.t0 = performance.now(); c.done = false; c.rot = c.bills.map(() => rnd(13) - 6); S.cur = c; S.n++; draw();
+  }
+  const bill = (d, cls, extra) => '<button class="vb ' + (cls || '') + '" data-d="' + d + '"' + (extra || '') + '>' + billSvg(d) + '</button>';
   function draw() {
     const c = S.cur, sum = c.give.reduce((a, b) => a + b, 0);
-    root.innerHTML = '<div class="vt-top"><b>💵 Aprendé a dar vueltos</b><span>✅ ' + S.ok + ' · 🔥 ' + S.streak + (S.bestStreak ? ' · mejor racha ' + S.bestStreak : '') + '</span><button class="chip" id="vtX">✕ Salir</button></div>' +
-      '<div class="vt-reg"><small>CAJA · TOTAL A COBRAR</small><output>' + fmt(c.total) + '</output></div>' +
-      '<div class="vt-counter"><small>EL CLIENTE TE DA ' + fmt(c.pay) + '</small><div class="vt-bills">' + split(c.pay, [20000, 10000, 2000, 1000]).map(d => bill(d, 'paid')).join('') + '</div></div>' +
-      '<div class="vt-hand' + (c.done ? (c.right ? ' ok' : ' bad') : '') + '"><small>TU VUELTO' + (S.help || c.done ? ' · tiene que ser ' + fmt(c.ch) : '') + '</small><output id="vtSum">' + fmt(sum) + '</output><div class="vt-bills" id="vtGive">' + (c.give.length ? c.give.map((d, i) => bill(d, 'mine', i)).join('') : '<em>Tocá los billetes de abajo</em>') + '</div>' +
-      (c.done ? '<p class="vt-msg">' + c.msg + '</p>' : '') + '</div>' +
-      '<div class="vt-tray">' + D.map(d => bill(d, 'tray')).join('') + '</div>' +
+    root.innerHTML = '<div class="vt-top"><b>💵 Aprendé a dar vueltos</b><button class="chip" id="vtX">✕ Salir</button><span>Cliente ' + S.n + ' · ✅ ' + S.ok + ' · 🔥 ' + S.streak + (S.bestStreak ? ' · mejor racha ' + S.bestStreak : '') + '</span></div>' +
+      '<div class="vt-reg"><i></i><div><small>TOTAL A COBRAR</small><output>' + fmt(c.total) + '</output></div></div>' +
+      '<div class="vt-counter"><small>EL CLIENTE APOYA EN EL MOSTRADOR' + (S.help || c.done ? ' · ' + fmt(c.pay) : '') + '</small><div class="vt-paid">' + c.bills.map((d, i) => bill(d, 'paid', ' style="--r:' + c.rot[i] + 'deg"')).join('') + '</div>' +
+        '<div class="vt-hand' + (c.done ? (c.right ? ' ok' : ' bad') : '') + '"><small>TU VUELTO' + (S.help || c.done ? ' · tiene que ser ' + fmt(c.ch) : '') + '</small><output id="vtSum">' + fmt(sum) + '</output><div class="vt-give" id="vtGive">' + (c.give.length ? c.give.map((d, i) => bill(d, 'mine', ' data-i="' + i + '"')).join('') : '<em>Sacá los billetes del cajón</em>') + '</div>' +
+        (c.done ? '<p class="vt-msg">' + c.msg + '</p>' : '') + '</div></div>' +
+      '<div class="vt-tray"><small>CAJÓN DE LA CAJA</small><div>' + D.map(d => bill(d, 'tray')).join('') + '</div></div>' +
       '<div class="vt-act">' + (c.done ? '<button class="btn" id="vtNext">Siguiente cliente</button>' : '<button class="btn ghost" id="vtHelp">' + (S.help ? 'Ocultar la cuenta' : 'Mostrar la cuenta') + '</button><button class="btn" id="vtGo"' + (sum ? '' : ' disabled') + '>Dar el vuelto</button>') + '</div>';
     el('vtX').onclick = close;
     if (c.done) { el('vtNext').onclick = round; return; }
     el('vtHelp').onclick = () => { S.help = !S.help; GS.Store.set('vtHelp', S.help); draw(); }; el('vtGo').onclick = check;
-    root.querySelectorAll('.vb.tray').forEach(b => { b.onclick = () => { c.give.push(Number(b.dataset.d)); GS.Audio.play('count'); draw(); }; });
+    root.querySelectorAll('.vb.tray').forEach(b => { b.onclick = () => { if (c.give.length >= 14) return; c.give.push(Number(b.dataset.d)); GS.Audio.play('count'); draw(); }; });
     root.querySelectorAll('.vb.mine').forEach(b => { b.onclick = () => { c.give.splice(Number(b.dataset.i), 1); GS.Audio.play('drop'); draw(); }; });
   }
   function check() {
     const c = S.cur, sum = c.give.reduce((a, b) => a + b, 0), secs = (performance.now() - c.t0) / 1000; c.done = true; c.right = sum === c.ch;
-    if (c.right) { S.ok++; S.streak++; S.bestStreak = Math.max(S.bestStreak, S.streak); GS.Store.set('vtBest', S.bestStreak); const few = c.give.length === best(c.ch); c.msg = '✅ ¡Justo! En ' + secs.toFixed(1).replace('.', ',') + ' segundos' + (few ? ' y con la menor cantidad de billetes.' : '. Se podía con ' + best(c.ch) + ' billetes.'); GS.Audio.play('cash'); }
-    else { S.streak = 0; c.msg = '❌ ' + (sum > c.ch ? 'Te pasaste por ' + fmt(sum - c.ch) : 'Te faltaron ' + fmt(c.ch - sum)) + '. La cuenta: ' + fmt(c.pay) + ' − ' + fmt(c.total) + ' = ' + fmt(c.ch) + '.'; GS.Audio.play('error'); }
-    GS.track && S.n % 10 === 0 && GS.track('vueltos', { clientes: S.n, aciertos: S.ok }); draw();
+    if (c.right) { S.ok++; S.streak++; S.bestStreak = Math.max(S.bestStreak, S.streak); GS.Store.set('vtBest', S.bestStreak); const few = c.give.length === best(c.ch); c.msg = '✅ ¡Justo! En ' + secs.toFixed(1).replace('.', ',') + ' segundos' + (few ? ' y con la menor cantidad de billetes.' : '. Se podía con ' + best(c.ch) + ' billetes.') + (c.extra ? ' Le sobraba un billete y se lo devolviste.' : ''); GS.Audio.play('cash'); }
+    else { S.streak = 0; c.msg = '❌ ' + (sum > c.ch ? 'Te pasaste por ' + fmt(sum - c.ch) : 'Te faltaron ' + fmt(c.ch - sum)) + '. La cuenta: ' + fmt(c.pay) + ' − ' + fmt(c.total) + ' = ' + fmt(c.ch) + '.' + (c.extra ? ' Ojo: le sobraba un billete de $20.000.' : ''); GS.Audio.play('error'); }
+    if (GS.track && S.n % 10 === 0) GS.track('vueltos', { clientes: S.n, aciertos: S.ok }); draw();
   }
-  function open() { if (!root) { root = document.createElement('div'); root.id = 'vuelto'; document.body.appendChild(root); } root.hidden = false; S = { n: 0, ok: 0, streak: 0, bestStreak: GS.Store.get('vtBest') || 0, bag: [], help: !!GS.Store.get('vtHelp') }; round(); }
+  function open() { if (!root) { root = document.createElement('div'); root.id = 'vuelto'; document.body.appendChild(root); } root.hidden = false; S = { n: 0, ok: 0, streak: 0, bestStreak: GS.Store.get('vtBest') || 0, hist: [], histCh: [], lastKey: '', help: !!GS.Store.get('vtHelp') }; round(); }
   function close() { if (root) root.hidden = true; S = null; }
-  return { open, close, isOpen: () => !!S, debug: () => S };
+  return { open, close, isOpen: () => !!S, debug: () => S, billSvg };
 })();
 
 /* GameShop Simulator — Mapa 3D del país. Argentina con su forma real (Malvinas incluidas), dividida en las 5 regiones,
@@ -4800,7 +4811,8 @@ GS.Game = (function () {
   // Jornada N de la carrera: de menos a más. Cada jornada suma clientes y, según GS.UNLOCKS, estaciones nuevas.
   // (Parte B de la Etapa 3: acá entran el cartel del frente, el clima y las fechas especiales.)
   function dayNumber() { return GS.Store.get('testDay') || (GS.Store.get('days') || 0) + 1; }
-  function unlockedFor(n) { return GS.STATIONS.map(s => s.id); }
+  function unlockedFor(n) { return GS.UNLOCKS.slice(0, n).reduce((a, b) => a.concat(b), []); }
+  const LEARN = 3, freshOf = n => GS.UNLOCKS[n - 1] || [];      /* las tres primeras jornadas son de aprendizaje: menos gente, más paciencia y sin medallas */
   const upNow = () => GS.Store.get('up') || {};
   /* Herramientas de prueba (solo con la clave en la dirección): monedas y fondos infinitos. No toca los valores guardados de la partida. */
   const DEV = () => !!GS.Store.get('dev');
@@ -4812,7 +4824,7 @@ GS.Game = (function () {
   // El rival de la zona: su regla complica las jornadas de esa sucursal hasta que se le gana en el mostrador; después, la sucursal rinde 10% más
   const rivalId = () => GS.Store.get('branch') || 'pampeana', rivalDone = () => !!((GS.Store.get('branches') || {})[rivalId()] || {}).won, rivalOn = () => !rivalDone() && !!(GS.REGIONS.find(r => r.id === rivalId()) || {}).rival;
   const coinMult = () => { const u = upNow(); return (1 + 0.1 * ((u.mesa || 0) + (u.isla || 0) + (u.gondola || 0) + (u.luces || 0) + (u.web >= 3 ? 1 : 0)) + (rivalDone() ? 0.1 : 0)) * (rivalOn() && rivalId() === 'patagonia' ? 0.85 : 1) * (modNow() === 'apuro' || modNow() === 'lupa' ? 1.3 : 1); };
-  const patMult = () => { const u = upNow(); return (1 + 0.15 * (u.escritorio || 0) + 0.1 * (u.sillas || 0) + 0.1 * (u.cafetera || 0)) * (modNow() === 'apuro' ? 0.75 : 1) * (day && day.zonda ? 0.8 : 1) * (day && day.duel ? 0.85 : 1) * (day && day.n <= GS.UNLOCKS.length ? 1.3 : 1); };      /* día de competencia: esperan menos; jornadas de aprendizaje: esperan más */
+  const patMult = () => { const u = upNow(); return (1 + 0.15 * (u.escritorio || 0) + 0.1 * (u.sillas || 0) + 0.1 * (u.cafetera || 0)) * (modNow() === 'apuro' ? 0.75 : 1) * (day && day.zonda ? 0.8 : 1) * (day && day.duel ? 0.85 : 1) * (day && day.n <= LEARN ? 1.3 : 1); };      /* día de competencia: esperan menos; jornadas de aprendizaje: esperan más */
   const modNow = () => GS.Store.get('mod') || '';
   function conditionFor(n) {
     const forced = GS.Store.get('testCond'); if (forced) return forced === 'ninguna' ? null : forced;             // fechas especiales fijas y lluvia al azar (nunca en las primeras jornadas)
@@ -4824,7 +4836,7 @@ GS.Game = (function () {
   function planDay(n, cond, duel) {
     const un = unlockedFor(n), pool = TASK_STATIONS.filter(s => un.indexOf(s.id) >= 0), u = upNow(), c = cond ? GS.CONDITIONS[cond] : null, r = repNow();
     let cust = Math.min(3 + n, 7) + (u.cartel || 0) + (u.arcade || 0) + (u.vidluz || 0) + (u.web >= 2 ? 1 : 0) + (r >= 4 ? 1 : r < 2 ? -1 : 0) + (c ? c.cust : 0);   // cartel, arcade y reputación traen gente
-    const learn = n <= GS.UNLOCKS.length ? GS.UNLOCKS[n - 1].filter(id => TASK_STATIONS.some(x => x.id === id)) : null;      /* jornadas 1 a 3: se ven todas las tareas nuevas del día, con menos clientes */
+    const learn = n <= LEARN ? freshOf(n).filter(id => TASK_STATIONS.some(x => x.id === id)) : null;      /* jornadas 1 a 3: se ven todas las tareas nuevas del día, con menos clientes */
     const want = U.clamp(cust, 3, 12); cust = learn ? Math.min(want, 4) : Math.min(want, C.day.maxDayCustomers) + (duel ? 2 : 0);       // la jornada dura siempre unos 3 minutos: lo que el cartel y las mejoras traen de más se cobra como tickets más altos
     const tasks = learn ? learn.length : pool.length ? Math.min(n - 1, C.day.maxDayTasks) + (duel ? 1 : 0) : 0, extraMl = (un.indexOf('ml') >= 0 && u.web >= 1 ? 1 : 0) + (c && un.indexOf('ml') >= 0 && !learn ? c.ml : 0), nw = cust <= 5 && !(learn && tasks > 2) ? 3 : 4;
     const plan = Array.from({ length: nw }, () => ({ c: 0, t: 0, ml: 0 }));
@@ -4906,12 +4918,12 @@ GS.Game = (function () {
   function planTotals(plan) { return plan.reduce((a, w) => ({ c: a.c + w.c, t: a.t + w.t + (w.ml || 0) }), { c: 0, t: 0 }); }
   function startWave() {
     day.wave++; day.stage = 'work'; day.queue = []; day.wv = { done: {} };
-    const w = day.plan[day.wave]; if (day.induc) inducWave();
+    const w = day.plan[day.wave];
     if (day.duel && !w.final && day.wave === day.plan.filter(x => !x.final).length - 1) { A.setMood('final'); toast('<b>⏰ Hora pico</b>Última tanda: ' + day.duel.rv.owner + ' aprieta el acelerador.', 'rival', 3800, false, day.duel.rv.col); }
     if (day.rivalWalk && day.wave === 1) { day.rivalWalk = 0; const d0 = day; setTimeout(() => { if (day === d0 && state === 'day') rivalPass(); }, 4000); }
     for (let i = 0; i < w.c; i++) day.queue.push({ kind: 'c', t: 0.3 + i * C.day.customerGap });
-    for (let i = 0; i < w.t; i++) day.queue.push({ kind: w.final ? 'f' : 't', t: (w.final ? 0.6 : day.induc ? 2.2 : 5) + i * C.day.taskGap });
-    for (let i = 0; i < (w.ml || 0); i++) day.queue.push({ kind: 'm', t: (day.induc ? 2.2 : 3) + i * C.day.taskGap });
+    for (let i = 0; i < w.t; i++) day.queue.push({ kind: w.final ? 'f' : 't', t: (w.final ? 0.6 : 5) + i * C.day.taskGap });
+    for (let i = 0; i < (w.ml || 0); i++) day.queue.push({ kind: 'm', t: 3 + i * C.day.taskGap });
     if (!day.arcade && !day.relaxed && day.n % 12 === 11 && !day.xq && (day.wave >= 1 || day.plan.filter(w => !w.final).length < 2) && !w.final) { day.xq = 1; day.queue.push({ kind: 'x', t: 5 }); }    // víspera de la semana de Navidad
     day.visits.forEach(v => { if (v.wave === day.wave && !v.sent) { v.sent = 1; day.queue.push({ kind: 'v', v: v.S, t: U.rnd(3, 8) }); } });
     if (GS.DEBUG_INTR || (day.n >= CD.intrFromDay && !w.final && day.wave >= 1 && day.intrN < (day.n >= 6 ? 3 : 2) && Math.random() < 0.6)) { day.queue.push({ kind: 'i', t: U.rnd(5, 11) }); day.intrN++; }
@@ -4929,7 +4941,7 @@ GS.Game = (function () {
   }
   function endWave() {
     if (day.wave >= day.plan.length - 1) { day.closing = true; setTimeout(endDay, 2800); return; }
-    day.stage = 'rest'; day.rest = day.induc ? 1.5 : C.day.restSeconds * (modNow() === 'sinrespiro' ? 0.5 : 1); W.focus(null); W.home(); if (day.induc) { const d0 = day; fx(U.pick(GS.INDUC.cheer), ''); const yo = W.player(); if (yo) yo.hop(0.5); }
+    day.stage = 'rest'; day.rest = C.day.restSeconds * (modNow() === 'sinrespiro' ? 0.5 : 1); W.focus(null); W.home();
     const d = day;
     setTimeout(() => {                       // en el respiro habla el Dueño, sin nada tapando el local
       if (day !== d || state !== 'day' || d.stage !== 'rest') return;
@@ -4977,50 +4989,29 @@ GS.Game = (function () {
     W.setPlayerLook(av); const r = $('stageGap').getBoundingClientRect(), vy = r.height > 40 ? 0.5 - (r.top + r.height * 0.56) / window.innerHeight : 0; W.stage({ k: 0.15, vy });
   }
   const DUEL_K = { pampeana: 1, cuyo: 1.03, noa: 1.05, nea: 1.05, patagonia: 1.08, malvinas: 1.12 };      /* cuánto mejor que tu promedio juega cada rival */
-  /* ---------------- Día de inducción: entrenamiento de película antes de la jornada 1 ---------------- */
-  const needInduc = () => !GS.Store.get('induc') && (GS.Store.get('days') || 0) === 0 && brId() === 'pampeana' && !GS.Store.get('testDay');
-  function inducDone(skip) { GS.Store.set('induc', 1); if (skip) { const s = GS.Store.get('seen') || {}; Object.keys(GS.EXPLAIN).forEach(k => { s[k] = 1; }); GS.Store.set('seen', s); } GS.track('induccion', { modo: skip ? 'salteada' : 'completa' }); }
-  function inducAsk() {
-    modal('<div class="induc-ask"><small>ANTES DE ABRIR</small><h2>Día de inducción</h2><p>El Dueño te entrena en todas las tareas del local, una por una y sin apuro. Son unos minutos. Después, las jornadas son de verdad.</p><button class="btn" id="inducGo">🥊 Empezar el entrenamiento</button><button class="btn ghost" id="inducSkip">Ya sé jugar</button></div>');
-    $('inducGo').addEventListener('click', () => { $('modal').hidden = true; startDay(true, true, true); }); $('inducSkip').addEventListener('click', () => { $('modal').hidden = true; inducDone(true); startDay(false); });
-  }
-  function cineCard(k, t) { const el = $('cineCard'); el.innerHTML = '<small>' + k + '</small><b>' + t + '</b>'; el.hidden = false; el.classList.remove('go'); void el.offsetWidth; el.classList.add('go'); A.play('stamp'); }
-  function inducWave() {
-    const I = GS.INDUC, d = day, tot = d.plan.length + 1, n = d.wave === 0 ? 1 : d.wave + 2, id = d.wave === 0 ? 'mostrador' : d.plan[d.wave].final ? 'cierre' : d.inOrder[d.wave - 1], st = ST(id);
-    cineCard('ESTACIÓN ' + n + ' DE ' + tot, st.icon + ' ' + st.name); W.zoomAt(st.pos[0], st.pos[1] + 1.2, 0.5); setTimeout(() => { if (day === d && !MG.isOpen()) W.focus(null); }, 2100);
-    if (I.say[id]) setTimeout(() => { if (day === d) duenoSpeak(I.say[id]); }, 700);
-  }
-  function inducEnd() {
-    const I = GS.INDUC; inducDone(false); document.body.classList.remove('cine'); $('cineCard').hidden = true; W.bossTrain(false); clearDay(); $('hud').hidden = true; $('jobs').hidden = true; day = null; state = 'menu'; A.play('fanfare');
-    epicCtx = { id: 'pampeana' }; showEpic(I.end, null, '<button class="btn" id="inducOk">Empezar la jornada 1</button>', () => $('inducOk').addEventListener('click', () => { closeEpic(); startDay(false); }));
-  }
   let duelLater = false;      /* "Hoy no": se juega una jornada normal y el día de competencia queda para la próxima */
-  function startDay(relaxed, skipDuel, induc) {
+  function startDay(relaxed, skipDuel) {
     A.unlock();
     if (!GS.Store.get('avatar')) return showAvatar(() => startDay(relaxed));
-    if (!relaxed && !induc && needInduc()) return inducAsk();
     if (!relaxed && !skipDuel && readyDuel(brId()) && !GS.Store.get('testDay')) return showDuelIntro(() => startDay(false, true));      /* cumplidos los objetivos, la jornada es el día de competencia */
     A.play('click'); clearDay(); W.setUpgrades(upNow());
     const n = dayNumber(), duel = !relaxed && !duelLater && readyDuel(brId()) && !GS.Store.get('testDay'); duelLater = false; applyBranch();
-    const un = unlockedFor(n), fresh = n <= GS.UNLOCKS.length ? GS.UNLOCKS[n - 1] : [];
+    const un = unlockedFor(n), fresh = freshOf(n);
     const cond = conditionFor(n);
     day = newDay({ relaxed, n, cond, unlocked: un, plan: planDay(n, cond, duel), rest: n === 1 ? 0.5 : 5.5 }); state = 'day'; enterPlay(); $('jobs').hidden = false;
-    document.body.classList.toggle('cine', !!induc); $('cineCard').hidden = true; W.bossTrain(!!induc);
-    if (induc) { const ord = GS.INDUC.order.filter(id => TASK_STATIONS.some(s => s.id === id) && id !== 'ml'); day.induc = true; day.inOrder = ['whatsapp', 'ml'].concat(ord.filter(id => id !== 'whatsapp')); day.rest = 2.4;      /* una estación por tanda: primero el cliente de paja (mostrador y caja), después cada tarea, y al final el cierre */
-      day.plan = [{ c: 1, t: 0, ml: 0 }].concat(day.inOrder.map(id => id === 'ml' ? { c: 0, t: 0, ml: 1 } : { c: 0, t: 1, ml: 0 }), [{ c: 0, t: 1, ml: 0, final: true }]); day.plan.bonus = 1; day.taskBag = day.inOrder.filter(id => id !== 'ml').map(ST).reverse(); }
-    { const lt = n <= GS.UNLOCKS.length ? fresh.filter(id => TASK_STATIONS.some(x => x.id === id)) : []; if (lt.length) day.taskBag = lt.map(ST).reverse();      /* jornadas de aprendizaje: primero aparecen las tareas nuevas */
+    { const lt = fresh.filter(id => TASK_STATIONS.some(x => x.id === id)); if (lt.length) day.taskBag = lt.map(ST).reverse();      /* jornadas de aprendizaje: primero aparecen las tareas nuevas */
       const b = brNow(), units = unitsOf(day.plan), pu = b.avg || 480;
       if (duel) { brSave({ duel: 1 }); const rv = RV(brId()), tries = b.tries || 0, edge = Math.min(5, b.edge || 0); day.duel = { rv, tries, edge, q: 0, shown: 0, total: Math.round(pu * units * (DUEL_K[brId()] || 1) * (1 - 0.02 * edge) * (1 - 0.05 * Math.min(3, tries)) / 10) * 10 }; }
-      else if (!relaxed && n > GS.UNLOCKS.length) day.goal = { silver: Math.round(pu * units * 0.85 / 10) * 10, gold: Math.round(pu * units * 1.06 / 10) * 10 }; }
-    A.setMood(induc ? 'train' : cond === 'lluvia' ? 'rain' : cond ? 'party' : 'day');
+      else if (!relaxed && n > LEARN) day.goal = { silver: Math.round(pu * units * 0.85 / 10) * 10, gold: Math.round(pu * units * 1.06 / 10) * 10 }; }
+    A.setMood(cond === 'lluvia' ? 'rain' : cond ? 'party' : 'day');
     if (rivalOn() && !relaxed) { const rv = RV(rivalId()), d0 = day; day.zonda = rivalId() === 'cuyo' && Math.random() < 0.45;
       if (duel) { setTimeout(() => { if (day === d0 && state === 'day') toast('<b>' + rv.mark + ' Día de competencia</b>Contra ' + rv.name + '. Más puntos que ' + rv.owner + ' y menos de tres quejas.', 'rival', 5200, false, rv.col); }, 5200); setTimeout(() => coach('duelo'), 8200); }
-      else if (n > GS.UNLOCKS.length) { const act = rv.fx && (rivalId() !== 'cuyo' || day.zonda);      /* el rival se hace notar: llama para burlarse y más tarde pasa por la vereda */
+      else if (n > LEARN) { const act = rv.fx && (rivalId() !== 'cuyo' || day.zonda);      /* el rival se hace notar: llama para burlarse y más tarde pasa por la vereda */
         setTimeout(() => { if (day === d0 && state === 'day') toast('<b>' + rv.mark + ' ' + rv.owner + ', de ' + rv.name + '</b>"' + U.pick(rv.taunts) + '"' + (act ? '<small>' + (day.zonda ? 'Hoy sopla el Zonda. ' : '') + rv.fx + '</small>' : ''), 'rival', 5600, false, rv.col); }, 6500); setTimeout(() => coach('rival'), 9500); day.rivalWalk = 1; } }
     if (day.goal) setTimeout(() => coach('medalla'), 7000);
     W.setXmas(cond === 'navidad' ? (GS.Store.get('xmas') || { a: 0, g: 0, l: 0 }) : null); W.setHats(cond === 'navidad');
     if (!relaxed) { const nw = day.plan.filter(w => !w.final).length; day.visits = dueStories(n).map((S, i) => ({ S, wave: Math.min(nw - 1, i + (nw > 2 ? 1 : 0)) })); }
-    const d = day, msg = induc ? GS.INDUC.open : n === 1 ? 'Bienvenido a GameShop. Ya tenés un cliente en el mostrador: tocá el pedido de abajo, que tu personaje va solo.'
+    const d = day, msg = n === 1 ? 'Bienvenido a GameShop. Ya tenés un cliente en el mostrador: tocá su globito, que tu personaje va solo.'
       : cond ? GS.CONDITIONS[cond].name.slice(3) + '. ' + GS.CONDITIONS[cond].say
       : duel ? 'Hoy es el día. ' + day.duel.rv.owner + ' abrió temprano. Atendé como sabés y cuidá las quejas: a la tercera, perdemos.'
       : fresh.length > 2 ? 'Jornada ' + n + '. Hoy aprendés ' + fresh.filter(id => id !== 'mostrador' && id !== 'caja').length + ' tareas nuevas. Sin apuro: cuando aparezca cada una, te la explico.'
@@ -5031,9 +5022,9 @@ GS.Game = (function () {
     if (n >= 2 && !relaxed && !GS.Store.get('plotIntro') && n <= C.finalDay) { GS.Store.set('plotIntro', true); setTimeout(() => { if (day === d) duenoSpeak(PL.intro.replace('{n}', C.finalDay)); }, 3200); }
     document.body.classList.toggle('snow', snowy());
     $('rain').hidden = cond !== 'lluvia'; $('chipCond').hidden = !cond; if (cond) { $('chipCond').textContent = condInfo(cond).name; toast('<b>Hoy</b>' + condInfo(cond).name, 'dueno', 3800); }
-    $('clockS').textContent = induc ? 'Entrenamiento' : relaxed ? 'Turno tranquilo' : 'Abrimos';
+    $('clockS').textContent = relaxed ? 'Turno tranquilo' : 'Abrimos';
     updateHud();
-    GS.track('inicio_partida', { modo: induc ? 'induccion' : relaxed ? 'tranquilo' : 'normal' });
+    GS.track('inicio_partida', { modo: relaxed ? 'tranquilo' : 'normal' });
     
   }
   /* Guía del primer día: una flecha señala dónde tocar hasta completar la primera venta y el primer cobro */
@@ -5076,12 +5067,12 @@ GS.Game = (function () {
     const slot = freeSlot('slotM', L.colaMostrador.length); if (slot < 0) return;
     if (!day.reqBag.length) day.reqBag = U.shuffle(GS.REQUESTS);
     if (!day.archBag.length) day.archBag = U.shuffle(GS.CUSTOMERS);
-    const req = day.reqBag.pop(), arche = day.induc ? GS.INDUC.dummy : day.cond === 'navidad' && !day.santa && day.spawned >= 2 ? (day.santa = 1, GS.SANTA) : day.archBag.pop(), product = GS.CATALOG.find(p => p.id === req.p);
+    const req = day.reqBag.pop(), arche = day.cond === 'navidad' && !day.santa && day.spawned >= 2 ? (day.santa = 1, GS.SANTA) : day.archBag.pop(), product = GS.CATALOG.find(p => p.id === req.p);
     const k = arche.id.charCodeAt(0) + arche.id.length * 7;   // cada personaje mantiene su look
     const look = warm(lookOf(arche)), person = W.makePerson(look);
     const dx = L.puerta.x; person.setPos(dx + U.rnd(-0.5, 0.5), day.spawned === 0 ? (day.n === 1 ? -0.6 : L.salon.zMax + 1) : L.galeria.zMax + 2.4);
     person.voice = 230 + (k % 7) * 45; if (arche.id === 'santa') person.aura(0xffe9a8);
-    const cu = { id: ++uid, arche, look, request: (day.induc ? '(El Dueño, haciendo la voz) ' : regHi()) + req.t, product, st: 'entering', pat: 1, person, slotM: slot, slotC: -1, label: makeLabel('❓') };
+    const cu = { id: ++uid, arche, look, request: regHi() + req.t, product, st: 'entering', pat: 1, person, slotM: slot, slotC: -1, label: makeLabel('❓') };
     day.customers.push(cu); day.spawned++;
     const sp = day.spawned > 1 && Math.random() < 0.45 ? freeSpot() : null;
     if (sp) { day.spots[sp.i] = 1; cu.spot = sp; person.walk(sp.via.concat([sp.p]), () => { cu.st = 'browse'; cu.wait = U.rnd(2.6, 4.6) + (sp.use ? 1.6 : 0); person.face(sp.f); useSpot(person, sp, true); }); }   // primero mira un rato y después se acerca
@@ -5368,7 +5359,7 @@ GS.Game = (function () {
     if (kind === 'equipo0') { const av = Object.assign({ skin: GS.SKINS[2], hair: GS.HAIRS[0], hairStyle: 'corto', shirt: 0xe10600 }, GS.Store.get('avatar') || {}), T = [[av, 'Vos', 'happy'], [{ shirt: 0xe10600, hair: MOHAWK[1], hairStyle: 'mohicano', skin: GS.SKINS[3], glasses: true }, 'Lucho', 'happy'], [{ shirt: 0xe10600, hair: 0x2d6cdf, hairStyle: 'corto', skin: GS.SKINS[0] }, 'Brian', 'normal']];
       return void (el.innerHTML = '<div class="ep-faces trio">' + T.map(q => fig(q[0], q[2], q[1])).join('') + '</div>'); }
     if (kind === 'local') return void (el.innerHTML = '<div class="ep-inaug">' + sceneSvg('pampeana', { sign: 1 }) + '<b class="ep-city"><small>Casa central</small>BUENOS AIRES</b><div class="ep-fila"><div class="pf emp">' + avatarSvg(me, 'happy') + '</div></div></div>');
-    if (kind === 'reglas') return void (el.innerHTML = '<div class="ep-res">' + [['👆', 'Tocá los pedidos', 'Aparecen abajo. Tu personaje va solo hasta el mostrador, la caja o donde haga falta.'], ['🎯', 'Dale lo que pidió', 'Con otro producto, el cliente se va y se pierde la venta.'], ['💵', 'Cobrá bien', '10% en efectivo o transferencia, 3 cuotas sin interés. Cobrar mal baja la reputación.']].map(q => '<div><i>' + q[0] + '</i><span><b>' + q[1] + '</b>' + q[2] + '</span></div>').join('') + '<p>En los ratos libres: 🧹 <b>limpiá el piso</b></p></div>');
+    if (kind === 'reglas') return void (el.innerHTML = '<div class="ep-res">' + [['👆', 'Tocá los globitos', 'Aparecen sobre cada cliente y cada tarea. Tu personaje va solo.'], ['🎯', 'Dale lo que pidió', 'Si te equivocás, te enterás después: llega un aviso del Dueño.'], ['💵', 'Cobrá bien', '10% en efectivo o transferencia, 3 cuotas sin interés. Cobrar mal baja la reputación.']].map(q => '<div><i>' + q[0] + '</i><span><b>' + q[1] + '</b>' + q[2] + '</span></div>').join('') + '<p>En los ratos libres: 🧹 <b>limpiá el piso</b></p></div>');
     if (kind === 'inaug') { const R = RG(epicCtx.id), crew = (brAll()[R.id] || {}).staff || [], ppl = crew.map(cid => R.crew.find(c => c.id === cid)).filter(Boolean).map(c => Object.assign({ shirt: 0xe10600 }, c.look));
       const fila = [{ shirt: 0x2d6cdf, hair: 0x5a2d0c, hairStyle: 'largo', skin: GS.SKINS[1], lashes: true }, { shirt: 0xd9a514, hair: 0x1b1b1f, hairStyle: 'corto', skin: GS.SKINS[3], glasses: true }, { shirt: 0x3bb54a, hair: 0xc9c9d6, hairStyle: 'rodete', skin: GS.SKINS[0] }, { shirt: 0x7b4fd1, hair: 0xb5651d, hairStyle: 'rulos', skin: GS.SKINS[2] }];
       return void (el.innerHTML = '<div class="ep-inaug">' + sceneSvg(R.id, { cinta: 1 }) + '<b class="ep-city' + (R.city.length > 11 ? ' lg' : '') + '"><small>Sucursal ' + R.name + '</small>' + R.city.toUpperCase() + '</b>' +
@@ -5602,7 +5593,7 @@ GS.Game = (function () {
     return -1;
   }
   // Limpieza: los clientes dejan manchas; se limpian en los ratos libres. Terminar con el piso sucio baja la reputación.
-  function dropDirt() { if (day && day.induc) return;
+  function dropDirt() {
     if (!day || day.arcade || day.dirt >= 5 || Math.random() > (upNow().plantas ? 0.22 : 0.45)) return;
     coach('mancha'); day.dirt++; day.jobSig = ''; { const x = U.rnd(-3.6, 0.6), z = U.rnd(-2.0, 4.6); day.dirtPos.push([x, z]); W.addDirt(x, z); }
   }
@@ -5742,7 +5733,7 @@ GS.Game = (function () {
     yoGo(NODE_OF[job.type]);
     const mt = day.mt = day.mt || {}, m0 = day.tt || 0, me = mt[job.type] = mt[job.type] || { n: 0, s: 0, e: 0 }; me.n++;
     const cb = {
-      deferred: !day.induc,
+      deferred: true,
       onMistake(kind) { me.e++; day.wv.mistakes = (day.wv.mistakes || 0) + 1; breakCombo(); addRep(kind === 'caja' ? -0.07 : -0.03); fx(kind === 'caja' ? '−⭐  −🪙' : '−⭐', 'bad'); if (kind === 'caja') { day.cajaErr++; day.coinLoss = (day.coinLoss || 0) + 15; } else day.otherErr++; if (!day.relaxed) ref.pat = Math.max(0.05, ref.pat - C.day.mistakeCost); },
       onEnd(ok, info) {
         if (info.slip && job.type === 'caja' && !/Rechazaste/.test(info.slip.text)) info.total = (ref.product && ref.product.price) || 1;
@@ -5852,7 +5843,7 @@ GS.Game = (function () {
       const fin = day.wave >= 0 && day.plan[day.wave].final, nw = day.plan.filter(w => !w.final).length, m = Math.round((600 + f * 540) / 10) * 10;
       setSky((m - 600) / 540, day.cond === 'lluvia');
       $('clockT').textContent = '🕙 ' + String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0'); $('clockB').style.width = (f * 100).toFixed(1) + '%';
-      $('clockS').textContent = day.induc ? 'Entrenamiento · estación ' + Math.min(day.plan.length + 1, day.wave <= 0 ? 1 : day.wave + 2) + ' de ' + (day.plan.length + 1) : day.closing ? 'Cerramos: son las 19' : fin ? 'Cierre de caja' : day.stage === 'rest' && day.wave >= 0 ? 'Respiro ☕' : 'Tanda ' + Math.max(1, day.wave + 1) + '/' + nw;
+      $('clockS').textContent = day.closing ? 'Cerramos: son las 19' : fin ? 'Cierre de caja' : day.stage === 'rest' && day.wave >= 0 ? 'Respiro ☕' : 'Tanda ' + Math.max(1, day.wave + 1) + '/' + nw;
     }
     $('scoreV').textContent = day.score.toLocaleString('es-AR');
     { const g = day.goal, sc = day.score, el = $('chipGoal'), nf = v => v.toLocaleString('es-AR'); el.hidden = !g; if (g) { el.textContent = sc >= g.gold ? '🥇 ¡Oro!' : sc >= g.silver ? '🥇 oro a ' + nf(g.gold) : '🥈 plata a ' + nf(g.silver); el.className = 'chip goal' + (sc >= g.gold ? ' gold' : sc >= g.silver ? ' silver' : ''); }
@@ -6006,7 +5997,6 @@ GS.Game = (function () {
   /* ---------------- Cierre de caja ---------------- */
   function endDay() {
     if (!day || state !== 'day' || day.arcade) return;
-    if (day.induc) { stopMop(); MG.close(); W.focus(null); return inducEnd(); }
     stopMop(); state = 'end'; MG.close(); W.focus(null); W.showAll(); A.play('endDay'); A.setMood('menu'); $('rain').hidden = true;
     const d = day; d.intr = null;
     d.customers.slice().forEach(c => { if (c.st !== 'leaving') leave(c, false); }); d.lookers.slice().forEach(lk => { if (lk.st !== 'out') { lk.p.stop(); lookerOut(lk); } });
@@ -6322,9 +6312,9 @@ GS.Game = (function () {
   const started = () => !!GS.Store.get('introSeen') || (GS.Store.get('days') || 0) > 0;
   function setMenu(v) { menuView = v === 'camp' && started() ? 'camp' : 'main'; $('menuMain').hidden = menuView !== 'main'; $('menuCamp').hidden = menuView !== 'camp'; $('start').scrollTop = 0; }
   function refreshStart() {
-    const n = dayNumber(), fresh = n <= GS.UNLOCKS.length ? GS.UNLOCKS[n - 1] : [], R = RG(brId());
+    const n = dayNumber(), fresh = freshOf(n), R = RG(brId());
     $('campT').textContent = started() ? 'Seguir campaña' : 'Iniciar campaña'; $('campS').textContent = started() ? 'Jornada ' + n + ' · ' + R.city + ' · ' + MAIN.filter(r => (brAll()[r.id] || {}).open).length + ' de 5 sucursales' : 'Llevá GameShop a todo el país';
-    { const rd = readyDuel(brId()), rv = RV(brId()); $('playT').textContent = rd ? '⚔️ Día de competencia' : 'Comenzar jornada ' + n; $('playS').textContent = rd ? 'Contra ' + rv.name + ((brNow().tries || 0) ? ' · revancha' : '') + ' · jornada ' + n : monthOf(n) + (n === 1 ? ' · inducción' : fresh.length > 2 ? ' · ' + fresh.length + ' tareas nuevas' : fresh.length ? ' · se suma: ' + fresh.map(id => ST(id).name).join(' y ') : ''); }
+    { const rd = readyDuel(brId()), rv = RV(brId()); $('playT').textContent = rd ? '⚔️ Día de competencia' : 'Comenzar jornada ' + n; $('playS').textContent = rd ? 'Contra ' + rv.name + ((brNow().tries || 0) ? ' · revancha' : '') + ' · jornada ' + n : monthOf(n) + (n === 1 ? ' · tu primer día' : fresh.length > 2 ? ' · ' + fresh.length + ' tareas nuevas' : fresh.length ? ' · se suma: ' + fresh.map(id => ST(id).name).join(' y ') : ''); }
     $('btnShop').innerHTML = goalCard(); $('btnPlot').innerHTML = sucCard(); $('campProg').innerHTML = expCard() + progBox(brId(), 'Avance de ' + R.city);
     $('campHead').style.background = 'linear-gradient(100deg, ' + ACC[R.id] + ', rgba(20,20,24,.92) 130%)'; $('campHead').innerHTML = '<small>' + (R.id === 'pampeana' ? 'Casa central' : 'Sucursal ' + R.name) + '</small><b>' + R.city + '</b><span>⭐ ' + repTxt(repNow()) + ' · 🪙 ' + (DEV() ? '∞' : coinsNow()) + (RV(R.id) ? ' · ' + (won(R.id) ? '🏆 rival vencido' : RV(R.id).mark + ' ' + RV(R.id).name) : '') + '</span>';
     $('rankT').textContent = (DEV() ? '🛠 DEV · ' : '') + (GS.Store.get('ngp') ? '➕ NJ+' + GS.Store.get('ngp') : ''); $('rankT').hidden = !$('rankT').textContent; setMenu(menuView);

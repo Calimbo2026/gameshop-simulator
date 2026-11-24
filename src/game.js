@@ -75,7 +75,8 @@ GS.Game = (function () {
   // Jornada N de la carrera: de menos a más. Cada jornada suma clientes y, según GS.UNLOCKS, estaciones nuevas.
   // (Parte B de la Etapa 3: acá entran el cartel del frente, el clima y las fechas especiales.)
   function dayNumber() { return GS.Store.get('testDay') || (GS.Store.get('days') || 0) + 1; }
-  function unlockedFor(n) { return GS.STATIONS.map(s => s.id); }
+  function unlockedFor(n) { return GS.UNLOCKS.slice(0, n).reduce((a, b) => a.concat(b), []); }
+  const LEARN = 3, freshOf = n => GS.UNLOCKS[n - 1] || [];      /* las tres primeras jornadas son de aprendizaje: menos gente, más paciencia y sin medallas */
   const upNow = () => GS.Store.get('up') || {};
   /* Herramientas de prueba (solo con la clave en la dirección): monedas y fondos infinitos. No toca los valores guardados de la partida. */
   const DEV = () => !!GS.Store.get('dev');
@@ -87,7 +88,7 @@ GS.Game = (function () {
   // El rival de la zona: su regla complica las jornadas de esa sucursal hasta que se le gana en el mostrador; después, la sucursal rinde 10% más
   const rivalId = () => GS.Store.get('branch') || 'pampeana', rivalDone = () => !!((GS.Store.get('branches') || {})[rivalId()] || {}).won, rivalOn = () => !rivalDone() && !!(GS.REGIONS.find(r => r.id === rivalId()) || {}).rival;
   const coinMult = () => { const u = upNow(); return (1 + 0.1 * ((u.mesa || 0) + (u.isla || 0) + (u.gondola || 0) + (u.luces || 0) + (u.web >= 3 ? 1 : 0)) + (rivalDone() ? 0.1 : 0)) * (rivalOn() && rivalId() === 'patagonia' ? 0.85 : 1) * (modNow() === 'apuro' || modNow() === 'lupa' ? 1.3 : 1); };
-  const patMult = () => { const u = upNow(); return (1 + 0.15 * (u.escritorio || 0) + 0.1 * (u.sillas || 0) + 0.1 * (u.cafetera || 0)) * (modNow() === 'apuro' ? 0.75 : 1) * (day && day.zonda ? 0.8 : 1) * (day && day.duel ? 0.85 : 1) * (day && day.n <= GS.UNLOCKS.length ? 1.3 : 1); };      /* día de competencia: esperan menos; jornadas de aprendizaje: esperan más */
+  const patMult = () => { const u = upNow(); return (1 + 0.15 * (u.escritorio || 0) + 0.1 * (u.sillas || 0) + 0.1 * (u.cafetera || 0)) * (modNow() === 'apuro' ? 0.75 : 1) * (day && day.zonda ? 0.8 : 1) * (day && day.duel ? 0.85 : 1) * (day && day.n <= LEARN ? 1.3 : 1); };      /* día de competencia: esperan menos; jornadas de aprendizaje: esperan más */
   const modNow = () => GS.Store.get('mod') || '';
   function conditionFor(n) {
     const forced = GS.Store.get('testCond'); if (forced) return forced === 'ninguna' ? null : forced;             // fechas especiales fijas y lluvia al azar (nunca en las primeras jornadas)
@@ -99,7 +100,7 @@ GS.Game = (function () {
   function planDay(n, cond, duel) {
     const un = unlockedFor(n), pool = TASK_STATIONS.filter(s => un.indexOf(s.id) >= 0), u = upNow(), c = cond ? GS.CONDITIONS[cond] : null, r = repNow();
     let cust = Math.min(3 + n, 7) + (u.cartel || 0) + (u.arcade || 0) + (u.vidluz || 0) + (u.web >= 2 ? 1 : 0) + (r >= 4 ? 1 : r < 2 ? -1 : 0) + (c ? c.cust : 0);   // cartel, arcade y reputación traen gente
-    const learn = n <= GS.UNLOCKS.length ? GS.UNLOCKS[n - 1].filter(id => TASK_STATIONS.some(x => x.id === id)) : null;      /* jornadas 1 a 3: se ven todas las tareas nuevas del día, con menos clientes */
+    const learn = n <= LEARN ? freshOf(n).filter(id => TASK_STATIONS.some(x => x.id === id)) : null;      /* jornadas 1 a 3: se ven todas las tareas nuevas del día, con menos clientes */
     const want = U.clamp(cust, 3, 12); cust = learn ? Math.min(want, 4) : Math.min(want, C.day.maxDayCustomers) + (duel ? 2 : 0);       // la jornada dura siempre unos 3 minutos: lo que el cartel y las mejoras traen de más se cobra como tickets más altos
     const tasks = learn ? learn.length : pool.length ? Math.min(n - 1, C.day.maxDayTasks) + (duel ? 1 : 0) : 0, extraMl = (un.indexOf('ml') >= 0 && u.web >= 1 ? 1 : 0) + (c && un.indexOf('ml') >= 0 && !learn ? c.ml : 0), nw = cust <= 5 && !(learn && tasks > 2) ? 3 : 4;
     const plan = Array.from({ length: nw }, () => ({ c: 0, t: 0, ml: 0 }));
@@ -181,12 +182,12 @@ GS.Game = (function () {
   function planTotals(plan) { return plan.reduce((a, w) => ({ c: a.c + w.c, t: a.t + w.t + (w.ml || 0) }), { c: 0, t: 0 }); }
   function startWave() {
     day.wave++; day.stage = 'work'; day.queue = []; day.wv = { done: {} };
-    const w = day.plan[day.wave]; if (day.induc) inducWave();
+    const w = day.plan[day.wave];
     if (day.duel && !w.final && day.wave === day.plan.filter(x => !x.final).length - 1) { A.setMood('final'); toast('<b>⏰ Hora pico</b>Última tanda: ' + day.duel.rv.owner + ' aprieta el acelerador.', 'rival', 3800, false, day.duel.rv.col); }
     if (day.rivalWalk && day.wave === 1) { day.rivalWalk = 0; const d0 = day; setTimeout(() => { if (day === d0 && state === 'day') rivalPass(); }, 4000); }
     for (let i = 0; i < w.c; i++) day.queue.push({ kind: 'c', t: 0.3 + i * C.day.customerGap });
-    for (let i = 0; i < w.t; i++) day.queue.push({ kind: w.final ? 'f' : 't', t: (w.final ? 0.6 : day.induc ? 2.2 : 5) + i * C.day.taskGap });
-    for (let i = 0; i < (w.ml || 0); i++) day.queue.push({ kind: 'm', t: (day.induc ? 2.2 : 3) + i * C.day.taskGap });
+    for (let i = 0; i < w.t; i++) day.queue.push({ kind: w.final ? 'f' : 't', t: (w.final ? 0.6 : 5) + i * C.day.taskGap });
+    for (let i = 0; i < (w.ml || 0); i++) day.queue.push({ kind: 'm', t: 3 + i * C.day.taskGap });
     if (!day.arcade && !day.relaxed && day.n % 12 === 11 && !day.xq && (day.wave >= 1 || day.plan.filter(w => !w.final).length < 2) && !w.final) { day.xq = 1; day.queue.push({ kind: 'x', t: 5 }); }    // víspera de la semana de Navidad
     day.visits.forEach(v => { if (v.wave === day.wave && !v.sent) { v.sent = 1; day.queue.push({ kind: 'v', v: v.S, t: U.rnd(3, 8) }); } });
     if (GS.DEBUG_INTR || (day.n >= CD.intrFromDay && !w.final && day.wave >= 1 && day.intrN < (day.n >= 6 ? 3 : 2) && Math.random() < 0.6)) { day.queue.push({ kind: 'i', t: U.rnd(5, 11) }); day.intrN++; }
@@ -204,7 +205,7 @@ GS.Game = (function () {
   }
   function endWave() {
     if (day.wave >= day.plan.length - 1) { day.closing = true; setTimeout(endDay, 2800); return; }
-    day.stage = 'rest'; day.rest = day.induc ? 1.5 : C.day.restSeconds * (modNow() === 'sinrespiro' ? 0.5 : 1); W.focus(null); W.home(); if (day.induc) { const d0 = day; fx(U.pick(GS.INDUC.cheer), ''); const yo = W.player(); if (yo) yo.hop(0.5); }
+    day.stage = 'rest'; day.rest = C.day.restSeconds * (modNow() === 'sinrespiro' ? 0.5 : 1); W.focus(null); W.home();
     const d = day;
     setTimeout(() => {                       // en el respiro habla el Dueño, sin nada tapando el local
       if (day !== d || state !== 'day' || d.stage !== 'rest') return;
@@ -252,50 +253,29 @@ GS.Game = (function () {
     W.setPlayerLook(av); const r = $('stageGap').getBoundingClientRect(), vy = r.height > 40 ? 0.5 - (r.top + r.height * 0.56) / window.innerHeight : 0; W.stage({ k: 0.15, vy });
   }
   const DUEL_K = { pampeana: 1, cuyo: 1.03, noa: 1.05, nea: 1.05, patagonia: 1.08, malvinas: 1.12 };      /* cuánto mejor que tu promedio juega cada rival */
-  /* ---------------- Día de inducción: entrenamiento de película antes de la jornada 1 ---------------- */
-  const needInduc = () => !GS.Store.get('induc') && (GS.Store.get('days') || 0) === 0 && brId() === 'pampeana' && !GS.Store.get('testDay');
-  function inducDone(skip) { GS.Store.set('induc', 1); if (skip) { const s = GS.Store.get('seen') || {}; Object.keys(GS.EXPLAIN).forEach(k => { s[k] = 1; }); GS.Store.set('seen', s); } GS.track('induccion', { modo: skip ? 'salteada' : 'completa' }); }
-  function inducAsk() {
-    modal('<div class="induc-ask"><small>ANTES DE ABRIR</small><h2>Día de inducción</h2><p>El Dueño te entrena en todas las tareas del local, una por una y sin apuro. Son unos minutos. Después, las jornadas son de verdad.</p><button class="btn" id="inducGo">🥊 Empezar el entrenamiento</button><button class="btn ghost" id="inducSkip">Ya sé jugar</button></div>');
-    $('inducGo').addEventListener('click', () => { $('modal').hidden = true; startDay(true, true, true); }); $('inducSkip').addEventListener('click', () => { $('modal').hidden = true; inducDone(true); startDay(false); });
-  }
-  function cineCard(k, t) { const el = $('cineCard'); el.innerHTML = '<small>' + k + '</small><b>' + t + '</b>'; el.hidden = false; el.classList.remove('go'); void el.offsetWidth; el.classList.add('go'); A.play('stamp'); }
-  function inducWave() {
-    const I = GS.INDUC, d = day, tot = d.plan.length + 1, n = d.wave === 0 ? 1 : d.wave + 2, id = d.wave === 0 ? 'mostrador' : d.plan[d.wave].final ? 'cierre' : d.inOrder[d.wave - 1], st = ST(id);
-    cineCard('ESTACIÓN ' + n + ' DE ' + tot, st.icon + ' ' + st.name); W.zoomAt(st.pos[0], st.pos[1] + 1.2, 0.5); setTimeout(() => { if (day === d && !MG.isOpen()) W.focus(null); }, 2100);
-    if (I.say[id]) setTimeout(() => { if (day === d) duenoSpeak(I.say[id]); }, 700);
-  }
-  function inducEnd() {
-    const I = GS.INDUC; inducDone(false); document.body.classList.remove('cine'); $('cineCard').hidden = true; W.bossTrain(false); clearDay(); $('hud').hidden = true; $('jobs').hidden = true; day = null; state = 'menu'; A.play('fanfare');
-    epicCtx = { id: 'pampeana' }; showEpic(I.end, null, '<button class="btn" id="inducOk">Empezar la jornada 1</button>', () => $('inducOk').addEventListener('click', () => { closeEpic(); startDay(false); }));
-  }
   let duelLater = false;      /* "Hoy no": se juega una jornada normal y el día de competencia queda para la próxima */
-  function startDay(relaxed, skipDuel, induc) {
+  function startDay(relaxed, skipDuel) {
     A.unlock();
     if (!GS.Store.get('avatar')) return showAvatar(() => startDay(relaxed));
-    if (!relaxed && !induc && needInduc()) return inducAsk();
     if (!relaxed && !skipDuel && readyDuel(brId()) && !GS.Store.get('testDay')) return showDuelIntro(() => startDay(false, true));      /* cumplidos los objetivos, la jornada es el día de competencia */
     A.play('click'); clearDay(); W.setUpgrades(upNow());
     const n = dayNumber(), duel = !relaxed && !duelLater && readyDuel(brId()) && !GS.Store.get('testDay'); duelLater = false; applyBranch();
-    const un = unlockedFor(n), fresh = n <= GS.UNLOCKS.length ? GS.UNLOCKS[n - 1] : [];
+    const un = unlockedFor(n), fresh = freshOf(n);
     const cond = conditionFor(n);
     day = newDay({ relaxed, n, cond, unlocked: un, plan: planDay(n, cond, duel), rest: n === 1 ? 0.5 : 5.5 }); state = 'day'; enterPlay(); $('jobs').hidden = false;
-    document.body.classList.toggle('cine', !!induc); $('cineCard').hidden = true; W.bossTrain(!!induc);
-    if (induc) { const ord = GS.INDUC.order.filter(id => TASK_STATIONS.some(s => s.id === id) && id !== 'ml'); day.induc = true; day.inOrder = ['whatsapp', 'ml'].concat(ord.filter(id => id !== 'whatsapp')); day.rest = 2.4;      /* una estación por tanda: primero el cliente de paja (mostrador y caja), después cada tarea, y al final el cierre */
-      day.plan = [{ c: 1, t: 0, ml: 0 }].concat(day.inOrder.map(id => id === 'ml' ? { c: 0, t: 0, ml: 1 } : { c: 0, t: 1, ml: 0 }), [{ c: 0, t: 1, ml: 0, final: true }]); day.plan.bonus = 1; day.taskBag = day.inOrder.filter(id => id !== 'ml').map(ST).reverse(); }
-    { const lt = n <= GS.UNLOCKS.length ? fresh.filter(id => TASK_STATIONS.some(x => x.id === id)) : []; if (lt.length) day.taskBag = lt.map(ST).reverse();      /* jornadas de aprendizaje: primero aparecen las tareas nuevas */
+    { const lt = fresh.filter(id => TASK_STATIONS.some(x => x.id === id)); if (lt.length) day.taskBag = lt.map(ST).reverse();      /* jornadas de aprendizaje: primero aparecen las tareas nuevas */
       const b = brNow(), units = unitsOf(day.plan), pu = b.avg || 480;
       if (duel) { brSave({ duel: 1 }); const rv = RV(brId()), tries = b.tries || 0, edge = Math.min(5, b.edge || 0); day.duel = { rv, tries, edge, q: 0, shown: 0, total: Math.round(pu * units * (DUEL_K[brId()] || 1) * (1 - 0.02 * edge) * (1 - 0.05 * Math.min(3, tries)) / 10) * 10 }; }
-      else if (!relaxed && n > GS.UNLOCKS.length) day.goal = { silver: Math.round(pu * units * 0.85 / 10) * 10, gold: Math.round(pu * units * 1.06 / 10) * 10 }; }
-    A.setMood(induc ? 'train' : cond === 'lluvia' ? 'rain' : cond ? 'party' : 'day');
+      else if (!relaxed && n > LEARN) day.goal = { silver: Math.round(pu * units * 0.85 / 10) * 10, gold: Math.round(pu * units * 1.06 / 10) * 10 }; }
+    A.setMood(cond === 'lluvia' ? 'rain' : cond ? 'party' : 'day');
     if (rivalOn() && !relaxed) { const rv = RV(rivalId()), d0 = day; day.zonda = rivalId() === 'cuyo' && Math.random() < 0.45;
       if (duel) { setTimeout(() => { if (day === d0 && state === 'day') toast('<b>' + rv.mark + ' Día de competencia</b>Contra ' + rv.name + '. Más puntos que ' + rv.owner + ' y menos de tres quejas.', 'rival', 5200, false, rv.col); }, 5200); setTimeout(() => coach('duelo'), 8200); }
-      else if (n > GS.UNLOCKS.length) { const act = rv.fx && (rivalId() !== 'cuyo' || day.zonda);      /* el rival se hace notar: llama para burlarse y más tarde pasa por la vereda */
+      else if (n > LEARN) { const act = rv.fx && (rivalId() !== 'cuyo' || day.zonda);      /* el rival se hace notar: llama para burlarse y más tarde pasa por la vereda */
         setTimeout(() => { if (day === d0 && state === 'day') toast('<b>' + rv.mark + ' ' + rv.owner + ', de ' + rv.name + '</b>"' + U.pick(rv.taunts) + '"' + (act ? '<small>' + (day.zonda ? 'Hoy sopla el Zonda. ' : '') + rv.fx + '</small>' : ''), 'rival', 5600, false, rv.col); }, 6500); setTimeout(() => coach('rival'), 9500); day.rivalWalk = 1; } }
     if (day.goal) setTimeout(() => coach('medalla'), 7000);
     W.setXmas(cond === 'navidad' ? (GS.Store.get('xmas') || { a: 0, g: 0, l: 0 }) : null); W.setHats(cond === 'navidad');
     if (!relaxed) { const nw = day.plan.filter(w => !w.final).length; day.visits = dueStories(n).map((S, i) => ({ S, wave: Math.min(nw - 1, i + (nw > 2 ? 1 : 0)) })); }
-    const d = day, msg = induc ? GS.INDUC.open : n === 1 ? 'Bienvenido a GameShop. Ya tenés un cliente en el mostrador: tocá el pedido de abajo, que tu personaje va solo.'
+    const d = day, msg = n === 1 ? 'Bienvenido a GameShop. Ya tenés un cliente en el mostrador: tocá su globito, que tu personaje va solo.'
       : cond ? GS.CONDITIONS[cond].name.slice(3) + '. ' + GS.CONDITIONS[cond].say
       : duel ? 'Hoy es el día. ' + day.duel.rv.owner + ' abrió temprano. Atendé como sabés y cuidá las quejas: a la tercera, perdemos.'
       : fresh.length > 2 ? 'Jornada ' + n + '. Hoy aprendés ' + fresh.filter(id => id !== 'mostrador' && id !== 'caja').length + ' tareas nuevas. Sin apuro: cuando aparezca cada una, te la explico.'
@@ -306,9 +286,9 @@ GS.Game = (function () {
     if (n >= 2 && !relaxed && !GS.Store.get('plotIntro') && n <= C.finalDay) { GS.Store.set('plotIntro', true); setTimeout(() => { if (day === d) duenoSpeak(PL.intro.replace('{n}', C.finalDay)); }, 3200); }
     document.body.classList.toggle('snow', snowy());
     $('rain').hidden = cond !== 'lluvia'; $('chipCond').hidden = !cond; if (cond) { $('chipCond').textContent = condInfo(cond).name; toast('<b>Hoy</b>' + condInfo(cond).name, 'dueno', 3800); }
-    $('clockS').textContent = induc ? 'Entrenamiento' : relaxed ? 'Turno tranquilo' : 'Abrimos';
+    $('clockS').textContent = relaxed ? 'Turno tranquilo' : 'Abrimos';
     updateHud();
-    GS.track('inicio_partida', { modo: induc ? 'induccion' : relaxed ? 'tranquilo' : 'normal' });
+    GS.track('inicio_partida', { modo: relaxed ? 'tranquilo' : 'normal' });
     
   }
   /* Guía del primer día: una flecha señala dónde tocar hasta completar la primera venta y el primer cobro */
@@ -351,12 +331,12 @@ GS.Game = (function () {
     const slot = freeSlot('slotM', L.colaMostrador.length); if (slot < 0) return;
     if (!day.reqBag.length) day.reqBag = U.shuffle(GS.REQUESTS);
     if (!day.archBag.length) day.archBag = U.shuffle(GS.CUSTOMERS);
-    const req = day.reqBag.pop(), arche = day.induc ? GS.INDUC.dummy : day.cond === 'navidad' && !day.santa && day.spawned >= 2 ? (day.santa = 1, GS.SANTA) : day.archBag.pop(), product = GS.CATALOG.find(p => p.id === req.p);
+    const req = day.reqBag.pop(), arche = day.cond === 'navidad' && !day.santa && day.spawned >= 2 ? (day.santa = 1, GS.SANTA) : day.archBag.pop(), product = GS.CATALOG.find(p => p.id === req.p);
     const k = arche.id.charCodeAt(0) + arche.id.length * 7;   // cada personaje mantiene su look
     const look = warm(lookOf(arche)), person = W.makePerson(look);
     const dx = L.puerta.x; person.setPos(dx + U.rnd(-0.5, 0.5), day.spawned === 0 ? (day.n === 1 ? -0.6 : L.salon.zMax + 1) : L.galeria.zMax + 2.4);
     person.voice = 230 + (k % 7) * 45; if (arche.id === 'santa') person.aura(0xffe9a8);
-    const cu = { id: ++uid, arche, look, request: (day.induc ? '(El Dueño, haciendo la voz) ' : regHi()) + req.t, product, st: 'entering', pat: 1, person, slotM: slot, slotC: -1, label: makeLabel('❓') };
+    const cu = { id: ++uid, arche, look, request: regHi() + req.t, product, st: 'entering', pat: 1, person, slotM: slot, slotC: -1, label: makeLabel('❓') };
     day.customers.push(cu); day.spawned++;
     const sp = day.spawned > 1 && Math.random() < 0.45 ? freeSpot() : null;
     if (sp) { day.spots[sp.i] = 1; cu.spot = sp; person.walk(sp.via.concat([sp.p]), () => { cu.st = 'browse'; cu.wait = U.rnd(2.6, 4.6) + (sp.use ? 1.6 : 0); person.face(sp.f); useSpot(person, sp, true); }); }   // primero mira un rato y después se acerca
@@ -643,7 +623,7 @@ GS.Game = (function () {
     if (kind === 'equipo0') { const av = Object.assign({ skin: GS.SKINS[2], hair: GS.HAIRS[0], hairStyle: 'corto', shirt: 0xe10600 }, GS.Store.get('avatar') || {}), T = [[av, 'Vos', 'happy'], [{ shirt: 0xe10600, hair: MOHAWK[1], hairStyle: 'mohicano', skin: GS.SKINS[3], glasses: true }, 'Lucho', 'happy'], [{ shirt: 0xe10600, hair: 0x2d6cdf, hairStyle: 'corto', skin: GS.SKINS[0] }, 'Brian', 'normal']];
       return void (el.innerHTML = '<div class="ep-faces trio">' + T.map(q => fig(q[0], q[2], q[1])).join('') + '</div>'); }
     if (kind === 'local') return void (el.innerHTML = '<div class="ep-inaug">' + sceneSvg('pampeana', { sign: 1 }) + '<b class="ep-city"><small>Casa central</small>BUENOS AIRES</b><div class="ep-fila"><div class="pf emp">' + avatarSvg(me, 'happy') + '</div></div></div>');
-    if (kind === 'reglas') return void (el.innerHTML = '<div class="ep-res">' + [['👆', 'Tocá los pedidos', 'Aparecen abajo. Tu personaje va solo hasta el mostrador, la caja o donde haga falta.'], ['🎯', 'Dale lo que pidió', 'Con otro producto, el cliente se va y se pierde la venta.'], ['💵', 'Cobrá bien', '10% en efectivo o transferencia, 3 cuotas sin interés. Cobrar mal baja la reputación.']].map(q => '<div><i>' + q[0] + '</i><span><b>' + q[1] + '</b>' + q[2] + '</span></div>').join('') + '<p>En los ratos libres: 🧹 <b>limpiá el piso</b></p></div>');
+    if (kind === 'reglas') return void (el.innerHTML = '<div class="ep-res">' + [['👆', 'Tocá los globitos', 'Aparecen sobre cada cliente y cada tarea. Tu personaje va solo.'], ['🎯', 'Dale lo que pidió', 'Si te equivocás, te enterás después: llega un aviso del Dueño.'], ['💵', 'Cobrá bien', '10% en efectivo o transferencia, 3 cuotas sin interés. Cobrar mal baja la reputación.']].map(q => '<div><i>' + q[0] + '</i><span><b>' + q[1] + '</b>' + q[2] + '</span></div>').join('') + '<p>En los ratos libres: 🧹 <b>limpiá el piso</b></p></div>');
     if (kind === 'inaug') { const R = RG(epicCtx.id), crew = (brAll()[R.id] || {}).staff || [], ppl = crew.map(cid => R.crew.find(c => c.id === cid)).filter(Boolean).map(c => Object.assign({ shirt: 0xe10600 }, c.look));
       const fila = [{ shirt: 0x2d6cdf, hair: 0x5a2d0c, hairStyle: 'largo', skin: GS.SKINS[1], lashes: true }, { shirt: 0xd9a514, hair: 0x1b1b1f, hairStyle: 'corto', skin: GS.SKINS[3], glasses: true }, { shirt: 0x3bb54a, hair: 0xc9c9d6, hairStyle: 'rodete', skin: GS.SKINS[0] }, { shirt: 0x7b4fd1, hair: 0xb5651d, hairStyle: 'rulos', skin: GS.SKINS[2] }];
       return void (el.innerHTML = '<div class="ep-inaug">' + sceneSvg(R.id, { cinta: 1 }) + '<b class="ep-city' + (R.city.length > 11 ? ' lg' : '') + '"><small>Sucursal ' + R.name + '</small>' + R.city.toUpperCase() + '</b>' +
@@ -877,7 +857,7 @@ GS.Game = (function () {
     return -1;
   }
   // Limpieza: los clientes dejan manchas; se limpian en los ratos libres. Terminar con el piso sucio baja la reputación.
-  function dropDirt() { if (day && day.induc) return;
+  function dropDirt() {
     if (!day || day.arcade || day.dirt >= 5 || Math.random() > (upNow().plantas ? 0.22 : 0.45)) return;
     coach('mancha'); day.dirt++; day.jobSig = ''; { const x = U.rnd(-3.6, 0.6), z = U.rnd(-2.0, 4.6); day.dirtPos.push([x, z]); W.addDirt(x, z); }
   }
@@ -1017,7 +997,7 @@ GS.Game = (function () {
     yoGo(NODE_OF[job.type]);
     const mt = day.mt = day.mt || {}, m0 = day.tt || 0, me = mt[job.type] = mt[job.type] || { n: 0, s: 0, e: 0 }; me.n++;
     const cb = {
-      deferred: !day.induc,
+      deferred: true,
       onMistake(kind) { me.e++; day.wv.mistakes = (day.wv.mistakes || 0) + 1; breakCombo(); addRep(kind === 'caja' ? -0.07 : -0.03); fx(kind === 'caja' ? '−⭐  −🪙' : '−⭐', 'bad'); if (kind === 'caja') { day.cajaErr++; day.coinLoss = (day.coinLoss || 0) + 15; } else day.otherErr++; if (!day.relaxed) ref.pat = Math.max(0.05, ref.pat - C.day.mistakeCost); },
       onEnd(ok, info) {
         if (info.slip && job.type === 'caja' && !/Rechazaste/.test(info.slip.text)) info.total = (ref.product && ref.product.price) || 1;
@@ -1127,7 +1107,7 @@ GS.Game = (function () {
       const fin = day.wave >= 0 && day.plan[day.wave].final, nw = day.plan.filter(w => !w.final).length, m = Math.round((600 + f * 540) / 10) * 10;
       setSky((m - 600) / 540, day.cond === 'lluvia');
       $('clockT').textContent = '🕙 ' + String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0'); $('clockB').style.width = (f * 100).toFixed(1) + '%';
-      $('clockS').textContent = day.induc ? 'Entrenamiento · estación ' + Math.min(day.plan.length + 1, day.wave <= 0 ? 1 : day.wave + 2) + ' de ' + (day.plan.length + 1) : day.closing ? 'Cerramos: son las 19' : fin ? 'Cierre de caja' : day.stage === 'rest' && day.wave >= 0 ? 'Respiro ☕' : 'Tanda ' + Math.max(1, day.wave + 1) + '/' + nw;
+      $('clockS').textContent = day.closing ? 'Cerramos: son las 19' : fin ? 'Cierre de caja' : day.stage === 'rest' && day.wave >= 0 ? 'Respiro ☕' : 'Tanda ' + Math.max(1, day.wave + 1) + '/' + nw;
     }
     $('scoreV').textContent = day.score.toLocaleString('es-AR');
     { const g = day.goal, sc = day.score, el = $('chipGoal'), nf = v => v.toLocaleString('es-AR'); el.hidden = !g; if (g) { el.textContent = sc >= g.gold ? '🥇 ¡Oro!' : sc >= g.silver ? '🥇 oro a ' + nf(g.gold) : '🥈 plata a ' + nf(g.silver); el.className = 'chip goal' + (sc >= g.gold ? ' gold' : sc >= g.silver ? ' silver' : ''); }
@@ -1281,7 +1261,6 @@ GS.Game = (function () {
   /* ---------------- Cierre de caja ---------------- */
   function endDay() {
     if (!day || state !== 'day' || day.arcade) return;
-    if (day.induc) { stopMop(); MG.close(); W.focus(null); return inducEnd(); }
     stopMop(); state = 'end'; MG.close(); W.focus(null); W.showAll(); A.play('endDay'); A.setMood('menu'); $('rain').hidden = true;
     const d = day; d.intr = null;
     d.customers.slice().forEach(c => { if (c.st !== 'leaving') leave(c, false); }); d.lookers.slice().forEach(lk => { if (lk.st !== 'out') { lk.p.stop(); lookerOut(lk); } });
@@ -1597,9 +1576,9 @@ GS.Game = (function () {
   const started = () => !!GS.Store.get('introSeen') || (GS.Store.get('days') || 0) > 0;
   function setMenu(v) { menuView = v === 'camp' && started() ? 'camp' : 'main'; $('menuMain').hidden = menuView !== 'main'; $('menuCamp').hidden = menuView !== 'camp'; $('start').scrollTop = 0; }
   function refreshStart() {
-    const n = dayNumber(), fresh = n <= GS.UNLOCKS.length ? GS.UNLOCKS[n - 1] : [], R = RG(brId());
+    const n = dayNumber(), fresh = freshOf(n), R = RG(brId());
     $('campT').textContent = started() ? 'Seguir campaña' : 'Iniciar campaña'; $('campS').textContent = started() ? 'Jornada ' + n + ' · ' + R.city + ' · ' + MAIN.filter(r => (brAll()[r.id] || {}).open).length + ' de 5 sucursales' : 'Llevá GameShop a todo el país';
-    { const rd = readyDuel(brId()), rv = RV(brId()); $('playT').textContent = rd ? '⚔️ Día de competencia' : 'Comenzar jornada ' + n; $('playS').textContent = rd ? 'Contra ' + rv.name + ((brNow().tries || 0) ? ' · revancha' : '') + ' · jornada ' + n : monthOf(n) + (n === 1 ? ' · inducción' : fresh.length > 2 ? ' · ' + fresh.length + ' tareas nuevas' : fresh.length ? ' · se suma: ' + fresh.map(id => ST(id).name).join(' y ') : ''); }
+    { const rd = readyDuel(brId()), rv = RV(brId()); $('playT').textContent = rd ? '⚔️ Día de competencia' : 'Comenzar jornada ' + n; $('playS').textContent = rd ? 'Contra ' + rv.name + ((brNow().tries || 0) ? ' · revancha' : '') + ' · jornada ' + n : monthOf(n) + (n === 1 ? ' · tu primer día' : fresh.length > 2 ? ' · ' + fresh.length + ' tareas nuevas' : fresh.length ? ' · se suma: ' + fresh.map(id => ST(id).name).join(' y ') : ''); }
     $('btnShop').innerHTML = goalCard(); $('btnPlot').innerHTML = sucCard(); $('campProg').innerHTML = expCard() + progBox(brId(), 'Avance de ' + R.city);
     $('campHead').style.background = 'linear-gradient(100deg, ' + ACC[R.id] + ', rgba(20,20,24,.92) 130%)'; $('campHead').innerHTML = '<small>' + (R.id === 'pampeana' ? 'Casa central' : 'Sucursal ' + R.name) + '</small><b>' + R.city + '</b><span>⭐ ' + repTxt(repNow()) + ' · 🪙 ' + (DEV() ? '∞' : coinsNow()) + (RV(R.id) ? ' · ' + (won(R.id) ? '🏆 rival vencido' : RV(R.id).mark + ' ' + RV(R.id).name) : '') + '</span>';
     $('rankT').textContent = (DEV() ? '🛠 DEV · ' : '') + (GS.Store.get('ngp') ? '➕ NJ+' + GS.Store.get('ngp') : ''); $('rankT').hidden = !$('rankT').textContent; setMenu(menuView);

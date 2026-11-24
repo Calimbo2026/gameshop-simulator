@@ -7,7 +7,7 @@
 const GS = {};
 
 GS.CONFIG = {
-  version: '0.85.1',
+  version: '0.86.0',
   phase: 8,
   phaseNote: 'Juego completo de punta a punta. Falta tu playtest con 5 personas y encender el lanzamiento (launched: true)',                       // fase actual del proyecto (1 a 5)
   links: { tienda: 'https://www.gameshop.com.ar', instagram: '' },   // botones del inicio y del cierre (vacío = no se muestra)
@@ -287,20 +287,9 @@ GS.SKINS = [0xf6d7bd, 0xf2c9a0, 0xe0ac7e, 0xc68a5c, 0x9a643c, 0x6b4428];
 GS.HAIRS = [0x000000, 0x2b2b3a, 0x4a3a2a, 0x7a3b1e, 0xd9a514, 0xc9c9d6, 0x2d6cdf, 0xff5fa2, 0x3bb54a];
 
 /* Progresión: qué estaciones se suman en cada jornada (de menos a más) y cómo las explica el Dueño */
-GS.UNLOCKS = [];      /* ya no se aprende por jornadas: todo se aprende en el día de inducción, y desde la jornada 1 están todas las tareas */
-/* Día de inducción: el Dueño entrena al jugador, una estación por vez. El cliente es un muñeco de paja. */
-GS.INDUC = {
-  order: ['whatsapp', 'ml', 'stock', 'repo', 'proveedor', 'vidriera', 'pc', 'service', 'devol'],
-  dummy: { id: 'dummy', name: 'Cliente de paja', face: '🎯', shirt: 0xd9b77a, hair: 0xe8c33c, tag: 'No se queja nunca. Todavía.', look: { dummy: true, hairStyle: 'pelado', glasses: false, beard: false, lips: false, lashes: false, skin: 0xd9b77a, pants: 0x7a5a36, scale: 1 },
-    bye: '(El Dueño, haciendo la voz) "¡Qué atención! Vuelvo mañana con toda la familia."', lost: '' },
-  open: '¡Arriba! Hoy no abrimos: hoy entrenamos. Ese de paja es tu primer cliente. No muerde. Tocá el pedido de abajo.',
-  say: { caja: '¡Ahora cobrale! Contá bien el vuelto, que el de paja no perdona.', whatsapp: '¡Los mensajes no se contestan solos! ¡Rápido y amable!', ml: '¡Compra por la página! Embalá como si adentro viajara tu abuela.', stock: '¡A contar! El sistema dice una cosa. Vos decime la verdad.', repo: '¡Depósito! Cada caja en su lugar. ¡Otra vez! ¡Con ganas!', proveedor: '¡Llegó el camión! Lo que no está en el remito, no entra.', vidriera: '¡La vidriera es la cara del local! ¡Que brille!', pc: '¡A armar una PC! Cada pieza en su lugar, sin forzar nada.', service: '¡Al taller! Escuchá al equipo: siempre te dice qué le duele.', devol: '¡Una devolución! Mirá bien el producto antes de decir que sí.', cierre: '¡Última estación! Contá la caja. Si cierra, ya sos de los nuestros.' },
-  cheer: ['¡Eso!', '¡Así se hace!', '¡Otra! ¡Vamos!', '¡Mirá vos!', '¡Con esa actitud!', '¡Sin aflojar!', '¡Ya casi, ya casi!'],
-  end: [{ art: 'jefe2', k: 'Día de inducción', t: '¡Estás listo!', d: 'Atendiste, cobraste, embalaste, contaste y arreglaste. El de paja quedó conforme, y eso que es exigente.' },
-    { art: 'equipo0', k: 'Desde hoy', t: 'Sos del equipo', d: 'Lucho, Brian y vos. Yo estoy en la oficina, mirando todo. Mañana abrimos con gente de verdad, y desde la primera jornada hacés de todo.' },
-    { art: 'rival', k: 'Lo que tenés que saber', t: 'Enfrente abrió Turbo Gamer', d: 'El dueño es Tito Turbo. Promete todo "en cinco minutos" y nos está sacando clientes. No le vamos a ganar corriendo: le vamos a ganar atendiendo mejor.' },
-    { art: 'vs', k: 'El plan', t: 'Primero el barrio, después el país', d: 'Llevá el local a 5 estrellas y completá la flota de reparto. Cuando lo logres, llega el día de competencia contra Tito. Si le ganamos, Buenos Aires es nuestra y vamos por la próxima región.' }]
-};
+/* Una tarea nueva cada tanto, en orden lógico: primero atender y cobrar; después mensajes, cierre, compras por la página, mercadería, vidriera, taller y armado de PC.
+   Control de stock, ordenar el depósito y devoluciones quedaron fuera de la campaña (siguen en "Practicar estaciones"). */
+GS.UNLOCKS = [['mostrador', 'caja'], ['whatsapp'], ['cierre'], [], ['ml'], [], ['proveedor'], [], ['vidriera'], [], ['service'], [], ['pc']];
 GS.EXPLAIN = {
   adornos: 'Mañana empieza la semana de Navidad. Elegí el árbol, las guirnaldas y las luces: como lo armes hoy, así amanece el local.',
   vidriera: 'Armá la vidriera según el tema: elegí los 4 productos que mejor van. Si queda bien, va a entrar gente diciendo que lo vio ahí.',
@@ -722,7 +711,7 @@ GS.STATIONS = [
     task: { name: 'Ordenar el depósito', tag: 'Hay cosas mal ubicadas', late: 'El depósito sigue desordenado. Ya nadie encuentra nada.' } },
   { id: 'stock', n: 8, name: 'Control de stock', icon: '🔍', pos: [-5.0, -3.2],
     task: { name: 'Contar una góndola', tag: 'El sistema dice una cosa...', late: 'Nadie contó la góndola. El sistema sigue soñando.' } },
-  { id: 'proveedor', n: 9, name: 'Recepción de proveedor', short: 'Proveedor', icon: '🚚', pos: [5.0, -4.6],
+  { id: 'proveedor', n: 9, name: 'Llegó mercadería', short: 'Mercadería', icon: '🚚', pos: [5.0, -4.6],
     task: { name: 'Llegó mercadería', tag: 'Firmame acá, jefe', late: 'El del reparto se cansó de esperar la firma y se fue.' } },
   { id: 'devol', n: 10, name: 'Devoluciones', icon: '↩️', pos: [0.2, -4.0],
     task: { name: 'Quieren devolver algo', tag: '"Lo usé poquito"', late: 'El de la devolución se fue. Vuelve mañana, con refuerzos.' } },

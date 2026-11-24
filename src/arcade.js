@@ -83,45 +83,67 @@ GS.Arcade = (() => {
   return { open, close, bind, isOpen: () => !!G, debug: () => G };
 })();
 
-/* ============ Aprendé a dar vueltos: práctica infinita, sin reloj. La caja muestra el total, el mostrador lo que paga el cliente,
-   y se arma el vuelto tocando billetes. Solo acá los billetes son de 100, 200, 500, 1.000, 2.000, 10.000 y 20.000. ============ */
+/* ============ Aprendé a dar vueltos: práctica infinita, sin reloj, armada como un cobro de verdad.
+   Arriba la caja registradora con el total; en el mostrador, los billetes que apoya el cliente; abajo, el cajón con los billetes para armar el vuelto.
+   Solo acá los billetes son de 100, 200, 500, 1.000, 2.000, 10.000 y 20.000. Los billetes son dibujos propios con el color y la proporción de los reales. ============ */
 GS.Vueltos = (() => {
-  const D = [100, 200, 500, 1000, 2000, 10000, 20000], COL = { 100: '#8e7cc3', 200: '#5fa8d3', 500: '#57b894', 1000: '#e0a23c', 2000: '#e07a5f', 10000: '#c9485b', 20000: '#3d5a80' };
-  const fmt = n => '$' + String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '.'), el = id => document.getElementById(id), rnd = n => Math.floor(Math.random() * n);
-  let root = null, S = null;
-  const best = n => { let c = 0; for (let i = D.length - 1; i >= 0; i--) { c += Math.floor(n / D[i]); n %= D[i]; } return c; };      /* menor cantidad de billetes posible */
-  const split = (n, ds) => { const o = []; ds.forEach(d => { while (n >= d) { o.push(d); n -= d; } }); return o; };
-  function round() {
-    /* cada ronda apunta a un billete distinto, para que con el tiempo se usen todos y combinados */
-    const lvl = Math.min(D.length, 3 + Math.floor(S.n / 3)); if (!S.bag.length) S.bag = D.slice(0, lvl).sort(() => Math.random() - 0.5);
-    const t = S.bag.pop(), MAXC = { 10000: 1, 2000: 4, 1000: 1, 500: 1, 200: 2, 100: 1 }; let ch = t;
-    D.filter(d => d < t).forEach(d => { if (Math.random() < (S.n < 4 ? 0.3 : 0.5)) ch += d * (1 + rnd(Math.min(2, MAXC[d]))); });
-    const P = [1000, 2000, 5000, 10000, 20000, 30000, 40000, 50000], ok = P.filter(p => p - ch >= 300), pay = ok[Math.random() < 0.75 ? 0 : Math.min(1, ok.length - 1)];
-    S.cur = { total: pay - ch, pay, ch, give: [], t0: performance.now(), done: false }; S.n++; draw();
+  const D = [100, 200, 500, 1000, 2000, 10000, 20000];
+  const COL = { 100: ['#8a6fc0', '#5b4296', '#efe8fb'], 200: ['#4f93cf', '#2a5f9c', '#e6f1fb'], 500: ['#4fae78', '#2c7a4d', '#e6f6ec'], 1000: ['#eda04a', '#c06a18', '#fdf0de'], 2000: ['#c98aa6', '#6f6772', '#f8e9f0'], 10000: ['#3f6fc0', '#1f3f86', '#e4ecfb'], 20000: ['#2f9a9a', '#17595f', '#e2f5f4'] };
+  const dots = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '.'), fmt = n => '$' + dots(n), el = id => document.getElementById(id), rnd = n => Math.floor(Math.random() * n), pick = a => a[rnd(a.length)];
+  let root = null, S = null, uid = 0;
+  /* Billete dibujado: proporción 155 x 65 mm, fondo de guilloché, roseta, banda de seguridad, valor en las esquinas y número de serie */
+  function billSvg(d) {
+    const c = COL[d], id = 'vb' + d + '_' + (++uid), t = dots(d), fs = d >= 10000 ? 30 : 36, ser = String(10000000 + (d * 7919 + uid * 104729) % 89999999);
+    let ros = ''; for (let i = 0; i < 12; i++) ros += '<ellipse cx="112" cy="65" rx="34" ry="12" transform="rotate(' + i * 15 + ' 112 65)"/>';
+    let waves = ''; for (let i = 0; i < 9; i++) waves += '<path d="M0 ' + (10 + i * 14) + ' q 19 -12 38 0 t 38 0 t 38 0 t 38 0 t 38 0 t 38 0 t 38 0 t 38 0 t 38 0"/>';
+    return '<svg viewBox="0 0 310 130" xmlns="http://www.w3.org/2000/svg" aria-label="' + t + ' pesos"><defs><linearGradient id="' + id + '" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="' + c[2] + '"/><stop offset=".45" stop-color="' + c[0] + '" stop-opacity=".55"/><stop offset="1" stop-color="' + c[0] + '"/></linearGradient></defs>' +
+      '<rect width="310" height="130" rx="5" fill="' + c[2] + '"/><rect width="310" height="130" rx="5" fill="url(#' + id + ')"/>' +
+      '<g fill="none" stroke="' + c[1] + '" stroke-opacity=".22" stroke-width="1">' + waves + '</g>' +
+      '<rect x="5" y="5" width="300" height="120" rx="3" fill="none" stroke="' + c[1] + '" stroke-width="2"/><rect x="9" y="9" width="292" height="112" rx="2" fill="none" stroke="' + c[1] + '" stroke-opacity=".5" stroke-width=".8"/>' +
+      '<g fill="none" stroke="' + c[1] + '" stroke-opacity=".75" stroke-width="1.1">' + ros + '</g><circle cx="112" cy="65" r="15" fill="' + c[2] + '" stroke="' + c[1] + '" stroke-width="1.5"/><text x="112" y="71" text-anchor="middle" font-size="17" font-weight="800" fill="' + c[1] + '" font-family="Georgia, serif">$</text>' +
+      '<rect x="176" y="5" width="7" height="120" fill="' + c[1] + '" opacity=".35"/><ellipse cx="34" cy="78" rx="19" ry="25" fill="#fff" opacity=".5"/>' +
+      '<text x="16" y="38" font-size="' + (fs - 8) + '" font-weight="900" fill="' + c[1] + '" font-family="Georgia, serif">' + t + '</text>' +
+      '<text x="296" y="80" text-anchor="end" font-size="' + (fs + 8) + '" font-weight="900" fill="#fff" stroke="' + c[1] + '" stroke-width="1.6" paint-order="stroke" font-family="Georgia, serif">' + t + '</text>' +
+      '<text x="296" y="104" text-anchor="end" font-size="14" font-weight="800" letter-spacing="3" fill="' + c[1] + '" font-family="Georgia, serif">PESOS</text>' +
+      '<text x="296" y="24" text-anchor="end" font-size="9" letter-spacing="1" fill="' + c[1] + '" font-family="monospace">' + ser + ' A</text><text x="16" y="118" font-size="7" letter-spacing="1.5" fill="' + c[1] + '" opacity=".8" font-family="monospace">BILLETE DE PRÁCTICA · GAMESHOP</text></svg>';
   }
-  const bill = (d, cls, i) => '<button class="vb ' + (cls || '') + '" data-d="' + d + '"' + (i != null ? ' data-i="' + i + '"' : '') + ' style="--c:' + COL[d] + '"><i>$</i><b>' + String(d).replace(/\B(?=(\d{3})+(?!\d))/g, '.') + '</b></button>';
+  const best = n => { let c = 0; for (let i = D.length - 1; i >= 0; i--) { c += Math.floor(n / D[i]); n %= D[i]; } return c; };      /* menor cantidad de billetes posible */
+  /* Cómo paga la gente: casi siempre con un billete grande; a veces con dos o tres; cada tanto, se le pasa un billete de más */
+  const PAYS = [[1000], [2000], [2000], [2000, 2000], [2000, 2000, 1000], [10000], [10000], [10000], [10000], [10000], [20000], [20000], [20000], [20000], [20000], [10000, 10000], [10000, 2000], [10000, 2000, 2000], [20000, 10000], [20000, 10000], [20000, 2000], [20000, 20000]];
+  function gen() {
+    if (S.n === 8 || (S.n > 8 && Math.random() < 0.06)) { const total = 10100 + rnd(98) * 100; return { bills: [20000, 20000], pay: 40000, total, ch: 40000 - total, extra: true, key: 'x' }; }      /* le sobra un billete: se devuelve entero */
+    const bills = S.n < 2 ? pick([[1000], [2000]]) : pick(PAYS), pay = bills.reduce((a, b) => a + b, 0), min = Math.min.apply(null, bills), ch = (1 + rnd(min / 100 - 1)) * 100;
+    return { bills, pay, total: pay - ch, ch, key: bills.join('+') };
+  }
+  function round() {
+    let c, k = 0;
+    do { c = gen(); } while (++k < 60 && (c.total < 300 || S.hist.indexOf(c.total) >= 0 || S.histCh.indexOf(c.ch) >= 0 || (c.key === S.lastKey && c.key !== '10000' && c.key !== '20000') || (S.n >= 2 && c.ch % 1000 === 0 && Math.random() < 0.7)));
+    S.hist.push(c.total); S.histCh.push(c.ch); if (S.hist.length > 30) { S.hist.shift(); S.histCh.shift(); } S.lastKey = c.key;
+    c.give = []; c.t0 = performance.now(); c.done = false; c.rot = c.bills.map(() => rnd(13) - 6); S.cur = c; S.n++; draw();
+  }
+  const bill = (d, cls, extra) => '<button class="vb ' + (cls || '') + '" data-d="' + d + '"' + (extra || '') + '>' + billSvg(d) + '</button>';
   function draw() {
     const c = S.cur, sum = c.give.reduce((a, b) => a + b, 0);
-    root.innerHTML = '<div class="vt-top"><b>💵 Aprendé a dar vueltos</b><span>✅ ' + S.ok + ' · 🔥 ' + S.streak + (S.bestStreak ? ' · mejor racha ' + S.bestStreak : '') + '</span><button class="chip" id="vtX">✕ Salir</button></div>' +
-      '<div class="vt-reg"><small>CAJA · TOTAL A COBRAR</small><output>' + fmt(c.total) + '</output></div>' +
-      '<div class="vt-counter"><small>EL CLIENTE TE DA ' + fmt(c.pay) + '</small><div class="vt-bills">' + split(c.pay, [20000, 10000, 2000, 1000]).map(d => bill(d, 'paid')).join('') + '</div></div>' +
-      '<div class="vt-hand' + (c.done ? (c.right ? ' ok' : ' bad') : '') + '"><small>TU VUELTO' + (S.help || c.done ? ' · tiene que ser ' + fmt(c.ch) : '') + '</small><output id="vtSum">' + fmt(sum) + '</output><div class="vt-bills" id="vtGive">' + (c.give.length ? c.give.map((d, i) => bill(d, 'mine', i)).join('') : '<em>Tocá los billetes de abajo</em>') + '</div>' +
-      (c.done ? '<p class="vt-msg">' + c.msg + '</p>' : '') + '</div>' +
-      '<div class="vt-tray">' + D.map(d => bill(d, 'tray')).join('') + '</div>' +
+    root.innerHTML = '<div class="vt-top"><b>💵 Aprendé a dar vueltos</b><button class="chip" id="vtX">✕ Salir</button><span>Cliente ' + S.n + ' · ✅ ' + S.ok + ' · 🔥 ' + S.streak + (S.bestStreak ? ' · mejor racha ' + S.bestStreak : '') + '</span></div>' +
+      '<div class="vt-reg"><i></i><div><small>TOTAL A COBRAR</small><output>' + fmt(c.total) + '</output></div></div>' +
+      '<div class="vt-counter"><small>EL CLIENTE APOYA EN EL MOSTRADOR' + (S.help || c.done ? ' · ' + fmt(c.pay) : '') + '</small><div class="vt-paid">' + c.bills.map((d, i) => bill(d, 'paid', ' style="--r:' + c.rot[i] + 'deg"')).join('') + '</div>' +
+        '<div class="vt-hand' + (c.done ? (c.right ? ' ok' : ' bad') : '') + '"><small>TU VUELTO' + (S.help || c.done ? ' · tiene que ser ' + fmt(c.ch) : '') + '</small><output id="vtSum">' + fmt(sum) + '</output><div class="vt-give" id="vtGive">' + (c.give.length ? c.give.map((d, i) => bill(d, 'mine', ' data-i="' + i + '"')).join('') : '<em>Sacá los billetes del cajón</em>') + '</div>' +
+        (c.done ? '<p class="vt-msg">' + c.msg + '</p>' : '') + '</div></div>' +
+      '<div class="vt-tray"><small>CAJÓN DE LA CAJA</small><div>' + D.map(d => bill(d, 'tray')).join('') + '</div></div>' +
       '<div class="vt-act">' + (c.done ? '<button class="btn" id="vtNext">Siguiente cliente</button>' : '<button class="btn ghost" id="vtHelp">' + (S.help ? 'Ocultar la cuenta' : 'Mostrar la cuenta') + '</button><button class="btn" id="vtGo"' + (sum ? '' : ' disabled') + '>Dar el vuelto</button>') + '</div>';
     el('vtX').onclick = close;
     if (c.done) { el('vtNext').onclick = round; return; }
     el('vtHelp').onclick = () => { S.help = !S.help; GS.Store.set('vtHelp', S.help); draw(); }; el('vtGo').onclick = check;
-    root.querySelectorAll('.vb.tray').forEach(b => { b.onclick = () => { c.give.push(Number(b.dataset.d)); GS.Audio.play('count'); draw(); }; });
+    root.querySelectorAll('.vb.tray').forEach(b => { b.onclick = () => { if (c.give.length >= 14) return; c.give.push(Number(b.dataset.d)); GS.Audio.play('count'); draw(); }; });
     root.querySelectorAll('.vb.mine').forEach(b => { b.onclick = () => { c.give.splice(Number(b.dataset.i), 1); GS.Audio.play('drop'); draw(); }; });
   }
   function check() {
     const c = S.cur, sum = c.give.reduce((a, b) => a + b, 0), secs = (performance.now() - c.t0) / 1000; c.done = true; c.right = sum === c.ch;
-    if (c.right) { S.ok++; S.streak++; S.bestStreak = Math.max(S.bestStreak, S.streak); GS.Store.set('vtBest', S.bestStreak); const few = c.give.length === best(c.ch); c.msg = '✅ ¡Justo! En ' + secs.toFixed(1).replace('.', ',') + ' segundos' + (few ? ' y con la menor cantidad de billetes.' : '. Se podía con ' + best(c.ch) + ' billetes.'); GS.Audio.play('cash'); }
-    else { S.streak = 0; c.msg = '❌ ' + (sum > c.ch ? 'Te pasaste por ' + fmt(sum - c.ch) : 'Te faltaron ' + fmt(c.ch - sum)) + '. La cuenta: ' + fmt(c.pay) + ' − ' + fmt(c.total) + ' = ' + fmt(c.ch) + '.'; GS.Audio.play('error'); }
-    GS.track && S.n % 10 === 0 && GS.track('vueltos', { clientes: S.n, aciertos: S.ok }); draw();
+    if (c.right) { S.ok++; S.streak++; S.bestStreak = Math.max(S.bestStreak, S.streak); GS.Store.set('vtBest', S.bestStreak); const few = c.give.length === best(c.ch); c.msg = '✅ ¡Justo! En ' + secs.toFixed(1).replace('.', ',') + ' segundos' + (few ? ' y con la menor cantidad de billetes.' : '. Se podía con ' + best(c.ch) + ' billetes.') + (c.extra ? ' Le sobraba un billete y se lo devolviste.' : ''); GS.Audio.play('cash'); }
+    else { S.streak = 0; c.msg = '❌ ' + (sum > c.ch ? 'Te pasaste por ' + fmt(sum - c.ch) : 'Te faltaron ' + fmt(c.ch - sum)) + '. La cuenta: ' + fmt(c.pay) + ' − ' + fmt(c.total) + ' = ' + fmt(c.ch) + '.' + (c.extra ? ' Ojo: le sobraba un billete de $20.000.' : ''); GS.Audio.play('error'); }
+    if (GS.track && S.n % 10 === 0) GS.track('vueltos', { clientes: S.n, aciertos: S.ok }); draw();
   }
-  function open() { if (!root) { root = document.createElement('div'); root.id = 'vuelto'; document.body.appendChild(root); } root.hidden = false; S = { n: 0, ok: 0, streak: 0, bestStreak: GS.Store.get('vtBest') || 0, bag: [], help: !!GS.Store.get('vtHelp') }; round(); }
+  function open() { if (!root) { root = document.createElement('div'); root.id = 'vuelto'; document.body.appendChild(root); } root.hidden = false; S = { n: 0, ok: 0, streak: 0, bestStreak: GS.Store.get('vtBest') || 0, hist: [], histCh: [], lastKey: '', help: !!GS.Store.get('vtHelp') }; round(); }
   function close() { if (root) root.hidden = true; S = null; }
-  return { open, close, isOpen: () => !!S, debug: () => S };
+  return { open, close, isOpen: () => !!S, debug: () => S, billSvg };
 })();
