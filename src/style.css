@@ -819,3 +819,16 @@ body.cine:has(#mg:not([hidden])) .cine-bar.bot, body.cine:has(#modal:not([hidden
 .vt-tray { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; margin-top: auto; } .vt-tray .vb { min-width: 0; height: 54px; } .vt-tray .vb b { font-size: 19px; } .vt-tray .vb:active { transform: translateY(3px); box-shadow: none; }
 .vt-act { display: grid; grid-template-columns: 1fr 1.4fr; gap: 8px; } .vt-act .btn:only-child { grid-column: 1 / -1; }
 .vt-top b { flex: 1; font-size: 17px; } .vt-top span { flex: 0 0 100%; order: 3; text-align: left; }
+
+/* v0.83: los pendientes son globitos sobre el lugar donde pasan */
+.plabel { display: none !important; }
+#labels.beat .bub { opacity: .4; }
+.bub { position: absolute; transform: translate(-50%, -100%); pointer-events: auto; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px; background: none; border: 0; min-height: 0; min-width: 0; will-change: left, top; animation: bubIn .22s cubic-bezier(.2,1.6,.4,1); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.bub .ring { width: 60px; height: 60px; border-radius: 50%; display: grid; place-items: center; background: conic-gradient(var(--ok) 100%, #2b2b30 0); box-shadow: 0 4px 0 rgba(0,0,0,.45), 0 0 0 2px #000; position: relative; }
+.bub .ring::after { content: ''; position: absolute; left: 50%; bottom: -9px; margin-left: -7px; border: 7px solid transparent; border-top: 9px solid #000; border-bottom: 0; }
+.bub .ring i { width: 46px; height: 46px; border-radius: 50%; background: #fff; display: grid; place-items: center; font-style: normal; font-size: 27px; line-height: 1; }
+.bub b { order: -1; background: #000; color: #fff; font-family: var(--display); font-size: 14px; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 8px; white-space: nowrap; max-width: 130px; overflow: hidden; text-overflow: ellipsis; display: block; }
+.bub:active .ring { transform: scale(.92); } .bub.hot .ring { animation: bubHot .5s ease-in-out infinite alternate; } .bub.hot b { background: var(--red); }
+@keyframes bubIn { from { transform: translate(-50%, -100%) scale(.3); opacity: 0; } } @keyframes bubHot { to { transform: scale(1.12); } }
+#jobs { grid-template-columns: 1fr; } #jobs .job { min-height: 54px; }
+#labels.busy .bub { opacity: 0; pointer-events: none; transition: opacity .15s; }

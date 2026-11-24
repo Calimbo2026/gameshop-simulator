@@ -323,8 +323,8 @@ GS.Game = (function () {
         else if (isM && cu && !day.gProd && !res) { day.gProd0 = 1; el = mg.querySelector('.opt[data-id="' + cu.product.id + '"]'); txt = ''; }
         if (isM && res) day.gProd = 1; if (!isM) day.gProd0 = 0;
       } else { if (day.gProd0) { day.gProd = 1; day.gProd0 = 0; }
-        const bs = [].slice.call($('jobs').querySelectorAll('.job:not(.idle)')), find = t => bs.filter(b => b.querySelector('b').textContent.indexOf(t) === 0)[0];
-        if (!day.gProd && find('Mostrador')) { el = find('Mostrador'); txt = 'Tocá acá para atender'; } else if (!day.gCaja && find('Caja')) { el = find('Caja'); txt = 'Ahora cobrale acá'; }
+        const find = t => $('labels').querySelector('.bub[data-ty="' + t + '"]');
+        if (!day.gProd && find('mostrador')) { el = find('mostrador'); txt = 'Tocá el globito para atender'; } else if (!day.gCaja && find('caja')) { el = find('caja'); txt = 'Ahora cobrale acá'; }
         if (day.gProd && day.gCaja) { const sn = GS.Store.get('seen') || {}; sn.g_ok = 1; GS.Store.set('seen', sn); } }
     }
     if (guideEl && guideEl !== el) guideEl.classList.remove('guided'); guideEl = el;
@@ -333,7 +333,7 @@ GS.Game = (function () {
     g.style.left = Math.max(96, Math.min(window.innerWidth - 96, r.left + r.width / 2)) + 'px'; g.style.top = (up ? r.bottom + 6 : r.top - g.offsetHeight - 6) + 'px';
   }
   function clearDay() {
-    if (day) { day.customers.forEach(c => { if (c.person) c.person.remove(); c.label.remove(); }); day.tasks.forEach(t => { t.label.remove(); if (t.boxes) t.boxes.remove(); }); day.says.forEach(x => x.el.remove()); day.extras.forEach(x => x.remove()); }
+    if (day) { day.customers.forEach(c => { if (c.person) c.person.remove(); c.label.remove(); }); day.tasks.forEach(t => { t.label.remove(); if (t.boxes) t.boxes.remove(); }); day.says.forEach(x => x.el.remove()); day.extras.forEach(x => x.remove()); } clearBubs();
     MG.close(); W.focus(null); W.bossHome(); W.clearDirt();
     { const yo = W.player(); if (yo) { yo.stop(); yo.setPos(L.yoMostrador[0], L.yoMostrador[1]); yo.face(0); yoAt = 'most'; yoFree = false; yoDone = null; yoRoute = []; } const b = STAFF[1]; if (b && b.busy) { b.busy = false; b.q = [['go', [[4.0, -5.0], [4.6, -4.4], [4.5, -1.2], b.hub]]]; } }
   }
@@ -1113,20 +1113,43 @@ GS.Game = (function () {
   // Tarjetas de pendientes (abajo): hasta 4, primero lo más urgente
   let jobList = [];
   function updateJobs() {
-    const all = pendingJobs(); jobList = all.slice(0, 4);
-    const ix = day.intr, sig = jobList.map(j => j.key).join(',') + '|' + all.length + (ix ? '|i' + ix.it.t : ''), box = $('jobs');
+    const all = pendingJobs(); jobList = all;
+    const ix = day.intr, flat = all.filter(j => !jobPos(j)), sig = 'j:' + flat.map(j => j.key).join(',') + (ix ? '|i' + ix.it.t : ''), box = $('jobs');
     if (sig !== day.jobSig) {
       day.jobSig = sig;
       const bt = (ok, k) => '<button data-intr="' + (ok ? 1 : 0) + '">' + (ok ? ix.it.ok : ix.it.bad) + '</button>';
-      box.innerHTML = (ix ? '<div class="intr"><span class="ji">' + ix.it.ic + '</span><span class="jt"><b>' + ix.it.who + '</b><small>' + ix.it.t + '</small></span><div class="ib">' + bt(!ix.flip) + bt(ix.flip) + '</div><span class="pb"><i id="intrBar"></i></span></div>' : '') + (jobList.length
-        ? jobList.map((j, i) => '<button class="job" data-i="' + i + '"><span class="ji">' + j.icon + '</span><span class="jt"><b>' + j.title + '</b><small>' + j.sub + '</small></span><span class="pb"><i></i></span><kbd>' + (i + 1) + '</kbd></button>').join('') +
-          (all.length > 4 ? '<div class="more">+' + (all.length - 4) + ' más esperando</div>' : '')
-        : ix ? '' : '<div class="job idle"><span class="ji">☕</span><span class="jt"><b>Todo en orden</b><small>Respirá y mirá el local. Ya va a entrar alguien.</small></span></div>');
+      box.innerHTML = (ix ? '<div class="intr"><span class="ji">' + ix.it.ic + '</span><span class="jt"><b>' + ix.it.who + '</b><small>' + ix.it.t + '</small></span><div class="ib">' + bt(!ix.flip) + bt(ix.flip) + '</div><span class="pb"><i id="intrBar"></i></span></div>' : '') +
+        flat.map(j => '<button class="job" data-ty="' + j.type + '" data-k="' + j.key + '"><span class="ji">' + j.icon + '</span><span class="jt"><b>' + j.title + '</b><small>' + j.sub + '</small></span><span class="pb"><i></i></span></button>').join('');
     }
     if (ix && $('intrBar')) $('intrBar').style.width = Math.max(0, ix.left / CD.intrSeconds * 100) + '%';
-    box.classList.toggle('beat', day.beat > 0);
+    box.classList.toggle('beat', day.beat > 0); $('labels').classList.toggle('beat', day.beat > 0); $('labels').classList.toggle('busy', MG.isOpen() || paused);
     const bars = box.querySelectorAll('.job .pb i');
-    jobList.forEach((j, i) => { if (bars[i]) { bars[i].style.width = Math.max(4, j.pat * 100) + '%'; bars[i].style.background = barColor(j.pat); } });
+    flat.forEach((j, i) => { if (bars[i]) { bars[i].style.width = Math.max(4, j.pat * 100) + '%'; bars[i].style.background = barColor(j.pat); } });
+    updateBubs(all);
+  }
+  /* Globitos: cada pendiente aparece sobre el lugar donde pasa (el cliente, la estación, la mancha) y se toca ahí mismo.
+     El aro es la paciencia. Si el lugar queda fuera de la pantalla, el globito se pega al borde para que igual se vea. */
+  const BWORD = { mostrador: 'Atender', caja: 'Cobrar', limpiar: 'Limpiar', historia: 'Hablar', pc: 'Armar PC', repo: 'Depósito', stock: 'Stock', devol: 'Devolución', cierre: 'Cerrar caja' }; let bubEls = {};
+  function jobPos(j) {
+    if (j.ref && j.ref.person) { const g = j.ref.person.group.position; return [g.x, 2.35, g.z, j.ref.person]; }
+    if (j.ref && j.ref.station && j.ref.station.pos) return [j.ref.station.pos[0], 1.95, j.ref.station.pos[1]];
+    if (j.type === 'limpiar' && day.dirtPos[0]) return [day.dirtPos[0][0], 0.9, day.dirtPos[0][1]];
+    return null;
+  }
+  function clearBubs() { for (const k in bubEls) bubEls[k].remove(); bubEls = {}; }
+  function updateBubs(all) {
+    const box = $('labels'), live = {}, put = [], vw = window.innerWidth, vh = window.innerHeight, top = 150, bot = vh - 96;
+    all.slice().sort((a, b) => a.key < b.key ? -1 : 1).forEach(j => {
+      const p3 = jobPos(j); if (!p3) return; live[j.key] = 1;
+      let el = bubEls[j.key];
+      if (!el) { el = document.createElement('button'); el.className = 'bub'; el.dataset.ty = j.type; el.dataset.k = j.key; el.innerHTML = '<span class="ring"><i>' + j.icon + '</i></span><b>' + (BWORD[j.type] || j.title) + '</b>'; box.appendChild(el); bubEls[j.key] = el; }
+      const p = W.project(p3[0], p3[1], p3[2]), talk = p3[3] && day.says.some(sy => sy.person === p3[3] && !sy.el.classList.contains('zz'));
+      const hw = Math.max(36, (el._w || (el._w = el.offsetWidth)) / 2 + 2); let x = U.clamp(p.x + (talk ? 64 : 0), hw, vw - hw), y = U.clamp(p.y + (talk ? 46 : 0), top, bot);
+      for (let k = 0; k < 5; k++) { const hit = put.filter(q => Math.abs(q[0] - x) < q[2] + hw && Math.abs(q[1] - y) < 88)[0]; if (!hit) break; const nx = hit[0] + (x >= hit[0] ? 1 : -1) * (hit[2] + hw + 2); if (nx > vw - hw || nx < hw) y = hit[1] - 90; else x = nx; }
+      put.push([x, y, hw]); el.style.left = x.toFixed(1) + 'px'; el.style.top = y.toFixed(1) + 'px';
+      const q = Math.round(U.clamp(j.pat, 0, 1) * 50) * 2; if (el._q !== q) { el._q = q; el.firstChild.style.background = 'conic-gradient(' + barColor(j.pat) + ' ' + q + '%, #2b2b30 0)'; el.classList.toggle('hot', j.pat < 0.25); }
+    });
+    for (const k in bubEls) if (!live[k]) { bubEls[k].remove(); delete bubEls[k]; }
   }
   const barColor = p => p > 0.5 ? 'var(--ok)' : p > 0.25 ? 'var(--warn)' : 'var(--red)';
   function setLabel(label, x, z, pat, icon) {
@@ -1828,7 +1851,8 @@ GS.Game = (function () {
     $('phasesStart').addEventListener('click', showPhases);
     $('chipPhase').addEventListener('click', () => { paused = true; showPhases(); modalOnClose = () => { paused = false; }; });
     $('finSkip').addEventListener('click', finishFinal);
-    $('jobs').addEventListener('click', e => { const ib = e.target.closest('[data-intr]'); if (ib) return answerIntr(ib.dataset.intr === '1'); const b = e.target.closest('.job[data-i]'); if (b && jobList[b.dataset.i]) openJob(jobList[b.dataset.i]); });
+    $('jobs').addEventListener('click', e => { const ib = e.target.closest('[data-intr]'); if (ib) return answerIntr(ib.dataset.intr === '1'); const b = e.target.closest('[data-k]'), j = b && jobList.filter(x => x.key === b.dataset.k)[0]; if (j) openJob(j); });
+    $('labels').addEventListener('click', e => { const b = e.target.closest('[data-k]'), j = b && jobList.filter(x => x.key === b.dataset.k)[0]; if (j) openJob(j); });
     $('btnPause').addEventListener('click', showPause); $('btnLog').addEventListener('click', showLog);
     $('btnMute').addEventListener('click', () => { A.unlock(); A.setMuted(!A.isMuted()); syncMute(); A.play('click'); });
     window.addEventListener('resize', () => W.resize());
