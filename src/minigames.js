@@ -52,9 +52,9 @@ GS.Minigames = (function () {
     const others = U.shuffle(GS.CATALOG.filter(p => p.id !== prod.id && p !== twin)).slice(0, 2);
     const options = U.shuffle([prod, twin].concat(others));
     root().innerHTML = head(cust, 'Mostrador') +
-      '<div class="askrow"><div class="bubble" id="mgBubble">' + esc(cust.request) + '</div><div class="ask-pic"><small>Quiere esto</small>' + pic(prod) + '</div></div>' +
+      '<div class="bubble" id="mgBubble">' + esc(cust.request) + '</div>' + (GS.LOOKS[prod.id] ? '<div class="ask-how"><small>👀 Cómo es</small>' + esc(GS.LOOKS[prod.id]) + '</div>' : '') +
       '<div class="opts">' + options.map((p, i) => '<button class="opt" data-id="' + p.id + '"><kbd>' + (i + 1) + '</kbd>' + pic(p) + '<span class="n">' + esc(p.name) + '</span></button>').join('') + '</div>' +
-      '<div class="rule">Tocá el producto igual al del dibujo</div>';
+      '<div class="rule">Tocá el producto que coincide con la descripción</div>';
     const btns = [...root().querySelectorAll('.opt')];
     function choose(b) {
       if (!cur || cur.done || b.classList.contains('bad')) return;
@@ -113,28 +113,30 @@ GS.Minigames = (function () {
     const cands = [Math.ceil((T + 1) / 10000) * 10000, Math.ceil((T + 1) / 20000) * 20000 + 20000, Math.ceil((T + 1) / 50000) * 50000]
       .filter(g => g - T >= 1000 && g - T <= 45000);
     const G = cands.length ? U.pick(cands) : T + 5000, change = G - T;
-    const bills = [20000, 10000, 2000, 1000]; let given = 0;
+    const bills = [20000, 10000, 2000, 1000], V = GS.Vueltos.billSvg, give = [], me = cur;
+    const paid = []; { let g = G; [20000, 10000].forEach(d => { const n = Math.floor(g / d); if (n) { paid.push([d, n]); g -= n * d; } }); }      /* lo que apoya el cliente: pilas de 20.000 y de 10.000 */
     root().innerHTML = head(cust, 'Caja · Vuelto') +
-      '<div class="bubble" id="mgBubble">Pago en efectivo. Tomá, cobrate.</div>' +
-      '<div class="vx-top"><div><small>Total</small><b>' + U.money(T) + '</b></div><div><small>Paga con</small><b>' + U.money(G) + '</b></div></div>' +
-      '<div class="tray vx"><span>Vuelto que le das</span><b id="mgGiven">$0</b></div>' +
-      '<div class="bills">' + bills.map((b, i) => '<button class="bill vbx" data-b="' + b + '" aria-label="Billete de ' + U.money(b) + '">' + GS.Vueltos.billSvg(b) + '</button>').join('') + '</div>' +
+      '<div class="vt-reg"><i></i><div><small>TOTAL A COBRAR · con 10% OFF</small><output>' + U.money(T) + '</output></div></div>' +
+      '<div class="vt-counter" id="mgVt" data-t="' + T + '" data-g="' + G + '"><small>EL CLIENTE TE DA · ' + U.money(G) + '</small><div class="vt-paid">' + paid.map((q, i) => '<span class="vb paid" style="--r:' + (i ? 4 : -4) + 'deg">' + V(q[0]) + (q[1] > 1 ? '<em>×' + q[1] + '</em>' : '') + '</span>').join('') + '</div>' +
+        '<div class="vt-hand"><small>TU VUELTO</small><output id="mgGiven">$0</output><div class="vt-give" id="mgPile"><em>Sacá los billetes del cajón</em></div></div></div>' +
+      '<div class="vt-tray"><small>CAJÓN DE LA CAJA</small><div>' + bills.map(b => '<button class="bill vb tray" data-b="' + b + '" aria-label="Billete de ' + U.money(b) + '">' + V(b) + '</button>').join('') + '</div></div>' +
       '<div class="row"><button class="btn ghost" id="mgClear">Borrar</button><button class="btn" id="mgGive" style="flex:2;font-size:19px;padding:12px">Dar el vuelto</button></div>';
-    const out = document.getElementById('mgGiven');
-    const paint = () => { out.textContent = U.money(given); out.parentNode.classList.toggle('ok', given === change); out.parentNode.classList.toggle('over', given > change); };
-    const add = b => { if (!cur || cur.done) return; given += b; paint(); GS.Audio.play('bill'); };
-    const clear = () => { given = 0; paint(); GS.Audio.play('click'); };
-    function give() {
-      if (!cur || cur.done) return;
+    const out = document.getElementById('mgGiven'), pile = document.getElementById('mgPile');
+    const paint = () => { const sum = give.reduce((a, b) => a + b, 0); out.textContent = U.money(sum); pile.innerHTML = give.length ? give.map((d, i) => '<button class="vb mine" data-i="' + i + '">' + V(d) + '</button>').join('') : '<em>Sacá los billetes del cajón</em>'; };
+    const add = b => { if (cur !== me || me.done || give.length >= 12) return; give.push(b); paint(); GS.Audio.play('bill'); };
+    const clear = () => { give.length = 0; paint(); GS.Audio.play('click'); };
+    pile.addEventListener('click', e => { const b = e.target.closest('.mine'); if (!b || cur !== me || me.done) return; give.splice(Number(b.dataset.i), 1); paint(); GS.Audio.play('drop'); });
+    function giveIt() {
+      if (cur !== me || me.done) return; const given = give.reduce((a, b) => a + b, 0);
       if (given === change) { GS.Audio.play('cash'); finish(true, '¡Vuelto justo!', 'Cobraste ' + U.money(T), { total: T }); }
-      else { mistake('caja', U.pick(given < change ? LN.changeShort : LN.changeOver), 'Diste ' + U.money(given) + ' de vuelto y eran ' + U.money(change) + '. ' + (given < change ? 'El cliente volvió a reclamar.' : 'La diferencia salió de la caja.')); given = 0; out.textContent = '$0'; }
+      else { mistake('caja', U.pick(given < change ? LN.changeShort : LN.changeOver), 'Diste ' + U.money(given) + ' de vuelto y eran ' + U.money(change) + '. ' + (given < change ? 'El cliente volvió a reclamar.' : 'La diferencia salió de la caja.')); clear(); }
     }
     root().querySelectorAll('.bill').forEach(b => b.addEventListener('click', () => add(Number(b.dataset.b))));
     document.getElementById('mgClear').addEventListener('click', clear);
-    document.getElementById('mgGive').addEventListener('click', give);
+    document.getElementById('mgGive').addEventListener('click', giveIt);
     cur.keys = e => {
       const n = parseInt(e.key, 10);
-      if (n >= 1 && n <= 4) add(bills[n - 1]); else if (e.key === 'Backspace') clear(); else if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); give(); }
+      if (n >= 1 && n <= 4) add(bills[n - 1]); else if (e.key === 'Backspace') clear(); else if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); giveIt(); }
     };
   }
 

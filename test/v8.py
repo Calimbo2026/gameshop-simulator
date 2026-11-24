@@ -1,3 +1,4 @@
+import os
 SOLVE = r"""(()=>{const M=GS.Minigames; if(document.querySelector('#mgOk')){document.querySelector('#mgOk').click(); return 'intro';} if(!M.isOpen()||M.isResolving()) return 'idle';
  const q=s=>document.querySelector('#mg '+s), qa=s=>[...document.querySelectorAll('#mg '+s)];
  if(q('.part')){const b=q('.part:not(.used)'); if(!b){ if(!q('.pcase.on')) q('#mgPower').click(); return 'pcwait'; } if(!b.classList.contains('sel')) b.click(); if(b.classList.contains('flip')) b.click(); q('.pslot[data-id="'+b.dataset.id+'"]').click(); return 'pc';}
@@ -14,7 +15,7 @@ SOLVE = r"""(()=>{const M=GS.Minigames; if(document.querySelector('#mgOk')){docu
  if(q('[data-ok="1"]')){q('[data-ok="1"]').click();return 'ok';}
  if(q('.opt[data-id]')){q('.opt[data-id="'+M.customer().product.id+'"]').click();return 'most';}
  if(q('.opt[data-v]')){q('.opt[data-v]:not(.bad)').click();return 'cobro';}
- if(q('.bill')){const bs=qa('.vx-top b').map(b=>parseInt(b.textContent.replace(/\D/g,'')));let ch=bs[1]-bs[0];const v=[20000,10000,2000,1000],bt=qa('.bill');v.forEach((x,i)=>{while(ch>=x){bt[i].click();ch-=x}});q('#mgGive').click();return 'vuelto';}
+ if(q('.bill')){const vt=q('#mgVt');let ch=vt.dataset.g-vt.dataset.t;const v=[20000,10000,2000,1000],bt=qa('.bill');v.forEach((x,i)=>{while(ch>=x){bt[i].click();ch-=x}});q('#mgGive').click();return 'vuelto';}
  if(q('#mgYes')){q('#mgYes').click();return 'comp';}
  return '?';})()"""
 
@@ -27,7 +28,7 @@ async def main():
     n = sys.argv[1] if len(sys.argv) > 1 else '4'
     async with async_playwright() as p:
         b = await p.chromium.launch(executable_path='/usr/bin/google-chrome', args=['--no-sandbox','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist'])
-        ctx = await b.new_context(viewport={'width':360,'height':560}, device_scale_factor=1)
+        ctx = await b.new_context(viewport={'width':int(os.environ.get('VW',360)),'height':int(os.environ.get('VH',560))}, device_scale_factor=1)
         pg = await ctx.new_page(); errs=[]
         pg.on('console', lambda m: errs.append(m.type+': '+m.text) if m.type=='error' else None)
         pg.on('pageerror', lambda e: errs.append('PAGEERROR: '+str(e)))
@@ -43,7 +44,7 @@ async def main():
             if st=='end': break
             r = await pg.evaluate("(()=>{const mg=document.getElementById('mg'); if(mg&&!mg.hidden&&!mg.querySelector('.result')){const h=mg.innerText; if(/Adornos de Navidad/i.test(h)){const q=mg.querySelector('.opt'); if(q){q.click();return 'adornos';}} if(mg.querySelector('#mgN')){const th=GS.THEMES.find(t=>h.includes(t.t)); if(th){const names=GS.CATALOG.filter(p=>th.ids.includes(p.id)).map(p=>p.name); const q=[...mg.querySelectorAll('.opt:not(.sel)')].find(x=>names.includes(x.querySelector('.n').textContent)); if(q){q.click();return 'vidriera';}}}} const o=document.querySelector('#modal:not([hidden]) [data-o]'); if(o){o.click();return 'historia';} const cl=document.querySelector('#modal:not([hidden]) [data-close]'); if(cl){cl.click();return 'cerrar';} const i=document.querySelector('[data-intr=\"1\"]'); if(i&&!GS.Minigames.isOpen()){i.click();return 'intr';} if(!GS.Minigames.isOpen()){const j=document.querySelector('#labels [data-k], #jobs [data-k]'); if(j){j.click();return 'job';}} return null;})()")
             k = await pg.evaluate("(()=>{const q=s=>document.querySelector('#mg:not([hidden]) '+s); return q('.result')?'':q('.opt[data-id]')?'most':q('.bill')?'vuelto':q('.cb')?'cuento':''})()")
-            if k and not shots.get(k): shots[k]=1; await pg.evaluate("document.getElementById('coach').hidden=true"); await pg.wait_for_timeout(200); await pg.screenshot(path=ROOT+'/shots/mgs_%s.png'%k)
+            if k and not shots.get(k): shots[k]=1; await pg.evaluate("(()=>{const b=document.querySelectorAll('#mg .bill.tray'); if(b.length){b[2].click(); b[3].click(); b[1].click();}})()"); await pg.wait_for_timeout(200); await pg.screenshot(path=ROOT+'/shots/mgs_%s.png'%k); await pg.evaluate("(()=>{const c=document.querySelector('#mgClear'); if(c) c.click();})()")
             r = r or await pg.evaluate(SOLVE); log[r]=log.get(r,0)+1
             nb = await pg.evaluate("document.querySelectorAll('.say:not(.zz)').length"); mx = max(mx, nb); seen.update(await pg.evaluate("[...document.querySelectorAll('.say.boss')].map(e=>e.textContent)"))
         d = await pg.evaluate("(()=>{const d=GS.Game.day();return {st:GS.Game.state(),score:d.score,served:d.served,lost:d.lost,tasks:d.tasksDone,late:d.tasksLate,cord:Math.round(d.cord),intrOk:d.intrOk,mate:d.mate}})()")

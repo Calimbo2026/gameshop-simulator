@@ -7,7 +7,7 @@
 const GS = {};
 
 GS.CONFIG = {
-  version: '0.88.0',
+  version: '0.89.0',
   phase: 8,
   phaseNote: 'Juego completo de punta a punta. Falta tu playtest con 5 personas y encender el lanzamiento (launched: true)',                       // fase actual del proyecto (1 a 5)
   links: { tienda: 'https://www.gameshop.com.ar', instagram: '' },   // botones del inicio y del cierre (vacío = no se muestra)
@@ -293,7 +293,7 @@ GS.UNLOCKS = [['mostrador', 'caja'], ['whatsapp'], ['cierre'], [], ['ml'], [], [
 GS.EXPLAIN = {
   adornos: 'Mañana empieza la semana de Navidad. Elegí el árbol, las guirnaldas y las luces: como lo armes hoy, así amanece el local.',
   vidriera: 'Elegí los 4 productos que van con el tema de la vidriera.',
-  mostrador: 'Mirá el dibujo de lo que pide el cliente y tocá ese producto. Ojo: siempre hay uno parecido.',
+  mostrador: 'El cliente te describe cómo es lo que busca: color y forma. Tocá el producto que coincide. Ojo: siempre hay uno parecido.',
   caja: 'Efectivo o transferencia: 10% OFF. Tarjeta: 3 cuotas sin interés. Si te muestran un comprobante, revisá cada dato.',
   whatsapp: 'Contestá con el dato correcto y buena onda.',
   cierre: 'Tocá los billetes del cajón para contarlos y fijate si el total coincide con el sistema.',
@@ -1051,3 +1051,20 @@ GS.Store = (function () {
     reset() { data = { best: [], tutorial: false, mute: data.mute, music: data.music, quality: data.quality, big: data.big, uid: data.uid, avatar: data.avatar }; save(); }
   };
 })();
+
+/* Cómo se ve cada producto en su dibujo: el cliente lo describe así en el mostrador (color y forma, sin nombrarlo) */
+GS.LOOKS = {
+  ps5: 'Es alta y finita, blanca por fuera y negra en el medio.', switch2: 'Tiene una pantalla con un paisaje y un mando de cada lado: uno celeste y uno rojo.', quest: 'Es blanco y va en la cabeza: tiene una vincha arriba y dos lentes negros.',
+  deck: 'Es negra, con la pantalla en el medio y palancas a los dos lados.', xbox: 'Es una torre negra, cuadrada, con puntitos verdes arriba.', dualsense: 'Es un mando rosa con el centro blanco.',
+  juego: 'Es una caja azul con un animal marrón manejando un autito rojo.', juego2: 'Es una caja azul oscuro con un astronauta y una luna amarilla.', juego3: 'Es una caja violeta con dos naipes.', juego4: 'Es una caja amarilla con un muñequito corriendo.',
+  ds_blanco: 'Es un mando blanco con el centro negro.', ds_negro: 'Es un mando todo negro, con botones grises.', ds_rojo: 'Es un mando rojo con el centro negro.', ds_azul: 'Es un mando azul con el centro oscuro.', ds_violeta: 'Es un mando violeta con el centro oscuro.',
+  airpods: 'Es una cajita blanca redondeada, con dos auriculares chiquitos asomando.', homepod: 'Es una bola gris oscuro, como tejida, con una luz de colores arriba.', magic: 'Es blanco, liso y ovalado, sin botones a la vista.',
+  ipad: 'Es una pantalla celeste con cuadraditos de colores y un lápiz blanco al lado.', watch: 'Tiene malla naranja y una pantalla negra con anillos de colores.', gpu: 'Es una placa negra y larga con tres ventiladores rojos.',
+  notebook: 'Se abre como un libro: pantalla roja arriba y teclado con luces de colores abajo.', gabinete: 'Es una torre negra con un costado transparente y ventiladores celestes.', router: 'Es una caja negra chata con tres antenas y lucecitas verdes.',
+  tinta: 'Es un cartucho negro con una gota dibujada en la etiqueta blanca.', pendrive: 'Es chiquito y rojo, con una punta de metal.', cable: 'Está enrollado, es negro y tiene una punta roja.', auris: 'Es una vincha negra con dos orejeras rojas y un micrófono.',
+  mouse: 'Es negro, con forma de gota y una luz celeste en la ruedita.', streamdeck: 'Es una tablita negra llena de botones cuadrados de colores.', mic: 'Es gris, con una rejilla arriba, una franja roja y pie redondo.', silla: 'Es negra con detalles rojos, respaldo alto y rueditas.',
+  teclado: 'Es negro, con todas las teclas de colores y un cable.', webcam: 'Es negra, con un lente azul grande y una base.', parlante: 'Es un cilindro rojo acostado, con botones blancos arriba.', volante: 'Es redondo, negro y rojo, y trae dos pedales.',
+  mousepad: 'Es una alfombra negra con borde de luces; encima tiene un teclado y un mouse.', joyxbox: 'Es un mando negro con botones de cuatro colores.', muneco: 'Es una caja azul con ventana: adentro hay un muñeco de remera roja.',
+  monitor: 'Es una pantalla grande con pie, que muestra un atardecer violeta.', impresora: 'Es blanca, con una hoja saliendo por abajo y otra entrando por arriba.', disco: 'Es una cajita negra rayada, con un cable y una etiqueta roja.',
+  cargador: 'Es un bloque negro con un rayo amarillo, cable y enchufe.', ram: 'Es una tira larga con contactos dorados y luces de colores arriba.'
+};
