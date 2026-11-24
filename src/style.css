@@ -802,3 +802,8 @@ body.cine #hud { top: 5.5vh; } body.cine #jobs { bottom: calc(5.5vh + 4px); } bo
 @media (prefers-reduced-motion: reduce) { #cineCard.go { animation: none; opacity: 1; } }
 /* la barra de abajo se retira cuando hay un minijuego o una ventana abierta, para no tapar las opciones */
 body.cine:has(#mg:not([hidden])) .cine-bar.bot, body.cine:has(#modal:not([hidden])) .cine-bar.bot { height: 0; }
+
+/* v0.81: la tipografía de títulos no tiene negrita propia; sin esto el navegador la engrosa a la fuerza y queda empastada */
+* { font-synthesis: none; }
+/* armado de PC: muesca amarilla en la esquina de cada pieza y de cada lugar; si no coinciden, la pieza está al revés */
+.part .pi { position: relative; } .part .pi::before, .pcase .pslot::before, .pcase .pp::before { content: ""; position: absolute; left: 1px; top: 1px; width: 0; height: 0; border-top: 10px solid #f5c518; border-right: 10px solid transparent; filter: drop-shadow(0 1px 0 rgba(0,0,0,.6)); z-index: 3; pointer-events: none; }

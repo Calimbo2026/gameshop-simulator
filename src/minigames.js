@@ -197,7 +197,7 @@ GS.Minigames = (function () {
       '<div class="pcb pcase" id="mgPcb">' + pcCase() +
       parts.map((p, i) => { const q = PCS[p.id]; return '<button class="pslot s-' + p.id + '" data-id="' + p.id + '" style="left:' + pct(q[0], 320) + ';top:' + pct(q[1], 200) + ';width:' + pct(q[2], 320) + ';height:' + pct(q[3], 200) + '"><kbd>' + 'ABCDE'[i] + '</kbd><em>' + esc(p.short || p.name) + '</em></button>'; }).join('') +
       '<button class="pcpow" id="mgPower"><i>⏻</i><span>Encender</span></button></div>' +
-      '<div class="rule" id="mgBubble">Arrastrá cada pieza a su lugar y después tocá Encender.</div>' +
+      '<div class="rule" id="mgBubble">Arrastrá cada pieza a su lugar. La muesca amarilla de la pieza tiene que coincidir con la del lugar.</div>' +
       '<div class="parts">' + tray.map((p, i) => '<button class="opt part' + (p.id === flipped ? ' flip' : '') + '" data-id="' + p.id + '"><kbd>' + (i + 1) + '</kbd><span class="pi">' + p.svg + '</span><span class="n">' + esc(p.name) + '</span></button>').join('') + '</div>';
     const slots = [...root().querySelectorAll('.pslot')], btns = [...root().querySelectorAll('.part')], pcb = document.getElementById('mgPcb'), trayOf = id => btns.filter(b => b.dataset.id === id)[0];
     const live = () => cur === me && !cur.done;

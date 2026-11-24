@@ -269,13 +269,14 @@ GS.Game = (function () {
     const I = GS.INDUC; inducDone(false); document.body.classList.remove('cine'); $('cineCard').hidden = true; W.bossTrain(false); clearDay(); $('hud').hidden = true; $('jobs').hidden = true; day = null; state = 'menu'; A.play('fanfare');
     epicCtx = { id: 'pampeana' }; showEpic(I.end, null, '<button class="btn" id="inducOk">Empezar la jornada 1</button>', () => $('inducOk').addEventListener('click', () => { closeEpic(); startDay(false); }));
   }
+  let duelLater = false;      /* "Hoy no": se juega una jornada normal y el día de competencia queda para la próxima */
   function startDay(relaxed, skipDuel, induc) {
     A.unlock();
     if (!GS.Store.get('avatar')) return showAvatar(() => startDay(relaxed));
     if (!relaxed && !induc && needInduc()) return inducAsk();
     if (!relaxed && !skipDuel && readyDuel(brId()) && !GS.Store.get('testDay')) return showDuelIntro(() => startDay(false, true));      /* cumplidos los objetivos, la jornada es el día de competencia */
     A.play('click'); clearDay(); W.setUpgrades(upNow());
-    const n = dayNumber(), duel = !relaxed && readyDuel(brId()) && !GS.Store.get('testDay'); applyBranch();
+    const n = dayNumber(), duel = !relaxed && !duelLater && readyDuel(brId()) && !GS.Store.get('testDay'); duelLater = false; applyBranch();
     const un = unlockedFor(n), fresh = n <= GS.UNLOCKS.length ? GS.UNLOCKS[n - 1] : [];
     const cond = conditionFor(n);
     day = newDay({ relaxed, n, cond, unlocked: un, plan: planDay(n, cond, duel), rest: n === 1 ? 0.5 : 5.5 }); state = 'day'; enterPlay(); $('jobs').hidden = false;
@@ -506,7 +507,7 @@ GS.Game = (function () {
     applyBranch(); refreshStart(); GS.track('sucursal', { id });
   }
   // Mapa del país en 3D: se toca una región y abajo aparece su tarjeta (viajar, abrir o ver qué le falta)
-  const mapState = lit => { const all = brAll(), o = {}; GS.REGIONS.forEach(r => { const b = all[r.id], open = (lit && !r.secret) || !!(b && b.open); if (r.secret && !open && !malvOk()) { o[r.id] = { hidden: true }; return; } o[r.id] = { flag: !!r.secret && open && malvWon(), open, can: !open && fondoNow() >= r.cost && canExpand(), cur: !lit && r.id === brId(), stage: lit ? 3 : open ? brStage(r.id) : 0 }; }); return o; };
+  const mapState = lit => { const all = brAll(), o = {}; GS.REGIONS.forEach(r => { const b = all[r.id], open = (lit && !r.secret) || !!(b && b.open); if (r.secret && !open && !malvOk()) { o[r.id] = { hidden: true }; return; } o[r.id] = { flag: !!r.secret && open && malvWon(), open, can: !open && canExpand(), cur: !lit && r.id === brId(), stage: lit ? 3 : open ? brStage(r.id) : 0 }; }); return o; };
   function mapCard(id) {
     const all = brAll(), cur = brId(), f = fondoNow(), r = RG(id), b = all[id], open = b && b.open, me = id === cur, h = histAll(), ss = GS.STORIES.filter(S => !S.once && (S.reg || 'pampeana') === id);
     if (!open) { const pend = pendingOpen(), ok = canExpand(), need = !ok ? 'Primero ganale al rival de ' + pend.map(x => x.city).join(' y ') : 'Abrir sucursal en ' + r.city;
@@ -547,7 +548,8 @@ GS.Game = (function () {
   }
   // Antes de irse hay que dejar un encargado. La sucursal queda congelada tal como estaba.
   function pickManager(then) {
-    if (brNow().manager) return then(); const names = brCrew(brId());
+    if (!brNow().manager) brSave({ manager: brCrew(brId())[0] }); return then();      /* ya no se elige: queda a cargo el primero del equipo */
+    const names = brCrew(brId());
     const LK = { Lucho: { hair: MOHAWK[1], hairStyle: 'mohicano', skin: GS.SKINS[3], glasses: true }, Brian: { hair: 0x2d6cdf, hairStyle: 'corto', skin: GS.SKINS[0] } }, lookOf = n => Object.assign({ shirt: 0xe10600 }, (RG(brId()).crew || []).filter(c => c.name === n).map(c => c.look)[0] || LK[n] || {});
     modal('<div class="gold-h"><i></i><b>Encargado</b><i></i></div><p style="text-align:center">Te vas de <b>' + RG(brId()).city + '</b>. ¿Quién queda a cargo? La sucursal queda tal como la dejás hasta que vuelvas.</p><div class="mgrs">' + names.map(n => '<button data-mg="' + n + '"><div class="pf">' + avatarSvg(lookOf(n), 'happy') + '</div><b>' + n + '</b><small>Tocá para elegir</small></button>').join('') + '</div>');
     $('sheet').querySelectorAll('[data-mg]').forEach(b => b.addEventListener('click', () => { brSave({ manager: b.dataset.mg }); A.play('ok'); toast('<b>' + b.dataset.mg + ', encargado</b>"' + LN.freeze + '"', '', 3400); then(); }));
@@ -707,7 +709,7 @@ GS.Game = (function () {
   const endBind = () => { $('finShare').addEventListener('click', () => showCard()); $('finNg').addEventListener('click', () => { closeEpic(); showNgPlus(); }); $('finStay').addEventListener('click', () => { A.play('click'); closeEpic(); }); };
   function showFinal(preview) {
     const st = statsNow(), d = GS.Store.get('days') || 0, F = GS.FINALS.find(f => f.test(st, d)); GS.track('final', { tipo: F.id, jornadas: d });
-    showEpic(GS.EPIC.pais, F, endNav('<div class="cta"><b>Esto fue un juego. El local es real.</b><a class="btn alt" href="' + C.links.tienda + '" target="_blank" rel="noopener">Conocé www.gameshop.com.ar</a></div>' + (preview ? '<small style="color:var(--mute)">Vista previa: el final real aparece al cerrar la jornada en la que las 5 sucursales quedan completas.</small>' : '')), endBind);
+    showEpic(GS.EPIC.pais, F, endNav((!preview && malvOk() && !(brAll().malvinas || {}).open ? '<button class="btn" id="finMalv">⛴️ Abrir la sucursal de Malvinas</button>' : '') + '<div class="cta"><b>Esto fue un juego. El local es real.</b><a class="btn alt" href="' + C.links.tienda + '" target="_blank" rel="noopener">Conocé www.gameshop.com.ar</a></div>' + (preview ? '<small style="color:var(--mute)">Vista previa: el final real aparece al cerrar la jornada en la que las 5 sucursales quedan completas.</small>' : '')), () => { endBind(); if ($('finMalv')) $('finMalv').addEventListener('click', () => { A.play('ok'); closeEpic(); openRegion('malvinas'); }); });
   }
   // Final oculto: se le ganó a Pirata Gaming, la sucursal de Malvinas quedó completa y se plantó la bandera
   function showFinalM() { GS.track('final', { tipo: 'malvinas', jornadas: GS.Store.get('days') || 0 }); showEpic(GS.EPIC.malvinas, null, endNav(''), endBind); }
@@ -727,7 +729,7 @@ GS.Game = (function () {
     const id = brId(), rv = RV(id), b = brNow(), edge = Math.min(5, b.edge || 0); epicCtx = { id };
     showEpic([{ art: 'vs', k: (b.tries ? 'Revancha · ' : 'Día de competencia · ') + RG(id).city, t: 'GameShop contra ' + rv.name, d: rv.pre },
       { art: 'duelrules', k: 'Cómo se gana', t: 'Más puntos que ' + rv.owner, d: 'Hoy entran más clientes y esperan menos. Arriba vas a ver tu puntaje contra el de ' + rv.name + '.' + (edge ? ' Llegás con ventaja por tus medallas de oro.' : '') + (b.tries ? ' En la revancha ' + rv.owner + ' viene confiado: es un poco más fácil ganarle.' : '') }], null,
-      '<button class="btn" id="duGo">⚔️ A competir</button><button class="btn ghost" id="duNo">Todavía no</button>', () => { $('duGo').addEventListener('click', () => { A.play('click'); closeEpic(); then(); }); $('duNo').addEventListener('click', () => { A.play('click'); closeEpic(); }); });
+      '<button class="btn" id="duGo">⚔️ A competir</button><button class="btn ghost" id="duNo">Hoy no: jugar una jornada normal</button>', () => { $('duGo').addEventListener('click', () => { A.play('click'); closeEpic(); then(); }); $('duNo').addEventListener('click', () => { A.play('click'); closeEpic(); duelLater = true; startDay(false, true); }); });
   }
   function showDuelEnd(res, after) {
     const id = brId(), rv = res.rv; epicCtx = { id };
@@ -1055,7 +1057,7 @@ GS.Game = (function () {
     // paciencia (en el turno tranquilo no baja)
     if (!day.relaxed) {
       for (const cu of day.customers.slice()) {
-        { const w8 = cu.st === 'waitM' || cu.st === 'waitC' || cu.st === 'inM' || cu.st === 'inC'; cu.person.gaze(w8 ? W.player() : null); if (w8 && !cu.story) cu.person.mood(cu.pat > 0.55 ? 'normal' : cu.pat > 0.28 ? 'impatient' : 'angry'); }      /* miran a quien los atiende, y la cara acompaña la paciencia */
+        { const w8 = cu.st === 'waitM' || cu.st === 'waitC' || cu.st === 'inM' || cu.st === 'inC'; cu.person.gaze(w8 && !cu.rv ? W.player() : null);      /* el rival le habla a la cámara: no gira la cabeza hacia el mostrador */ if (w8 && !cu.story) cu.person.mood(cu.pat > 0.55 ? 'normal' : cu.pat > 0.28 ? 'impatient' : 'angry'); }      /* miran a quien los atiende, y la cara acompaña la paciencia */
         if (cu.story) continue;                       // las visitas con historia esperan sin apuro
         if (cu.st === 'waitC') cu.wc = (cu.wc || 0) + dt;
         if (cu.st === 'waitM' || cu.st === 'waitC') cu.pat -= dt / (cfg.patienceWait * patMult());

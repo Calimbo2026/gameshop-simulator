@@ -344,3 +344,10 @@ Tres juegos en `src/arcade.js`, que se ganan al terminar las jornadas 3, 8 y 14 
 ## v0.80.0
 - Día de inducción antes de la jornada 1 (`GS.INDUC`, `startDay(true, true, true)`, `inducWave`, `inducEnd`): una estación por tanda, sin reloj ni quejas, con barras de cine, cartel de estación, música de entrenamiento (`train`) y el Dueño de entrenador. El cliente es un muñeco de paja (`look.dummy`). Se puede saltear con "Ya sé jugar". Se guarda en `Store.induc`.
 - `GS.UNLOCKS` queda vacío: desde la jornada 1 están todas las tareas, y las jornadas arrancan con pocos clientes y suman una tarea por jornada.
+
+## v0.81.0
+- Gorros (lana, navideño, ruso) echados hacia atrás: ya no tapan la cara desde la cámara del juego. Bufanda baja. Ojos y cejas siempre en tinta oscura salvo pantalón casi negro.
+- El rival habla de frente a la cámara (antes giraba la cabeza hacia el mostrador).
+- Día de competencia: "Hoy no" juega una jornada normal en vez de volver a preguntar (`duelLater`).
+- Final: botón para abrir la sucursal de Malvinas. Ya no se elige encargado al viajar.
+- Parabrisas de la camioneta derecho. Armado de PC con muesca amarilla de orientación. `font-synthesis: none` para que los títulos no salgan empastados.
